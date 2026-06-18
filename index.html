@@ -566,7 +566,6 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
         <div class="eyebrow">Balance (Cashflow)</div>
         <div class="figure" id="homeBalanceFig">$0</div>
         <div class="underline"></div>
-        <div class="sub" id="homeBalanceSub">Closed entries only</div>
       </div>
 
       <div class="summary-grid">
@@ -649,8 +648,8 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
 
       <!-- Period quick-select -->
       <div class="segmented" id="txPeriodSeg" style="margin-bottom:8px;">
-        <button class="active" data-period="all">All</button>
-        <button data-period="thismonth">This Month</button>
+        <button data-period="all">All</button>
+        <button class="active" data-period="thismonth">This Month</button>
         <button data-period="lastmonth">Last Month</button>
         <button data-period="thisyear">This Year</button>
         <button data-period="custom">Custom</button>
@@ -670,8 +669,8 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
 
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:0;">
         <div class="segmented" id="txFilterSeg" style="flex:1;">
-          <button class="active" data-filter="Both">All</button>
-          <button data-filter="Open">Open</button>
+          <button data-filter="Both">All</button>
+          <button class="active" data-filter="Open">Open</button>
           <button data-filter="Closed">Closed</button>
         </div>
         <button class="icon-btn" id="txSortBtn" title="Sort order" style="flex-shrink:0;">
@@ -684,9 +683,16 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
     <!-- ============ DEBTS VIEW ============ -->
     <section class="view" id="view-debts">
       <h2 class="card-title" style="margin:10px 0 14px;">Debts</h2>
+      <div class="search-bar">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="debtSearchInput" placeholder="Search by subcategory, account, notes...">
+        <button id="debtSearchClear" class="search-clear" style="display:none;" title="Clear search">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
       <div class="segmented" id="debtFilterSeg">
-        <button class="active" data-filter="Both">All</button>
-        <button data-filter="Open">Open</button>
+        <button data-filter="Both">All</button>
+        <button class="active" data-filter="Open">Open</button>
         <button data-filter="Closed">Closed</button>
       </div>
       <div class="segmented" id="debtTypeFilterSeg" style="margin-top:8px;flex-wrap:wrap;">
@@ -723,6 +729,16 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
           <div class="label">Cumulative Invested (all time to month)</div>
           <div class="value gold" id="moneyCardCumulative">$0</div>
         </div>
+        <div class="summary-card">
+          <div class="label">Capital (all time)</div>
+          <div class="value" id="moneyCardCapital">$0</div>
+          <div class="muted" style="font-size:11px;margin-top:2px;">Gains / Losses</div>
+        </div>
+        <div class="summary-card">
+          <div class="label">Net Position</div>
+          <div class="value" id="moneyCardNetPosition">$0</div>
+          <div id="moneyCardVariation" style="font-size:12px;font-weight:700;margin-top:2px;"></div>
+        </div>
       </div>
 
       <!-- Progress bar: invested vs planned -->
@@ -751,7 +767,7 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
 
       <!-- All-time breakdown by subcategory -->
       <div class="card">
-        <div class="card-title">All-Time Invested by Subcategory</div>
+        <div class="card-title">All-Time by Subcategory</div>
         <div id="moneyAllTimeBreakdown"></div>
       </div>
     </section>
@@ -846,24 +862,11 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
   <div class="modal-overlay" id="settingsModalOverlay">
     <div class="modal">
       <div class="modal-header">
-        <h3>Data</h3>
+        <h3>Management</h3>
         <button class="icon-btn" id="settingsModalClose">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
       </div>
-      <p class="muted">Import a CSV of entries, export your current data, or download a blank template to fill in.</p>
-      <div class="csv-row">
-        <button class="btn btn-secondary" id="downloadTemplateBtn">Download Template</button>
-        <button class="btn btn-secondary" id="exportCsvBtn">Export CSV</button>
-      </div>
-      <div class="csv-row">
-        <button class="btn btn-primary" id="importCsvBtn" style="flex:1;">Import CSV</button>
-      </div>
-      <input type="file" id="csvFileInput" class="hidden-input" accept=".csv">
-
-      <div class="section-title">Debt Accounts</div>
-      <p class="muted">Add specific accounts under each debt type (e.g. card names) so you can tag entries with them.</p>
-      <div id="debtAccountsManager"></div>
 
       <div class="section-title">Subcategories</div>
       <p class="muted">Add, rename, or remove subcategories for each category. Renaming or removing updates existing entries.</p>
@@ -874,6 +877,21 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
         <button data-cat="Capital">Capital</button>
       </div>
       <div id="subcategoryManager" style="margin-top:10px;"></div>
+
+      <div class="section-title">Debt Accounts</div>
+      <p class="muted">Add specific accounts under each debt type (e.g. card names) so you can tag entries with them.</p>
+      <div id="debtAccountsManager"></div>
+
+      <div class="section-title">Data</div>
+      <p class="muted">Import a CSV of entries, export your current data, or download a blank template to fill in.</p>
+      <div class="csv-row">
+        <button class="btn btn-secondary" id="downloadTemplateBtn">Download Template</button>
+        <button class="btn btn-secondary" id="exportCsvBtn">Export CSV</button>
+      </div>
+      <div class="csv-row">
+        <button class="btn btn-primary" id="importCsvBtn" style="flex:1;">Import CSV</button>
+      </div>
+      <input type="file" id="csvFileInput" class="hidden-input" accept=".csv">
 
       <div class="section-title">Reset</div>
       <div class="csv-row">
@@ -967,14 +985,15 @@ let homeDate = new Date(2026, 5, 1); // June 2026 reference "today"
 let moneyMonthDate = new Date(homeDate);
 
 let donutCategory = "Income";
-let txFilter = "Both";
+let txFilter = "Open";
 let txSearchQuery = "";
 let txSortAsc = true; // true = oldest first, false = newest first
-let txPeriod = "all";   // all | thismonth | lastmonth | thisyear | custom
+let txPeriod = "thismonth";   // all | thismonth | lastmonth | thisyear | custom
 let txDateFrom = "";    // YYYY-MM-DD, used when txPeriod === "custom"
 let txDateTo = "";      // YYYY-MM-DD, used when txPeriod === "custom"
-let debtFilter = "Both";
+let debtFilter = "Open";
 let debtTypeFilter = "All";
+let debtSearchQuery = "";
 
 let detailCategory = "Income";
 let detailSubcategory = CATEGORY_MAP.Income[0];
@@ -1260,6 +1279,28 @@ function renderMoney(){
   document.getElementById('moneyCardPlanned').textContent = fmtMoney(planned);
   document.getElementById('moneyCardCumulative').textContent = fmtMoney(cumulative);
 
+  // Capital all-time = sum of all Capital entries (gains/losses)
+  const capitalAllTime = entries
+    .filter(e => e.category === 'Capital')
+    .reduce((a, e) => a + Number(e.amount), 0);
+
+  // Net Position = cumulative invested + all-time capital
+  const netPosition = cumulative + capitalAllTime;
+
+  const capitalEl = document.getElementById('moneyCardCapital');
+  capitalEl.textContent = fmtMoney(capitalAllTime);
+  capitalEl.className = 'value ' + (capitalAllTime >= 0 ? 'pos' : 'neg');
+
+  const netEl = document.getElementById('moneyCardNetPosition');
+  netEl.textContent = fmtMoney(netPosition);
+  netEl.className = 'value ' + (netPosition >= 0 ? 'pos' : 'neg');
+
+  const variation = cumulative !== 0 ? (capitalAllTime / cumulative) * 100 : 0;
+  const varEl = document.getElementById('moneyCardVariation');
+  const varSign = variation >= 0 ? '+' : '';
+  varEl.textContent = varSign + variation.toFixed(2) + '% vs invested';
+  varEl.style.color = variation >= 0 ? 'var(--sage)' : 'var(--terracotta)';
+
   // Progress bar: invested vs planned
   const pct = planned > 0 ? Math.min(100, Math.max(0, (invested / planned) * 100)) : 0;
   document.getElementById('moneyProgressFill').style.width = pct.toFixed(1) + '%';
@@ -1317,18 +1358,21 @@ function renderMoneyLineChart(){
   const ctx = document.getElementById('moneyLineChart');
   if(moneyLineChartInstance){ moneyLineChartInstance.destroy(); }
 
-  // Build 12 months starting from selected month
   const labels = [];
-  const investedData = [];   // cumulative Closed
-  const plannedData = [];    // cumulative All (projected)
+  const investedData = [];   // cumulative Closed Investment
+  const plannedData  = [];   // cumulative All Investment (projected)
+  const netData      = [];   // cumulative (Closed Investment + Capital) month over month
 
-  // Start cumulative from all closed entries BEFORE the selected month
-  const startCutoff = new Date(moneyMonthDate.getFullYear(), moneyMonthDate.getMonth(), 0); // day before month starts
+  // Prior cumulative base: everything before the selected month
+  const startCutoff = new Date(moneyMonthDate.getFullYear(), moneyMonthDate.getMonth(), 0);
   let cumulativeInvested = entries
     .filter(e => e.category === 'Investment' && e.status === 'Closed' && parseLocalDate(e.date) <= startCutoff)
     .reduce((a, e) => a + Number(e.amount), 0);
   let cumulativePlanned = entries
     .filter(e => e.category === 'Investment' && parseLocalDate(e.date) <= startCutoff)
+    .reduce((a, e) => a + Number(e.amount), 0);
+  let cumulativeNet = cumulativeInvested + entries
+    .filter(e => e.category === 'Capital' && parseLocalDate(e.date) <= startCutoff)
     .reduce((a, e) => a + Number(e.amount), 0);
 
   for(let i = 0; i < 12; i++){
@@ -1337,13 +1381,16 @@ function renderMoneyLineChart(){
 
     const monthInvested = entries.filter(e => e.category === 'Investment' && e.status === 'Closed' && inM(e.date)).reduce((a, e) => a + Number(e.amount), 0);
     const monthPlanned  = entries.filter(e => e.category === 'Investment' && inM(e.date)).reduce((a, e) => a + Number(e.amount), 0);
+    const monthCapital  = entries.filter(e => e.category === 'Capital' && inM(e.date)).reduce((a, e) => a + Number(e.amount), 0);
 
     cumulativeInvested += monthInvested;
     cumulativePlanned  += monthPlanned;
+    cumulativeNet      += monthInvested + monthCapital; // each month: add newly invested + that month's capital
 
     labels.push(d.toLocaleString(undefined, {month:'short', year:'2-digit'}));
     investedData.push(cumulativeInvested);
     plannedData.push(cumulativePlanned);
+    netData.push(cumulativeNet);
   }
 
   moneyLineChartInstance = new Chart(ctx, {
@@ -1358,9 +1405,9 @@ function renderMoneyLineChart(){
           backgroundColor: 'rgba(212,162,78,0.12)',
           fill: true,
           tension: 0.35,
-          pointRadius: 3,
+          pointRadius: 0,
           pointHoverRadius: 5,
-          pointBackgroundColor: '#D4A24E',
+          pointHoverBackgroundColor: '#D4A24E',
           borderWidth: 2
         },
         {
@@ -1370,11 +1417,23 @@ function renderMoneyLineChart(){
           backgroundColor: 'transparent',
           fill: false,
           tension: 0.35,
-          pointRadius: 3,
+          pointRadius: 0,
           pointHoverRadius: 5,
-          pointBackgroundColor: '#5C6B7A',
+          pointHoverBackgroundColor: '#5C6B7A',
           borderWidth: 2,
           borderDash: [5, 4]
+        },
+        {
+          label: 'Net (Invested + Capital)',
+          data: netData,
+          borderColor: '#3E7C59',
+          backgroundColor: 'transparent',
+          fill: false,
+          tension: 0.35,
+          pointRadius: 0,
+          pointHoverRadius: 5,
+          pointHoverBackgroundColor: '#3E7C59',
+          borderWidth: 2
         }
       ]
     },
@@ -1407,55 +1466,74 @@ function renderMoneyAllTimeBreakdown(){
   const subcats = CATEGORY_MAP.Investment;
 
   const rows = subcats.map((sub, i) => {
-    const total = entries
+    const invested = entries
       .filter(e => e.category === 'Investment' && e.status === 'Closed' && e.subcategory === sub)
       .reduce((a, e) => a + Number(e.amount), 0);
-    return {sub, total, i};
-  }).filter(r => r.total !== 0)
-    .sort((a, b) => b.total - a.total);
+    const capital = entries
+      .filter(e => e.category === 'Capital' && e.subcategory === sub)
+      .reduce((a, e) => a + Number(e.amount), 0);
+    return {sub, invested, capital, i};
+  }).filter(r => r.invested !== 0 || r.capital !== 0)
+    .sort((a, b) => b.invested - a.invested);
 
   if(rows.length === 0){
     container.innerHTML = `<div class="empty-state" style="padding:20px;"><span class="muted">No closed investment entries yet.</span></div>`;
     return;
   }
 
-  const grandTotal = rows.reduce((a, r) => a + r.total, 0);
+  const grandInvested = rows.reduce((a, r) => a + r.invested, 0);
+  const grandCapital  = rows.reduce((a, r) => a + r.capital,  0);
+
+  // Column headers
+  const header = `
+    <div style="display:flex;justify-content:space-between;padding:4px 2px 8px;border-bottom:1px solid var(--line);margin-bottom:2px;">
+      <span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--slate);flex:1;">Subcategory</span>
+      <span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--slate);min-width:80px;text-align:right;">Invested</span>
+      <span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--slate);min-width:80px;text-align:right;">Capital</span>
+    </div>`;
 
   const html = rows.map(r => {
-    const alloc = grandTotal !== 0 ? (r.total / grandTotal * 100) : 0;
-    const barWidth = grandTotal !== 0 ? Math.max(0, Math.min(100, (r.total / grandTotal * 100))) : 0;
+    const alloc = grandInvested !== 0 ? (r.invested / grandInvested * 100).toFixed(1) : '0.0';
+    const barWidth = grandInvested !== 0 ? Math.max(0, Math.min(100, (r.invested / grandInvested * 100))) : 0;
+    const capColor = r.capital > 0 ? 'color:#3E7C59;' : r.capital < 0 ? 'color:#C1583F;' : 'color:var(--slate);';
     return `
-      <div class="breakdown-row">
+      <div class="breakdown-row" style="align-items:flex-start;">
         <div class="breakdown-left" style="flex:1;min-width:0;">
-          <div class="breakdown-swatch" style="background:${PALETTE[r.i % PALETTE.length]};flex-shrink:0;"></div>
+          <div class="breakdown-swatch" style="background:${PALETTE[r.i % PALETTE.length]};flex-shrink:0;margin-top:3px;"></div>
           <div style="flex:1;min-width:0;">
             <div class="breakdown-name">${r.sub}</div>
-            <div class="progress-track" style="height:4px;margin-top:5px;">
+            <div class="muted" style="font-size:11px;">${alloc}% of total</div>
+            <div class="progress-track" style="height:4px;margin-top:4px;width:80px;">
               <div class="progress-fill" style="width:${barWidth.toFixed(1)}%;height:100%;background:${PALETTE[r.i % PALETTE.length]};"></div>
             </div>
           </div>
         </div>
-        <div class="breakdown-right" style="flex-shrink:0;margin-left:12px;">
-          <div class="breakdown-amt" style="color:${PALETTE[r.i % PALETTE.length]}">${fmtMoney(r.total)}</div>
-          <div class="breakdown-pct">${alloc.toFixed(1)}%</div>
+        <div style="min-width:80px;text-align:right;flex-shrink:0;">
+          <div class="breakdown-amt" style="color:${PALETTE[r.i % PALETTE.length]}">${fmtMoney(r.invested)}</div>
+        </div>
+        <div style="min-width:80px;text-align:right;flex-shrink:0;">
+          <div class="breakdown-amt" style="${capColor}">${r.capital !== 0 ? (r.capital > 0 ? '+' : '') + fmtMoney(r.capital) : '—'}</div>
         </div>
       </div>`;
   }).join('');
 
   // Total row
+  const capTotalColor = grandCapital > 0 ? 'color:#3E7C59;' : grandCapital < 0 ? 'color:#C1583F;' : 'color:var(--slate);';
   const totalRow = `
     <div class="breakdown-row" style="border-top:2px solid var(--line);margin-top:4px;padding-top:10px;">
-      <div class="breakdown-left">
+      <div class="breakdown-left" style="flex:1;">
         <div class="breakdown-swatch" style="background:transparent;"></div>
         <div class="breakdown-name" style="font-weight:700;">Total</div>
       </div>
-      <div class="breakdown-right">
-        <div class="breakdown-amt gold">${fmtMoney(grandTotal)}</div>
-        <div class="breakdown-pct">100%</div>
+      <div style="min-width:80px;text-align:right;flex-shrink:0;">
+        <div class="breakdown-amt gold">${fmtMoney(grandInvested)}</div>
+      </div>
+      <div style="min-width:80px;text-align:right;flex-shrink:0;">
+        <div class="breakdown-amt" style="${capTotalColor}">${grandCapital !== 0 ? (grandCapital > 0 ? '+' : '') + fmtMoney(grandCapital) : '—'}</div>
       </div>
     </div>`;
 
-  container.innerHTML = html + totalRow;
+  container.innerHTML = header + html + totalRow;
 }
 
 function switchView(viewName){
@@ -1578,6 +1656,22 @@ txSearchClear.addEventListener('click', ()=>{
   txSearchClear.style.display = 'none';
   renderTransactions();
   txSearchInput.focus();
+});
+
+/* Debts search */
+const debtSearchInput = document.getElementById('debtSearchInput');
+const debtSearchClear = document.getElementById('debtSearchClear');
+debtSearchInput.addEventListener('input', (e)=>{
+  debtSearchQuery = e.target.value;
+  debtSearchClear.style.display = debtSearchQuery ? 'flex' : 'none';
+  renderDebts();
+});
+debtSearchClear.addEventListener('click', ()=>{
+  debtSearchQuery = '';
+  debtSearchInput.value = '';
+  debtSearchClear.style.display = 'none';
+  renderDebts();
+  debtSearchInput.focus();
 });
 
 /* Debts filter */
@@ -2273,6 +2367,14 @@ function renderDebts(){
     list = list.filter(e=> (e.type || 'Other') === debtTypeFilter);
   }
 
+  if(debtSearchQuery.trim() !== ''){
+    const q = debtSearchQuery.trim().toLowerCase();
+    list = list.filter(e=>{
+      const fields = [e.subcategory, e.notes, e.type, e.account, String(e.amount), e.date];
+      return fields.some(f=> f && String(f).toLowerCase().includes(q));
+    });
+  }
+
   const groups = {};
   types.forEach(t=>groups[t]=[]);
   list.forEach(e=>{
@@ -2566,7 +2668,7 @@ function renderLineChart(){
         backgroundColor: 'rgba(212,162,78,0.15)',
         fill: true,
         tension: 0.35,
-        pointRadius: 3,
+        pointRadius: 0,
         pointHoverRadius: 5,
         pointBackgroundColor: '#D4A24E',
         pointHoverBackgroundColor: '#D4A24E',
@@ -2602,7 +2704,7 @@ function renderLineChart(){
       },
       scales: {
         x: {grid:{display:false}, ticks:{maxTicksLimit:8, font:{size:10}, color:'#5C6B7A'}},
-        y: {grid:{color:'#E3DFD6'}, ticks:{font:{size:10}, color:'#5C6B7A', callback:(v)=>'$'+v}}
+        y: {grid:{color:'#E3DFD6'}, ticks:{display:false}}
       }
     }
   });
