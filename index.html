@@ -2689,6 +2689,9 @@ function attachEntryRowHandlers(container){
   });
 }
 function renderHome(){
+  loadState().then(() => {
+  renderHome();
+});
   document.getElementById('homeMonthLabel').textContent = fmtMonthYear(homeDate);
 
   const proj = computeMonthFinancials(homeDate, false);
