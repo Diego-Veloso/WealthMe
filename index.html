@@ -2399,16 +2399,18 @@ document.getElementById('resetDataBtn').addEventListener('click', ()=>{
    ========================================================= */
 
 
-function init(){
-  const hadStoredData = loadState();
-  if(!hadStoredData){
-    entries = buildSampleData();
-    saveState();
-  }
-  populateEntryCategorySelectors('Income', CATEGORY_MAP.Income[0]);
-  populateDetailSelectors();
-  switchView('home');
+async function initApp(){
+
+  await supabaseClient.auth.signInWithOtp({
+    email: prompt("Enter email to log in")
+  });
+
+  await loadState();
+
+  renderCurrentView('home');
 }
+
+initApp();
 
 init();
 
