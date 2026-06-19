@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link rel="apple-touch-icon" href="icon.png">
 <meta charset="UTF-8">
+<link rel="apple-touch-icon" href="icon.png">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Wealth.Me</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
@@ -641,7 +641,7 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
     <section class="view" id="view-detail">
       <div class="month-nav" style="justify-content:flex-start;gap:10px;">
         <button id="detailBack">&#8249;</button>
-        <div class="label" style="text-align:left;min-width:auto;">Detail</div>
+        <div class="label" id="detailBackLabel" style="text-align:left;min-width:auto;">Detail</div>
       </div>
       <div class="card">
         <div class="two-col">
@@ -1973,7 +1973,7 @@ document.getElementById('csvTextOpenBtn').addEventListener('click', ()=>{
     const win = window.open('data:text/csv;charset=utf-8,' + encoded, '_blank');
     if(!win){ showToast('Pop-up blocked — copy the text instead'); }
   }catch(err){
-    showToast('Could not open new tab — copy the text instead');
+    showToast(t('toast_popup_blocked'));
   }
 });
 
@@ -1987,7 +1987,7 @@ document.getElementById('downloadTemplateBtn').addEventListener('click', ()=>{
     id:'', date:'2026-06-01', category:'Income', subcategory:'Salary & Paycheck',
     amount:1000, status:'Open', notes:'Example entry', type:'', account:''
   }];
-  downloadCsv(entriesToCsv(sample), 'wealthme_template.csv', 'CSV Template');
+  downloadCsv(entriesToCsv(sample), 'wealthme_template.csv', t('csv_title'));
 });
 
 document.getElementById('exportCsvBtn').addEventListener('click', ()=>{
@@ -2117,7 +2117,7 @@ function renderDebtAccountsManager(){
     html += `
       <div class="debt-type-group">
         <div class="type-label">${type}</div>
-        <div class="account-chip-list">${chips || '<span class="muted">No accounts added yet.</span>'}</div>
+        <div class="account-chip-list">${chips || `<span class="muted">No accounts added yet.</span>`}</div>
         <div class="account-add-row">
           <input type="text" placeholder="e.g. Tangerine 7177" data-type="${type}" class="new-account-input">
           <button type="button" data-type="${type}" class="add-account-btn">Add</button>
@@ -2192,7 +2192,7 @@ function renderSubcategoryManager(){
   `).join('');
 
   container.innerHTML = `
-    <div class="account-chip-list">${chips || '<span class="muted">No subcategories yet.</span>'}</div>
+    <div class="account-chip-list">${chips || `<span class="muted">No subcategories yet.</span>`}</div>
     <div class="account-add-row">
       <input type="text" placeholder="New subcategory name" id="newSubcatInput">
       <button type="button" id="addSubcatBtn">Add</button>
@@ -2243,7 +2243,7 @@ function startSubcategoryRename(chipEl, oldName){
     const newName = input.value.trim();
     if(!newName || newName === oldName){ renderSubcategoryManager(); return; }
     if(CATEGORY_MAP[cat].some(s=>s.toLowerCase() === newName.toLowerCase() && s.toLowerCase() !== oldName.toLowerCase())){
-      showToast('That subcategory already exists');
+      showToast(t('toast_subcat_exists'));
       return;
     }
     renameSubcategory(oldName, newName);
@@ -2366,6 +2366,8 @@ document.getElementById('resetDataBtn').addEventListener('click', ()=>{
 /* =========================================================
    APP INITIALIZATION
    ========================================================= */
+
+
 function init(){
   const hadStoredData = loadState();
   if(!hadStoredData){
@@ -2416,7 +2418,7 @@ function renderDebts(){
     const rows = groups[type] || [];
     if(rows.length === 0) return;
     anyData = true;
-    rows.sort((a,b)=> new Date(b.date) - new Date(a.date));
+    rows.sort((a,b)=> parseLocalDate(a.date) - parseLocalDate(b.date));
     const total = rows.reduce((a,e)=>a+Number(e.amount),0);
     const openTotal = rows.filter(e=>e.status==='Open').reduce((a,e)=>a+Number(e.amount),0);
 
