@@ -632,8 +632,8 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
         <div class="card-title">
           <span>Breakdown</span>
           <div class="segmented" id="donutSeg" style="width:auto;">
-            <button class="active" data-cat="Income">Income</button>
-            <button data-cat="Expense">Expense</button>
+            <button data-cat="Income">Income</button>
+            <button class="active" data-cat="Expense">Expense</button>
             <button data-cat="Investment">Investment</button>
           </div>
         </div>
@@ -724,8 +724,8 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
         <button data-filter="Closed">Closed</button>
       </div>
       <div class="segmented" id="debtTypeFilterSeg" style="margin-top:8px;flex-wrap:wrap;">
-        <button class="active" data-type="All" style="font-size:11px;min-width:64px;">All Types</button>
-        <button data-type="Credit Card" style="font-size:11px;min-width:64px;">Credit Card</button>
+        <button data-type="All" style="font-size:11px;min-width:64px;">All Types</button>
+        <button class="active" data-type="Credit Card" style="font-size:11px;min-width:64px;">Credit Card</button>
         <button data-type="Financing" style="font-size:11px;min-width:64px;">Financing</button>
         <button data-type="Mortgage" style="font-size:11px;min-width:64px;">Mortgage</button>
         <button data-type="Other" style="font-size:11px;min-width:64px;">Other</button>
@@ -1063,7 +1063,7 @@ let nextId = 1;
 let homeDate = new Date(2026, 5, 1); // June 2026 reference "today"
 let moneyMonthDate = new Date(homeDate);
 
-let donutCategory = "Income";
+let donutCategory = "Expense";
 let txFilter = "Open";
 let txSearchQuery = "";
 let txSortAsc = true; // true = oldest first, false = newest first
@@ -1071,7 +1071,7 @@ let txPeriod = "thismonth";   // all | thismonth | lastmonth | thisyear | custom
 let txDateFrom = "";    // YYYY-MM-DD, used when txPeriod === "custom"
 let txDateTo = "";      // YYYY-MM-DD, used when txPeriod === "custom"
 let debtFilter = "Open";
-let debtTypeFilter = "All";
+let debtTypeFilter = "Credit Card";
 let debtSearchQuery = "";
 
 let detailCategory = "Income";
@@ -2794,7 +2794,19 @@ function renderLineChart(){
         pointHoverBackgroundColor: '#D4A24E',
         pointHoverBorderColor: '#0F1B2D',
         pointHoverBorderWidth: 2,
-        borderWidth: 2
+        borderWidth: 2,
+        segment: {
+          borderColor: (ctx) => {
+            const y0 = ctx.p0.parsed.y;
+            const y1 = ctx.p1.parsed.y;
+            return (y0 < 0 || y1 < 0) ? '#C1583F' : '#0F1B2D';
+          },
+          backgroundColor: (ctx) => {
+            const y0 = ctx.p0.parsed.y;
+            const y1 = ctx.p1.parsed.y;
+            return (y0 < 0 || y1 < 0) ? 'rgba(193,88,63,0.12)' : 'rgba(212,162,78,0.15)';
+          }
+        }
       }]
     },
     options: {
