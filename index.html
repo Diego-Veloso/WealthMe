@@ -1,6 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  const supabaseUrl = "https://smimdkiruxltsermunit.supabase.co";
+const supabaseKey = "sb_publishable_CKENEvsvifuXNkk4gmiaGg_c3ifMFeR";
+const supabaseClient = supabase.createClient(
+  supabaseUrl,
+  supabaseKey
+);
 <meta charset="UTF-8">
 <link rel="apple-touch-icon" href="icon.png">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
@@ -1079,38 +1086,62 @@ function isBeforeOrInYear(dateStr, refDate){
 }
 
 /* ---------- PERSISTENCE ---------- */
-function saveState(){
+async function saveState() {
   invalidateFinancialsCache();
-  try{
-    localStorage.setItem('wealthme_entries', JSON.stringify(entries));
-    localStorage.setItem('wealthme_nextid', String(nextId));
-    localStorage.setItem('wealthme_settings', JSON.stringify(SETTINGS));
-    localStorage.setItem('wealthme_debtaccounts', JSON.stringify(DEBT_ACCOUNTS));
-    localStorage.setItem('wealthme_categorymap', JSON.stringify(CATEGORY_MAP));
-  }catch(e){ /* ignore */ }
+
+  const { data: { user } } =
+    await supabaseClient.auth.getUser();
+
+  if (!user) return;
+
+  const payload = {
+    entries,
+    nextId,
+    SETTINGS,
+    DEBT_ACCOUNTS,
+    CATEGORY_MAP
+  };
+
+  await supabaseClient
+    .from("user_data")
+    .upsert({
+      user_id: user.id,
+      data: payload
+    });
 }
-function loadState(){
-  try{
-    const e = localStorage.getItem('wealthme_entries');
-    const n = localStorage.getItem('wealthme_nextid');
-    const s = localStorage.getItem('wealthme_settings');
-    const da = localStorage.getItem('wealthme_debtaccounts');
-    const cm = localStorage.getItem('wealthme_categorymap');
-    if(e){ entries = JSON.parse(e); }
-    if(n){ nextId = parseInt(n,10); }
-    if(s){ SETTINGS = Object.assign(SETTINGS, JSON.parse(s)); }
-    if(da){
-      const parsed = JSON.parse(da);
-      DEBT_TYPES.forEach(t=>{ DEBT_ACCOUNTS[t] = Array.isArray(parsed[t]) ? parsed[t] : []; });
-    }
-    if(cm){
-      const parsed = JSON.parse(cm);
-      Object.keys(CATEGORY_MAP).forEach(c=>{
-        if(Array.isArray(parsed[c]) && parsed[c].length > 0){ CATEGORY_MAP[c] = parsed[c]; }
-      });
-    }
-    return !!e;
-  }catch(err){ return false; }
+async function loadState() {
+  try {
+
+    const { data: { user } } =
+      await supabaseClient.auth.getUser();
+
+    if (!user) return;
+
+    const { data } = await supabaseClient
+      .from("user_data")
+      .select("data")
+      .eq("user_id", user.id)
+      .single();
+
+    if (!data?.data) return;
+
+    const saved = data.data;
+
+    entries = saved.entries || [];
+    nextId = saved.nextId || 1;
+
+    if (saved.SETTINGS)
+      SETTINGS = Object.assign(SETTINGS, saved.SETTINGS);
+
+    if (saved.DEBT_ACCOUNTS)
+      DEBT_ACCOUNTS = saved.DEBT_ACCOUNTS;
+
+    if (saved.CATEGORY_MAP)
+      CATEGORY_MAP = saved.CATEGORY_MAP;
+
+  } catch (e) {
+    console.error(e);
+  }
 }
 
 /* ---------- SAMPLE DATA ---------- */
