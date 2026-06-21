@@ -2121,6 +2121,7 @@ document.getElementById('entrySaveBtn').addEventListener('click', ()=>{
   saveState();
   closeEntryModal();
   renderCurrentView(getActiveViewName());
+  autoSync();
 });
 
 document.getElementById('entryDeleteBtn').addEventListener('click', ()=>{
@@ -2131,6 +2132,7 @@ document.getElementById('entryDeleteBtn').addEventListener('click', ()=>{
   closeEntryModal();
   showToast('Entry deleted');
   renderCurrentView(getActiveViewName());
+  autoSync();
 });
 
 document.getElementById('addFab').addEventListener('click', ()=> openEntryModal(null));
@@ -2356,6 +2358,29 @@ function updateSyncBadge(){
   // Show a small cloud icon in topbar if sync is configured
   const badge = document.getElementById('syncBadge');
   if(badge) badge.style.display = syncUrl ? 'flex' : 'none';
+}
+
+// Silent background auto-sync — fires after every entry save/delete
+async function autoSync(){
+  if(!syncUrl) return;
+  const badge = document.getElementById('syncBadge');
+  if(badge){ badge.style.background = 'var(--gold)'; badge.title = 'Syncing…'; }
+  try{
+    const payload = JSON.stringify(entries);
+    const CHUNK_SIZE = 2000;
+    const chunks = [];
+    for(let i = 0; i < payload.length; i += CHUNK_SIZE){
+      chunks.push(payload.slice(i, i + CHUNK_SIZE));
+    }
+    for(let i = 0; i < chunks.length; i++){
+      const url = `${syncUrl}?action=chunk&index=${i}&total=${chunks.length}&data=${encodeURIComponent(chunks[i])}`;
+      const res = await fetch(url);
+      await res.json();
+    }
+    if(badge){ badge.style.background = 'var(--sage)'; badge.title = 'Synced to Google Sheet'; }
+  }catch(err){
+    if(badge){ badge.style.background = 'var(--terracotta)'; badge.title = 'Auto-sync failed — tap Settings to push manually'; }
+  }
 }
 
 // Safari-safe fetch: uses no-cors for writes, regular fetch for reads
