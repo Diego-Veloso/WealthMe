@@ -1050,8 +1050,84 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
         </div>
       </div>
 
-    </div>
-  </div>
+      <div class="section-title" style="margin-top:16px;">☁️ Cloud Sync Setup (Google Sheets)</div>
+      <p class="muted" style="font-size:13px;margin-bottom:10px;">Connect to your own free Google Sheet to sync data across devices. Each person sets up their own — data is always private.</p>
+
+      <!-- Step 1 -->
+      <div class="accordion">
+        <div class="accordion-header" data-target="acc-gs1">
+          <span>Step 1 — Create a Google Sheet</span>
+          <svg class="accordion-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="accordion-body" id="acc-gs1">
+          <ol>
+            <li>Go to <strong>sheets.google.com</strong> and sign in with your Google account</li>
+            <li>Click the <strong>+ Blank</strong> button to create a new spreadsheet</li>
+            <li>Name it <strong>"WealthMe"</strong> (top left, click "Untitled spreadsheet")</li>
+          </ol>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="accordion">
+        <div class="accordion-header" data-target="acc-gs2">
+          <span>Step 2 — Add the Script</span>
+          <svg class="accordion-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="accordion-body" id="acc-gs2">
+          <ol>
+            <li>Inside your Google Sheet, click <strong>Extensions</strong> in the top menu</li>
+            <li>Click <strong>Apps Script</strong> — a new tab opens with a code editor</li>
+            <li>Delete all existing code in the editor (Ctrl+A then Delete)</li>
+            <li>Paste the <strong>WealthMe_AppScript.gs</strong> script (ask for it in the chat if needed)</li>
+            <li>Click the <strong>💾 Save</strong> icon (or Ctrl+S)</li>
+          </ol>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="accordion">
+        <div class="accordion-header" data-target="acc-gs3">
+          <span>Step 3 — Deploy as Web App</span>
+          <svg class="accordion-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="accordion-body" id="acc-gs3">
+          <ol>
+            <li>Click <strong>Deploy</strong> (top right) → <strong>New Deployment</strong></li>
+            <li>Click the gear icon ⚙️ next to "Select type" → choose <strong>Web App</strong></li>
+            <li>Set <strong>"Execute as"</strong> to <strong>Me</strong></li>
+            <li>Set <strong>"Who has access"</strong> to <strong>Anyone</strong></li>
+            <li>Click <strong>Deploy</strong></li>
+            <li>A permissions dialog will appear — click <strong>Authorize access</strong></li>
+            <li>Choose your Google account → click <strong>Advanced</strong> → <strong>Go to project (unsafe)</strong> → <strong>Allow</strong></li>
+            <li><strong>Copy the Web App URL</strong> shown at the end</li>
+          </ol>
+          <p class="muted" style="font-size:12px;margin-top:10px;margin-bottom:0;">⚠️ "Who has access" must be <strong>Anyone</strong> (not "Anyone with Google account") otherwise the sync won't work.</p>
+        </div>
+      </div>
+
+      <!-- Step 4 -->
+      <div class="accordion">
+        <div class="accordion-header" data-target="acc-gs4">
+          <span>Step 4 — Connect to Wealth.Me</span>
+          <svg class="accordion-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="accordion-body" id="acc-gs4">
+          <ol>
+            <li>Open Wealth.Me → tap the <strong>⚙️ Settings</strong> icon</li>
+            <li>Scroll to <strong>☁️ Cloud Sync</strong></li>
+            <li>Paste your Web App URL into the <strong>Script URL</strong> field</li>
+            <li>Tap <strong>Save URL</strong></li>
+            <li>Tap <strong>Test Connection</strong> — you should see "Connected! ✓"</li>
+            <li>Tap <strong>↑ Push to Sheet</strong> to upload your data</li>
+            <li>On other devices, repeat steps 1–5 of this section, then tap <strong>↓ Pull from Sheet</strong> to download your data</li>
+          </ol>
+          <p class="muted" style="font-size:12px;margin-top:10px;margin-bottom:0;">💡 Push saves your local data to the sheet. Pull loads the sheet data into this device. Always Push before switching devices.</p>
+        </div>
+      </div>
+
+    </div><!-- end modal -->
+  </div><!-- end helpModalOverlay -->
 
   <div class="toast" id="toast"></div>
 
