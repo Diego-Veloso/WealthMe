@@ -2239,26 +2239,32 @@ async function syncPush(){
   setSyncStatus('Pushing to Google Sheet…', 'var(--slate)');
   try{
     const payload = JSON.stringify(entries);
-    const CHUNK_SIZE = 5000; // safe URL length per chunk
+    const CHUNK_SIZE = 3000; // smaller chunks for safety
     const chunks = [];
     for(let i = 0; i < payload.length; i += CHUNK_SIZE){
       chunks.push(payload.slice(i, i + CHUNK_SIZE));
     }
     const total = chunks.length;
+    setSyncStatus(`Sending ${total} chunk(s) — ${entries.length} entries…`, 'var(--slate)');
 
-    // Send each chunk
     for(let i = 0; i < chunks.length; i++){
-      setSyncStatus(`Pushing… (${i+1}/${total})`, 'var(--slate)');
+      setSyncStatus(`Pushing… chunk ${i+1} of ${total}`, 'var(--slate)');
       const url = `${syncUrl}?action=chunk&index=${i}&total=${total}&data=${encodeURIComponent(chunks[i])}`;
-      const res = await fetch(url);
-      const json = await res.json();
+      let res, json;
+      try{
+        res = await fetch(url);
+        const text = await res.text();
+        try{ json = JSON.parse(text); }
+        catch(e){ setSyncStatus(`Chunk ${i+1} parse error: ${text.slice(0,120)}`, 'var(--terracotta)'); syncInProgress=false; return; }
+      } catch(fetchErr){
+        setSyncStatus(`Chunk ${i+1} fetch error: ${fetchErr.message}`, 'var(--terracotta)');
+        syncInProgress=false; return;
+      }
       if(json.error){
-        setSyncStatus('Push failed: ' + json.error, 'var(--terracotta)');
-        syncInProgress = false;
-        return;
+        setSyncStatus(`Chunk ${i+1} failed: ${json.error}`, 'var(--terracotta)');
+        syncInProgress=false; return;
       }
     }
-
     setSyncStatus(`✓ Pushed ${entries.length} entries to Sheet`, 'var(--sage)');
     showToast('Synced to Google Sheet');
   }catch(err){
