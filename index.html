@@ -679,6 +679,23 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
           </div>
         </div>
       </div>
+      <div class="segmented" id="detailPeriodSeg" style="margin-bottom:8px;">
+        <button class="active" data-period="all">All</button>
+        <button data-period="thismonth">This Month</button>
+        <button data-period="lastmonth">Last Month</button>
+        <button data-period="thisyear">This Year</button>
+        <button data-period="custom">Custom</button>
+      </div>
+      <div id="detailDateRangeRow" style="display:none;gap:8px;margin-bottom:8px;" class="two-col">
+        <div class="field" style="margin-bottom:0;">
+          <label>From</label>
+          <input type="date" id="detailDateFrom">
+        </div>
+        <div class="field" style="margin-bottom:0;">
+          <label>To</label>
+          <input type="date" id="detailDateTo">
+        </div>
+      </div>
       <div id="detailLists"></div>
     </section>
 
@@ -1232,6 +1249,9 @@ let debtSearchQuery = "";
 
 let detailCategory = "Income";
 let detailSubcategory = CATEGORY_MAP.Income[0];
+let detailPeriod = "all";
+let detailDateFrom = "";
+let detailDateTo = "";
 
 let lineChartInstance = null;
 let donutChartInstance = null;
@@ -1823,6 +1843,26 @@ document.getElementById('detailSubcatSel').addEventListener('change', (e)=>{
   renderDetail();
 });
 
+/* Detail period filter */
+document.getElementById('detailPeriodSeg').querySelectorAll('button').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.getElementById('detailPeriodSeg').querySelectorAll('button').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    detailPeriod = btn.dataset.period;
+    document.getElementById('detailDateRangeRow').style.display = detailPeriod === 'custom' ? 'grid' : 'none';
+    renderDetail();
+  });
+});
+document.getElementById('detailDateFrom').addEventListener('change', e=>{
+  detailDateFrom = e.target.value;
+  renderDetail();
+});
+document.getElementById('detailDateTo').addEventListener('change', e=>{
+  detailDateTo = e.target.value;
+  renderDetail();
+});
+
+
 /* Transactions period filter */
 document.getElementById('txPeriodSeg').querySelectorAll('button').forEach(btn=>{
   btn.addEventListener('click', ()=>{
@@ -1935,7 +1975,8 @@ function populateEntryCategorySelectors(selectedCategory, selectedSub){
   catSel.innerHTML = Object.keys(CATEGORY_MAP).map(c=>`<option value="${c}" ${c===selectedCategory?'selected':''}>${c}</option>`).join('');
 
   const subSel = document.getElementById('entrySubcategory');
-  subSel.innerHTML = CATEGORY_MAP[selectedCategory].map(s=>`<option value="${s}" ${s===selectedSub?'selected':''}>${s}</option>`).join('');
+  const sortedSubs = CATEGORY_MAP[selectedCategory].slice().sort((a,b)=>a.localeCompare(b));
+  subSel.innerHTML = sortedSubs.map(s=>`<option value="${s}" ${s===selectedSub?'selected':''}>${s}</option>`).join('');
 
   document.getElementById('entryTypeField').style.display = (selectedCategory === 'Expense') ? 'block' : 'none';
   if(selectedCategory === 'Expense'){
@@ -3081,22 +3122,72 @@ function openDetail(category, subcategory){
 }
 
 function renderDetail(){
-  const matching = entries.filter(e=>e.category===detailCategory && e.subcategory===detailSubcategory)
-    .sort((a,b)=> new Date(b.date) - new Date(a.date));
+  let matching = entries.filter(e=>e.category===detailCategory && e.subcategory===detailSubcategory);
 
-  const open = matching.filter(e=>e.status==='Open');
-  const closed = matching.filter(e=>e.status==='Closed');
-
-  function renderGroup(title, list){
-    if(list.length===0) return `<div class="group-header">${title}</div><div class="empty-state" style="padding:16px;"><span class="muted">No entries.</span></div>`;
-    const rows = list.map(e=>renderEntryRow(e)).join('');
-    return `<div class="group-header">${title}</div><ul class="entry-list">${rows}</ul>`;
+  // Period filter
+  if(detailPeriod !== 'all'){
+    const now = new Date();
+    let from, to;
+    if(detailPeriod === 'thismonth'){
+      from = new Date(now.getFullYear(), now.getMonth(), 1);
+      to   = new Date(now.getFullYear(), now.getMonth()+1, 0);
+    } else if(detailPeriod === 'lastmonth'){
+      from = new Date(now.getFullYear(), now.getMonth()-1, 1);
+      to   = new Date(now.getFullYear(), now.getMonth(), 0);
+    } else if(detailPeriod === 'thisyear'){
+      from = new Date(now.getFullYear(), 0, 1);
+      to   = new Date(now.getFullYear(), 11, 31);
+    } else if(detailPeriod === 'custom'){
+      from = detailDateFrom ? parseLocalDate(detailDateFrom) : null;
+      to   = detailDateTo   ? parseLocalDate(detailDateTo)   : null;
+    }
+    matching = matching.filter(e=>{
+      const d = parseLocalDate(e.date);
+      if(from && d < from) return false;
+      if(to   && d > to  ) return false;
+      return true;
+    });
   }
 
-  document.getElementById('detailLists').innerHTML = `
-    <div class="card">${renderGroup('Open', open)}</div>
-    <div class="card">${renderGroup('Closed', closed)}</div>
-  `;
+  // Sort newest first
+  matching.sort((a,b)=> parseLocalDate(b.date) - parseLocalDate(a.date));
+
+  if(matching.length === 0){
+    document.getElementById('detailLists').innerHTML = `<div class="empty-state"><div class="big">∅</div><span class="muted">No entries found.</span></div>`;
+    return;
+  }
+
+  // Group by month (YYYY-MM key)
+  const groups = {};
+  const groupOrder = [];
+  matching.forEach(e=>{
+    const d = parseLocalDate(e.date);
+    const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    if(!groups[key]){ groups[key] = []; groupOrder.push(key); }
+    groups[key].push(e);
+  });
+  // newest month first (already sorted that way from matching.sort above)
+
+  let html = '';
+  groupOrder.forEach(key=>{
+    const [y, m] = key.split('-');
+    const label = new Date(Number(y), Number(m)-1, 1).toLocaleString(undefined,{month:'long', year:'numeric'});
+    const total = groups[key].reduce((a,e)=>{
+      const amt = Number(e.amount);
+      if(e.category==='Income') return a + amt;
+      if(e.category==='Expense' || e.category==='Investment') return a - amt;
+      return a + amt; // Capital
+    }, 0);
+    const rows = groups[key].map(e=>renderEntryRow(e)).join('');
+    html += `
+      <div class="group-header" style="display:flex;justify-content:space-between;align-items:baseline;">
+        <span>${label}</span>
+        <span class="muted" style="font-size:12px;font-family:'Inter',sans-serif;font-weight:600;">${fmtMoney(Math.abs(total))}</span>
+      </div>
+      <div class="card"><ul class="entry-list">${rows}</ul></div>`;
+  });
+
+  document.getElementById('detailLists').innerHTML = html;
   attachEntryRowHandlers(document.getElementById('detailLists'));
 }
 
