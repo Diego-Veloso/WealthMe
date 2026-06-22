@@ -2382,7 +2382,7 @@ async function autoSync(){
   if(badge){ badge.style.background = 'var(--gold)'; badge.title = 'Syncing…'; }
   try{
     const payload = JSON.stringify(entries);
-    const CHUNK_SIZE = 2000;
+    const CHUNK_SIZE = 1500; // smaller chunks for reliability
     const chunks = [];
     for(let i = 0; i < payload.length; i += CHUNK_SIZE) chunks.push(payload.slice(i, i + CHUNK_SIZE));
     const sessionId = Date.now().toString(36);
@@ -2393,7 +2393,12 @@ async function autoSync(){
     }
     if(badge){ badge.style.background = 'var(--sage)'; badge.title = 'Synced to Google Sheet'; }
   }catch(err){
-    if(badge){ badge.style.background = 'var(--terracotta)'; badge.title = 'Auto-sync failed: ' + err.message; }
+    if(badge){
+      badge.style.background = 'var(--terracotta)';
+      badge.title = 'Sync failed: ' + err.message;
+    }
+    // Show the error visibly so user knows what went wrong
+    showToast('Sync failed: ' + err.message.slice(0, 60));
   }
 }
 
@@ -2453,11 +2458,25 @@ async function syncTest(){
   if(!url){ setSyncStatus('Enter a URL first.', 'var(--terracotta)'); return; }
   setSyncStatus('Testing connection…', 'var(--slate)');
   try{
-    const data = await jsonpFetch(`${url}?action=ping`);
-    if(data.ok){ setSyncStatus('✓ Connected! ' + data.message, 'var(--sage)'); }
-    else { setSyncStatus('Connection failed: ' + (data.error||'No response'), 'var(--terracotta)'); }
+    // Step 1: ping
+    const ping = await jsonpFetch(`${url}?action=ping`);
+    if(!ping.ok){ setSyncStatus('Ping failed: ' + (ping.error||'No response'), 'var(--terracotta)'); return; }
+    setSyncStatus('Ping OK — testing write…', 'var(--slate)');
+
+    // Step 2: try a tiny write (single chunk with 1 test entry)
+    const testPayload = JSON.stringify([{id:0,date:'2000-01-01',category:'Income',subcategory:'Other Incomes',amount:0,status:'Open',notes:'__sync_test__'}]);
+    const sessionId = 'test_' + Date.now().toString(36);
+    const writeUrl = `${url}?action=chunk&session=${sessionId}&index=0&total=1&data=${encodeURIComponent(testPayload)}`;
+    const write = await jsonpFetch(writeUrl);
+    if(write.error){ setSyncStatus('Write test failed: ' + write.error, 'var(--terracotta)'); return; }
+
+    // Step 3: if write OK, push real data
+    setSyncStatus('Write OK — pushing your data…', 'var(--slate)');
+    saveSyncUrl(url);
+    updateSyncBadge();
+    await syncPush();
   }catch(err){
-    setSyncStatus('Connection failed: ' + err.message, 'var(--terracotta)');
+    setSyncStatus('Test failed: ' + err.message, 'var(--terracotta)');
   }
 }
 
@@ -2941,6 +2960,9 @@ function init(){
   populateDetailSelectors();
   switchView('home');
   updateSyncBadge();
+  // Reset badge to neutral on every open — green only means a live successful sync
+  const badge = document.getElementById('syncBadge');
+  if(badge && syncUrl) badge.style.background = 'var(--slate)';
 }
 
 init();
