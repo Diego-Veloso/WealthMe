@@ -680,8 +680,8 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
         </div>
       </div>
       <div class="segmented" id="detailPeriodSeg" style="margin-bottom:8px;">
-        <button class="active" data-period="all">All</button>
-        <button data-period="thismonth">This Month</button>
+        <button data-period="all">All</button>
+        <button class="active" data-period="thismonth">This Month</button>
         <button data-period="lastmonth">Last Month</button>
         <button data-period="thisyear">This Year</button>
         <button data-period="custom">Custom</button>
@@ -1249,7 +1249,7 @@ let debtSearchQuery = "";
 
 let detailCategory = "Income";
 let detailSubcategory = CATEGORY_MAP.Income[0];
-let detailPeriod = "all";
+let detailPeriod = "thismonth";
 let detailDateFrom = "";
 let detailDateTo = "";
 
@@ -2372,14 +2372,18 @@ async function autoSync(){
     for(let i = 0; i < payload.length; i += CHUNK_SIZE){
       chunks.push(payload.slice(i, i + CHUNK_SIZE));
     }
+    // Use a unique session ID so stale chunks from previous pushes don't interfere
+    const sessionId = Date.now().toString(36);
     for(let i = 0; i < chunks.length; i++){
-      const url = `${syncUrl}?action=chunk&index=${i}&total=${chunks.length}&data=${encodeURIComponent(chunks[i])}`;
+      const url = `${syncUrl}?action=chunk&session=${sessionId}&index=${i}&total=${chunks.length}&data=${encodeURIComponent(chunks[i])}`;
       const res = await fetch(url);
-      await res.json();
+      const text = await res.text();
+      const json = JSON.parse(text);
+      if(json.error) throw new Error(json.error);
     }
     if(badge){ badge.style.background = 'var(--sage)'; badge.title = 'Synced to Google Sheet'; }
   }catch(err){
-    if(badge){ badge.style.background = 'var(--terracotta)'; badge.title = 'Auto-sync failed — tap Settings to push manually'; }
+    if(badge){ badge.style.background = 'var(--terracotta)'; badge.title = 'Auto-sync failed: ' + err.message; }
   }
 }
 
@@ -2519,16 +2523,8 @@ document.getElementById('helpModalOverlay').addEventListener('click', (e)=>{
 
 /* Embedded Apps Script source */
 const GS_SCRIPT = `// ============================================================
-// WEALTH.ME — Google Apps Script Backend v4
-// Uses chunked GET requests to avoid URL length and CORS limits.
-// Instructions:
-//   1. Go to script.google.com → New Project
-//   2. Paste this entire file, replacing any existing code
-//   3. Click Deploy → New Deployment → Web App
-//      - Execute as: Me
-//      - Who has access: Anyone
-//   4. Click Deploy, authorize, and copy the Web App URL
-//   5. Paste that URL into Wealth.Me → Settings → Cloud Sync
+// WEALTH.ME — Google Apps Script Backend v5
+// Uses session-scoped chunked GET requests.
 // ============================================================
 
 const SHEET_NAME = 'WealthMe';
@@ -2561,23 +2557,30 @@ function doGet(e) {
     }
 
     if (action === 'chunk') {
-      const index = parseInt(e.parameter.index);
-      const total = parseInt(e.parameter.total);
-      const data  = e.parameter.data;
+      const session = e.parameter.session || 'default';
+      const index   = parseInt(e.parameter.index);
+      const total   = parseInt(e.parameter.total);
+      const data    = e.parameter.data;
 
       const props = PropertiesService.getScriptProperties();
-      props.setProperty('chunk_' + index, data);
+      const key = session + '_chunk_' + index;
+      props.setProperty(key, data);
 
+      // Check if all chunks for this session have arrived
       let allReceived = true;
       for (let i = 0; i < total; i++) {
-        if (!props.getProperty('chunk_' + i)) { allReceived = false; break; }
+        if (!props.getProperty(session + '_chunk_' + i)) {
+          allReceived = false;
+          break;
+        }
       }
 
       if (allReceived) {
+        // Reassemble payload
         let payload = '';
         for (let i = 0; i < total; i++) {
-          payload += props.getProperty('chunk_' + i);
-          props.deleteProperty('chunk_' + i);
+          payload += props.getProperty(session + '_chunk_' + i);
+          props.deleteProperty(session + '_chunk_' + i);
         }
         const entries = JSON.parse(payload);
         writeEntries(entries);
@@ -2610,12 +2613,10 @@ function readEntries() {
           'yyyy-MM-dd'
         );
       }
-      if (value !== '') {
-        obj[h] = value;
-      }
+      if (value !== '') obj[h] = value;
     });
     if (obj.amount !== undefined) obj.amount = Number(obj.amount);
-    if (obj.id    !== undefined) obj.id     = Number(obj.id);
+    if (obj.id     !== undefined) obj.id     = Number(obj.id);
     return obj;
   }).filter(e => e.id);
 
@@ -2638,7 +2639,8 @@ function jsonResponse(data) {
   return ContentService
     .createTextOutput(JSON.stringify(data))
     .setMimeType(ContentService.MimeType.JSON);
-}`;
+}
+`;
 
 document.getElementById('showScriptBtn').addEventListener('click', ()=>{
   const block = document.getElementById('scriptBlock');
@@ -3174,8 +3176,8 @@ function renderDetail(){
     });
   }
 
-  // Sort newest first
-  matching.sort((a,b)=> parseLocalDate(b.date) - parseLocalDate(a.date));
+  // Sort oldest first
+  matching.sort((a,b)=> parseLocalDate(a.date) - parseLocalDate(b.date));
 
   if(matching.length === 0){
     document.getElementById('detailLists').innerHTML = `<div class="empty-state"><div class="big">∅</div><span class="muted">No entries found.</span></div>`;
@@ -3191,7 +3193,8 @@ function renderDetail(){
     if(!groups[key]){ groups[key] = []; groupOrder.push(key); }
     groups[key].push(e);
   });
-  // newest month first (already sorted that way from matching.sort above)
+  // oldest month first
+  groupOrder.sort((a,b)=> a.localeCompare(b));
 
   let html = '';
   groupOrder.forEach(key=>{
