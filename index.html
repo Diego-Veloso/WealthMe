@@ -2361,6 +2361,21 @@ function updateSyncBadge(){
 }
 
 // Silent background auto-sync — fires after every entry save/delete
+// JSONP — injects a <script> tag to bypass Safari iOS CORS block on Google redirect URLs
+function jsonpFetch(url){
+  return new Promise((resolve, reject)=>{
+    const cbName = '_wm_' + Date.now() + '_' + Math.floor(Math.random()*9999);
+    const timer = setTimeout(()=>{ cleanup(); reject(new Error('Request timed out after 15s')); }, 15000);
+    function cleanup(){ clearTimeout(timer); delete window[cbName]; const el=document.getElementById(cbName); if(el) el.remove(); }
+    window[cbName] = (data)=>{ cleanup(); resolve(data); };
+    const s = document.createElement('script');
+    s.id = cbName;
+    s.src = url + (url.includes('?')?'&':'?') + 'callback=' + cbName;
+    s.onerror = ()=>{ cleanup(); reject(new Error('Load failed — verify Script URL and redeploy as Anyone')); };
+    document.head.appendChild(s);
+  });
+}
+
 async function autoSync(){
   if(!syncUrl) return;
   const badge = document.getElementById('syncBadge');
@@ -2369,33 +2384,16 @@ async function autoSync(){
     const payload = JSON.stringify(entries);
     const CHUNK_SIZE = 2000;
     const chunks = [];
-    for(let i = 0; i < payload.length; i += CHUNK_SIZE){
-      chunks.push(payload.slice(i, i + CHUNK_SIZE));
-    }
-    // Use a unique session ID so stale chunks from previous pushes don't interfere
+    for(let i = 0; i < payload.length; i += CHUNK_SIZE) chunks.push(payload.slice(i, i + CHUNK_SIZE));
     const sessionId = Date.now().toString(36);
     for(let i = 0; i < chunks.length; i++){
       const url = `${syncUrl}?action=chunk&session=${sessionId}&index=${i}&total=${chunks.length}&data=${encodeURIComponent(chunks[i])}`;
-      const res = await fetch(url);
-      const text = await res.text();
-      const json = JSON.parse(text);
+      const json = await jsonpFetch(url);
       if(json.error) throw new Error(json.error);
     }
     if(badge){ badge.style.background = 'var(--sage)'; badge.title = 'Synced to Google Sheet'; }
   }catch(err){
     if(badge){ badge.style.background = 'var(--terracotta)'; badge.title = 'Auto-sync failed: ' + err.message; }
-  }
-}
-
-// Safari-safe fetch: uses no-cors for writes, regular fetch for reads
-async function safeFetch(url){
-  // Try regular fetch first; fall back messaging if blocked
-  try{
-    const res = await fetch(url);
-    const text = await res.text();
-    return JSON.parse(text);
-  } catch(err){
-    throw new Error('Load failed — check that your Script URL is correct and redeployed as "Anyone" access.');
   }
 }
 
@@ -2406,26 +2404,20 @@ async function syncPush(){
   setSyncStatus('Pushing to Google Sheet…', 'var(--slate)');
   try{
     const payload = JSON.stringify(entries);
-    const CHUNK_SIZE = 2000; // small chunks for Safari URL limits
+    const CHUNK_SIZE = 2000;
     const chunks = [];
-    for(let i = 0; i < payload.length; i += CHUNK_SIZE){
-      chunks.push(payload.slice(i, i + CHUNK_SIZE));
-    }
-    const total = chunks.length;
-
+    for(let i = 0; i < payload.length; i += CHUNK_SIZE) chunks.push(payload.slice(i, i + CHUNK_SIZE));
+    const sessionId = Date.now().toString(36);
     for(let i = 0; i < chunks.length; i++){
-      setSyncStatus(`Pushing… chunk ${i+1} of ${total}`, 'var(--slate)');
-      const url = `${syncUrl}?action=chunk&index=${i}&total=${total}&data=${encodeURIComponent(chunks[i])}`;
-      const json = await safeFetch(url);
-      if(json.error){
-        setSyncStatus('Push failed: ' + json.error, 'var(--terracotta)');
-        syncInProgress = false; return;
-      }
+      setSyncStatus(`Pushing… ${i+1}/${chunks.length}`, 'var(--slate)');
+      const url = `${syncUrl}?action=chunk&session=${sessionId}&index=${i}&total=${chunks.length}&data=${encodeURIComponent(chunks[i])}`;
+      const json = await jsonpFetch(url);
+      if(json.error){ setSyncStatus('Push failed: ' + json.error, 'var(--terracotta)'); syncInProgress=false; return; }
     }
     setSyncStatus(`✓ Pushed ${entries.length} entries to Sheet`, 'var(--sage)');
     showToast('Synced to Google Sheet');
   }catch(err){
-    setSyncStatus(err.message, 'var(--terracotta)');
+    setSyncStatus('Push failed: ' + err.message, 'var(--terracotta)');
   }
   syncInProgress = false;
 }
@@ -2436,13 +2428,9 @@ async function syncPull(){
   syncInProgress = true;
   setSyncStatus('Pulling from Google Sheet…', 'var(--slate)');
   try{
-    const data = await safeFetch(`${syncUrl}?action=read`);
+    const data = await jsonpFetch(`${syncUrl}?action=read`);
     if(data.entries){
-      entries = data.entries.map(e=>({
-        ...e,
-        id: Number(e.id) || uid(),
-        amount: Number(e.amount) || 0
-      }));
+      entries = data.entries.map(e=>({...e, id: Number(e.id)||uid(), amount: Number(e.amount)||0}));
       const maxId = entries.reduce((a,e)=>Math.max(a,Number(e.id)||0),0);
       if(maxId >= nextId) nextId = maxId + 1;
       invalidateFinancialsCache();
@@ -2452,10 +2440,10 @@ async function syncPull(){
       closeSettingsModal();
       renderCurrentView(getActiveViewName());
     } else {
-      setSyncStatus('Pull failed: ' + (data.error || 'Unknown error'), 'var(--terracotta)');
+      setSyncStatus('Pull failed: ' + (data.error||'Unknown error'), 'var(--terracotta)');
     }
   }catch(err){
-    setSyncStatus(err.message, 'var(--terracotta)');
+    setSyncStatus('Pull failed: ' + err.message, 'var(--terracotta)');
   }
   syncInProgress = false;
 }
@@ -2465,14 +2453,11 @@ async function syncTest(){
   if(!url){ setSyncStatus('Enter a URL first.', 'var(--terracotta)'); return; }
   setSyncStatus('Testing connection…', 'var(--slate)');
   try{
-    const data = await safeFetch(`${url}?action=ping`);
-    if(data.ok){
-      setSyncStatus('✓ Connected! ' + data.message, 'var(--sage)');
-    } else {
-      setSyncStatus('Connection failed: ' + (data.error || 'No response'), 'var(--terracotta)');
-    }
+    const data = await jsonpFetch(`${url}?action=ping`);
+    if(data.ok){ setSyncStatus('✓ Connected! ' + data.message, 'var(--sage)'); }
+    else { setSyncStatus('Connection failed: ' + (data.error||'No response'), 'var(--terracotta)'); }
   }catch(err){
-    setSyncStatus(err.message, 'var(--terracotta)');
+    setSyncStatus('Connection failed: ' + err.message, 'var(--terracotta)');
   }
 }
 
