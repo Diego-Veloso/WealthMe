@@ -1311,14 +1311,21 @@ function isBeforeOrInYear(dateStr, refDate){
 
 /* ---------- PERSISTENCE ---------- */
 function saveState(){
+
   invalidateFinancialsCache();
+
   try{
     localStorage.setItem('wealthme_entries', JSON.stringify(entries));
     localStorage.setItem('wealthme_nextid', String(nextId));
     localStorage.setItem('wealthme_settings', JSON.stringify(SETTINGS));
     localStorage.setItem('wealthme_debtaccounts', JSON.stringify(DEBT_ACCOUNTS));
     localStorage.setItem('wealthme_categorymap', JSON.stringify(CATEGORY_MAP));
-  }catch(e){ /* ignore */ }
+  }
+  catch(e){
+    console.error(e);
+  }
+
+  queueGoogleSync();
 }
 function loadState(){
   try{
