@@ -958,8 +958,7 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
         <button class="btn btn-primary" id="syncSaveBtn" style="flex:1;">Save URL</button>
       </div>
       <div class="csv-row" style="margin-top:6px;">
-        <button class="btn btn-secondary" id="syncPullBtn" style="flex:1;">↓ Pull from Sheet</button>
-        <button class="btn btn-primary" id="syncPushBtn" style="flex:1;">↑ Push to Sheet</button>
+        <button class="btn btn-secondary btn-block" id="syncPullBtn">↓ Pull from Sheet</button>
       </div>
       <div id="syncStatus" class="muted" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
 
@@ -2634,7 +2633,6 @@ document.getElementById('syncSaveBtn').addEventListener('click', ()=>{
 });
 
 document.getElementById('syncTestBtn').addEventListener('click', syncTest);
-document.getElementById('syncPushBtn').addEventListener('click', syncPush);
 document.getElementById('syncPullBtn').addEventListener('click', syncPull);
 
 
