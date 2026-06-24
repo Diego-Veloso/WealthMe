@@ -1289,6 +1289,21 @@ function formatLocalDate(date){
   const d = String(date.getDate()).padStart(2,'0');
   return `${y}-${m}-${d}`;
 }
+// Normalize any date string to YYYY-MM-DD (handles ISO strings like 2024-01-01T05:00:00.000Z)
+function normalizeDateStr(val){
+  if(!val) return val;
+  const s = String(val);
+  // Already YYYY-MM-DD
+  if(/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+  // ISO string — take the date part only (first 10 chars)
+  if(s.includes('T')) return s.slice(0,10);
+  // Try parsing and reformatting
+  try{
+    const d = new Date(s);
+    if(!isNaN(d)) return formatLocalDate(d);
+  }catch(e){}
+  return s;
+}
 function isSameMonth(dateStr, refDate){
   const d = parseLocalDate(dateStr);
   return d.getFullYear() === refDate.getFullYear() && d.getMonth() === refDate.getMonth();
@@ -2449,7 +2464,12 @@ async function syncPull(){
   try{
     const data = await jsonpFetch(`${syncUrl}?action=read`);
     if(data.entries){
-      entries = data.entries.map(e=>({...e, id: Number(e.id)||uid(), amount: Number(e.amount)||0}));
+      entries = data.entries.map(e=>({
+        ...e,
+        id: Number(e.id)||uid(),
+        amount: Number(e.amount)||0,
+        date: normalizeDateStr(e.date) // fix ISO dates from Google Sheets
+      }));
       const maxId = entries.reduce((a,e)=>Math.max(a,Number(e.id)||0),0);
       if(maxId >= nextId) nextId = maxId + 1;
       invalidateFinancialsCache();
@@ -2545,7 +2565,12 @@ async function syncPull(){
   try{
     const data = await jsonpFetch(`${syncUrl}?action=read`);
     if(data.entries){
-      entries = data.entries.map(e=>({...e, id: Number(e.id)||uid(), amount: Number(e.amount)||0}));
+      entries = data.entries.map(e=>({
+        ...e,
+        id: Number(e.id)||uid(),
+        amount: Number(e.amount)||0,
+        date: normalizeDateStr(e.date)
+      }));
       const maxId = entries.reduce((a,e)=>Math.max(a,Number(e.id)||0),0);
       if(maxId >= nextId) nextId = maxId + 1;
       invalidateFinancialsCache();
