@@ -697,6 +697,15 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
         </div>
       </div>
       <div id="detailLists"></div>
+
+      <!-- Expense/Gross Income trendline chart -->
+      <div class="card" id="detailTrendCard" style="display:none;">
+        <div class="card-title">
+          <span id="detailTrendTitle">Expense Trend</span>
+          <span class="muted" style="font-size:12px;font-family:'Inter',sans-serif;font-weight:500;">% of Gross Income · 13 months</span>
+        </div>
+        <div class="chart-wrap"><canvas id="detailTrendChart"></canvas></div>
+      </div>
     </section>
 
     <!-- ============ TRANSACTIONS VIEW ============ -->
@@ -1253,6 +1262,7 @@ let detailDateTo = "";
 
 let lineChartInstance = null;
 let donutChartInstance = null;
+let detailTrendChartInstance = null;
 
 /* ---------- UTILITIES ---------- */
 function fmtMoney(n){
@@ -3425,6 +3435,134 @@ function renderDetail(){
 
   document.getElementById('detailLists').innerHTML = html;
   attachEntryRowHandlers(document.getElementById('detailLists'));
+  renderDetailTrendChart();
+}
+
+function renderDetailTrendChart(){
+  const trendCard = document.getElementById('detailTrendCard');
+  const ctx = document.getElementById('detailTrendChart');
+
+  trendCard.style.display = 'block';
+  document.getElementById('detailTrendTitle').textContent =
+    `${detailSubcategory} as % of Gross Income`;
+
+  // Determine the months to display
+  const now = new Date();
+  let monthPoints = [];
+
+  if(detailPeriod === 'all' || detailPeriod === 'thismonth' || detailPeriod === 'nextmonth'){
+    // Always show next 13 months starting from current month
+    for(let i = 0; i < 13; i++){
+      monthPoints.push(new Date(now.getFullYear(), now.getMonth() + i, 1));
+    }
+  } else if(detailPeriod === 'thisyear'){
+    // Show all months of the current year
+    for(let m = 0; m < 12; m++){
+      monthPoints.push(new Date(now.getFullYear(), m, 1));
+    }
+  } else if(detailPeriod === 'custom'){
+    // Show months within the custom range
+    const from = detailDateFrom ? parseLocalDate(detailDateFrom) : new Date(now.getFullYear(), now.getMonth(), 1);
+    const to   = detailDateTo   ? parseLocalDate(detailDateTo)   : new Date(now.getFullYear(), now.getMonth() + 12, 1);
+    let cur = new Date(from.getFullYear(), from.getMonth(), 1);
+    const end = new Date(to.getFullYear(), to.getMonth(), 1);
+    while(cur <= end){
+      monthPoints.push(new Date(cur));
+      cur = new Date(cur.getFullYear(), cur.getMonth() + 1, 1);
+    }
+  }
+
+  const labels  = [];
+  const values  = [];
+  const rawExp  = [];
+  const rawGross= [];
+
+  monthPoints.forEach(d => {
+    const inM = (dateStr) => isSameMonth(dateStr, d);
+
+    // Amount for selected category + subcategory
+    const subAmt = entries
+      .filter(e => e.category === detailCategory && e.subcategory === detailSubcategory && inM(e.date))
+      .reduce((a, e) => a + Number(e.amount), 0);
+
+    const fin   = computeMonthFinancials(d, false);
+    const gross = fin.grossIncome;
+    const pct   = gross !== 0 ? (subAmt / Math.abs(gross) * 100) : 0;
+
+    labels.push(d.toLocaleString(undefined, {month:'short', year:'2-digit'}));
+    values.push(Math.abs(pct));
+    rawExp.push(subAmt);
+    rawGross.push(gross);
+  });
+
+  if(detailTrendChartInstance){ detailTrendChartInstance.destroy(); }
+
+  // Use same style as daily cashflow chart
+  const catColor = CATEGORY_COLORS[detailCategory] || '#0F1B2D';
+  const bgColor  = detailCategory === 'Expense'    ? 'rgba(193,88,63,0.12)'  :
+                   detailCategory === 'Income'      ? 'rgba(62,124,89,0.12)'  :
+                   detailCategory === 'Investment'  ? 'rgba(212,162,78,0.12)' :
+                                                     'rgba(92,107,122,0.12)';
+
+  detailTrendChartInstance = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: '% of Gross Income',
+        data: values,
+        borderColor: catColor,
+        backgroundColor: bgColor,
+        fill: true,
+        tension: 0.35,
+        pointRadius: 0,
+        pointHoverRadius: 5,
+        pointHoverBackgroundColor: catColor,
+        pointHoverBorderColor: '#0F1B2D',
+        pointHoverBorderWidth: 2,
+        borderWidth: 2,
+        segment: {
+          borderColor: ctx2 => {
+            const y0 = ctx2.p0.parsed.y, y1 = ctx2.p1.parsed.y;
+            return (y0 === 0 && y1 === 0) ? 'rgba(0,0,0,0.1)' : catColor;
+          }
+        }
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false, axis: 'x' },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#0F1B2D',
+          titleColor: '#F7F4EF',
+          titleFont: { family:"'Fraunces', serif", size:13, weight:'600' },
+          bodyColor: '#F7F4EF',
+          bodyFont: { family:"'Inter', sans-serif", size:12 },
+          padding: 10,
+          cornerRadius: 8,
+          displayColors: false,
+          callbacks: {
+            title: (items) => items[0].label,
+            label: (ctx2) => {
+              const i = ctx2.dataIndex;
+              return [
+                `${ctx2.parsed.y.toFixed(1)}% of gross`,
+                `Amount: ${fmtMoney(rawExp[i])}`,
+                `Gross: ${fmtMoney(rawGross[i])}`
+              ];
+            }
+          }
+        }
+      },
+      scales: {
+        x: { grid:{ display:false }, ticks:{ maxTicksLimit:8, font:{ size:10 }, color:'#5C6B7A' } },
+        y: { grid:{ color:'#E3DFD6' }, ticks:{ display:false } }
+      }
+    }
+  });
 }
 
 /* shared entry row renderer (used in detail + transactions + debts) */
