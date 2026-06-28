@@ -3421,20 +3421,38 @@ function renderDetail(){
       const amt = Number(e.amount);
       if(e.category==='Income') return a + amt;
       if(e.category==='Expense' || e.category==='Investment') return a - amt;
-      return a + amt; // Capital
+      return a + amt;
     }, 0);
     const rows = groups[key].map(e=>renderEntryRow(e)).join('');
+    const colId = 'detail-month-' + key;
     html += `
-      <div class="group-header" style="display:flex;justify-content:space-between;align-items:baseline;">
-        <span>${label}</span>
+      <div class="group-header detail-month-header" data-target="${colId}" style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;user-select:none;">
+        <span style="display:flex;align-items:center;gap:8px;">
+          <svg class="detail-month-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="transition:transform .2s;flex-shrink:0;"><polyline points="6 9 12 15 18 9"/></svg>
+          ${label}
+        </span>
         <span class="muted" style="font-size:12px;font-family:'Inter',sans-serif;font-weight:600;">${fmtMoney(Math.abs(total))}</span>
       </div>
-      <div class="card"><ul class="entry-list">${rows}</ul></div>`;
+      <div class="detail-month-body" id="${colId}">
+        <div class="card" style="margin-top:0;">
+          <ul class="entry-list">${rows}</ul>
+        </div>
+      </div>`;
   });
 
   document.getElementById('detailLists').innerHTML = html;
+
+  document.querySelectorAll('.detail-month-header').forEach(header=>{
+    header.addEventListener('click', ()=>{
+      const body = document.getElementById(header.dataset.target);
+      const arrow = header.querySelector('.detail-month-arrow');
+      const isOpen = body.style.display !== 'none';
+      body.style.display = isOpen ? 'none' : 'block';
+      arrow.style.transform = isOpen ? 'rotate(-90deg)' : 'rotate(0deg)';
+    });
+  });
+
   attachEntryRowHandlers(document.getElementById('detailLists'));
-  // Use rAF to ensure the canvas is laid out before Chart.js measures dimensions
   requestAnimationFrame(() => renderDetailTrendChart());
 }
 
