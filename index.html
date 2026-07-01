@@ -1239,8 +1239,9 @@ let SETTINGS = {
 let entries = [];
 let nextId = 1;
 
-let homeDate = new Date(2026, 5, 1); // June 2026 reference "today"
-let moneyMonthDate = new Date(homeDate);
+const _now = new Date();
+let homeDate = new Date(_now.getFullYear(), _now.getMonth(), 1); // always current month
+let moneyMonthDate = new Date(_now.getFullYear(), _now.getMonth(), 1);
 
 let donutCategory = "Expense";
 let txFilter = "Open";
