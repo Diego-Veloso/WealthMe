@@ -1127,7 +1127,11 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
             <li>Go to <strong>sheets.google.com</strong> and sign in with your Google account</li>
             <li>Click the <strong>+ Blank</strong> button to create a new spreadsheet</li>
             <li>Name it <strong>"WealthMe"</strong> (top left, click "Untitled spreadsheet")</li>
+            <li>Download the template below, then in your new sheet go to <strong>File → Import → Upload</strong>, select the file, and choose <strong>"Replace current sheet"</strong> — this sets up the correct column headers for you</li>
           </ol>
+          <div style="margin-top:10px;">
+            <button class="btn btn-secondary btn-block" id="downloadSheetsTemplateBtn">Download Sheet Template</button>
+          </div>
         </div>
       </div>
 
@@ -1226,6 +1230,9 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
         </button>
       </div>
       <p class="muted">If the download button doesn't work, copy the text below and save it as a <code>.csv</code> file, or open it in a new tab and use your browser's save option.</p>
+      <div class="csv-row" id="csvTextSaveRow" style="display:none;margin-bottom:6px;">
+        <button class="btn btn-primary btn-block" id="csvTextSaveBtn">📥 Save to Device</button>
+      </div>
       <div class="field">
         <textarea id="csvTextArea" readonly style="min-height:160px;font-family:monospace;font-size:12px;"></textarea>
       </div>
@@ -2275,6 +2282,14 @@ function openCsvTextModal(title, content){
   document.getElementById('csvTextModalTitle').textContent = title;
   document.getElementById('csvTextArea').value = content;
   document.getElementById('csvTextModalOverlay').classList.add('active');
+
+  const saveRow = document.getElementById('csvTextSaveRow');
+  try{
+    const testFile = new File([content], _pendingCsv.filename || 'wealthme.csv', {type:'text/csv'});
+    saveRow.style.display = (navigator.canShare && navigator.canShare({files:[testFile]})) ? 'flex' : 'none';
+  }catch(err){
+    saveRow.style.display = 'none';
+  }
 }
 function closeCsvTextModal(){
   document.getElementById('csvTextModalOverlay').classList.remove('active');
@@ -2282,6 +2297,16 @@ function closeCsvTextModal(){
 document.getElementById('csvTextModalClose').addEventListener('click', closeCsvTextModal);
 document.getElementById('csvTextModalOverlay').addEventListener('click', (e)=>{
   if(e.target.id === 'csvTextModalOverlay') closeCsvTextModal();
+});
+
+document.getElementById('csvTextSaveBtn').addEventListener('click', async ()=>{
+  try{
+    const file = new File([_pendingCsv.content], _pendingCsv.filename || 'wealthme.csv', {type:'text/csv'});
+    await navigator.share({ files:[file], title: _pendingCsv.filename || 'wealthme.csv' });
+  }catch(err){
+    if(err && err.name === 'AbortError') return; // user cancelled the share sheet
+    showToast('Save failed — copy the text instead');
+  }
 });
 
 document.getElementById('csvTextCopyBtn').addEventListener('click', async ()=>{
@@ -2321,6 +2346,11 @@ document.getElementById('downloadTemplateBtn').addEventListener('click', ()=>{
     amount:1000, status:'Open', notes:'Example entry', type:'', account:''
   }];
   downloadCsv(entriesToCsv(sample), 'wealthme_template.csv', t('csv_title'));
+});
+
+document.getElementById('downloadSheetsTemplateBtn').addEventListener('click', ()=>{
+  const headerOnly = CSV_HEADERS.join(',');
+  downloadCsv(headerOnly, 'wealthme_sheet_template.csv', 'Google Sheet Template');
 });
 
 document.getElementById('exportCsvBtn').addEventListener('click', ()=>{
