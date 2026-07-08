@@ -464,9 +464,18 @@ main{
 .csv-row{display:flex;gap:10px;margin-top:10px;}
 .csv-row .btn{flex:1;font-size:13px;padding:10px;}
 .hidden-input{display:none;}
-.quick-row{display:flex;gap:8px;align-items:center;margin-bottom:8px;}
-.quick-row .field{margin-bottom:0;flex:1;}
-.quick-row-remove{width:38px;height:38px;flex-shrink:0;font-size:14px;}
+.quick-row{
+  border:1px solid var(--line);border-radius:14px;
+  padding:12px;margin-bottom:12px;background:var(--card);
+}
+.quick-row-header{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:10px;
+}
+.quick-row-header .quick-row-num{
+  font-size:12px;font-weight:700;color:var(--slate);text-transform:uppercase;letter-spacing:.5px;
+}
+.quick-row-remove{width:28px;height:28px;border-radius:8px;font-size:14px;}
 
 /* ===== Toggle switch ===== */
 .toggle-row{
@@ -1013,9 +1022,9 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
       </div>
       <input type="file" id="csvFileInput" class="hidden-input" accept=".csv">
 
-      <div class="section-title">Quick Add (Recurring)</div>
-      <p class="muted">Set the category once, then add several dates and amounts at once — great for rent, subscriptions, or any recurring entry.</p>
-      <button class="btn btn-secondary btn-block" id="quickAddOpenBtn">Quick Add Entries</button>
+      <div class="section-title">Quick Add / Edit (Recurring)</div>
+      <p class="muted">Work on several entries in the same category and subcategory at once — great for rent, subscriptions, or any recurring entry.</p>
+      <button class="btn btn-secondary btn-block" id="quickAddOpenBtn">Quick Add / Edit Entries</button>
 
       <div class="section-title">Password</div>
       <div class="field">
@@ -1037,16 +1046,16 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
     </div>
   </div>
 
-  <!-- ===== Quick Add (Recurring) Modal ===== -->
+  <!-- ===== Quick Add / Edit (Recurring) Modal ===== -->
   <div class="modal-overlay" id="quickAddModalOverlay">
     <div class="modal">
       <div class="modal-header">
-        <h3>Quick Add Entries</h3>
+        <h3>Quick Add / Edit Entries</h3>
         <button class="icon-btn" id="quickAddModalClose">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
       </div>
-      <p class="muted" style="margin-bottom:12px;">Set the category once below, then add a date and amount for each occurrence.</p>
+      <p class="muted" style="margin-bottom:12px;">Pick a category and subcategory, optionally load existing entries in that bucket to edit, and add new rows for new occurrences.</p>
 
       <div class="two-col">
         <div class="field">
@@ -1059,7 +1068,7 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
         </div>
       </div>
       <div class="field" id="quickTypeField" style="display:none;">
-        <label>Type</label>
+        <label>Type (applies to new rows)</label>
         <select id="quickType">
           <option>Credit Card</option>
           <option>Financing</option>
@@ -1067,37 +1076,17 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
         </select>
       </div>
       <div class="field" id="quickAccountField" style="display:none;">
-        <label>Account (optional)</label>
+        <label>Account (optional, applies to new rows)</label>
         <select id="quickAccount"></select>
       </div>
-      <div class="two-col">
-        <div class="field">
-          <label>Notes (optional, applies to all)</label>
-          <input type="text" id="quickNotes" placeholder="e.g. Rent">
-        </div>
-        <div class="field">
-          <label>Status (applies to all)</label>
-          <div class="toggle-row">
-            <span class="toggle-label" id="quickStatusLabel">Open</span>
-            <label class="toggle-switch">
-              <input type="checkbox" id="quickStatusToggle">
-              <span class="toggle-thumb"></span>
-            </label>
-          </div>
-        </div>
-      </div>
+      <button class="btn btn-secondary btn-block" id="quickLoadBtn" style="margin-top:4px;">Load Existing Entries in This Bucket</button>
 
-      <div class="section-title" style="margin-top:16px;">Occurrences</div>
-      <div style="display:flex;gap:8px;margin-bottom:6px;">
-        <span style="flex:1;font-size:11px;font-weight:700;color:var(--slate);text-transform:uppercase;letter-spacing:.5px;">Date</span>
-        <span style="flex:1;font-size:11px;font-weight:700;color:var(--slate);text-transform:uppercase;letter-spacing:.5px;">Amount</span>
-        <span style="width:38px;"></span>
-      </div>
+      <div class="section-title" style="margin-top:16px;">Entries</div>
       <div id="quickRowsContainer"></div>
-      <button class="btn btn-secondary btn-block" id="quickAddRowBtn" style="margin-top:4px;">+ Add Another (next month)</button>
+      <button class="btn btn-secondary btn-block" id="quickAddRowBtn" style="margin-top:4px;">+ Add New Row</button>
 
       <div class="btn-row">
-        <button class="btn btn-primary btn-block" id="quickSaveAllBtn">Add All</button>
+        <button class="btn btn-primary btn-block" id="quickSaveAllBtn">Save All</button>
       </div>
     </div>
   </div>
@@ -2812,10 +2801,11 @@ function closeSettingsModal(){
 }
 
 /* =========================================================
-   QUICK ADD (RECURRING ENTRIES) — same category/subcategory,
-   multiple dates & amounts added at once.
+   QUICK ADD / EDIT (RECURRING ENTRIES) — work on many entries
+   sharing the same category/subcategory at once.
    ========================================================= */
 let quickRowSeq = 0;
+let quickRemovedEntryIds = [];
 
 function populateQuickCategorySelectors(selectedCategory, selectedSub){
   const catSel = document.getElementById('quickCategory');
@@ -2854,9 +2844,6 @@ document.getElementById('quickCategory').addEventListener('change', (e)=>{
 document.getElementById('quickType').addEventListener('change', (e)=>{
   populateQuickAccountSelector(e.target.value, null);
 });
-document.getElementById('quickStatusToggle').addEventListener('change', (e)=>{
-  document.getElementById('quickStatusLabel').textContent = e.target.checked ? 'Closed' : 'Open';
-});
 
 // Add one month to a YYYY-MM-DD date string, keeping it timezone-safe.
 function addOneMonth(dateStr){
@@ -2872,10 +2859,28 @@ function addOneMonth(dateStr){
 
 function quickRowTemplate(row){
   return `
-    <div class="quick-row" data-key="${row.key}">
-      <div class="field"><input type="date" class="quick-date" value="${row.date || ''}"></div>
-      <div class="field"><input type="number" class="quick-amount" step="0.01" placeholder="0.00" value="${row.amount != null ? row.amount : ''}"></div>
-      <button type="button" class="icon-btn quick-row-remove" title="Remove row">✕</button>
+    <div class="quick-row" data-key="${row.key}" data-entry-id="${row.entryId != null ? row.entryId : ''}">
+      <div class="quick-row-header">
+        <span class="quick-row-num">${row.entryId != null ? 'Entry #'+row.entryId : 'New Entry'}</span>
+        <button type="button" class="icon-btn quick-row-remove" title="Remove row">✕</button>
+      </div>
+      <div class="two-col">
+        <div class="field"><label>Date</label><input type="date" class="quick-date" value="${row.date || ''}"></div>
+        <div class="field"><label>Amount</label><input type="number" class="quick-amount" step="0.01" placeholder="0.00" value="${row.amount != null ? row.amount : ''}"></div>
+      </div>
+      <div class="two-col">
+        <div class="field"><label>Notes</label><input type="text" class="quick-notes" placeholder="Add a note..." value="${(row.notes||'').replace(/"/g,'&quot;')}"></div>
+        <div class="field">
+          <label>Status</label>
+          <div class="toggle-row">
+            <span class="toggle-label quick-status-label">${row.status === 'Closed' ? 'Closed' : 'Open'}</span>
+            <label class="toggle-switch">
+              <input type="checkbox" class="quick-status-toggle" ${row.status === 'Closed' ? 'checked' : ''}>
+              <span class="toggle-thumb"></span>
+            </label>
+          </div>
+        </div>
+      </div>
     </div>
   `;
 }
@@ -2890,17 +2895,39 @@ function addQuickRow(){
     if(lastDate) date = addOneMonth(lastDate);
     if(lastAmount !== '') amount = lastAmount;
   }
-  const row = {key: quickRowSeq++, date, amount};
+  const row = {key: quickRowSeq++, entryId: null, date, amount, notes:'', status:'Open'};
   document.getElementById('quickRowsContainer').insertAdjacentHTML('beforeend', quickRowTemplate(row));
 }
 
+function loadMatchingQuickEntries(){
+  const category = document.getElementById('quickCategory').value;
+  const subcategory = document.getElementById('quickSubcategory').value;
+  const matches = entries
+    .filter(e=>e.category === category && e.subcategory === subcategory)
+    .slice()
+    .sort((a,b)=> a.date < b.date ? 1 : -1);
+
+  document.getElementById('quickRowsContainer').innerHTML = '';
+  quickRemovedEntryIds = [];
+  if(matches.length === 0){
+    showToast('No existing entries found in this category/subcategory');
+    return;
+  }
+  matches.forEach(e=>{
+    const row = {
+      key: quickRowSeq++, entryId: e.id, date: e.date, amount: e.amount,
+      notes: e.notes || '', status: e.status
+    };
+    document.getElementById('quickRowsContainer').insertAdjacentHTML('beforeend', quickRowTemplate(row));
+  });
+  showToast(`Loaded ${matches.length} entr${matches.length===1?'y':'ies'}`);
+}
+
 function openQuickAddModal(){
-  document.getElementById('quickNotes').value = '';
-  document.getElementById('quickStatusToggle').checked = false;
-  document.getElementById('quickStatusLabel').textContent = 'Open';
   populateQuickCategorySelectors('Expense', CATEGORY_MAP.Expense[0]);
   document.getElementById('quickRowsContainer').innerHTML = '';
   quickRowSeq = 0;
+  quickRemovedEntryIds = [];
   addQuickRow();
   addQuickRow();
   addQuickRow();
@@ -2917,6 +2944,7 @@ document.getElementById('quickAddModalClose').addEventListener('click', closeQui
 document.getElementById('quickAddModalOverlay').addEventListener('click', (e)=>{
   if(e.target.id === 'quickAddModalOverlay') closeQuickAddModal();
 });
+document.getElementById('quickLoadBtn').addEventListener('click', loadMatchingQuickEntries);
 document.getElementById('quickAddRowBtn').addEventListener('click', ()=>{
   addQuickRow();
   const rows = document.querySelectorAll('#quickRowsContainer .quick-row');
@@ -2924,40 +2952,63 @@ document.getElementById('quickAddRowBtn').addEventListener('click', ()=>{
 });
 document.getElementById('quickRowsContainer').addEventListener('click', (e)=>{
   if(e.target.closest('.quick-row-remove')){
-    e.target.closest('.quick-row').remove();
+    const rowEl = e.target.closest('.quick-row');
+    const entryId = rowEl.dataset.entryId;
+    if(entryId !== ''){ quickRemovedEntryIds.push(Number(entryId)); }
+    rowEl.remove();
+  }
+});
+document.getElementById('quickRowsContainer').addEventListener('change', (e)=>{
+  if(e.target.classList.contains('quick-status-toggle')){
+    const rowEl = e.target.closest('.quick-row');
+    rowEl.querySelector('.quick-status-label').textContent = e.target.checked ? 'Closed' : 'Open';
   }
 });
 
 document.getElementById('quickSaveAllBtn').addEventListener('click', ()=>{
   const category = document.getElementById('quickCategory').value;
   const subcategory = document.getElementById('quickSubcategory').value;
-  const status = document.getElementById('quickStatusToggle').checked ? 'Closed' : 'Open';
-  const notes = document.getElementById('quickNotes').value.trim();
   const isExpense = category === 'Expense';
   const type = isExpense ? document.getElementById('quickType').value : undefined;
   const accountSel = document.getElementById('quickAccount');
   const account = isExpense ? accountSel.value : '';
 
   const rowEls = document.querySelectorAll('#quickRowsContainer .quick-row');
-  let addedCount = 0, skippedCount = 0;
-  const newEntries = [];
+  let addedCount = 0, updatedCount = 0, skippedCount = 0;
 
   rowEls.forEach(rowEl=>{
+    const entryIdRaw = rowEl.dataset.entryId;
+    const hasEntryId = entryIdRaw !== '';
     const date = rowEl.querySelector('.quick-date').value;
     const amountRaw = rowEl.querySelector('.quick-amount').value;
     const amount = parseFloat(amountRaw);
-    if(!date && amountRaw === '') return; // fully blank row, ignore silently
+    const notes = rowEl.querySelector('.quick-notes').value.trim();
+    const status = rowEl.querySelector('.quick-status-toggle').checked ? 'Closed' : 'Open';
+
+    if(!date && amountRaw === '' && !hasEntryId) return; // fully blank new row, ignore silently
     if(!date || isNaN(amount)){ skippedCount++; return; }
 
-    const newEntry = { id: uid(), date, category, subcategory, amount, status, notes };
-    if(isExpense){ newEntry.type = type; if(account){ newEntry.account = account; } }
-    entries.push(newEntry);
-    newEntries.push(newEntry);
-    addedCount++;
+    if(hasEntryId){
+      const entry = entries.find(en=>en.id === Number(entryIdRaw));
+      if(entry){
+        entry.date = date; entry.amount = amount; entry.notes = notes; entry.status = status;
+        entry.category = category; entry.subcategory = subcategory;
+        updatedCount++;
+      }
+    } else {
+      const newEntry = { id: uid(), date, category, subcategory, amount, status, notes };
+      if(isExpense){ newEntry.type = type; if(account){ newEntry.account = account; } }
+      entries.push(newEntry);
+      addedCount++;
+    }
   });
 
-  if(addedCount === 0){
-    showToast(skippedCount ? `No entries added — ${skippedCount} row(s) missing date/amount` : 'No entries to add');
+  if(quickRemovedEntryIds.length){
+    entries = entries.filter(e=>!quickRemovedEntryIds.includes(e.id));
+  }
+
+  if(addedCount === 0 && updatedCount === 0 && quickRemovedEntryIds.length === 0){
+    showToast(skippedCount ? `No changes saved — ${skippedCount} row(s) missing date/amount` : 'No changes to save');
     return;
   }
 
@@ -2965,14 +3016,14 @@ document.getElementById('quickSaveAllBtn').addEventListener('click', ()=>{
   closeQuickAddModal();
   renderCurrentView(getActiveViewName());
 
-  const parts = [`${addedCount} added`];
+  const parts = [];
+  if(addedCount) parts.push(`${addedCount} added`);
+  if(updatedCount) parts.push(`${updatedCount} updated`);
+  if(quickRemovedEntryIds.length) parts.push(`${quickRemovedEntryIds.length} removed`);
   if(skippedCount) parts.push(`${skippedCount} skipped`);
   showToast(parts.join(', '));
 
-  if(syncUrl){
-    if(newEntries.length > 3){ syncPush(); }
-    else { newEntries.forEach(en=>autoSyncEntry(en)); }
-  }
+  if(syncUrl){ syncPush(); }
 });
 
 /* Help / Instructions modal */
