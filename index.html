@@ -1785,7 +1785,7 @@ function renderMoneyLineChart(){
 
   const labels = [];
   const investedData = [];   // cumulative Closed Investment
-  const plannedData  = [];   // cumulative All Investment (projected)
+  const plannedData  = [];   // cumulative (All Investment: Open+Closed) + Capital
   const netData      = [];   // cumulative (Closed Investment + Capital) month over month
 
   // Prior cumulative base: everything before the selected month
@@ -1793,12 +1793,13 @@ function renderMoneyLineChart(){
   let cumulativeInvested = entries
     .filter(e => e.category === 'Investment' && e.status === 'Closed' && parseLocalDate(e.date) <= startCutoff)
     .reduce((a, e) => a + Number(e.amount), 0);
-  let cumulativePlanned = entries
-    .filter(e => e.category === 'Investment' && parseLocalDate(e.date) <= startCutoff)
-    .reduce((a, e) => a + Number(e.amount), 0);
-  let cumulativeNet = cumulativeInvested + entries
+  let cumulativeCapital = entries
     .filter(e => e.category === 'Capital' && parseLocalDate(e.date) <= startCutoff)
     .reduce((a, e) => a + Number(e.amount), 0);
+  let cumulativePlanned = entries
+    .filter(e => e.category === 'Investment' && parseLocalDate(e.date) <= startCutoff)
+    .reduce((a, e) => a + Number(e.amount), 0) + cumulativeCapital;
+  let cumulativeNet = cumulativeInvested + cumulativeCapital;
 
   for(let i = 0; i < 12; i++){
     const d = new Date(moneyMonthDate.getFullYear(), moneyMonthDate.getMonth() + i, 1);
@@ -1809,7 +1810,7 @@ function renderMoneyLineChart(){
     const monthCapital  = entries.filter(e => e.category === 'Capital' && inM(e.date)).reduce((a, e) => a + Number(e.amount), 0);
 
     cumulativeInvested += monthInvested;
-    cumulativePlanned  += monthPlanned;
+    cumulativePlanned  += monthPlanned + monthCapital; // Open+Closed Investment, plus that month's Capital
     cumulativeNet      += monthInvested + monthCapital; // each month: add newly invested + that month's capital
 
     labels.push(d.toLocaleString(undefined, {month:'short', year:'2-digit'}));
@@ -1848,7 +1849,7 @@ function renderMoneyLineChart(){
           borderWidth: 2
         },
         {
-          label: 'Planned (All)',
+          label: 'Planned (All) + Capital',
           data: plannedData,
           borderColor: '#5C6B7A',
           backgroundColor: 'transparent',
