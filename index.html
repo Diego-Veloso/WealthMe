@@ -402,6 +402,9 @@ main{
 #csvTextModalOverlay{
   z-index:140;
 }
+#entryModalOverlay{
+  z-index:145;
+}
 .modal-overlay.active{display:flex;}
 .modal{
   background:var(--cream);
@@ -1091,6 +1094,35 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
       <div class="btn-row">
         <button class="btn btn-primary btn-block" id="quickSaveAllBtn">Add All</button>
       </div>
+    </div>
+  </div>
+
+  <!-- ===== Account Detail Modal (Money > All-Time by Investment) ===== -->
+  <div class="modal-overlay" id="accountDetailModalOverlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="accountDetailTitle">Account</h3>
+        <button class="icon-btn" id="accountDetailClose">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="summary-grid" style="margin-bottom:16px;">
+        <div class="summary-card">
+          <div class="label">Invested</div>
+          <div class="value gold" id="accountDetailInvested">$0</div>
+        </div>
+        <div class="summary-card">
+          <div class="label">Capital</div>
+          <div class="value" id="accountDetailCapital">$0</div>
+        </div>
+        <div class="summary-card" style="grid-column:span 2;">
+          <div class="label">Total (Invested + Capital)</div>
+          <div class="value" id="accountDetailTotal">$0</div>
+          <div class="muted" style="font-size:11px;margin-top:2px;" id="accountDetailReturn"></div>
+        </div>
+      </div>
+      <div class="card-title" style="margin-bottom:6px;">All Entries</div>
+      <ul class="entry-list" id="accountDetailList"></ul>
     </div>
   </div>
 
@@ -1867,7 +1899,7 @@ function renderMoneyAllTimeBreakdown(){
       <span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--slate);flex:1;">Subcategory</span>
       <span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--slate);min-width:80px;text-align:right;">Invested</span>
       <span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--slate);min-width:80px;text-align:right;">Capital</span>
-      <span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--slate);min-width:55px;text-align:right;">Return</span>
+      <span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--slate);min-width:70px;text-align:right;">Return</span>
     </div>`;
 
   const html = rows.map(r => {
@@ -1877,8 +1909,9 @@ function renderMoneyAllTimeBreakdown(){
     const returnPct = r.invested !== 0 ? (r.capital / r.invested * 100) : null;
     const returnStr = returnPct !== null ? (returnPct >= 0 ? '+' : '') + returnPct.toFixed(1) + '%' : '—';
     const returnColor = returnPct === null ? 'color:var(--slate);' : returnPct > 0 ? 'color:#3E7C59;' : returnPct < 0 ? 'color:#C1583F;' : 'color:var(--slate);';
+    const total = r.invested + r.capital;
     return `
-      <div class="breakdown-row" style="align-items:flex-start;">
+      <div class="breakdown-row money-account-row" data-sub="${r.sub}" style="align-items:flex-start;cursor:pointer;">
         <div class="breakdown-left" style="flex:1;min-width:0;">
           <div class="breakdown-swatch" style="background:${PALETTE[r.i % PALETTE.length]};flex-shrink:0;margin-top:3px;"></div>
           <div style="flex:1;min-width:0;">
@@ -1887,6 +1920,7 @@ function renderMoneyAllTimeBreakdown(){
             <div class="progress-track" style="height:4px;margin-top:4px;width:80px;">
               <div class="progress-fill" style="width:${barWidth.toFixed(1)}%;height:100%;background:${PALETTE[r.i % PALETTE.length]};"></div>
             </div>
+            <div class="muted" style="font-size:11px;margin-top:4px;font-weight:700;color:var(--navy);">Total: ${fmtMoney(total)}</div>
           </div>
         </div>
         <div style="min-width:80px;text-align:right;flex-shrink:0;">
@@ -1895,8 +1929,9 @@ function renderMoneyAllTimeBreakdown(){
         <div style="min-width:80px;text-align:right;flex-shrink:0;">
           <div class="breakdown-amt" style="${capColor}">${r.capital !== 0 ? (r.capital > 0 ? '+' : '') + fmtMoney(r.capital) : '—'}</div>
         </div>
-        <div style="min-width:55px;text-align:right;flex-shrink:0;">
+        <div style="min-width:70px;text-align:right;flex-shrink:0;display:flex;align-items:center;justify-content:flex-end;gap:2px;">
           <div class="breakdown-amt" style="${returnColor};font-size:13px;">${returnStr}</div>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--slate);flex-shrink:0;"><polyline points="9 18 15 12 9 6"/></svg>
         </div>
       </div>`;
   }).join('');
@@ -1906,11 +1941,15 @@ function renderMoneyAllTimeBreakdown(){
   const totalReturnPct = grandInvested !== 0 ? (grandCapital / grandInvested * 100) : null;
   const totalReturnStr = totalReturnPct !== null ? (totalReturnPct >= 0 ? '+' : '') + totalReturnPct.toFixed(1) + '%' : '—';
   const totalReturnColor = totalReturnPct === null ? 'color:var(--slate);' : totalReturnPct > 0 ? 'color:#3E7C59;' : totalReturnPct < 0 ? 'color:#C1583F;' : 'color:var(--slate);';
+  const grandTotal = grandInvested + grandCapital;
   const totalRow = `
     <div class="breakdown-row" style="border-top:2px solid var(--line);margin-top:4px;padding-top:10px;">
       <div class="breakdown-left" style="flex:1;">
         <div class="breakdown-swatch" style="background:transparent;"></div>
-        <div class="breakdown-name" style="font-weight:700;">Total</div>
+        <div>
+          <div class="breakdown-name" style="font-weight:700;">Total</div>
+          <div class="muted" style="font-size:11px;margin-top:2px;font-weight:700;color:var(--navy);">Total: ${fmtMoney(grandTotal)}</div>
+        </div>
       </div>
       <div style="min-width:80px;text-align:right;flex-shrink:0;">
         <div class="breakdown-amt gold">${fmtMoney(grandInvested)}</div>
@@ -1918,13 +1957,55 @@ function renderMoneyAllTimeBreakdown(){
       <div style="min-width:80px;text-align:right;flex-shrink:0;">
         <div class="breakdown-amt" style="${capTotalColor}">${grandCapital !== 0 ? (grandCapital > 0 ? '+' : '') + fmtMoney(grandCapital) : '—'}</div>
       </div>
-      <div style="min-width:55px;text-align:right;flex-shrink:0;">
+      <div style="min-width:70px;text-align:right;flex-shrink:0;">
         <div class="breakdown-amt" style="${totalReturnColor};font-size:13px;">${totalReturnStr}</div>
       </div>
     </div>`;
 
   container.innerHTML = header + html + totalRow;
+
+  container.querySelectorAll('.money-account-row').forEach(row=>{
+    row.addEventListener('click', ()=> openAccountDetail(row.dataset.sub));
+  });
 }
+
+function openAccountDetail(sub){
+  const matching = entries
+    .filter(e => (e.category === 'Investment' || e.category === 'Capital') && e.subcategory === sub)
+    .slice()
+    .sort((a,b)=> b.date < a.date ? -1 : b.date > a.date ? 1 : 0);
+
+  const invested = entries
+    .filter(e => e.category === 'Investment' && e.status === 'Closed' && e.subcategory === sub)
+    .reduce((a, e) => a + Number(e.amount), 0);
+  const capital = entries
+    .filter(e => e.category === 'Capital' && e.subcategory === sub)
+    .reduce((a, e) => a + Number(e.amount), 0);
+  const total = invested + capital;
+  const returnPct = invested !== 0 ? (capital / invested * 100) : null;
+  const returnStr = returnPct !== null ? 'Return: ' + (returnPct >= 0 ? '+' : '') + returnPct.toFixed(1) + '%' : '';
+
+  document.getElementById('accountDetailTitle').textContent = sub;
+  document.getElementById('accountDetailInvested').textContent = fmtMoney(invested);
+  document.getElementById('accountDetailCapital').textContent = (capital >= 0 ? '+' : '') + fmtMoney(capital);
+  document.getElementById('accountDetailTotal').textContent = fmtMoney(total);
+  document.getElementById('accountDetailReturn').textContent = returnStr;
+
+  const listEl = document.getElementById('accountDetailList');
+  listEl.innerHTML = matching.length
+    ? matching.map(e=>renderEntryRow(e)).join('')
+    : `<div class="empty-state" style="padding:20px;"><span class="muted">No entries found.</span></div>`;
+  attachEntryRowHandlers(listEl);
+
+  document.getElementById('accountDetailModalOverlay').classList.add('active');
+}
+function closeAccountDetail(){
+  document.getElementById('accountDetailModalOverlay').classList.remove('active');
+}
+document.getElementById('accountDetailClose').addEventListener('click', closeAccountDetail);
+document.getElementById('accountDetailModalOverlay').addEventListener('click', (e)=>{
+  if(e.target.id === 'accountDetailModalOverlay') closeAccountDetail();
+});
 
 function switchView(viewName){
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
