@@ -479,6 +479,10 @@ main{
   font-size:12px;font-weight:700;color:var(--slate);text-transform:uppercase;letter-spacing:.5px;
 }
 .quick-row-remove{width:28px;height:28px;border-radius:8px;font-size:14px;}
+.money-account-row{
+  border:1px solid var(--line);border-radius:14px;
+  padding:12px;margin-bottom:10px;background:var(--card);
+}
 
 /* ===== Toggle switch ===== */
 .toggle-row{
@@ -1893,14 +1897,7 @@ function renderMoneyAllTimeBreakdown(){
   const grandInvested = rows.reduce((a, r) => a + r.invested, 0);
   const grandCapital  = rows.reduce((a, r) => a + r.capital,  0);
 
-  // Column headers
-  const header = `
-    <div style="display:flex;justify-content:space-between;padding:4px 2px 8px;border-bottom:1px solid var(--line);margin-bottom:2px;">
-      <span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--slate);flex:1;">Subcategory</span>
-      <span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--slate);min-width:80px;text-align:right;">Invested</span>
-      <span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--slate);min-width:80px;text-align:right;">Capital</span>
-      <span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--slate);min-width:70px;text-align:right;">Return</span>
-    </div>`;
+  // Header removed — each account is now a self-labelled card below.
 
   const html = rows.map(r => {
     const alloc = grandInvested !== 0 ? (r.invested / grandInvested * 100).toFixed(1) : '0.0';
@@ -1910,28 +1907,39 @@ function renderMoneyAllTimeBreakdown(){
     const returnStr = returnPct !== null ? (returnPct >= 0 ? '+' : '') + returnPct.toFixed(1) + '%' : '—';
     const returnColor = returnPct === null ? 'color:var(--slate);' : returnPct > 0 ? 'color:#3E7C59;' : returnPct < 0 ? 'color:#C1583F;' : 'color:var(--slate);';
     const total = r.invested + r.capital;
+    const color = PALETTE[r.i % PALETTE.length];
     return `
-      <div class="breakdown-row money-account-row" data-sub="${r.sub}" style="align-items:flex-start;cursor:pointer;">
-        <div class="breakdown-left" style="flex:1;min-width:0;">
-          <div class="breakdown-swatch" style="background:${PALETTE[r.i % PALETTE.length]};flex-shrink:0;margin-top:3px;"></div>
-          <div style="flex:1;min-width:0;">
-            <div class="breakdown-name">${r.sub}</div>
-            <div class="muted" style="font-size:11px;">${alloc}% of total</div>
-            <div class="progress-track" style="height:4px;margin-top:4px;width:80px;">
-              <div class="progress-fill" style="width:${barWidth.toFixed(1)}%;height:100%;background:${PALETTE[r.i % PALETTE.length]};"></div>
+      <div class="money-account-row" data-sub="${r.sub}" style="cursor:pointer;">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+          <div style="display:flex;align-items:center;gap:8px;min-width:0;">
+            <div class="breakdown-swatch" style="background:${color};flex-shrink:0;"></div>
+            <div style="min-width:0;">
+              <div class="breakdown-name">${r.sub}</div>
+              <div class="muted" style="font-size:11px;">${alloc}% of total</div>
             </div>
-            <div class="muted" style="font-size:11px;margin-top:4px;font-weight:700;color:var(--navy);">Total: ${fmtMoney(total)}</div>
           </div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--slate);flex-shrink:0;"><polyline points="9 18 15 12 9 6"/></svg>
         </div>
-        <div style="min-width:80px;text-align:right;flex-shrink:0;">
-          <div class="breakdown-amt" style="color:${PALETTE[r.i % PALETTE.length]}">${fmtMoney(r.invested)}</div>
+        <div class="progress-track" style="height:4px;margin:8px 0 10px;">
+          <div class="progress-fill" style="width:${barWidth.toFixed(1)}%;height:100%;background:${color};"></div>
         </div>
-        <div style="min-width:80px;text-align:right;flex-shrink:0;">
-          <div class="breakdown-amt" style="${capColor}">${r.capital !== 0 ? (r.capital > 0 ? '+' : '') + fmtMoney(r.capital) : '—'}</div>
-        </div>
-        <div style="min-width:70px;text-align:right;flex-shrink:0;display:flex;align-items:center;justify-content:flex-end;gap:2px;">
-          <div class="breakdown-amt" style="${returnColor};font-size:13px;">${returnStr}</div>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--slate);flex-shrink:0;"><polyline points="9 18 15 12 9 6"/></svg>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;">
+          <div>
+            <div class="muted" style="font-size:10px;text-transform:uppercase;letter-spacing:.4px;">Invested</div>
+            <div class="breakdown-amt" style="color:${color};font-size:13px;">${fmtMoney(r.invested)}</div>
+          </div>
+          <div>
+            <div class="muted" style="font-size:10px;text-transform:uppercase;letter-spacing:.4px;">Capital</div>
+            <div class="breakdown-amt" style="${capColor}font-size:13px;">${r.capital !== 0 ? (r.capital > 0 ? '+' : '') + fmtMoney(r.capital) : '—'}</div>
+          </div>
+          <div>
+            <div class="muted" style="font-size:10px;text-transform:uppercase;letter-spacing:.4px;">Total</div>
+            <div class="breakdown-amt" style="font-size:13px;">${fmtMoney(total)}</div>
+          </div>
+          <div>
+            <div class="muted" style="font-size:10px;text-transform:uppercase;letter-spacing:.4px;">Return</div>
+            <div class="breakdown-amt" style="${returnColor}font-size:13px;">${returnStr}</div>
+          </div>
         </div>
       </div>`;
   }).join('');
@@ -1943,26 +1951,29 @@ function renderMoneyAllTimeBreakdown(){
   const totalReturnColor = totalReturnPct === null ? 'color:var(--slate);' : totalReturnPct > 0 ? 'color:#3E7C59;' : totalReturnPct < 0 ? 'color:#C1583F;' : 'color:var(--slate);';
   const grandTotal = grandInvested + grandCapital;
   const totalRow = `
-    <div class="breakdown-row" style="border-top:2px solid var(--line);margin-top:4px;padding-top:10px;">
-      <div class="breakdown-left" style="flex:1;">
-        <div class="breakdown-swatch" style="background:transparent;"></div>
+    <div class="money-account-row" style="border-top:2px solid var(--line);border-radius:0;background:transparent;padding:12px 0 0;margin-top:4px;">
+      <div class="breakdown-name" style="font-weight:700;margin-bottom:8px;">Total</div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;">
         <div>
-          <div class="breakdown-name" style="font-weight:700;">Total</div>
-          <div class="muted" style="font-size:11px;margin-top:2px;font-weight:700;color:var(--navy);">Total: ${fmtMoney(grandTotal)}</div>
+          <div class="muted" style="font-size:10px;text-transform:uppercase;letter-spacing:.4px;">Invested</div>
+          <div class="breakdown-amt gold" style="font-size:13px;">${fmtMoney(grandInvested)}</div>
         </div>
-      </div>
-      <div style="min-width:80px;text-align:right;flex-shrink:0;">
-        <div class="breakdown-amt gold">${fmtMoney(grandInvested)}</div>
-      </div>
-      <div style="min-width:80px;text-align:right;flex-shrink:0;">
-        <div class="breakdown-amt" style="${capTotalColor}">${grandCapital !== 0 ? (grandCapital > 0 ? '+' : '') + fmtMoney(grandCapital) : '—'}</div>
-      </div>
-      <div style="min-width:70px;text-align:right;flex-shrink:0;">
-        <div class="breakdown-amt" style="${totalReturnColor};font-size:13px;">${totalReturnStr}</div>
+        <div>
+          <div class="muted" style="font-size:10px;text-transform:uppercase;letter-spacing:.4px;">Capital</div>
+          <div class="breakdown-amt" style="${capTotalColor}font-size:13px;">${grandCapital !== 0 ? (grandCapital > 0 ? '+' : '') + fmtMoney(grandCapital) : '—'}</div>
+        </div>
+        <div>
+          <div class="muted" style="font-size:10px;text-transform:uppercase;letter-spacing:.4px;">Total</div>
+          <div class="breakdown-amt" style="font-size:13px;">${fmtMoney(grandTotal)}</div>
+        </div>
+        <div>
+          <div class="muted" style="font-size:10px;text-transform:uppercase;letter-spacing:.4px;">Return</div>
+          <div class="breakdown-amt" style="${totalReturnColor}font-size:13px;">${totalReturnStr}</div>
+        </div>
       </div>
     </div>`;
 
-  container.innerHTML = header + html + totalRow;
+  container.innerHTML = html + totalRow;
 
   container.querySelectorAll('.money-account-row').forEach(row=>{
     row.addEventListener('click', ()=> openAccountDetail(row.dataset.sub));
