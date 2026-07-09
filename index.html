@@ -1836,6 +1836,18 @@ function renderMoneyLineChart(){
           borderWidth: 2
         },
         {
+          label: 'Total (Invested + Capital)',
+          data: netData,
+          borderColor: '#3E7C59',
+          backgroundColor: 'rgba(62,124,89,0.12)',
+          fill: true,
+          tension: 0.35,
+          pointRadius: 0,
+          pointHoverRadius: 5,
+          pointHoverBackgroundColor: '#3E7C59',
+          borderWidth: 2
+        },
+        {
           label: 'Planned (All)',
           data: plannedData,
           borderColor: '#5C6B7A',
