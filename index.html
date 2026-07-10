@@ -1121,7 +1121,30 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
       </div>
 
       <div class="section-title" style="margin-top:16px;">Entries</div>
-      <div id="quickRowsContainer"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <label style="display:flex;align-items:center;gap:6px;font-size:13px;">
+          <input type="checkbox" id="quickSelectAllChk" checked> Select All
+        </label>
+        <span class="muted" id="quickSelectedCount" style="font-size:12px;"></span>
+      </div>
+      <div class="two-col" style="align-items:flex-end;">
+        <div class="field" style="margin-bottom:0;">
+          <label>Bulk Update Field</label>
+          <select id="quickBulkField">
+            <option value="date">Date</option>
+            <option value="amount">Amount</option>
+            <option value="status">Status</option>
+            <option value="notes">Notes</option>
+          </select>
+        </div>
+        <div class="field" style="margin-bottom:0;" id="quickBulkValueWrap">
+          <label id="quickBulkValueLabel">New Date</label>
+          <div id="quickBulkValueControl"><input type="date" id="quickBulkValueInput"></div>
+        </div>
+      </div>
+      <button class="btn btn-secondary btn-block" id="quickBulkApplyBtn" style="margin-top:8px;">Apply to Selected</button>
+
+      <div id="quickRowsContainer" style="margin-top:16px;"></div>
       <button class="btn btn-secondary btn-block" id="quickAddRowBtn" style="margin-top:4px;">+ Add New Row</button>
 
       <div class="btn-row">
@@ -3002,7 +3025,10 @@ function quickRowTemplate(row){
   return `
     <div class="quick-row" data-key="${row.key}" data-entry-id="${row.entryId != null ? row.entryId : ''}">
       <div class="quick-row-header">
-        <span class="quick-row-num">${row.entryId != null ? 'Entry #'+row.entryId : 'New Entry'}</span>
+        <label style="display:flex;align-items:center;gap:8px;">
+          <input type="checkbox" class="quick-row-select" checked>
+          <span class="quick-row-num">${row.entryId != null ? 'Entry #'+row.entryId : 'New Entry'}</span>
+        </label>
         <button type="button" class="icon-btn quick-row-remove" title="Remove row">✕</button>
       </div>
       <div class="two-col">
@@ -3085,6 +3111,7 @@ function loadMatchingQuickEntries(){
   quickRemovedEntryIds = [];
   if(matches.length === 0){
     showToast('No existing entries found for this filter');
+    updateQuickSelectedCount();
     return;
   }
   matches.forEach(e=>{
@@ -3094,6 +3121,8 @@ function loadMatchingQuickEntries(){
     };
     document.getElementById('quickRowsContainer').insertAdjacentHTML('beforeend', quickRowTemplate(row));
   });
+  document.getElementById('quickSelectAllChk').checked = true;
+  updateQuickSelectedCount();
   showToast(`Loaded ${matches.length} entr${matches.length===1?'y':'ies'}`);
 }
 
@@ -3157,6 +3186,9 @@ function openQuickAddModal(mode){
   quickRowSeq = 0;
   quickRemovedEntryIds = [];
   resetQuickFilters();
+  document.getElementById('quickSelectAllChk').checked = true;
+  document.getElementById('quickBulkField').value = 'date';
+  updateQuickBulkValueWrap();
 
   const loadBtn = document.getElementById('quickLoadBtn');
   const addRowBtn = document.getElementById('quickAddRowBtn');
@@ -3179,6 +3211,7 @@ function openQuickAddModal(mode){
     addQuickRow();
     addQuickRow();
     addQuickRow();
+    updateQuickSelectedCount();
   }
   document.getElementById('quickAddModalOverlay').classList.add('active');
 }
@@ -3202,6 +3235,7 @@ document.getElementById('quickAddRowBtn').addEventListener('click', ()=>{
   addQuickRow();
   const rows = document.querySelectorAll('#quickRowsContainer .quick-row');
   if(rows.length) rows[rows.length-1].scrollIntoView({behavior:'smooth', block:'center'});
+  updateQuickSelectedCount();
 });
 document.getElementById('quickRowsContainer').addEventListener('click', (e)=>{
   if(e.target.closest('.quick-row-remove')){
@@ -3209,6 +3243,7 @@ document.getElementById('quickRowsContainer').addEventListener('click', (e)=>{
     const entryId = rowEl.dataset.entryId;
     if(entryId !== ''){ quickRemovedEntryIds.push(Number(entryId)); }
     rowEl.remove();
+    updateQuickSelectedCount();
   }
 });
 document.getElementById('quickRowsContainer').addEventListener('change', (e)=>{
@@ -3216,6 +3251,71 @@ document.getElementById('quickRowsContainer').addEventListener('change', (e)=>{
     const rowEl = e.target.closest('.quick-row');
     rowEl.querySelector('.quick-status-label').textContent = e.target.checked ? 'Closed' : 'Open';
   }
+  if(e.target.classList.contains('quick-row-select')){
+    updateQuickSelectedCount();
+  }
+});
+
+function updateQuickSelectedCount(){
+  const total = document.querySelectorAll('#quickRowsContainer .quick-row').length;
+  const selected = document.querySelectorAll('#quickRowsContainer .quick-row-select:checked').length;
+  const countEl = document.getElementById('quickSelectedCount');
+  countEl.textContent = total ? `${selected} of ${total} selected` : '';
+}
+document.getElementById('quickSelectAllChk').addEventListener('change', (e)=>{
+  document.querySelectorAll('#quickRowsContainer .quick-row-select').forEach(chk=>{ chk.checked = e.target.checked; });
+  updateQuickSelectedCount();
+});
+
+const quickBulkValueConfigs = {
+  date:   { label: 'New Date',   html: '<input type="date" id="quickBulkValueInput">' },
+  amount: { label: 'New Amount', html: '<input type="number" step="0.01" id="quickBulkValueInput" placeholder="0.00">' },
+  status: { label: 'New Status', html: '<select id="quickBulkValueInput"><option value="Open">Open</option><option value="Closed">Closed</option></select>' },
+  notes:  { label: 'New Note',   html: '<input type="text" id="quickBulkValueInput" placeholder="New note">' }
+};
+function updateQuickBulkValueWrap(){
+  const field = document.getElementById('quickBulkField').value;
+  const cfg = quickBulkValueConfigs[field];
+  document.getElementById('quickBulkValueLabel').textContent = cfg.label;
+  document.getElementById('quickBulkValueControl').innerHTML = cfg.html;
+}
+document.getElementById('quickBulkField').addEventListener('change', updateQuickBulkValueWrap);
+
+document.getElementById('quickBulkApplyBtn').addEventListener('click', ()=>{
+  const field = document.getElementById('quickBulkField').value;
+  const valueEl = document.getElementById('quickBulkValueInput');
+  const newValue = valueEl.value;
+  const selectedRows = document.querySelectorAll('#quickRowsContainer .quick-row-select:checked');
+
+  if(selectedRows.length === 0){
+    showToast('No entries selected');
+    return;
+  }
+  if(field !== 'notes' && newValue === ''){
+    showToast('Enter a value first');
+    return;
+  }
+  if(field === 'amount' && isNaN(parseFloat(newValue))){
+    showToast('Enter a valid amount');
+    return;
+  }
+
+  selectedRows.forEach(chk=>{
+    const rowEl = chk.closest('.quick-row');
+    if(field === 'date'){
+      rowEl.querySelector('.quick-date').value = newValue;
+    } else if(field === 'amount'){
+      rowEl.querySelector('.quick-amount').value = newValue;
+    } else if(field === 'notes'){
+      rowEl.querySelector('.quick-notes').value = newValue;
+    } else if(field === 'status'){
+      const toggle = rowEl.querySelector('.quick-status-toggle');
+      toggle.checked = (newValue === 'Closed');
+      rowEl.querySelector('.quick-status-label').textContent = newValue === 'Closed' ? 'Closed' : 'Open';
+    }
+  });
+
+  showToast(`Updated ${quickBulkValueConfigs[field].label.replace('New ', '')} on ${selectedRows.length} entr${selectedRows.length===1?'y':'ies'}`);
 });
 
 document.getElementById('quickSaveAllBtn').addEventListener('click', ()=>{
