@@ -792,7 +792,10 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
         </label>
         <span class="muted" id="txSelectedCount" style="font-size:12px;"></span>
       </div>
-      <button class="btn btn-secondary btn-block" id="txBulkEditOpenBtn" style="margin-bottom:10px;display:none;">Bulk Edit Selected</button>
+      <div class="csv-row" style="display:none;" id="txBulkActionsRow">
+        <button class="btn btn-secondary" id="txBulkEditOpenBtn" style="flex:1;">Bulk Edit Selected</button>
+        <button class="btn btn-danger" id="txBulkDeleteBtn" style="flex:1;">Bulk Delete Selected</button>
+      </div>
       <div id="txList" style="margin-top:4px;"></div>
     </section>
 
@@ -2247,7 +2250,7 @@ function updateTxSelectedCount(){
   const total = boxes.length;
   const selected = document.querySelectorAll('#txList .entry-select:checked').length;
   document.getElementById('txSelectedCount').textContent = total ? `${selected} of ${total} selected` : '';
-  document.getElementById('txBulkEditOpenBtn').style.display = selected > 0 ? 'block' : 'none';
+  document.getElementById('txBulkActionsRow').style.display = selected > 0 ? 'flex' : 'none';
 }
 document.getElementById('txSelectAllChk').addEventListener('change', (e)=>{
   document.querySelectorAll('#txList .entry-select').forEach(chk=>{ chk.checked = e.target.checked; });
@@ -2365,6 +2368,31 @@ document.getElementById('txBulkApplyBtn').addEventListener('click', ()=>{
   showToast(`Updated ${updatedCount} entr${updatedCount===1?'y':'ies'}`);
 
   if(syncUrl){ syncPush(); }
+});
+
+document.getElementById('txBulkDeleteBtn').addEventListener('click', ()=>{
+  const selectedIds = Array.from(document.querySelectorAll('#txList .entry-select:checked'))
+    .map(chk => Number(chk.closest('.entry-row').dataset.id));
+
+  if(selectedIds.length === 0){
+    showToast('No entries selected');
+    return;
+  }
+
+  showConfirm(
+    'Delete selected entries?',
+    `This will permanently delete ${selectedIds.length} selected entr${selectedIds.length===1?'y':'ies'}. This can't be undone.`,
+    ()=>{
+      entries = entries.filter(e=>!selectedIds.includes(e.id));
+      saveState();
+      renderCurrentView(getActiveViewName());
+      showToast(`Deleted ${selectedIds.length} entr${selectedIds.length===1?'y':'ies'}`);
+      if(syncUrl){
+        if(selectedIds.length > 3){ syncPush(); }
+        else { selectedIds.forEach(id=>autoSyncDelete(id)); }
+      }
+    }
+  );
 });
 
 /* Debts search */
