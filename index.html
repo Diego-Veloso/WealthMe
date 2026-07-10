@@ -746,6 +746,7 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
     <!-- ============ TRANSACTIONS VIEW ============ -->
     <section class="view" id="view-transactions">
       <h2 class="card-title" style="margin:10px 0 14px;">Transactions</h2>
+      <button class="btn btn-secondary btn-block" id="recurringOpenBtn" style="margin-bottom:12px;">+ Recurring Entry</button>
       <div class="search-bar">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         <input type="text" id="txSearchInput" placeholder="Search by category, subcategory, notes, account...">
@@ -1041,6 +1042,88 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
         <button class="btn btn-secondary" id="resetDataBtn" style="flex:1;">Reset to Sample Data</button>
       </div>
       <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;">Wealth.Me · Version 1.0</p>
+    </div>
+  </div>
+
+  <!-- ===== Recurring Entry Modal ===== -->
+  <div class="modal-overlay" id="recurringModalOverlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Recurring Entry</h3>
+        <button class="icon-btn" id="recurringModalClose">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <p class="muted" style="margin-bottom:12px;">Fill in the entry once, choose how often it repeats, and we'll create every occurrence for you — great for rent, subscriptions, or loan payments.</p>
+
+      <div class="field">
+        <label>Start Date</label>
+        <input type="date" id="recurringDate">
+      </div>
+      <div class="two-col">
+        <div class="field">
+          <label>Category</label>
+          <select id="recurringCategory"></select>
+        </div>
+        <div class="field">
+          <label>Subcategory</label>
+          <select id="recurringSubcategory"></select>
+        </div>
+      </div>
+      <div class="two-col">
+        <div class="field">
+          <label>Amount</label>
+          <input type="number" id="recurringAmount" step="0.01" placeholder="0.00">
+        </div>
+        <div class="field">
+          <label>Status</label>
+          <div class="toggle-row">
+            <span class="toggle-label" id="recurringStatusLabel">Open</span>
+            <label class="toggle-switch">
+              <input type="checkbox" id="recurringStatusToggle">
+              <span class="toggle-thumb"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+      <div class="field">
+        <label>Notes (optional)</label>
+        <textarea id="recurringNotes" placeholder="e.g. Rent"></textarea>
+      </div>
+      <div class="field" id="recurringTypeField" style="display:none;">
+        <label>Type</label>
+        <select id="recurringType">
+          <option>Credit Card</option>
+          <option>Financing</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="field" id="recurringAccountField" style="display:none;">
+        <label>Account (optional)</label>
+        <select id="recurringAccount"></select>
+      </div>
+
+      <div class="section-title" style="margin-top:16px;">Repeat</div>
+      <div class="two-col">
+        <div class="field">
+          <label>Frequency</label>
+          <select id="recurringFrequency">
+            <option value="weekly">Weekly</option>
+            <option value="biweekly">Every 2 Weeks</option>
+            <option value="monthly" selected>Monthly</option>
+            <option value="yearly">Yearly</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Number of Occurrences</label>
+          <input type="number" id="recurringCount" min="1" max="60" value="12">
+        </div>
+      </div>
+      <div class="muted" id="recurringPreview" style="font-size:12px;margin-bottom:4px;"></div>
+
+      <div class="btn-row">
+        <button class="btn btn-primary btn-block" id="recurringSaveBtn">Create Entries</button>
+      </div>
     </div>
   </div>
 
@@ -2505,6 +2588,155 @@ document.getElementById('entryDeleteBtn').addEventListener('click', ()=>{
 });
 
 document.getElementById('addFab').addEventListener('click', ()=> openEntryModal(null));
+
+/* =========================================================
+   RECURRING ENTRY — fill fields once, pick a frequency, and
+   create every occurrence at once.
+   ========================================================= */
+function populateRecurringCategorySelectors(selectedCategory, selectedSub){
+  const catSel = document.getElementById('recurringCategory');
+  catSel.innerHTML = Object.keys(CATEGORY_MAP).map(c=>`<option value="${c}" ${c===selectedCategory?'selected':''}>${c}</option>`).join('');
+
+  const subSel = document.getElementById('recurringSubcategory');
+  const sortedSubs = CATEGORY_MAP[selectedCategory].slice().sort((a,b)=>a.localeCompare(b));
+  subSel.innerHTML = sortedSubs.map(s=>`<option value="${s}" ${s===selectedSub?'selected':''}>${s}</option>`).join('');
+
+  document.getElementById('recurringTypeField').style.display = (selectedCategory === 'Expense') ? 'block' : 'none';
+  if(selectedCategory === 'Expense'){
+    populateRecurringAccountSelector(document.getElementById('recurringType').value, null);
+  } else {
+    document.getElementById('recurringAccountField').style.display = 'none';
+  }
+}
+function populateRecurringAccountSelector(selectedType, selectedAccount){
+  const accountField = document.getElementById('recurringAccountField');
+  const accountSel = document.getElementById('recurringAccount');
+  const accounts = DEBT_ACCOUNTS[selectedType] || [];
+  if(accounts.length === 0){
+    accountField.style.display = 'none';
+    accountSel.innerHTML = '';
+    return;
+  }
+  accountField.style.display = 'block';
+  const options = ['<option value="">None</option>'].concat(
+    accounts.map(a=>`<option value="${a}" ${a===selectedAccount?'selected':''}>${a}</option>`)
+  );
+  accountSel.innerHTML = options.join('');
+}
+document.getElementById('recurringCategory').addEventListener('change', (e)=>{
+  const cat = e.target.value;
+  populateRecurringCategorySelectors(cat, CATEGORY_MAP[cat][0]);
+});
+document.getElementById('recurringType').addEventListener('change', (e)=>{
+  populateRecurringAccountSelector(e.target.value, null);
+});
+document.getElementById('recurringStatusToggle').addEventListener('change', (e)=>{
+  document.getElementById('recurringStatusLabel').textContent = e.target.checked ? 'Closed' : 'Open';
+});
+
+// Compute the i-th occurrence date given a start date, frequency, and index (0-based).
+function recurringOccurrenceDate(startDateStr, frequency, i){
+  const start = parseLocalDate(startDateStr);
+  if(!start) return startDateStr;
+  if(frequency === 'weekly'){
+    const d = new Date(start); d.setDate(d.getDate() + 7*i);
+    return formatLocalDate(d);
+  }
+  if(frequency === 'biweekly'){
+    const d = new Date(start); d.setDate(d.getDate() + 14*i);
+    return formatLocalDate(d);
+  }
+  if(frequency === 'yearly'){
+    const d = new Date(start.getFullYear()+i, start.getMonth(), start.getDate());
+    if(d.getMonth() !== start.getMonth()) d.setDate(0); // Feb 29 overflow safety
+    return formatLocalDate(d);
+  }
+  // monthly (default)
+  const targetMonth = start.getMonth() + i;
+  const d = new Date(start.getFullYear(), targetMonth, start.getDate());
+  if(d.getMonth() !== (((targetMonth % 12) + 12) % 12)) d.setDate(0); // month-length overflow safety
+  return formatLocalDate(d);
+}
+
+function updateRecurringPreview(){
+  const startDate = document.getElementById('recurringDate').value;
+  const frequency = document.getElementById('recurringFrequency').value;
+  const count = Math.max(1, Math.min(60, parseInt(document.getElementById('recurringCount').value) || 1));
+  const preview = document.getElementById('recurringPreview');
+  if(!startDate){ preview.textContent = ''; return; }
+  const firstDate = recurringOccurrenceDate(startDate, frequency, 0);
+  const lastDate = recurringOccurrenceDate(startDate, frequency, count - 1);
+  const fmt = (s) => parseLocalDate(s).toLocaleDateString(undefined, {month:'short', day:'numeric', year:'numeric'});
+  preview.textContent = count === 1
+    ? `Will create 1 entry on ${fmt(firstDate)}`
+    : `Will create ${count} entries from ${fmt(firstDate)} to ${fmt(lastDate)}`;
+}
+document.getElementById('recurringDate').addEventListener('input', updateRecurringPreview);
+document.getElementById('recurringFrequency').addEventListener('change', updateRecurringPreview);
+document.getElementById('recurringCount').addEventListener('input', updateRecurringPreview);
+
+function openRecurringModal(){
+  document.getElementById('recurringDate').value = formatLocalDate(new Date());
+  populateRecurringCategorySelectors('Expense', CATEGORY_MAP.Expense[0]);
+  document.getElementById('recurringAmount').value = '';
+  document.getElementById('recurringStatusToggle').checked = false;
+  document.getElementById('recurringStatusLabel').textContent = 'Open';
+  document.getElementById('recurringNotes').value = '';
+  document.getElementById('recurringType').value = 'Other';
+  document.getElementById('recurringFrequency').value = 'monthly';
+  document.getElementById('recurringCount').value = 12;
+  updateRecurringPreview();
+  document.getElementById('recurringModalOverlay').classList.add('active');
+}
+function closeRecurringModal(){
+  document.getElementById('recurringModalOverlay').classList.remove('active');
+}
+document.getElementById('recurringOpenBtn').addEventListener('click', openRecurringModal);
+document.getElementById('recurringModalClose').addEventListener('click', closeRecurringModal);
+document.getElementById('recurringModalOverlay').addEventListener('click', (e)=>{
+  if(e.target.id === 'recurringModalOverlay') closeRecurringModal();
+});
+
+document.getElementById('recurringSaveBtn').addEventListener('click', ()=>{
+  const startDate = document.getElementById('recurringDate').value;
+  const category = document.getElementById('recurringCategory').value;
+  const subcategory = document.getElementById('recurringSubcategory').value;
+  const amount = parseFloat(document.getElementById('recurringAmount').value);
+  const status = document.getElementById('recurringStatusToggle').checked ? 'Closed' : 'Open';
+  const notes = document.getElementById('recurringNotes').value.trim();
+  const isExpense = category === 'Expense';
+  const type = isExpense ? document.getElementById('recurringType').value : undefined;
+  const account = isExpense ? document.getElementById('recurringAccount').value : '';
+  const frequency = document.getElementById('recurringFrequency').value;
+  const count = Math.max(1, Math.min(60, parseInt(document.getElementById('recurringCount').value) || 1));
+
+  if(!startDate || isNaN(amount)){
+    showToast('Please enter a start date and amount.');
+    return;
+  }
+
+  const newEntries = [];
+  for(let i = 0; i < count; i++){
+    const entry = {
+      id: uid(),
+      date: recurringOccurrenceDate(startDate, frequency, i),
+      category, subcategory, amount, status, notes
+    };
+    if(isExpense){ entry.type = type; if(account){ entry.account = account; } }
+    entries.push(entry);
+    newEntries.push(entry);
+  }
+
+  saveState();
+  closeRecurringModal();
+  renderCurrentView(getActiveViewName());
+  showToast(`Created ${count} entr${count===1?'y':'ies'}`);
+
+  if(syncUrl){
+    if(newEntries.length > 3){ syncPush(); }
+    else { newEntries.forEach(en=>autoSyncEntry(en)); }
+  }
+});
 
 function getActiveViewName(){
   const activeView = document.querySelector('.view.active');
