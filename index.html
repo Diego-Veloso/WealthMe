@@ -785,7 +785,14 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
           <svg id="txSortIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
         </button>
       </div>
-      <div id="txList" style="margin-top:14px;"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px;margin-bottom:4px;">
+        <label style="display:flex;align-items:center;gap:6px;font-size:13px;">
+          <input type="checkbox" id="txSelectAllChk"> Select All Visible
+        </label>
+        <span class="muted" id="txSelectedCount" style="font-size:12px;"></span>
+      </div>
+      <button class="btn btn-secondary btn-block" id="txBulkEditOpenBtn" style="margin-bottom:10px;display:none;">Bulk Edit Selected</button>
+      <div id="txList" style="margin-top:4px;"></div>
     </section>
 
     <!-- ============ DEBTS VIEW ============ -->
@@ -1034,6 +1041,48 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
         <button class="btn btn-secondary" id="resetDataBtn" style="flex:1;">Reset to Sample Data</button>
       </div>
       <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;">Wealth.Me · Version 1.0</p>
+    </div>
+  </div>
+
+  <!-- ===== Bulk Edit Transactions Modal ===== -->
+  <div class="modal-overlay" id="txBulkEditModalOverlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Bulk Edit Entries</h3>
+        <button class="icon-btn" id="txBulkEditModalClose">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <p class="muted" id="txBulkEditDesc" style="margin-bottom:12px;"></p>
+
+      <div class="field">
+        <label>Field to Update</label>
+        <select id="txBulkField">
+          <option value="date">Date</option>
+          <option value="amount">Amount</option>
+          <option value="status">Status</option>
+          <option value="notes">Notes</option>
+          <option value="category">Category &amp; Subcategory</option>
+        </select>
+      </div>
+      <div class="field" id="txBulkValueWrap">
+        <label id="txBulkValueLabel">New Date</label>
+        <div id="txBulkValueControl"><input type="date" id="txBulkValueInput"></div>
+      </div>
+      <div class="two-col" id="txBulkCategoryRow" style="display:none;">
+        <div class="field">
+          <label>Category</label>
+          <select id="txBulkCategorySelect"></select>
+        </div>
+        <div class="field">
+          <label>Subcategory</label>
+          <select id="txBulkSubcategorySelect"></select>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-primary btn-block" id="txBulkApplyBtn">Apply to Selected</button>
+      </div>
     </div>
   </div>
 
@@ -2107,6 +2156,132 @@ txSearchClear.addEventListener('click', ()=>{
   txSearchClear.style.display = 'none';
   renderTransactions();
   txSearchInput.focus();
+});
+
+/* ===== Transactions: select-all + bulk edit ===== */
+function updateTxSelectedCount(){
+  const boxes = document.querySelectorAll('#txList .entry-select');
+  const total = boxes.length;
+  const selected = document.querySelectorAll('#txList .entry-select:checked').length;
+  document.getElementById('txSelectedCount').textContent = total ? `${selected} of ${total} selected` : '';
+  document.getElementById('txBulkEditOpenBtn').style.display = selected > 0 ? 'block' : 'none';
+}
+document.getElementById('txSelectAllChk').addEventListener('change', (e)=>{
+  document.querySelectorAll('#txList .entry-select').forEach(chk=>{ chk.checked = e.target.checked; });
+  updateTxSelectedCount();
+});
+document.getElementById('txList').addEventListener('change', (e)=>{
+  if(e.target.classList.contains('entry-select')){
+    updateTxSelectedCount();
+  }
+});
+
+const txBulkValueConfigs = {
+  date:   { label: 'New Date',   html: '<input type="date" id="txBulkValueInput">' },
+  amount: { label: 'New Amount', html: '<input type="number" step="0.01" id="txBulkValueInput" placeholder="0.00">' },
+  status: { label: 'New Status', html: '<select id="txBulkValueInput"><option value="Open">Open</option><option value="Closed">Closed</option></select>' },
+  notes:  { label: 'New Note',   html: '<input type="text" id="txBulkValueInput" placeholder="New note">' }
+};
+function updateTxBulkValueWrap(){
+  const field = document.getElementById('txBulkField').value;
+  const valueWrap = document.getElementById('txBulkValueWrap');
+  const categoryRow = document.getElementById('txBulkCategoryRow');
+  if(field === 'category'){
+    valueWrap.style.display = 'none';
+    categoryRow.style.display = 'grid';
+    populateTxBulkCategorySelectors();
+  } else {
+    valueWrap.style.display = 'block';
+    categoryRow.style.display = 'none';
+    const cfg = txBulkValueConfigs[field];
+    document.getElementById('txBulkValueLabel').textContent = cfg.label;
+    document.getElementById('txBulkValueControl').innerHTML = cfg.html;
+  }
+}
+function populateTxBulkCategorySelectors(){
+  const catSel = document.getElementById('txBulkCategorySelect');
+  const subSel = document.getElementById('txBulkSubcategorySelect');
+  if(catSel.options.length === 0){
+    catSel.innerHTML = Object.keys(CATEGORY_MAP).map(c=>`<option value="${c}">${c}</option>`).join('');
+  }
+  const sortedSubs = CATEGORY_MAP[catSel.value].slice().sort((a,b)=>a.localeCompare(b));
+  subSel.innerHTML = sortedSubs.map(s=>`<option value="${s}">${s}</option>`).join('');
+}
+document.getElementById('txBulkField').addEventListener('change', updateTxBulkValueWrap);
+document.getElementById('txBulkCategorySelect').addEventListener('change', populateTxBulkCategorySelectors);
+
+document.getElementById('txBulkEditOpenBtn').addEventListener('click', ()=>{
+  const selected = document.querySelectorAll('#txList .entry-select:checked').length;
+  document.getElementById('txBulkEditDesc').textContent = `Point to the field you want to change, set the new value once, then apply it to all ${selected} selected entr${selected===1?'y':'ies'}.`;
+  document.getElementById('txBulkField').value = 'date';
+  updateTxBulkValueWrap();
+  document.getElementById('txBulkEditModalOverlay').classList.add('active');
+});
+document.getElementById('txBulkEditModalClose').addEventListener('click', ()=>{
+  document.getElementById('txBulkEditModalOverlay').classList.remove('active');
+});
+document.getElementById('txBulkEditModalOverlay').addEventListener('click', (e)=>{
+  if(e.target.id === 'txBulkEditModalOverlay') document.getElementById('txBulkEditModalOverlay').classList.remove('active');
+});
+
+document.getElementById('txBulkApplyBtn').addEventListener('click', ()=>{
+  const selectedIds = Array.from(document.querySelectorAll('#txList .entry-select:checked'))
+    .map(chk => Number(chk.closest('.entry-row').dataset.id));
+
+  if(selectedIds.length === 0){
+    showToast('No entries selected');
+    return;
+  }
+
+  const field = document.getElementById('txBulkField').value;
+  let newCategory, newSubcategory, newValue;
+
+  if(field === 'category'){
+    newCategory = document.getElementById('txBulkCategorySelect').value;
+    newSubcategory = document.getElementById('txBulkSubcategorySelect').value;
+  } else {
+    newValue = document.getElementById('txBulkValueInput').value;
+    if(field !== 'notes' && newValue === ''){
+      showToast('Enter a value first');
+      return;
+    }
+    if(field === 'amount' && isNaN(parseFloat(newValue))){
+      showToast('Enter a valid amount');
+      return;
+    }
+  }
+
+  let updatedCount = 0;
+  selectedIds.forEach(id=>{
+    const entry = entries.find(en=>en.id === id);
+    if(!entry) return;
+    if(field === 'date'){
+      entry.date = newValue;
+    } else if(field === 'amount'){
+      entry.amount = parseFloat(newValue);
+    } else if(field === 'status'){
+      entry.status = newValue;
+    } else if(field === 'notes'){
+      entry.notes = newValue;
+    } else if(field === 'category'){
+      entry.category = newCategory;
+      entry.subcategory = newSubcategory;
+      if(newCategory !== 'Expense'){
+        delete entry.type;
+        delete entry.account;
+      } else if(!entry.type){
+        entry.type = 'Other';
+      }
+    }
+    updatedCount++;
+  });
+
+  saveState();
+  document.getElementById('txBulkEditModalOverlay').classList.remove('active');
+  renderCurrentView(getActiveViewName());
+  showToast(`Updated ${updatedCount} entr${updatedCount===1?'y':'ies'}`);
+
+  if(syncUrl){ syncPush(); }
 });
 
 /* Debts search */
@@ -3552,6 +3727,8 @@ function renderTransactions(){
   if(list.length === 0){
     const msg = txSearchQuery.trim() !== '' ? 'No transactions match your search.' : 'No transactions match this filter.';
     document.getElementById('txList').innerHTML = `<div class="empty-state"><div class="big">📋</div>${msg}</div>`;
+    document.getElementById('txSelectAllChk').checked = false;
+    updateTxSelectedCount();
     return;
   }
 
@@ -3577,12 +3754,14 @@ function renderTransactions(){
   groupOrder.forEach(key=>{
     const [y,m] = key.split('-');
     const label = new Date(Number(y), Number(m)-1, 1).toLocaleString(undefined,{month:'long', year:'numeric'});
-    const rows = groups[key].map(e=>renderEntryRow(e)).join('');
+    const rows = groups[key].map(e=>renderEntryRow(e, true)).join('');
     html += `<div class="group-header">${label}</div><div class="card"><ul class="entry-list">${rows}</ul></div>`;
   });
 
   document.getElementById('txList').innerHTML = html;
   attachEntryRowHandlers(document.getElementById('txList'));
+  document.getElementById('txSelectAllChk').checked = false;
+  updateTxSelectedCount();
 }
 function populateDetailSelectors(){
   const catSel = document.getElementById('detailCategorySel');
@@ -3819,7 +3998,7 @@ function renderDetailTrendChart(){
 }
 
 /* shared entry row renderer (used in detail + transactions + debts) */
-function renderEntryRow(e){
+function renderEntryRow(e, selectable){
   const isExpense = e.category === 'Expense';
   const amt = Number(e.amount);
   const dotColor = CATEGORY_COLORS[e.category];
@@ -3862,16 +4041,23 @@ function renderEntryRow(e){
     amtClass = amt >= 0 ? 'pos' : 'neg';
   }
 
+  const checkboxHtml = selectable
+    ? `<input type="checkbox" class="entry-select" style="flex-shrink:0;width:18px;height:18px;">`
+    : '';
+
   return `
     <li class="entry-row" data-id="${e.id}">
-      <div class="entry-main">
-        <div class="entry-dot" style="background:${dotColor}"></div>
-        <div class="entry-info">
-          <div class="sub">${e.subcategory}</div>
-          <div class="meta">${metaText}</div>
+      <div style="display:flex;align-items:center;gap:10px;min-width:0;flex:1;">
+        ${checkboxHtml}
+        <div class="entry-main">
+          <div class="entry-dot" style="background:${dotColor}"></div>
+          <div class="entry-info">
+            <div class="sub">${e.subcategory}</div>
+            <div class="meta">${metaText}</div>
+          </div>
         </div>
       </div>
-      <div style="display:flex;align-items:center;">
+      <div style="display:flex;align-items:center;flex-shrink:0;">
         <div class="entry-amt ${amtClass}">${displayAmt}</div>
         <span class="status-badge ${e.status.toLowerCase()}">${e.status}</span>
       </div>
@@ -3880,7 +4066,8 @@ function renderEntryRow(e){
 }
 function attachEntryRowHandlers(container){
   container.querySelectorAll('.entry-row').forEach(row=>{
-    row.addEventListener('click', ()=>{
+    row.addEventListener('click', (e)=>{
+      if(e.target.closest('.entry-select')) return;
       const id = Number(row.dataset.id);
       openEntryModal(id);
     });
