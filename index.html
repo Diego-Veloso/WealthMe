@@ -1107,10 +1107,15 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
             <input type="date" id="quickDateTo">
           </div>
         </div>
-        <div class="segmented" id="quickStatusSeg" style="margin-bottom:8px;">
-          <button class="active" data-filter="Both">All</button>
-          <button data-filter="Open">Open</button>
-          <button data-filter="Closed">Closed</button>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="segmented" id="quickStatusSeg" style="margin-bottom:8px;flex:1;">
+            <button class="active" data-filter="Both">All</button>
+            <button data-filter="Open">Open</button>
+            <button data-filter="Closed">Closed</button>
+          </div>
+          <button class="icon-btn" id="quickSortBtn" title="Newest first" style="flex-shrink:0;margin-bottom:8px;">
+            <svg id="quickSortIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="5 12 12 5 19 12"/></svg>
+          </button>
         </div>
         <button class="btn btn-secondary btn-block" id="quickLoadBtn" style="margin-top:4px;">Reload Entries in This Bucket</button>
       </div>
@@ -3039,6 +3044,7 @@ let quickPeriod = 'all';        // all | thismonth | nextmonth | thisyear | cust
 let quickDateFrom = '';
 let quickDateTo = '';
 let quickStatusFilter = 'Both'; // Both | Open | Closed
+let quickSortAsc = false;       // false = newest first, true = oldest first
 
 function loadMatchingQuickEntries(){
   const category = document.getElementById('quickCategory').value;
@@ -3073,7 +3079,7 @@ function loadMatchingQuickEntries(){
     });
   }
 
-  matches = matches.slice().sort((a,b)=> a.date < b.date ? 1 : -1);
+  matches = matches.slice().sort((a,b)=> quickSortAsc ? (a.date > b.date ? 1 : -1) : (a.date < b.date ? 1 : -1));
 
   document.getElementById('quickRowsContainer').innerHTML = '';
   quickRemovedEntryIds = [];
@@ -3116,6 +3122,16 @@ document.getElementById('quickStatusSeg').querySelectorAll('button').forEach(btn
     if(quickMode === 'edit') loadMatchingQuickEntries();
   });
 });
+const quickSortBtn = document.getElementById('quickSortBtn');
+const quickSortIcon = document.getElementById('quickSortIcon');
+const quickIconAsc  = '<line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/>';
+const quickIconDesc = '<line x1="12" y1="5" x2="12" y2="19"/><polyline points="5 12 12 5 19 12"/>';
+quickSortBtn.addEventListener('click', ()=>{
+  quickSortAsc = !quickSortAsc;
+  quickSortIcon.innerHTML = quickSortAsc ? quickIconAsc : quickIconDesc;
+  quickSortBtn.title = quickSortAsc ? 'Oldest first' : 'Newest first';
+  if(quickMode === 'edit') loadMatchingQuickEntries();
+});
 
 let quickMode = 'add'; // 'add' | 'edit'
 
@@ -3124,11 +3140,14 @@ function resetQuickFilters(){
   quickDateFrom = '';
   quickDateTo = '';
   quickStatusFilter = 'Both';
+  quickSortAsc = false;
   document.getElementById('quickPeriodSeg').querySelectorAll('button').forEach(b=>b.classList.toggle('active', b.dataset.period === 'all'));
   document.getElementById('quickStatusSeg').querySelectorAll('button').forEach(b=>b.classList.toggle('active', b.dataset.filter === 'Both'));
   document.getElementById('quickDateRangeRow').style.display = 'none';
   document.getElementById('quickDateFrom').value = '';
   document.getElementById('quickDateTo').value = '';
+  document.getElementById('quickSortIcon').innerHTML = quickIconDesc;
+  document.getElementById('quickSortBtn').title = 'Newest first';
 }
 
 function openQuickAddModal(mode){
