@@ -1487,13 +1487,6 @@ function fmtMoney(n){
   const sign = n < 0 ? "-" : "";
   return sign + "$" + Math.abs(n).toLocaleString(undefined,{minimumFractionDigits:2, maximumFractionDigits:2});
 }
-// Same as fmtMoney, but hides cents once the absolute value reaches 1,000 — used only on the Money page.
-function fmtMoneyM(n){
-  const abs = Math.abs(n);
-  const sign = n < 0 ? "-" : "";
-  const decimals = abs >= 1000 ? 0 : 2;
-  return sign + "$" + abs.toLocaleString(undefined,{minimumFractionDigits:decimals, maximumFractionDigits:decimals});
-}
 function fmtMonthYear(d){
   return d.toLocaleString(undefined,{month:'long',year:'numeric'});
 }
@@ -1778,9 +1771,9 @@ function renderMoney(){
     .filter(e => e.category === 'Investment' && e.status === 'Closed' && parseLocalDate(e.date) <= cutoff)
     .reduce((a, e) => a + Number(e.amount), 0);
 
-  document.getElementById('moneyCardInvested').textContent = fmtMoneyM(invested);
-  document.getElementById('moneyCardPlanned').textContent = fmtMoneyM(planned);
-  document.getElementById('moneyCardCumulative').textContent = fmtMoneyM(cumulative);
+  document.getElementById('moneyCardInvested').textContent = fmtMoney(invested);
+  document.getElementById('moneyCardPlanned').textContent = fmtMoney(planned);
+  document.getElementById('moneyCardCumulative').textContent = fmtMoney(cumulative);
 
   // Capital all-time = sum of all Capital entries (gains/losses)
   const capitalAllTime = entries
@@ -1791,11 +1784,11 @@ function renderMoney(){
   const netPosition = cumulative + capitalAllTime;
 
   const capitalEl = document.getElementById('moneyCardCapital');
-  capitalEl.textContent = fmtMoneyM(capitalAllTime);
+  capitalEl.textContent = fmtMoney(capitalAllTime);
   capitalEl.className = 'value ' + (capitalAllTime >= 0 ? 'pos' : 'neg');
 
   const netEl = document.getElementById('moneyCardNetPosition');
-  netEl.textContent = fmtMoneyM(netPosition);
+  netEl.textContent = fmtMoney(netPosition);
   netEl.className = 'value ' + (netPosition >= 0 ? 'pos' : 'neg');
 
   const variation = cumulative !== 0 ? (capitalAllTime / cumulative) * 100 : 0;
@@ -1808,7 +1801,7 @@ function renderMoney(){
   const pct = planned > 0 ? Math.min(100, Math.max(0, (invested / planned) * 100)) : 0;
   document.getElementById('moneyProgressFill').style.width = pct.toFixed(1) + '%';
   document.getElementById('moneyProgressLabel').textContent = pct.toFixed(1) + '% of plan complete';
-  document.getElementById('moneyProgressNums').textContent = `${fmtMoneyM(invested)} / ${fmtMoneyM(planned)}`;
+  document.getElementById('moneyProgressNums').textContent = `${fmtMoney(invested)} / ${fmtMoney(planned)}`;
 
   // Subcategory breakdown
   renderMoneyBreakdown(inMonth);
@@ -1841,14 +1834,14 @@ function renderMoneyBreakdown(inMonth){
           <div class="breakdown-swatch" style="background:${PALETTE[r.i % PALETTE.length]}"></div>
           <div>
             <div class="breakdown-name">${r.sub}</div>
-            <div class="muted" style="font-size:11px;">Planned: ${fmtMoneyM(r.pln)} · ${alloc}% of total</div>
+            <div class="muted" style="font-size:11px;">Planned: ${fmtMoney(r.pln)} · ${alloc}% of total</div>
             <div class="progress-track" style="height:4px;margin-top:4px;width:100px;">
               <div class="progress-fill" style="width:${subPct.toFixed(1)}%;height:100%;background:${PALETTE[r.i % PALETTE.length]};"></div>
             </div>
           </div>
         </div>
         <div class="breakdown-right">
-          <div class="breakdown-amt" style="color:${PALETTE[r.i % PALETTE.length]}">${fmtMoneyM(r.inv)}</div>
+          <div class="breakdown-amt" style="color:${PALETTE[r.i % PALETTE.length]}">${fmtMoney(r.inv)}</div>
           <div class="breakdown-pct">invested</div>
         </div>
       </div>`;
@@ -1953,7 +1946,7 @@ function renderMoneyLineChart(){
         },
         tooltip: {
           callbacks: {
-            label: (ctx) => `${ctx.dataset.label}: ${fmtMoneyM(ctx.parsed.y)}`
+            label: (ctx) => `${ctx.dataset.label}: ${fmtMoney(ctx.parsed.y)}`
           }
         }
       },
@@ -2017,15 +2010,15 @@ function renderMoneyAllTimeBreakdown(){
         <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;">
           <div>
             <div class="muted" style="font-size:10px;text-transform:uppercase;letter-spacing:.4px;">Invested</div>
-            <div class="breakdown-amt" style="color:${color};font-size:13px;">${fmtMoneyM(r.invested)}</div>
+            <div class="breakdown-amt" style="color:${color};font-size:13px;">${fmtMoney(r.invested)}</div>
           </div>
           <div>
             <div class="muted" style="font-size:10px;text-transform:uppercase;letter-spacing:.4px;">Capital</div>
-            <div class="breakdown-amt" style="${capColor}font-size:13px;">${r.capital !== 0 ? (r.capital > 0 ? '+' : '') + fmtMoneyM(r.capital) : '—'}</div>
+            <div class="breakdown-amt" style="${capColor}font-size:13px;">${r.capital !== 0 ? (r.capital > 0 ? '+' : '') + fmtMoney(r.capital) : '—'}</div>
           </div>
           <div>
             <div class="muted" style="font-size:10px;text-transform:uppercase;letter-spacing:.4px;">Total</div>
-            <div class="breakdown-amt" style="font-size:13px;">${fmtMoneyM(total)}</div>
+            <div class="breakdown-amt" style="font-size:13px;">${fmtMoney(total)}</div>
           </div>
           <div>
             <div class="muted" style="font-size:10px;text-transform:uppercase;letter-spacing:.4px;">Return</div>
@@ -2047,15 +2040,15 @@ function renderMoneyAllTimeBreakdown(){
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;">
         <div>
           <div class="muted" style="font-size:10px;text-transform:uppercase;letter-spacing:.4px;">Invested</div>
-          <div class="breakdown-amt gold" style="font-size:13px;">${fmtMoneyM(grandInvested)}</div>
+          <div class="breakdown-amt gold" style="font-size:13px;">${fmtMoney(grandInvested)}</div>
         </div>
         <div>
           <div class="muted" style="font-size:10px;text-transform:uppercase;letter-spacing:.4px;">Capital</div>
-          <div class="breakdown-amt" style="${capTotalColor}font-size:13px;">${grandCapital !== 0 ? (grandCapital > 0 ? '+' : '') + fmtMoneyM(grandCapital) : '—'}</div>
+          <div class="breakdown-amt" style="${capTotalColor}font-size:13px;">${grandCapital !== 0 ? (grandCapital > 0 ? '+' : '') + fmtMoney(grandCapital) : '—'}</div>
         </div>
         <div>
           <div class="muted" style="font-size:10px;text-transform:uppercase;letter-spacing:.4px;">Total</div>
-          <div class="breakdown-amt" style="font-size:13px;">${fmtMoneyM(grandTotal)}</div>
+          <div class="breakdown-amt" style="font-size:13px;">${fmtMoney(grandTotal)}</div>
         </div>
         <div>
           <div class="muted" style="font-size:10px;text-transform:uppercase;letter-spacing:.4px;">Return</div>
@@ -2088,9 +2081,9 @@ function openAccountDetail(sub){
   const returnStr = returnPct !== null ? 'Return: ' + (returnPct >= 0 ? '+' : '') + returnPct.toFixed(1) + '%' : '';
 
   document.getElementById('accountDetailTitle').textContent = sub;
-  document.getElementById('accountDetailInvested').textContent = fmtMoneyM(invested);
-  document.getElementById('accountDetailCapital').textContent = (capital >= 0 ? '+' : '') + fmtMoneyM(capital);
-  document.getElementById('accountDetailTotal').textContent = fmtMoneyM(total);
+  document.getElementById('accountDetailInvested').textContent = fmtMoney(invested);
+  document.getElementById('accountDetailCapital').textContent = (capital >= 0 ? '+' : '') + fmtMoney(capital);
+  document.getElementById('accountDetailTotal').textContent = fmtMoney(total);
   document.getElementById('accountDetailReturn').textContent = returnStr;
 
   const listEl = document.getElementById('accountDetailList');
