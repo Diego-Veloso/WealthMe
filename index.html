@@ -4263,7 +4263,7 @@ function renderEntryRow(e, selectable){
   const amt = Number(e.amount);
   const dotColor = CATEGORY_COLORS[e.category];
   const dateLabel = parseLocalDate(e.date).toLocaleDateString(undefined,{month:'short', day:'numeric'});
-  let metaText = `${dateLabel} · ${e.category}`;
+  let metaText = `${dateLabel}`;
   if(isExpense && e.type){ metaText += ` · ${e.type}`; }
   if(isExpense && e.account){ metaText += ` · ${e.account}`; }
   if(e.notes){ metaText += ` · ${e.notes}`; }
