@@ -1089,7 +1089,31 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
         <label>Account (optional, applies to new rows)</label>
         <select id="quickAccount"></select>
       </div>
-      <button class="btn btn-secondary btn-block" id="quickLoadBtn" style="margin-top:4px;display:none;">Reload Entries in This Bucket</button>
+      <div id="quickEditFiltersWrap" style="display:none;">
+        <div class="segmented" id="quickPeriodSeg" style="margin-bottom:8px;">
+          <button class="active" data-period="all">All</button>
+          <button data-period="thismonth">This Month</button>
+          <button data-period="nextmonth">Next Month</button>
+          <button data-period="thisyear">This Year</button>
+          <button data-period="custom">Custom</button>
+        </div>
+        <div id="quickDateRangeRow" style="display:none;gap:8px;margin-bottom:8px;" class="two-col">
+          <div class="field" style="margin-bottom:0;">
+            <label>From</label>
+            <input type="date" id="quickDateFrom">
+          </div>
+          <div class="field" style="margin-bottom:0;">
+            <label>To</label>
+            <input type="date" id="quickDateTo">
+          </div>
+        </div>
+        <div class="segmented" id="quickStatusSeg" style="margin-bottom:8px;">
+          <button class="active" data-filter="Both">All</button>
+          <button data-filter="Open">Open</button>
+          <button data-filter="Closed">Closed</button>
+        </div>
+        <button class="btn btn-secondary btn-block" id="quickLoadBtn" style="margin-top:4px;">Reload Entries in This Bucket</button>
+      </div>
 
       <div class="section-title" style="margin-top:16px;">Entries</div>
       <div id="quickRowsContainer"></div>
@@ -3011,18 +3035,50 @@ function addQuickRow(){
   document.getElementById('quickRowsContainer').insertAdjacentHTML('beforeend', quickRowTemplate(row));
 }
 
+let quickPeriod = 'all';        // all | thismonth | nextmonth | thisyear | custom
+let quickDateFrom = '';
+let quickDateTo = '';
+let quickStatusFilter = 'Both'; // Both | Open | Closed
+
 function loadMatchingQuickEntries(){
   const category = document.getElementById('quickCategory').value;
   const subcategory = document.getElementById('quickSubcategory').value;
-  const matches = entries
-    .filter(e=>e.category === category && e.subcategory === subcategory)
-    .slice()
-    .sort((a,b)=> a.date < b.date ? 1 : -1);
+  let matches = entries.filter(e=>e.category === category && e.subcategory === subcategory);
+
+  if(quickStatusFilter !== 'Both'){
+    matches = matches.filter(e=>e.status === quickStatusFilter);
+  }
+
+  if(quickPeriod !== 'all'){
+    const now = new Date();
+    let from, to;
+    if(quickPeriod === 'thismonth'){
+      from = new Date(now.getFullYear(), now.getMonth(), 1);
+      to   = new Date(now.getFullYear(), now.getMonth()+1, 0);
+    } else if(quickPeriod === 'nextmonth'){
+      from = new Date(now.getFullYear(), now.getMonth()+1, 1);
+      to   = new Date(now.getFullYear(), now.getMonth()+2, 0);
+    } else if(quickPeriod === 'thisyear'){
+      from = new Date(now.getFullYear(), 0, 1);
+      to   = new Date(now.getFullYear(), 11, 31);
+    } else if(quickPeriod === 'custom'){
+      from = quickDateFrom ? parseLocalDate(quickDateFrom) : null;
+      to   = quickDateTo   ? parseLocalDate(quickDateTo)   : null;
+    }
+    matches = matches.filter(e=>{
+      const d = parseLocalDate(e.date);
+      if(from && d < from) return false;
+      if(to   && d > to  ) return false;
+      return true;
+    });
+  }
+
+  matches = matches.slice().sort((a,b)=> a.date < b.date ? 1 : -1);
 
   document.getElementById('quickRowsContainer').innerHTML = '';
   quickRemovedEntryIds = [];
   if(matches.length === 0){
-    showToast('No existing entries found in this category/subcategory');
+    showToast('No existing entries found for this filter');
     return;
   }
   matches.forEach(e=>{
@@ -3035,7 +3091,45 @@ function loadMatchingQuickEntries(){
   showToast(`Loaded ${matches.length} entr${matches.length===1?'y':'ies'}`);
 }
 
+document.getElementById('quickPeriodSeg').querySelectorAll('button').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.getElementById('quickPeriodSeg').querySelectorAll('button').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    quickPeriod = btn.dataset.period;
+    document.getElementById('quickDateRangeRow').style.display = quickPeriod === 'custom' ? 'grid' : 'none';
+    if(quickMode === 'edit' && quickPeriod !== 'custom') loadMatchingQuickEntries();
+  });
+});
+document.getElementById('quickDateFrom').addEventListener('change', (e)=>{
+  quickDateFrom = e.target.value;
+  if(quickMode === 'edit' && quickPeriod === 'custom') loadMatchingQuickEntries();
+});
+document.getElementById('quickDateTo').addEventListener('change', (e)=>{
+  quickDateTo = e.target.value;
+  if(quickMode === 'edit' && quickPeriod === 'custom') loadMatchingQuickEntries();
+});
+document.getElementById('quickStatusSeg').querySelectorAll('button').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.getElementById('quickStatusSeg').querySelectorAll('button').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    quickStatusFilter = btn.dataset.filter;
+    if(quickMode === 'edit') loadMatchingQuickEntries();
+  });
+});
+
 let quickMode = 'add'; // 'add' | 'edit'
+
+function resetQuickFilters(){
+  quickPeriod = 'all';
+  quickDateFrom = '';
+  quickDateTo = '';
+  quickStatusFilter = 'Both';
+  document.getElementById('quickPeriodSeg').querySelectorAll('button').forEach(b=>b.classList.toggle('active', b.dataset.period === 'all'));
+  document.getElementById('quickStatusSeg').querySelectorAll('button').forEach(b=>b.classList.toggle('active', b.dataset.filter === 'Both'));
+  document.getElementById('quickDateRangeRow').style.display = 'none';
+  document.getElementById('quickDateFrom').value = '';
+  document.getElementById('quickDateTo').value = '';
+}
 
 function openQuickAddModal(mode){
   quickMode = mode;
@@ -3043,23 +3137,25 @@ function openQuickAddModal(mode){
   document.getElementById('quickRowsContainer').innerHTML = '';
   quickRowSeq = 0;
   quickRemovedEntryIds = [];
+  resetQuickFilters();
 
   const loadBtn = document.getElementById('quickLoadBtn');
   const addRowBtn = document.getElementById('quickAddRowBtn');
   const saveBtn = document.getElementById('quickSaveAllBtn');
   const title = document.getElementById('quickModalTitle');
   const desc = document.getElementById('quickModalDesc');
+  const filtersWrap = document.getElementById('quickEditFiltersWrap');
 
   if(mode === 'edit'){
     title.textContent = 'Quick Edit Entries';
-    desc.textContent = 'Pick a category and subcategory to load its existing entries — edit, remove, or add new ones, then save all at once.';
-    loadBtn.style.display = 'block';
+    desc.textContent = 'Pick a category and subcategory, filter by period or status, then edit, remove, or add entries and save all at once.';
+    filtersWrap.style.display = 'block';
     saveBtn.textContent = 'Save Changes';
     loadMatchingQuickEntries();
   } else {
     title.textContent = 'Quick Add Entries';
     desc.textContent = 'Pick a category and subcategory once, then add a date and amount for each occurrence.';
-    loadBtn.style.display = 'none';
+    filtersWrap.style.display = 'none';
     saveBtn.textContent = 'Add All';
     addQuickRow();
     addQuickRow();
