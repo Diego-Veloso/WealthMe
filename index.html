@@ -703,6 +703,11 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
         <button id="detailBack">&#8249;</button>
         <div class="label" id="detailBackLabel" style="text-align:left;min-width:auto;">Detail</div>
       </div>
+      <div class="month-nav">
+        <button id="detailPrev">&#8249;</button>
+        <div class="label" id="detailMonthLabel">June 2026</div>
+        <button id="detailNext">&#8250;</button>
+      </div>
       <div class="card">
         <div class="two-col">
           <div class="field" style="margin-bottom:0;">
@@ -1460,6 +1465,7 @@ let nextId = 1;
 const _now = new Date();
 let homeDate = new Date(_now.getFullYear(), _now.getMonth(), 1); // always current month
 let moneyMonthDate = new Date(_now.getFullYear(), _now.getMonth(), 1);
+let detailRefDate = new Date(_now.getFullYear(), _now.getMonth(), 1);
 
 let donutCategory = "Expense";
 let txFilter = "Open";
@@ -2142,6 +2148,25 @@ document.getElementById('homePrev').addEventListener('click', ()=>{
 document.getElementById('homeNext').addEventListener('click', ()=>{
   homeDate = new Date(homeDate.getFullYear(), homeDate.getMonth()+1, 1);
   renderHome();
+});
+
+/* Detail month navigation */
+function setDetailPeriodToThisMonth(){
+  detailPeriod = 'thismonth';
+  document.getElementById('detailPeriodSeg').querySelectorAll('button').forEach(b=>{
+    b.classList.toggle('active', b.dataset.period === 'thismonth');
+  });
+  document.getElementById('detailDateRangeRow').style.display = 'none';
+}
+document.getElementById('detailPrev').addEventListener('click', ()=>{
+  detailRefDate = new Date(detailRefDate.getFullYear(), detailRefDate.getMonth()-1, 1);
+  setDetailPeriodToThisMonth();
+  renderDetail();
+});
+document.getElementById('detailNext').addEventListener('click', ()=>{
+  detailRefDate = new Date(detailRefDate.getFullYear(), detailRefDate.getMonth()+1, 1);
+  setDetailPeriodToThisMonth();
+  renderDetail();
 });
 
 /* Donut category segmented control */
@@ -4034,27 +4059,30 @@ function populateDetailSelectors(){
 function openDetail(category, subcategory){
   detailCategory = category;
   detailSubcategory = subcategory;
+  detailRefDate = new Date(homeDate.getFullYear(), homeDate.getMonth(), 1);
   populateDetailSelectors();
   renderDetail();
   switchView('detail');
 }
 
 function renderDetail(){
+  document.getElementById('detailMonthLabel').textContent = fmtMonthYear(detailRefDate);
+
   let matching = entries.filter(e=>e.category===detailCategory && e.subcategory===detailSubcategory);
 
   // Period filter
   if(detailPeriod !== 'all'){
-    const now = new Date();
+    const ref = detailRefDate;
     let from, to;
     if(detailPeriod === 'thismonth'){
-      from = new Date(now.getFullYear(), now.getMonth(), 1);
-      to   = new Date(now.getFullYear(), now.getMonth()+1, 0);
+      from = new Date(ref.getFullYear(), ref.getMonth(), 1);
+      to   = new Date(ref.getFullYear(), ref.getMonth()+1, 0);
     } else if(detailPeriod === 'nextmonth'){
-      from = new Date(now.getFullYear(), now.getMonth()+1, 1);
-      to   = new Date(now.getFullYear(), now.getMonth()+2, 0);
+      from = new Date(ref.getFullYear(), ref.getMonth()+1, 1);
+      to   = new Date(ref.getFullYear(), ref.getMonth()+2, 0);
     } else if(detailPeriod === 'thisyear'){
-      from = new Date(now.getFullYear(), 0, 1);
-      to   = new Date(now.getFullYear(), 11, 31);
+      from = new Date(ref.getFullYear(), 0, 1);
+      to   = new Date(ref.getFullYear(), 11, 31);
     } else if(detailPeriod === 'custom'){
       from = detailDateFrom ? parseLocalDate(detailDateFrom) : null;
       to   = detailDateTo   ? parseLocalDate(detailDateTo)   : null;
@@ -4072,6 +4100,7 @@ function renderDetail(){
 
   if(matching.length === 0){
     document.getElementById('detailLists').innerHTML = `<div class="empty-state"><div class="big">∅</div><span class="muted">No entries found.</span></div>`;
+    requestAnimationFrame(() => renderDetailTrendChart());
     return;
   }
 
@@ -4139,16 +4168,16 @@ function renderDetailTrendChart(){
     `${detailSubcategory} as % of Gross Income`;
 
   // Determine the months to display
-  const now = new Date();
+  const now = detailRefDate;
   let monthPoints = [];
 
   if(detailPeriod === 'all' || detailPeriod === 'thismonth' || detailPeriod === 'nextmonth'){
-    // Always show next 13 months starting from current month
+    // Always show 13 months starting from the reference month
     for(let i = 0; i < 13; i++){
       monthPoints.push(new Date(now.getFullYear(), now.getMonth() + i, 1));
     }
   } else if(detailPeriod === 'thisyear'){
-    // Show all months of the current year
+    // Show all months of the reference year
     for(let m = 0; m < 12; m++){
       monthPoints.push(new Date(now.getFullYear(), m, 1));
     }
