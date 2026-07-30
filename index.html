@@ -1034,15 +1034,24 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
       <input type="file" id="csvFileInput" class="hidden-input" accept=".csv">
 
       <div class="section-title">Password</div>
-      <div class="field">
-        <label>New Password</label>
-        <input type="password" id="newPasswordInput" placeholder="Enter new password">
+      <div class="toggle-row" style="margin-bottom:13px;">
+        <span class="toggle-label">Require Password</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="passwordEnabledToggle">
+          <span class="toggle-thumb"></span>
+        </label>
       </div>
-      <div class="field">
-        <label>Confirm Password</label>
-        <input type="password" id="confirmPasswordInput" placeholder="Confirm new password">
+      <div id="passwordFieldsWrap" style="display:none;">
+        <div class="field">
+          <label>New Password</label>
+          <input type="password" id="newPasswordInput" placeholder="Enter new password">
+        </div>
+        <div class="field">
+          <label>Confirm Password</label>
+          <input type="password" id="confirmPasswordInput" placeholder="Confirm new password">
+        </div>
+        <button class="btn btn-secondary btn-block" id="changePasswordBtn">Change Password</button>
       </div>
-      <button class="btn btn-secondary btn-block" id="changePasswordBtn">Change Password</button>
 
       <div class="section-title">Reset</div>
       <div class="csv-row">
@@ -3298,6 +3307,9 @@ function openSettingsModal(){
   setSyncStatus('');
   renderDebtAccountsManager();
   renderSubcategoryManager();
+  const pwEnabled = isPasswordEnabled();
+  document.getElementById('passwordEnabledToggle').checked = pwEnabled;
+  document.getElementById('passwordFieldsWrap').style.display = pwEnabled ? 'block' : 'none';
   document.getElementById('settingsModalOverlay').classList.add('active');
 }
 function closeSettingsModal(){
@@ -3817,6 +3829,12 @@ function init(){
    ========================================================= */
 const DEFAULT_PASSWORD = 'wealthme';
 
+function isPasswordEnabled(){
+  try{ return localStorage.getItem('wealthme_password_enabled') === '1'; }catch(e){ return false; }
+}
+function setPasswordEnabled(val){
+  try{ localStorage.setItem('wealthme_password_enabled', val ? '1' : '0'); }catch(e){}
+}
 function getStoredPassword(){
   try{ return localStorage.getItem('wealthme_password') || DEFAULT_PASSWORD; }catch(e){ return DEFAULT_PASSWORD; }
 }
@@ -3862,8 +3880,14 @@ document.getElementById('changePasswordBtn').addEventListener('click', ()=>{
   closeSettingsModal();
 });
 
-// Show lock screen or go straight to app
-if(isUnlocked()){
+document.getElementById('passwordEnabledToggle').addEventListener('change', (e)=>{
+  setPasswordEnabled(e.target.checked);
+  document.getElementById('passwordFieldsWrap').style.display = e.target.checked ? 'block' : 'none';
+  showToast(e.target.checked ? 'Password protection enabled' : 'Password protection disabled');
+});
+
+// Show lock screen only if password protection is enabled and not already unlocked this session
+if(!isPasswordEnabled() || isUnlocked()){
   document.getElementById('lockScreen').style.display = 'none';
   init();
 } else {
