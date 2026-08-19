@@ -2808,6 +2808,59 @@ function getActiveViewName(){
 }
 
 /* =========================================================
+   SETTINGS SYNC — subcategories (CATEGORY_MAP) and Debt Accounts
+   (DEBT_ACCOUNTS) are carried alongside entries as two special
+   "settings rows" (reserved category "__SETTINGS__"), so they survive
+   CSV export/import and Google Sheets push/pull using the exact same
+   9-column format as regular entries — no separate file or backend
+   changes needed.
+   ========================================================= */
+const SETTINGS_ROW_IDS = { categoryMap: -1, debtAccounts: -2 };
+
+function buildSettingsRows(){
+  return [
+    {
+      id: SETTINGS_ROW_IDS.categoryMap, date: '', category: '__SETTINGS__', subcategory: 'CATEGORY_MAP',
+      amount: 0, status: 'Open', notes: JSON.stringify(CATEGORY_MAP), type: '', account: ''
+    },
+    {
+      id: SETTINGS_ROW_IDS.debtAccounts, date: '', category: '__SETTINGS__', subcategory: 'DEBT_ACCOUNTS',
+      amount: 0, status: 'Open', notes: JSON.stringify(DEBT_ACCOUNTS), type: '', account: ''
+    }
+  ];
+}
+function isSettingsRow(e){
+  return !!e && e.category === '__SETTINGS__';
+}
+// Parses a settings row's notes (JSON) and applies it to CATEGORY_MAP / DEBT_ACCOUNTS.
+// Returns true if it recognized and applied the row.
+function applySettingsRow(e){
+  if(!isSettingsRow(e)) return false;
+  try{
+    const parsed = JSON.parse(e.notes);
+    if(e.subcategory === 'CATEGORY_MAP'){
+      Object.keys(CATEGORY_MAP).forEach(c=>{
+        if(Array.isArray(parsed[c]) && parsed[c].length > 0){ CATEGORY_MAP[c] = parsed[c]; }
+      });
+      return true;
+    }
+    if(e.subcategory === 'DEBT_ACCOUNTS'){
+      DEBT_TYPES.forEach(t=>{
+        if(Array.isArray(parsed[t])){ DEBT_ACCOUNTS[t] = parsed[t]; }
+      });
+      return true;
+    }
+  }catch(err){ /* malformed settings row — ignore */ }
+  return false;
+}
+// Pushes the current CATEGORY_MAP / DEBT_ACCOUNTS to the connected Google Sheet
+// as two upserted rows, without touching the rest of the entries there.
+function syncSettingsNow(){
+  if(!syncUrl) return;
+  buildSettingsRows().forEach(row => autoSyncEntry(row));
+}
+
+/* =========================================================
    CSV IMPORT / EXPORT / TEMPLATE
    ========================================================= */
 const CSV_HEADERS = ['id','date','category','subcategory','amount','status','notes','type','account'];
@@ -2920,12 +2973,11 @@ document.getElementById('downloadTemplateBtn').addEventListener('click', ()=>{
     id:'', date:'2026-06-01', category:'Income', subcategory:'Salary & Paycheck',
     amount:1000, status:'Open', notes:'Example entry', type:'', account:''
   }];
-  downloadCsv(entriesToCsv(sample), 'wealthme_template.csv', t('csv_title'));
+  downloadCsv(entriesToCsv(sample.concat(buildSettingsRows())), 'wealthme_template.csv', t('csv_title'));
 });
 
 document.getElementById('downloadSheetsTemplateBtn').addEventListener('click', ()=>{
-  const headerOnly = CSV_HEADERS.join(',');
-  downloadCsv(headerOnly, 'wealthme_sheet_template.csv', 'Google Sheet Template');
+  downloadCsv(entriesToCsv(buildSettingsRows()), 'wealthme_sheet_template.csv', 'Google Sheet Template');
 });
 
 document.getElementById('exportCsvBtn').addEventListener('click', ()=>{
@@ -2933,7 +2985,7 @@ document.getElementById('exportCsvBtn').addEventListener('click', ()=>{
     showToast('No entries to export');
     return;
   }
-  downloadCsv(entriesToCsv(entries), 'wealthme_export.csv', `Export CSV (${entries.length} entries)`);
+  downloadCsv(entriesToCsv(entries.concat(buildSettingsRows())), 'wealthme_export.csv', `Export CSV (${entries.length} entries)`);
 });
 
 document.getElementById('importCsvBtn').addEventListener('click', ()=>{
@@ -2949,7 +3001,12 @@ document.getElementById('csvFileInput').addEventListener('change', (e)=>{
       const text = evt.target.result;
       const imported = parseCsv(text);
       let count = 0;
+      let settingsApplied = false;
       imported.forEach(row=>{
+        if(row.category === '__SETTINGS__'){
+          if(applySettingsRow(row)) settingsApplied = true;
+          return;
+        }
         if(!row.date || !row.category || !row.subcategory || row.amount === undefined || row.amount === '') return;
         if(!CATEGORY_MAP[row.category]) return;
         if(!CATEGORY_MAP[row.category].includes(row.subcategory)) return;
@@ -2976,7 +3033,7 @@ document.getElementById('csvFileInput').addEventListener('change', (e)=>{
         count++;
       });
       saveState();
-      showToast(`Imported ${count} entries`);
+      showToast(settingsApplied ? `Imported ${count} entries + settings` : `Imported ${count} entries`);
       closeSettingsModal();
       renderCurrentView(getActiveViewName());
     }catch(err){
@@ -3102,7 +3159,7 @@ async function syncPush(){
   syncInProgress = true;
   setSyncStatus('Pushing all entries…', 'var(--slate)');
   try{
-    const payload = JSON.stringify(entries);
+    const payload = JSON.stringify(entries.concat(buildSettingsRows()));
     const CHUNK_SIZE = 2000;
     const chunks = [];
     for(let i = 0; i < payload.length; i += CHUNK_SIZE) chunks.push(payload.slice(i, i + CHUNK_SIZE));
@@ -3113,7 +3170,7 @@ async function syncPush(){
       const json = await jsonpFetch(url);
       if(json.error){ setSyncStatus('Push failed: ' + json.error, 'var(--terracotta)'); syncInProgress=false; return; }
     }
-    setSyncStatus(`✓ Pushed ${entries.length} entries to Sheet`, 'var(--sage)');
+    setSyncStatus(`✓ Pushed ${entries.length} entries + settings to Sheet`, 'var(--sage)');
     showToast('Synced to Google Sheet');
   }catch(err){
     setSyncStatus('Push failed: ' + err.message, 'var(--terracotta)');
@@ -3129,7 +3186,10 @@ async function syncPull(){
   try{
     const data = await jsonpFetch(`${syncUrl}?action=read`);
     if(data.entries){
-      entries = data.entries.map(e=>({
+      const settingsRows = data.entries.filter(isSettingsRow);
+      let settingsApplied = false;
+      settingsRows.forEach(row => { if(applySettingsRow(row)) settingsApplied = true; });
+      entries = data.entries.filter(e=>!isSettingsRow(e)).map(e=>({
         ...e,
         id: Number(e.id)||uid(),
         amount: Number(e.amount)||0,
@@ -3139,8 +3199,8 @@ async function syncPull(){
       if(maxId >= nextId) nextId = maxId + 1;
       invalidateFinancialsCache();
       saveState();
-      setSyncStatus(`✓ Pulled ${entries.length} entries from Sheet`, 'var(--sage)');
-      showToast('Pulled from Google Sheet');
+      setSyncStatus(`✓ Pulled ${entries.length} entries${settingsApplied ? ' + settings' : ''} from Sheet`, 'var(--sage)');
+      showToast(settingsApplied ? 'Pulled entries + settings from Google Sheet' : 'Pulled from Google Sheet');
       closeSettingsModal();
       renderCurrentView(getActiveViewName());
     } else {
@@ -3203,7 +3263,7 @@ async function syncPush(){
   syncInProgress = true;
   setSyncStatus('Pushing to Google Sheet…', 'var(--slate)');
   try{
-    const payload = JSON.stringify(entries);
+    const payload = JSON.stringify(entries.concat(buildSettingsRows()));
     const CHUNK_SIZE = 2000;
     const chunks = [];
     for(let i = 0; i < payload.length; i += CHUNK_SIZE) chunks.push(payload.slice(i, i + CHUNK_SIZE));
@@ -3214,7 +3274,7 @@ async function syncPush(){
       const json = await jsonpFetch(url);
       if(json.error){ setSyncStatus('Push failed: ' + json.error, 'var(--terracotta)'); syncInProgress=false; return; }
     }
-    setSyncStatus(`✓ Pushed ${entries.length} entries to Sheet`, 'var(--sage)');
+    setSyncStatus(`✓ Pushed ${entries.length} entries + settings to Sheet`, 'var(--sage)');
     showToast('Synced to Google Sheet');
   }catch(err){
     setSyncStatus('Push failed: ' + err.message, 'var(--terracotta)');
@@ -3230,7 +3290,10 @@ async function syncPull(){
   try{
     const data = await jsonpFetch(`${syncUrl}?action=read`);
     if(data.entries){
-      entries = data.entries.map(e=>({
+      const settingsRows = data.entries.filter(isSettingsRow);
+      let settingsApplied = false;
+      settingsRows.forEach(row => { if(applySettingsRow(row)) settingsApplied = true; });
+      entries = data.entries.filter(e=>!isSettingsRow(e)).map(e=>({
         ...e,
         id: Number(e.id)||uid(),
         amount: Number(e.amount)||0,
@@ -3240,8 +3303,8 @@ async function syncPull(){
       if(maxId >= nextId) nextId = maxId + 1;
       invalidateFinancialsCache();
       saveState();
-      setSyncStatus(`✓ Pulled ${entries.length} entries from Sheet`, 'var(--sage)');
-      showToast('Pulled from Google Sheet');
+      setSyncStatus(`✓ Pulled ${entries.length} entries${settingsApplied ? ' + settings' : ''} from Sheet`, 'var(--sage)');
+      showToast(settingsApplied ? 'Pulled entries + settings from Google Sheet' : 'Pulled from Google Sheet');
       closeSettingsModal();
       renderCurrentView(getActiveViewName());
     } else {
@@ -3575,6 +3638,7 @@ function renderDebtAccountsManager(){
       if(!DEBT_ACCOUNTS[type].includes(name)){
         DEBT_ACCOUNTS[type].push(name);
         saveState();
+        syncSettingsNow();
       }
       input.value = '';
       renderDebtAccountsManager();
@@ -3596,6 +3660,7 @@ function renderDebtAccountsManager(){
       const account = btn.dataset.account;
       DEBT_ACCOUNTS[type] = DEBT_ACCOUNTS[type].filter(a=>a!==account);
       saveState();
+      syncSettingsNow();
       renderDebtAccountsManager();
     });
   });
@@ -3663,6 +3728,7 @@ function addSubcategory(name){
   }
   CATEGORY_MAP[cat].push(name);
   saveState();
+  syncSettingsNow();
   showToast('Subcategory added');
   renderSubcategoryManager();
 }
@@ -3715,6 +3781,7 @@ function renameSubcategory(oldName, newName){
   });
 
   saveState();
+  syncSettingsNow();
   showToast(updated > 0 ? `Renamed (${updated} entries updated)` : 'Subcategory renamed');
   renderSubcategoryManager();
   renderCurrentView(getActiveViewName());
@@ -3743,6 +3810,7 @@ function deleteSubcategory(name){
     if(detailCategory === cat && detailSubcategory === name){ detailSubcategory = CATEGORY_MAP[cat][0]; }
 
     saveState();
+    syncSettingsNow();
     showToast('Subcategory deleted');
     renderSubcategoryManager();
     renderCurrentView(getActiveViewName());
