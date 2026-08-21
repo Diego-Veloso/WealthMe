@@ -2960,7 +2960,7 @@ document.getElementById('csvTextOpenBtn').addEventListener('click', ()=>{
     const win = window.open('data:text/csv;charset=utf-8,' + encoded, '_blank');
     if(!win){ showToast('Pop-up blocked — copy the text instead'); }
   }catch(err){
-    showToast(t('toast_popup_blocked'));
+    showToast('Pop-up blocked — copy the text instead');
   }
 });
 
@@ -2974,7 +2974,7 @@ document.getElementById('downloadTemplateBtn').addEventListener('click', ()=>{
     id:'', date:'2026-06-01', category:'Income', subcategory:'Salary & Paycheck',
     amount:1000, status:'Open', notes:'Example entry', type:'', account:''
   }];
-  downloadCsv(entriesToCsv(sample.concat(buildSettingsRows())), 'wealthme_template.csv', t('csv_title'));
+  downloadCsv(entriesToCsv(sample.concat(buildSettingsRows())), 'wealthme_template.csv', 'CSV Template');
 });
 
 document.getElementById('downloadSheetsTemplateBtn').addEventListener('click', ()=>{
@@ -3405,10 +3405,10 @@ document.getElementById('helpModalOverlay').addEventListener('click', (e)=>{
 
 /* Embedded Apps Script source */
 const GS_SCRIPT = `// ============================================================
-// WEALTH.ME — Google Apps Script Backend v9
-// Direct write — no chunking, no property storage.
-// Sends all data in a single request using a GET parameter.
-// Works within URL limits by compressing the payload.
+// WEALTH.ME — Google Apps Script Backend v10
+// Supports chunked pushes (large payloads split across requests
+// and reassembled via PropertiesService) plus single-entry
+// add/update/delete for fast auto-sync.
 // ============================================================
 
 const SHEET_NAME = 'WealthMe';
@@ -3448,6 +3448,39 @@ function doGet(e) {
         const entries = JSON.parse(decodeURIComponent(data));
         writeEntries(entries);
         result = { success: true, count: entries.length };
+      }
+    }
+    else if (action === 'chunk') {
+      // Large payloads arrive split across multiple requests and get
+      // reassembled here using PropertiesService, keyed by session id.
+      const session = e.parameter.session;
+      const index   = parseInt(e.parameter.index, 10);
+      const total   = parseInt(e.parameter.total, 10);
+      const data    = e.parameter.data;
+      if (!session || isNaN(index) || isNaN(total) || data === undefined) {
+        result = { error: 'Missing chunk parameters' };
+      } else {
+        const props = PropertiesService.getScriptProperties();
+        props.setProperty('chunk_' + session + '_' + index, data);
+
+        let allReceived = true;
+        for (let i = 0; i < total; i++) {
+          if (!props.getProperty('chunk_' + session + '_' + i)) { allReceived = false; break; }
+        }
+
+        if (allReceived) {
+          let full = '';
+          for (let i = 0; i < total; i++) {
+            const key = 'chunk_' + session + '_' + i;
+            full += props.getProperty(key);
+            props.deleteProperty(key);
+          }
+          const entries = JSON.parse(decodeURIComponent(full));
+          writeEntries(entries);
+          result = { success: true, count: entries.length, complete: true };
+        } else {
+          result = { success: true, complete: false, received: index + 1, total: total };
+        }
       }
     }
     else if (action === 'addone') {
@@ -3750,7 +3783,7 @@ function startSubcategoryRename(chipEl, oldName){
     const newName = input.value.trim();
     if(!newName || newName === oldName){ renderSubcategoryManager(); return; }
     if(CATEGORY_MAP[cat].some(s=>s.toLowerCase() === newName.toLowerCase() && s.toLowerCase() !== oldName.toLowerCase())){
-      showToast(t('toast_subcat_exists'));
+      showToast('That subcategory already exists');
       return;
     }
     renameSubcategory(oldName, newName);
