@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v14 -->
+<!-- WEALTH.ME — v15 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1060,7 +1060,8 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
         <button class="btn btn-danger" id="emptyDataBtn" style="flex:1;">Empty All Data</button>
         <button class="btn btn-secondary" id="resetDataBtn" style="flex:1;">Reset to Sample Data</button>
       </div>
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;">Wealth.Me · version 14</p>
+      <button class="btn btn-secondary btn-block" id="refreshAppBtn" style="margin-top:12px;">↻ Refresh App (get latest version)</button>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;">Wealth.Me · version 15</p>
     </div>
   </div>
 
@@ -3988,6 +3989,17 @@ document.getElementById('resetDataBtn').addEventListener('click', ()=>{
     closeSettingsModal();
     switchView('home');
   });
+});
+
+document.getElementById('refreshAppBtn').addEventListener('click', ()=>{
+  // Cache-busting reload: a unique query string forces the browser to
+  // treat this as a new URL, bypassing any cached copy (browser disk
+  // cache, GitHub Pages' CDN edge cache, or an iOS home-screen web clip's
+  // sticky cache) and fetching whatever is currently live from GitHub.
+  // All local data (entries, settings) lives in localStorage, keyed by
+  // origin+path, so it's unaffected — this only refetches the app code.
+  const url = location.pathname + '?v=' + Date.now();
+  location.href = url;
 });
 
 /* =========================================================
