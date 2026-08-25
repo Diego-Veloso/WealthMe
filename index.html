@@ -3272,11 +3272,18 @@ async function syncPush(){
     const BATCH_SIZE = 50;
     const batches = [];
     for(let i = 0; i < allRows.length; i += BATCH_SIZE) batches.push(allRows.slice(i, i + BATCH_SIZE));
-    if(batches.length === 0) batches.push([]); // still clear the sheet even if nothing to push
+
+    // Clear the sheet as its own request, separate from writing data — on a
+    // large sheet, clearing thousands of rows can itself take a while, and
+    // combining it with the first batch's write risked exceeding the timeout.
+    setSyncStatus('Clearing existing sheet data…', 'var(--slate)');
+    const clearResult = await jsonpFetch(`${syncUrl}?action=clearsheet`);
+    if(clearResult.error){ setSyncStatus('Push failed: ' + clearResult.error, 'var(--terracotta)'); syncInProgress=false; return; }
+
     for(let i = 0; i < batches.length; i++){
       setSyncStatus(`Pushing… batch ${i+1}/${batches.length}`, 'var(--slate)');
       const encoded = encodeURIComponent(JSON.stringify(batches[i]));
-      const url = `${syncUrl}?action=batch&index=${i}&total=${batches.length}&clear=${i===0?1:0}&data=${encoded}`;
+      const url = `${syncUrl}?action=batch&index=${i}&total=${batches.length}&data=${encoded}`;
       const json = await jsonpFetch(url);
       if(json.error){ setSyncStatus('Push failed: ' + json.error, 'var(--terracotta)'); syncInProgress=false; return; }
     }
@@ -3410,13 +3417,14 @@ document.getElementById('helpModalOverlay').addEventListener('click', (e)=>{
 
 /* Embedded Apps Script source */
 const GS_SCRIPT = `// ============================================================
-// WEALTH.ME — Google Apps Script Backend v11
-// Bulk pushes use the 'batch' action: small JSON-array batches appended
-// directly to the Sheet as they arrive (no PropertiesService staging),
-// so this scales past the ~500KB Properties quota. Plus single-entry
-// add/update/delete for fast auto-sync. The old 'chunk' action (v10)
-// is left in place for backward compatibility but is no longer used
-// by the client.
+// WEALTH.ME — Google Apps Script Backend v12
+// Bulk pushes: 'clearsheet' wipes existing rows as its own request, then
+// 'batch' appends small JSON-array batches directly to the Sheet as they
+// arrive (no PropertiesService staging) — scales past the ~500KB
+// Properties quota and keeps each request's work small enough to finish
+// well within the client timeout. Plus single-entry add/update/delete for
+// fast auto-sync. The old 'chunk' action (v10) is left in place for
+// backward compatibility but is no longer used by the client.
 // ============================================================
 
 const SHEET_NAME = 'WealthMe';
@@ -3491,6 +3499,16 @@ function doGet(e) {
         }
       }
     }
+    else if (action === 'clearsheet') {
+      // Wipes existing rows as its own request, separate from writing data.
+      // Kept isolated because on a large sheet, clearing thousands of rows
+      // can itself take a while — combining it with a data write risked
+      // exceeding the client's request timeout.
+      const sheet = getOrCreateSheet();
+      const lastRow = sheet.getLastRow();
+      if (lastRow > 1) sheet.getRange(2, 1, lastRow - 1, 9).clearContent();
+      result = { success: true };
+    }
     else if (action === 'batch') {
       // Bulk push arrives as many small batches (whole JSON arrays, not raw
       // character chunks). Each batch is appended straight to the Sheet on
@@ -3499,16 +3517,10 @@ function doGet(e) {
       const data  = e.parameter.data;
       const index = parseInt(e.parameter.index, 10);
       const total = parseInt(e.parameter.total, 10);
-      const clear = e.parameter.clear === '1';
       if (data === undefined || isNaN(index) || isNaN(total)) {
         result = { error: 'Missing batch parameters' };
       } else {
         const batchEntries = JSON.parse(decodeURIComponent(data));
-        if (clear) {
-          const sheet = getOrCreateSheet();
-          const lastRow = sheet.getLastRow();
-          if (lastRow > 1) sheet.getRange(2, 1, lastRow - 1, 9).clearContent();
-        }
         appendEntries(batchEntries);
         result = { success: true, batch: index + 1, total: total, count: batchEntries.length };
       }
