@@ -3284,12 +3284,34 @@ async function syncPush(){
     const clearResult = await jsonpFetch(`${syncUrl}?action=clearsheet`);
     if(clearResult.error){ setSyncStatus('Push failed: ' + clearResult.error, 'var(--terracotta)'); syncInProgress=false; return; }
 
+    // Small pause between requests + retry-with-backoff on failure. Firing
+    // ~700+ requests back-to-back with zero pacing risks Google throttling
+    // or dropping a connection mid-sequence (surfaces as "Load failed"
+    // rather than a normal error response) — a brief gap plus a few retries
+    // makes the push resilient to an occasional dropped request.
+    const sleep = ms => new Promise(res => setTimeout(res, ms));
+    const MAX_RETRIES = 4;
     for(let i = 0; i < batches.length; i++){
-      setSyncStatus(`Pushing… batch ${i+1}/${batches.length}`, 'var(--slate)');
       const encoded = encodeURIComponent(JSON.stringify(batches[i]));
       const url = `${syncUrl}?action=batch&index=${i}&total=${batches.length}&data=${encoded}`;
-      const json = await jsonpFetch(url);
-      if(json.error){ setSyncStatus('Push failed: ' + json.error, 'var(--terracotta)'); syncInProgress=false; return; }
+      let lastErr = null;
+      let succeeded = false;
+      for(let attempt = 0; attempt <= MAX_RETRIES; attempt++){
+        setSyncStatus(attempt === 0
+          ? `Pushing… batch ${i+1}/${batches.length}`
+          : `Pushing… batch ${i+1}/${batches.length} (retry ${attempt}/${MAX_RETRIES})`, 'var(--slate)');
+        try{
+          const json = await jsonpFetch(url);
+          if(json.error){ setSyncStatus('Push failed: ' + json.error, 'var(--terracotta)'); syncInProgress=false; return; }
+          succeeded = true;
+          break;
+        }catch(err){
+          lastErr = err;
+          if(attempt < MAX_RETRIES) await sleep(500 * Math.pow(2, attempt)); // 0.5s, 1s, 2s, 4s
+        }
+      }
+      if(!succeeded){ setSyncStatus(`Push failed at batch ${i+1}/${batches.length}: ` + lastErr.message, 'var(--terracotta)'); syncInProgress=false; return; }
+      await sleep(150); // brief pacing gap between successful requests
     }
     setSyncStatus(`✓ Pushed ${entries.length} entries + settings to Sheet`, 'var(--sage)');
     showToast('Synced to Google Sheet');
