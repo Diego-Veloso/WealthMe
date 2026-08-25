@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v15 -->
+<!-- WEALTH.ME — v16 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1061,7 +1061,7 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
         <button class="btn btn-secondary" id="resetDataBtn" style="flex:1;">Reset to Sample Data</button>
       </div>
       <button class="btn btn-secondary btn-block" id="refreshAppBtn" style="margin-top:12px;">↻ Refresh App (get latest version)</button>
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;">Wealth.Me · version 15</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;">Wealth.Me · version 16</p>
     </div>
   </div>
 
@@ -2408,7 +2408,7 @@ document.getElementById('txBulkApplyBtn').addEventListener('click', ()=>{
 
   if(syncUrl){
     // Sync only the edited entries — never a full push automatically.
-    editedEntries.forEach(en=>autoSyncEntry(en));
+    autoSyncSequential(editedEntries, autoSyncEntry);
   }
 });
 
@@ -2431,7 +2431,7 @@ document.getElementById('txBulkDeleteBtn').addEventListener('click', ()=>{
       showToast(`Deleted ${selectedIds.length} entr${selectedIds.length===1?'y':'ies'}`);
       if(syncUrl){
         // Sync only the deleted ids — never a full push automatically.
-        selectedIds.forEach(id=>autoSyncDelete(id));
+        autoSyncSequential(selectedIds, autoSyncDelete);
       }
     }
   );
@@ -2806,7 +2806,7 @@ document.getElementById('recurringSaveBtn').addEventListener('click', ()=>{
     // Always sync only the newly created entries — never trigger a full
     // push automatically. A full re-push (clear + resend everything) only
     // happens when the user explicitly clicks "Push to Sheet".
-    newEntries.forEach(en=>autoSyncEntry(en));
+    autoSyncSequential(newEntries, autoSyncEntry);
   }
 });
 
@@ -3130,19 +3130,27 @@ function jsonpFetch(url){
 }
 
 // Sync a single entry (add/update) — no chunking, no storage quota issues
+// Small pacing pause + retry-with-backoff, shared by autoSyncEntry/autoSyncDelete.
+function syncSleep(ms){ return new Promise(res => setTimeout(res, ms)); }
+
 async function autoSyncEntry(entry){
   if(!syncUrl) return;
   const badge = document.getElementById('syncBadge');
   if(badge){ badge.style.background = 'var(--gold)'; badge.title = 'Syncing…'; }
-  try{
-    const encoded = encodeURIComponent(JSON.stringify(entry));
-    const url = `${syncUrl}?action=addone&data=${encoded}`;
-    const json = await jsonpFetch(url);
-    if(json.error) throw new Error(json.error);
-    if(badge){ badge.style.background = 'var(--sage)'; badge.title = 'Synced to Google Sheet'; }
-  }catch(err){
-    if(badge){ badge.style.background = 'var(--terracotta)'; badge.title = 'Sync failed: ' + err.message; }
-    showToast('Sync failed: ' + err.message.slice(0,60));
+  const encoded = encodeURIComponent(JSON.stringify(entry));
+  const url = `${syncUrl}?action=addone&data=${encoded}`;
+  const MAX_RETRIES = 3;
+  for(let attempt = 0; attempt <= MAX_RETRIES; attempt++){
+    try{
+      const json = await jsonpFetch(url);
+      if(json.error) throw new Error(json.error);
+      if(badge){ badge.style.background = 'var(--sage)'; badge.title = 'Synced to Google Sheet'; }
+      return;
+    }catch(err){
+      if(attempt < MAX_RETRIES){ await syncSleep(500 * Math.pow(2, attempt)); continue; }
+      if(badge){ badge.style.background = 'var(--terracotta)'; badge.title = 'Sync failed: ' + err.message; }
+      showToast('Sync failed: ' + err.message.slice(0,60));
+    }
   }
 }
 
@@ -3151,14 +3159,31 @@ async function autoSyncDelete(id){
   if(!syncUrl) return;
   const badge = document.getElementById('syncBadge');
   if(badge){ badge.style.background = 'var(--gold)'; badge.title = 'Syncing…'; }
-  try{
-    const url = `${syncUrl}?action=deleteone&id=${id}`;
-    const json = await jsonpFetch(url);
-    if(json.error) throw new Error(json.error);
-    if(badge){ badge.style.background = 'var(--sage)'; badge.title = 'Synced to Google Sheet'; }
-  }catch(err){
-    if(badge){ badge.style.background = 'var(--terracotta)'; badge.title = 'Sync failed: ' + err.message; }
-    showToast('Sync failed: ' + err.message.slice(0,60));
+  const url = `${syncUrl}?action=deleteone&id=${id}`;
+  const MAX_RETRIES = 3;
+  for(let attempt = 0; attempt <= MAX_RETRIES; attempt++){
+    try{
+      const json = await jsonpFetch(url);
+      if(json.error) throw new Error(json.error);
+      if(badge){ badge.style.background = 'var(--sage)'; badge.title = 'Synced to Google Sheet'; }
+      return;
+    }catch(err){
+      if(attempt < MAX_RETRIES){ await syncSleep(500 * Math.pow(2, attempt)); continue; }
+      if(badge){ badge.style.background = 'var(--terracotta)'; badge.title = 'Sync failed: ' + err.message; }
+      showToast('Sync failed: ' + err.message.slice(0,60));
+    }
+  }
+}
+
+// Sync a list of entries/ids one at a time (never concurrently) via the
+// given per-item sync function, with a brief pacing gap between each.
+// Firing autoSyncEntry/autoSyncDelete concurrently via forEach overwhelms
+// Apps Script with simultaneous requests and silently drops some of them —
+// this keeps them sequential, same approach as the full Push.
+async function autoSyncSequential(items, syncFn){
+  for(const item of items){
+    await syncFn(item);
+    await syncSleep(150);
   }
 }
 
