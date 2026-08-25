@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v13 -->
+<!-- WEALTH.ME — v14 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1060,7 +1060,7 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
         <button class="btn btn-danger" id="emptyDataBtn" style="flex:1;">Empty All Data</button>
         <button class="btn btn-secondary" id="resetDataBtn" style="flex:1;">Reset to Sample Data</button>
       </div>
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;">Wealth.Me · version 13</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;">Wealth.Me · version 14</p>
     </div>
   </div>
 
@@ -2374,6 +2374,7 @@ document.getElementById('txBulkApplyBtn').addEventListener('click', ()=>{
   }
 
   let updatedCount = 0;
+  const editedEntries = [];
   selectedIds.forEach(id=>{
     const entry = entries.find(en=>en.id === id);
     if(!entry) return;
@@ -2396,6 +2397,7 @@ document.getElementById('txBulkApplyBtn').addEventListener('click', ()=>{
       }
     }
     updatedCount++;
+    editedEntries.push(entry);
   });
 
   saveState();
@@ -2403,7 +2405,10 @@ document.getElementById('txBulkApplyBtn').addEventListener('click', ()=>{
   renderCurrentView(getActiveViewName());
   showToast(`Updated ${updatedCount} entr${updatedCount===1?'y':'ies'}`);
 
-  if(syncUrl){ syncPush(); }
+  if(syncUrl){
+    // Sync only the edited entries — never a full push automatically.
+    editedEntries.forEach(en=>autoSyncEntry(en));
+  }
 });
 
 document.getElementById('txBulkDeleteBtn').addEventListener('click', ()=>{
@@ -2424,8 +2429,8 @@ document.getElementById('txBulkDeleteBtn').addEventListener('click', ()=>{
       renderCurrentView(getActiveViewName());
       showToast(`Deleted ${selectedIds.length} entr${selectedIds.length===1?'y':'ies'}`);
       if(syncUrl){
-        if(selectedIds.length > 3){ syncPush(); }
-        else { selectedIds.forEach(id=>autoSyncDelete(id)); }
+        // Sync only the deleted ids — never a full push automatically.
+        selectedIds.forEach(id=>autoSyncDelete(id));
       }
     }
   );
@@ -2797,8 +2802,10 @@ document.getElementById('recurringSaveBtn').addEventListener('click', ()=>{
   showToast(`Created ${count} entr${count===1?'y':'ies'}`);
 
   if(syncUrl){
-    if(newEntries.length > 3){ syncPush(); }
-    else { newEntries.forEach(en=>autoSyncEntry(en)); }
+    // Always sync only the newly created entries — never trigger a full
+    // push automatically. A full re-push (clear + resend everything) only
+    // happens when the user explicitly clicks "Push to Sheet".
+    newEntries.forEach(en=>autoSyncEntry(en));
   }
 });
 
@@ -3381,13 +3388,11 @@ async function syncTest(){
     }
     if(write.error){ return; }
 
-    // Step 3: push real data
-    setTimeout(()=> setSyncStatus('Write OK — pushing your data…', 'var(--slate)'), 2000);
-    setTimeout(async ()=>{
-      saveSyncUrl(url);
-      updateSyncBadge();
-      await syncPush();
-    }, 2500);
+    // Step 3: connection confirmed — save the URL, but leave pushing data
+    // to the user via the "Push to Sheet" button. No automatic full push.
+    setSyncStatus('✓ Connected! Use "Push to Sheet" to sync your data.', 'var(--sage)');
+    saveSyncUrl(url);
+    updateSyncBadge();
   }catch(err){
     setSyncStatus('Test failed: ' + err.message, 'var(--terracotta)');
   }
