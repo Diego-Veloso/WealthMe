@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v16 -->
+<!-- WEALTH.ME — v17 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1061,7 +1061,8 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
         <button class="btn btn-secondary" id="resetDataBtn" style="flex:1;">Reset to Sample Data</button>
       </div>
       <button class="btn btn-secondary btn-block" id="refreshAppBtn" style="margin-top:12px;">↻ Refresh App (get latest version)</button>
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;">Wealth.Me · version 16</p>
+      <div id="refreshStatus" class="muted" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 17</p>
     </div>
   </div>
 
@@ -1440,6 +1441,12 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
 /* =========================================================
    WEALTH.ME — APPLICATION SCRIPT
    ========================================================= */
+
+// Single source of truth for the app version — must match the number in
+// the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
+// App button fetches the live file from GitHub and compares that comment's
+// number against this constant to detect whether an update is available.
+const APP_VERSION = 17;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -4016,15 +4023,33 @@ document.getElementById('resetDataBtn').addEventListener('click', ()=>{
   });
 });
 
-document.getElementById('refreshAppBtn').addEventListener('click', ()=>{
-  // Cache-busting reload: a unique query string forces the browser to
-  // treat this as a new URL, bypassing any cached copy (browser disk
-  // cache, GitHub Pages' CDN edge cache, or an iOS home-screen web clip's
-  // sticky cache) and fetching whatever is currently live from GitHub.
-  // All local data (entries, settings) lives in localStorage, keyed by
-  // origin+path, so it's unaffected — this only refetches the app code.
-  const url = location.pathname + '?v=' + Date.now();
-  location.href = url;
+document.getElementById('refreshAppBtn').addEventListener('click', async ()=>{
+  // Fetch the live file from GitHub with cache disabled, so this always
+  // sees whatever is actually deployed — never a cached copy. Parse out
+  // its version comment and compare to APP_VERSION (the version currently
+  // running) before deciding whether a reload is actually needed.
+  const statusEl = document.getElementById('refreshStatus');
+  if(statusEl) statusEl.textContent = 'Checking for updates…';
+  try{
+    const res = await fetch(location.pathname + '?v=' + Date.now(), { cache: 'no-store' });
+    if(!res.ok) throw new Error('HTTP ' + res.status);
+    const html = await res.text();
+    const match = html.match(/WEALTH\.ME\s*—\s*v(\d+)/);
+    if(!match){
+      if(statusEl) statusEl.textContent = "Couldn't detect a version — reloading to be safe…";
+      setTimeout(()=>{ location.href = location.pathname + '?v=' + Date.now(); }, 1200);
+      return;
+    }
+    const latestVersion = parseInt(match[1], 10);
+    if(latestVersion > APP_VERSION){
+      if(statusEl) statusEl.textContent = `✓ Updating to version ${latestVersion}…`;
+      setTimeout(()=>{ location.href = location.pathname + '?v=' + Date.now(); }, 900);
+    } else {
+      if(statusEl) statusEl.textContent = `You're up to date — version ${APP_VERSION} is the latest.`;
+    }
+  }catch(err){
+    if(statusEl) statusEl.textContent = 'Update check failed: ' + err.message;
+  }
 });
 
 /* =========================================================
@@ -4047,6 +4072,8 @@ function init(){
   // Reset badge to neutral on every open — green only means a live successful sync
   const badge = document.getElementById('syncBadge');
   if(badge && syncUrl) badge.style.background = 'var(--slate)';
+  const versionEl = document.getElementById('versionFooterText');
+  if(versionEl) versionEl.textContent = 'Wealth.Me · version ' + APP_VERSION;
 }
 
 /* =========================================================
