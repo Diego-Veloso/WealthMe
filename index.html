@@ -3269,7 +3269,11 @@ async function syncPush(){
     // arrival. Nothing is staged in PropertiesService, so this scales past
     // the ~500KB Properties quota regardless of how many entries there are.
     const allRows = entries.concat(buildSettingsRows());
-    const BATCH_SIZE = 50;
+    // Kept small: at 50 entries/batch, the percent-encoded URL (every quote,
+    // colon, comma, brace expands to 3 chars) ran ~15-20KB — past Apps
+    // Script's practical ~8KB GET URL limit, which silently hangs the
+    // request instead of erroring. 15 entries/batch keeps URLs safely small.
+    const BATCH_SIZE = 15;
     const batches = [];
     for(let i = 0; i < allRows.length; i += BATCH_SIZE) batches.push(allRows.slice(i, i + BATCH_SIZE));
 
