@@ -3109,7 +3109,7 @@ function updateSyncBadge(){
 function jsonpFetch(url){
   return new Promise((resolve, reject)=>{
     const cbName = '_wm_' + Date.now() + '_' + Math.floor(Math.random()*9999);
-    const timer = setTimeout(()=>{ cleanup(); reject(new Error('Request timed out after 15s')); }, 15000);
+    const timer = setTimeout(()=>{ cleanup(); reject(new Error('Request timed out after 45s')); }, 45000);
     function cleanup(){ clearTimeout(timer); delete window[cbName]; const el=document.getElementById(cbName); if(el) el.remove(); }
     window[cbName] = (data)=>{ cleanup(); resolve(data); };
     const s = document.createElement('script');
@@ -3264,14 +3264,19 @@ async function syncPush(){
   syncInProgress = true;
   setSyncStatus('Pushing to Google Sheet…', 'var(--slate)');
   try{
-    const payload = JSON.stringify(entries.concat(buildSettingsRows()));
-    const CHUNK_SIZE = 2000;
-    const chunks = [];
-    for(let i = 0; i < payload.length; i += CHUNK_SIZE) chunks.push(payload.slice(i, i + CHUNK_SIZE));
-    const sessionId = Date.now().toString(36);
-    for(let i = 0; i < chunks.length; i++){
-      setSyncStatus(`Pushing… ${i+1}/${chunks.length}`, 'var(--slate)');
-      const url = `${syncUrl}?action=chunk&session=${sessionId}&index=${i}&total=${chunks.length}&data=${encodeURIComponent(chunks[i])}`;
+    // Batched by entry count (not raw character chunks) — each batch is sent
+    // as a complete small JSON array and appended directly to the Sheet on
+    // arrival. Nothing is staged in PropertiesService, so this scales past
+    // the ~500KB Properties quota regardless of how many entries there are.
+    const allRows = entries.concat(buildSettingsRows());
+    const BATCH_SIZE = 50;
+    const batches = [];
+    for(let i = 0; i < allRows.length; i += BATCH_SIZE) batches.push(allRows.slice(i, i + BATCH_SIZE));
+    if(batches.length === 0) batches.push([]); // still clear the sheet even if nothing to push
+    for(let i = 0; i < batches.length; i++){
+      setSyncStatus(`Pushing… batch ${i+1}/${batches.length}`, 'var(--slate)');
+      const encoded = encodeURIComponent(JSON.stringify(batches[i]));
+      const url = `${syncUrl}?action=batch&index=${i}&total=${batches.length}&clear=${i===0?1:0}&data=${encoded}`;
       const json = await jsonpFetch(url);
       if(json.error){ setSyncStatus('Push failed: ' + json.error, 'var(--terracotta)'); syncInProgress=false; return; }
     }
@@ -3405,10 +3410,13 @@ document.getElementById('helpModalOverlay').addEventListener('click', (e)=>{
 
 /* Embedded Apps Script source */
 const GS_SCRIPT = `// ============================================================
-// WEALTH.ME — Google Apps Script Backend v10
-// Supports chunked pushes (large payloads split across requests
-// and reassembled via PropertiesService) plus single-entry
-// add/update/delete for fast auto-sync.
+// WEALTH.ME — Google Apps Script Backend v11
+// Bulk pushes use the 'batch' action: small JSON-array batches appended
+// directly to the Sheet as they arrive (no PropertiesService staging),
+// so this scales past the ~500KB Properties quota. Plus single-entry
+// add/update/delete for fast auto-sync. The old 'chunk' action (v10)
+// is left in place for backward compatibility but is no longer used
+// by the client.
 // ============================================================
 
 const SHEET_NAME = 'WealthMe';
@@ -3481,6 +3489,28 @@ function doGet(e) {
         } else {
           result = { success: true, complete: false, received: index + 1, total: total };
         }
+      }
+    }
+    else if (action === 'batch') {
+      // Bulk push arrives as many small batches (whole JSON arrays, not raw
+      // character chunks). Each batch is appended straight to the Sheet on
+      // arrival — nothing is staged in PropertiesService — so this scales
+      // to any number of entries without hitting the Properties quota.
+      const data  = e.parameter.data;
+      const index = parseInt(e.parameter.index, 10);
+      const total = parseInt(e.parameter.total, 10);
+      const clear = e.parameter.clear === '1';
+      if (data === undefined || isNaN(index) || isNaN(total)) {
+        result = { error: 'Missing batch parameters' };
+      } else {
+        const batchEntries = JSON.parse(decodeURIComponent(data));
+        if (clear) {
+          const sheet = getOrCreateSheet();
+          const lastRow = sheet.getLastRow();
+          if (lastRow > 1) sheet.getRange(2, 1, lastRow - 1, 9).clearContent();
+        }
+        appendEntries(batchEntries);
+        result = { success: true, batch: index + 1, total: total, count: batchEntries.length };
       }
     }
     else if (action === 'addone') {
@@ -3589,6 +3619,17 @@ function writeEntries(entries) {
   if (!entries || entries.length === 0) return;
   const rows = entries.map(e => headers.map(h => (e[h] != null) ? e[h] : ''));
   sheet.getRange(2, 1, rows.length, headers.length).setValues(rows);
+}
+
+// Append a batch of entries as new rows at the end of the sheet.
+// Used by the 'batch' action for large pushes — writes directly, no staging.
+function appendEntries(entries) {
+  if (!entries || entries.length === 0) return;
+  const sheet = getOrCreateSheet();
+  const headers = ['id','date','category','subcategory','amount','status','notes','type','account'];
+  const rows = entries.map(en => headers.map(h => (en[h] != null) ? en[h] : ''));
+  const startRow = sheet.getLastRow() + 1;
+  sheet.getRange(startRow, 1, rows.length, headers.length).setValues(rows);
 }
 
 function jsonResponse(data) {
