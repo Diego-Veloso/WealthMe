@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v18 -->
+<!-- WEALTH.ME — v19 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -285,7 +285,7 @@ main{
 .entry-amt{font-weight:700;font-size:14px;font-family:'Fraunces',serif;}
 .entry-amt.pos{color:var(--sage);}
 .entry-amt.neg{color:var(--terracotta);}
-.entry-amt.neg-invest{color:var(--sky);}
+.entry-amt.invest-tx{color:var(--sky);}
 .status-badge{
   font-size:10px;
   text-transform:uppercase;
@@ -1065,7 +1065,7 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
       </div>
       <button class="btn btn-secondary btn-block" id="refreshAppBtn" style="margin-top:12px;">↻ Refresh App (get latest version)</button>
       <div id="refreshStatus" class="muted" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 18</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 19</p>
     </div>
   </div>
 
@@ -1449,7 +1449,7 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 18;
+const APP_VERSION = 19;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -4595,13 +4595,14 @@ function renderEntryRow(e, selectable, isTransactionsPage){
   } else if(e.category === 'Investment'){
     if(amt >= 0){
       displayAmt = '-' + fmtMoney(amt);
-      // On the Transactions page, show Investment outflows in blue rather
-      // than red, to visually distinguish them from Expense outflows.
-      amtClass = isTransactionsPage ? 'neg-invest' : 'neg';
+      // On the Transactions page, show Investment amounts (both directions)
+      // in blue rather than red/green, to visually distinguish them from
+      // Expense/Income entries.
+      amtClass = isTransactionsPage ? 'invest-tx' : 'neg';
     } else {
       // negative investment = withdrawal → positive effect on balance
       displayAmt = '+' + fmtMoney(Math.abs(amt)) + ' ↩';
-      amtClass = 'pos';
+      amtClass = isTransactionsPage ? 'invest-tx' : 'pos';
     }
   } else {
     // Capital
