@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v17 -->
+<!-- WEALTH.ME — v18 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -22,6 +22,8 @@
   --gold-light:#FBF1DF;
   --slate:#5C6B7A;
   --slate-light:#E7EAED;
+  --sky:#3E6FA8;
+  --sky-light:#E8EFF6;
   --line:#E3DFD6;
   --radius:14px;
 }
@@ -283,6 +285,7 @@ main{
 .entry-amt{font-weight:700;font-size:14px;font-family:'Fraunces',serif;}
 .entry-amt.pos{color:var(--sage);}
 .entry-amt.neg{color:var(--terracotta);}
+.entry-amt.neg-invest{color:var(--sky);}
 .status-badge{
   font-size:10px;
   text-transform:uppercase;
@@ -1062,7 +1065,7 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
       </div>
       <button class="btn btn-secondary btn-block" id="refreshAppBtn" style="margin-top:12px;">↻ Refresh App (get latest version)</button>
       <div id="refreshStatus" class="muted" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 17</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 18</p>
     </div>
   </div>
 
@@ -1446,7 +1449,7 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 17;
+const APP_VERSION = 18;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -4315,7 +4318,7 @@ function renderTransactions(){
   groupOrder.forEach(key=>{
     const [y,m] = key.split('-');
     const label = new Date(Number(y), Number(m)-1, 1).toLocaleString(undefined,{month:'long', year:'numeric'});
-    const rows = groups[key].map(e=>renderEntryRow(e, true)).join('');
+    const rows = groups[key].map(e=>renderEntryRow(e, true, true)).join('');
     html += `<div class="group-header">${label}</div><div class="card"><ul class="entry-list">${rows}</ul></div>`;
   });
 
@@ -4563,7 +4566,7 @@ function renderDetailTrendChart(){
 }
 
 /* shared entry row renderer (used in detail + transactions + debts) */
-function renderEntryRow(e, selectable){
+function renderEntryRow(e, selectable, isTransactionsPage){
   const isExpense = e.category === 'Expense';
   const amt = Number(e.amount);
   const dotColor = CATEGORY_COLORS[e.category];
@@ -4592,7 +4595,9 @@ function renderEntryRow(e, selectable){
   } else if(e.category === 'Investment'){
     if(amt >= 0){
       displayAmt = '-' + fmtMoney(amt);
-      amtClass = 'neg';
+      // On the Transactions page, show Investment outflows in blue rather
+      // than red, to visually distinguish them from Expense outflows.
+      amtClass = isTransactionsPage ? 'neg-invest' : 'neg';
     } else {
       // negative investment = withdrawal → positive effect on balance
       displayAmt = '+' + fmtMoney(Math.abs(amt)) + ' ↩';
