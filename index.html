@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v21 -->
+<!-- WEALTH.ME — v17 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -22,8 +22,6 @@
   --gold-light:#FBF1DF;
   --slate:#5C6B7A;
   --slate-light:#E7EAED;
-  --sky:#3E6FA8;
-  --sky-light:#E8EFF6;
   --line:#E3DFD6;
   --radius:14px;
 }
@@ -285,7 +283,6 @@ main{
 .entry-amt{font-weight:700;font-size:14px;font-family:'Fraunces',serif;}
 .entry-amt.pos{color:var(--sage);}
 .entry-amt.neg{color:var(--terracotta);}
-.entry-amt.invest-tx{color:var(--sky);}
 .status-badge{
   font-size:10px;
   text-transform:uppercase;
@@ -683,11 +680,6 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
       </div>
 
       <div class="card">
-        <div class="card-title">Insights</div>
-        <div id="insightsList"></div>
-      </div>
-
-      <div class="card">
         <div class="card-title">Daily Cashflow</div>
         <div class="chart-wrap"><canvas id="lineChart"></canvas></div>
       </div>
@@ -1070,7 +1062,7 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
       </div>
       <button class="btn btn-secondary btn-block" id="refreshAppBtn" style="margin-top:12px;">↻ Refresh App (get latest version)</button>
       <div id="refreshStatus" class="muted" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 21</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 17</p>
     </div>
   </div>
 
@@ -1454,7 +1446,7 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 21;
+const APP_VERSION = 17;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -1724,200 +1716,8 @@ function computeMonthFinancials(refDate, closedOnly){
   return result;
 }
 
-/* =========================================================
-   AI INSIGHTS — rule-based / statistical, fully on-device.
-   No external API calls, no data leaves the browser. Every
-   insight is derived from patterns in the user's own entries.
-   ========================================================= */
-function generateInsights(refDate){
-  const insights = [];
-  const year = refDate.getFullYear();
-  const month = refDate.getMonth();
-
-  // 1. Spending anomaly — a subcategory running 30%+ above its trailing
-  //    average over the last 13 months (the selected month + 12 prior),
-  //    using whichever of those prior months actually have data.
-  {
-    const monthTotals = {};
-    entries.forEach(e=>{
-      if(e.category === 'Expense' && e.subcategory !== 'Taxes' && e.status === 'Closed' && isSameMonth(e.date, refDate)){
-        monthTotals[e.subcategory] = (monthTotals[e.subcategory] || 0) + Number(e.amount);
-      }
-    });
-    Object.keys(monthTotals).forEach(sub=>{
-      let priorSum = 0, priorMonths = 0;
-      for(let i = 1; i <= 12; i++){
-        const d = new Date(year, month - i, 1);
-        const total = entries
-          .filter(e => e.category === 'Expense' && e.subcategory === sub && e.status === 'Closed' && isSameMonth(e.date, d))
-          .reduce((a,e)=>a+Number(e.amount), 0);
-        if(total > 0){ priorSum += total; priorMonths++; }
-      }
-      if(priorMonths >= 1){
-        const avg = priorSum / priorMonths;
-        const current = monthTotals[sub];
-        if(avg > 0 && current > avg * 1.3 && current > 20){
-          const pct = Math.round(((current - avg) / avg) * 100);
-          insights.push({
-            icon:'⚠️', color:'var(--terracotta)', bg:'var(--terracotta-light)',
-            title:`${sub} spending is up`,
-            message:`${fmtMoney(current)} this month vs a ${fmtMoney(avg)} average over the prior ${priorMonths===1?'month':priorMonths+' months'} — ${pct}% higher.`,
-            weight: pct
-          });
-        }
-      }
-    });
-  }
-
-  // 2. Recurring bill creep — same subcategory+notes recurring entry whose
-  //    latest occurrence costs noticeably more than the one before it.
-  {
-    const groups = {};
-    entries.forEach(e=>{
-      if(e.category !== 'Expense' || e.status !== 'Closed') return;
-      const key = e.subcategory + '||' + (e.notes || '');
-      (groups[key] = groups[key] || []).push(e);
-    });
-    Object.values(groups).forEach(group=>{
-      if(group.length < 2) return;
-      const sorted = group.slice().sort((a,b)=> parseLocalDate(a.date) - parseLocalDate(b.date));
-      const last = sorted[sorted.length-1];
-      const prev = sorted[sorted.length-2];
-      if(prev.amount > 0 && last.amount > prev.amount * 1.05){
-        const pct = Math.round(((last.amount - prev.amount) / prev.amount) * 100);
-        insights.push({
-          icon:'📈', color:'var(--gold)', bg:'var(--gold-light)',
-          title:`${last.subcategory} price increased`,
-          message:`${last.notes ? last.notes + ' — ' : ''}went from ${fmtMoney(prev.amount)} to ${fmtMoney(last.amount)} (+${pct}%).`,
-          weight: pct
-        });
-      }
-    });
-  }
-
-  // 3. Cash flow forecast — compare confirmed (Closed-only) balance for the
-  //    viewed month against the fully projected balance (includes Open entries).
-  {
-    const proj = computeMonthFinancials(refDate, false);
-    const cash = computeMonthFinancials(refDate, true);
-    if(Math.abs(proj.balance - cash.balance) > 1){
-      if(proj.balance < 0 && cash.balance >= 0){
-        insights.push({
-          icon:'📉', color:'var(--terracotta)', bg:'var(--terracotta-light)',
-          title:'Projected to go negative',
-          message:`Confirmed balance is ${fmtMoney(cash.balance)}, but scheduled entries would bring it to ${fmtMoney(proj.balance)} by month end.`,
-          weight: 200
-        });
-      } else {
-        insights.push({
-          icon:'🔮', color:'var(--sky)', bg:'var(--sky-light)',
-          title:'Month-end forecast',
-          message:`With scheduled entries included, projected balance is ${fmtMoney(proj.balance)} (currently ${fmtMoney(cash.balance)} confirmed).`,
-          weight: 10
-        });
-      }
-    }
-  }
-
-  // 4. Savings rate trend — three straight Closed months of declining
-  //    (Income − Expense) / Income, dropping 5+ percentage points total.
-  {
-    const rates = [];
-    for(let i = 2; i >= 0; i--){
-      const d = new Date(year, month - i, 1);
-      const inc = entries.filter(e=>e.category==='Income' && e.status==='Closed' && isSameMonth(e.date, d)).reduce((a,e)=>a+Number(e.amount),0);
-      const exp = entries.filter(e=>e.category==='Expense' && e.status==='Closed' && isSameMonth(e.date, d)).reduce((a,e)=>a+Number(e.amount),0);
-      if(inc > 0) rates.push((inc - exp) / inc);
-    }
-    if(rates.length === 3 && rates[0] > rates[1] && rates[1] > rates[2]){
-      const dropPts = Math.round((rates[0] - rates[2]) * 100);
-      if(dropPts >= 5){
-        insights.push({
-          icon:'📉', color:'var(--terracotta)', bg:'var(--terracotta-light)',
-          title:'Savings rate declining',
-          message:`Your savings rate has dropped ${dropPts} percentage points over the last 3 months (${Math.round(rates[0]*100)}% → ${Math.round(rates[2]*100)}%).`,
-          weight: dropPts + 50
-        });
-      }
-    }
-  }
-
-  // 5. Category concentration — one subcategory dominating this month's spend.
-  {
-    const monthTotals = {};
-    let grandTotal = 0;
-    entries.forEach(e=>{
-      if(e.category === 'Expense' && e.subcategory !== 'Taxes' && e.status === 'Closed' && isSameMonth(e.date, refDate)){
-        monthTotals[e.subcategory] = (monthTotals[e.subcategory] || 0) + Number(e.amount);
-        grandTotal += Number(e.amount);
-      }
-    });
-    if(grandTotal > 0){
-      const top = Object.entries(monthTotals).sort((a,b)=>b[1]-a[1])[0];
-      const pct = Math.round((top[1] / grandTotal) * 100);
-      if(pct >= 40){
-        insights.push({
-          icon:'🎯', color:'var(--gold)', bg:'var(--gold-light)',
-          title:'Spending concentration',
-          message:`${top[0]} made up ${pct}% of this month's expenses (${fmtMoney(top[1])} of ${fmtMoney(grandTotal)}).`,
-          weight: pct
-        });
-      }
-    }
-  }
-
-  // 6. Debt account check-in — an account with payment history but nothing
-  //    recorded recently.
-  {
-    const now = new Date();
-    DEBT_TYPES.forEach(type=>{
-      (DEBT_ACCOUNTS[type] || []).forEach(acct=>{
-        const payments = entries.filter(e => e.category==='Expense' && e.type===type && e.account===acct && e.status==='Closed');
-        if(payments.length === 0) return;
-        const lastDate = payments.reduce((latest,e)=>{
-          const d = parseLocalDate(e.date);
-          return (!latest || d > latest) ? d : latest;
-        }, null);
-        const daysSince = Math.floor((now - lastDate) / 86400000);
-        if(daysSince >= 45){
-          insights.push({
-            icon:'⏰', color:'var(--slate)', bg:'var(--slate-light)',
-            title:`No recent payment: ${acct}`,
-            message:`Last payment recorded ${daysSince} days ago (${lastDate.toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'})}).`,
-            weight: Math.min(daysSince, 150)
-          });
-        }
-      });
-    });
-  }
-
-  insights.sort((a,b)=> (b.weight||0) - (a.weight||0));
-  return insights;
-}
-
-function renderInsights(refDate){
-  const container = document.getElementById('insightsList');
-  if(!container) return;
-  const insights = generateInsights(refDate).slice(0, 6); // cap for readability
-  if(insights.length === 0){
-    container.innerHTML = `<div class="muted" style="padding:8px 2px;font-size:13px;">No notable patterns this month — everything looks steady.</div>`;
-    return;
-  }
-  container.innerHTML = insights.map(ins => `
-    <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--slate-light);">
-      <div style="font-size:18px;line-height:1;flex-shrink:0;">${ins.icon}</div>
-      <div style="min-width:0;">
-        <div style="font-weight:600;font-size:13px;color:var(--navy);">${ins.title}</div>
-        <div class="muted" style="font-size:12.5px;margin-top:2px;">${ins.message}</div>
-      </div>
-    </div>
-  `).join('');
-  // remove the trailing border on the last item
-  const last = container.lastElementChild;
-  if(last) last.style.borderBottom = 'none';
-}
-
-
+/* Daily cumulative balance for the line chart (cumulative across the month, closed entries define "actual" cashflow but
+   the chart reflects all entries' cumulative net effect day by day, starting from previous month's projected balance) */
 function computeDailyCashflow(refDate){
   const year = refDate.getFullYear();
   const month = refDate.getMonth();
@@ -4515,7 +4315,7 @@ function renderTransactions(){
   groupOrder.forEach(key=>{
     const [y,m] = key.split('-');
     const label = new Date(Number(y), Number(m)-1, 1).toLocaleString(undefined,{month:'long', year:'numeric'});
-    const rows = groups[key].map(e=>renderEntryRow(e, true, true)).join('');
+    const rows = groups[key].map(e=>renderEntryRow(e, true)).join('');
     html += `<div class="group-header">${label}</div><div class="card"><ul class="entry-list">${rows}</ul></div>`;
   });
 
@@ -4763,7 +4563,7 @@ function renderDetailTrendChart(){
 }
 
 /* shared entry row renderer (used in detail + transactions + debts) */
-function renderEntryRow(e, selectable, isTransactionsPage){
+function renderEntryRow(e, selectable){
   const isExpense = e.category === 'Expense';
   const amt = Number(e.amount);
   const dotColor = CATEGORY_COLORS[e.category];
@@ -4792,14 +4592,11 @@ function renderEntryRow(e, selectable, isTransactionsPage){
   } else if(e.category === 'Investment'){
     if(amt >= 0){
       displayAmt = '-' + fmtMoney(amt);
-      // On the Transactions page, show Investment amounts (both directions)
-      // in blue rather than red/green, to visually distinguish them from
-      // Expense/Income entries.
-      amtClass = isTransactionsPage ? 'invest-tx' : 'neg';
+      amtClass = 'neg';
     } else {
       // negative investment = withdrawal → positive effect on balance
       displayAmt = '+' + fmtMoney(Math.abs(amt)) + ' ↩';
-      amtClass = isTransactionsPage ? 'invest-tx' : 'pos';
+      amtClass = 'pos';
     }
   } else {
     // Capital
@@ -4862,7 +4659,6 @@ function renderHome(){
 
   renderLineChart();
   renderDonutChart();
-  renderInsights(homeDate);
 }
 
 function renderLineChart(){
