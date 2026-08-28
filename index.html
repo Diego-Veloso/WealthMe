@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v20 -->
+<!-- WEALTH.ME — v21 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1070,7 +1070,7 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
       </div>
       <button class="btn btn-secondary btn-block" id="refreshAppBtn" style="margin-top:12px;">↻ Refresh App (get latest version)</button>
       <div id="refreshStatus" class="muted" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 20</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 21</p>
     </div>
   </div>
 
@@ -1454,7 +1454,7 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 20;
+const APP_VERSION = 21;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -1735,7 +1735,8 @@ function generateInsights(refDate){
   const month = refDate.getMonth();
 
   // 1. Spending anomaly — a subcategory running 30%+ above its trailing
-  //    average over the prior months that actually have data (up to 3).
+  //    average over the last 13 months (the selected month + 12 prior),
+  //    using whichever of those prior months actually have data.
   {
     const monthTotals = {};
     entries.forEach(e=>{
@@ -1745,7 +1746,7 @@ function generateInsights(refDate){
     });
     Object.keys(monthTotals).forEach(sub=>{
       let priorSum = 0, priorMonths = 0;
-      for(let i = 1; i <= 3; i++){
+      for(let i = 1; i <= 12; i++){
         const d = new Date(year, month - i, 1);
         const total = entries
           .filter(e => e.category === 'Expense' && e.subcategory === sub && e.status === 'Closed' && isSameMonth(e.date, d))
