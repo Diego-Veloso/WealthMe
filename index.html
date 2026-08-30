@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v27 -->
+<!-- WEALTH.ME — v34 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -916,7 +916,7 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
         <div class="label" id="insightsMonthLabel">June 2026</div>
         <button id="insightsNext">&#8250;</button>
       </div>
-      <div class="muted" style="font-size:11.5px;margin:-4px 2px 12px;" id="insightsPeriodSubtitle">Analyzing the 13 months through the selected month</div>
+      <div class="muted" style="font-size:11.5px;margin:-4px 2px 12px;" id="insightsPeriodSubtitle">Analyzing the 12 months through the selected month</div>
       <div id="insightsContainer"></div>
     </section>
 
@@ -1089,7 +1089,7 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
       </div>
       <button class="btn btn-secondary btn-block" id="refreshAppBtn" style="margin-top:12px;">↻ Refresh App (get latest version)</button>
       <div id="refreshStatus" class="muted" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 27</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 34</p>
     </div>
   </div>
 
@@ -1473,7 +1473,7 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 27;
+const APP_VERSION = 34;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -1755,30 +1755,30 @@ function computeMonthFinancials(refDate, closedOnly){
 }
 
 /* =========================================================
-   FINANCIAL INSIGHTS — 13-month analytics engine
-   Reference period = selected month + previous 12 calendar months.
+   FINANCIAL INSIGHTS — 12-month analytics engine
+   Reference period = selected month + previous 11 calendar months.
    All figures are computed from actual (Closed-status) entries only —
    this mirrors the app's existing "Cashflow/actual" convention used
    on the Home page, as opposed to "Open/scheduled" projections.
    Nothing here mutates the original entries array.
    ========================================================= */
 
-// Cache: recomputing the full 13-month dataset scans all entries several
+// Cache: recomputing the full 12-month dataset scans all entries several
 // times, so cache by the selected month's key and invalidate on any data change.
 let _insightsCache = {};
 function invalidateInsightsCache(){ _insightsCache = {}; }
 
-function get13MonthPeriod(selectedDate, direction){
-  // direction: 'past' = selected month + previous 12 (default);
-  // 'future' = selected month + next 12.
+function get12MonthPeriod(selectedDate, direction){
+  // direction: 'past' = selected month + previous 11 (default);
+  // 'future' = selected month + next 11.
   const months = [];
   if(direction === 'future'){
-    for(let i = 0; i <= 12; i++){
+    for(let i = 0; i <= 11; i++){
       const d = new Date(selectedDate.getFullYear(), selectedDate.getMonth() + i, 1);
       months.push({ year: d.getFullYear(), month: d.getMonth(), date: d, label: d.toLocaleString(undefined, {month:'short', year:'numeric'}) });
     }
   } else {
-    for(let i = 12; i >= 0; i--){
+    for(let i = 11; i >= 0; i--){
       const d = new Date(selectedDate.getFullYear(), selectedDate.getMonth() - i, 1);
       months.push({ year: d.getFullYear(), month: d.getMonth(), date: d, label: d.toLocaleString(undefined, {month:'short', year:'numeric'}) });
     }
@@ -1818,7 +1818,7 @@ function getInsightsEntries(statusFilter){
 // Sum of a category (optionally a specific subcategory) for one calendar
 // month, always queried directly against the full entries list — used for
 // "vs previous month" / "vs same month last year" comparisons, which must
-// reference real calendar months regardless of which 13-month window
+// reference real calendar months regardless of which 12-month window
 // (past or future) is currently being displayed.
 function amountForMonth(category, subcategory, monthObj, statusFilter){
   return getInsightsEntries(statusFilter).filter(e=>{
@@ -1834,7 +1834,7 @@ function generateFinancialInsights(selectedDate, direction){
   const cacheKey = selectedDate.getFullYear() + '-' + selectedDate.getMonth() + '-' + direction;
   if(_insightsCache[cacheKey]) return _insightsCache[cacheKey];
 
-  const period = get13MonthPeriod(selectedDate, direction);
+  const period = get12MonthPeriod(selectedDate, direction);
   const selMonth = direction === 'future' ? period[0] : period[period.length - 1];
   // "Previous month" / "same month last year" are always real calendar
   // months relative to the selected month — computed directly, not from
@@ -1864,7 +1864,7 @@ function generateFinancialInsights(selectedDate, direction){
     return { pct, label: (pct>=0?'+':'') + pct.toFixed(1) + '%' };
   }
 
-  // ---------- Monthly totals across the 13-month window ----------
+  // ---------- Monthly totals across the 12-month window ----------
   const monthlyTotals = period.map(m=>{
     const inM = e => inMonth(e, m);
     const income = periodEntries.filter(e=>e.category==='Income' && inM(e)).reduce((a,e)=>a+Number(e.amount),0);
@@ -1874,11 +1874,11 @@ function generateFinancialInsights(selectedDate, direction){
     return { ...m, income, expense, investment, capital, netCashFlow: income - expense - investment };
   });
 
-  const totalExpenses13mo = monthlyTotals.reduce((a,m)=>a+m.expense,0);
-  const totalIncome13mo = monthlyTotals.reduce((a,m)=>a+m.income,0);
-  const totalInvestment13mo = monthlyTotals.reduce((a,m)=>a+m.investment,0);
-  const totalCapital13mo = monthlyTotals.reduce((a,m)=>a+m.capital,0);
-  const avgMonthlyExpense = totalExpenses13mo / 13;
+  const totalExpenses12mo = monthlyTotals.reduce((a,m)=>a+m.expense,0);
+  const totalIncome12mo = monthlyTotals.reduce((a,m)=>a+m.income,0);
+  const totalInvestment12mo = monthlyTotals.reduce((a,m)=>a+m.investment,0);
+  const totalCapital12mo = monthlyTotals.reduce((a,m)=>a+m.capital,0);
+  const avgMonthlyExpense = totalExpenses12mo / 12;
 
   const selMonthly = direction === 'future' ? monthlyTotals[0] : monthlyTotals[monthlyTotals.length-1];
   const selExpense = selMonthly.expense;
@@ -1889,13 +1889,13 @@ function generateFinancialInsights(selectedDate, direction){
   const lowestMonth = monthlyTotals.reduce((min,m)=> m.expense < min.expense ? m : min, monthlyTotals[0]);
 
   const overview = {
-    totalExpenses13mo, avgMonthlyExpense, selExpense, prevExpense,
+    totalExpenses12mo, avgMonthlyExpense, selExpense, prevExpense,
     highestMonth, lowestMonth,
     vsPrevMonth: safePctChange(selExpense, prevExpense),
-    vs13moAvg: safePctChange(selExpense, avgMonthlyExpense),
+    vs12moAvg: safePctChange(selExpense, avgMonthlyExpense),
     vsSameMonthLastYear: safePctChange(selExpense, sameLastYearExpense),
-    totalIncome13mo, totalInvestment13mo, totalCapital13mo,
-    netCashFlow13mo: totalIncome13mo - totalExpenses13mo - totalInvestment13mo
+    totalIncome12mo, totalInvestment12mo, totalCapital12mo,
+    netCashFlow12mo: totalIncome12mo - totalExpenses12mo - totalInvestment12mo
   };
 
   // ---------- Category ranking (Expense subcategories — "Where did I spend the most") ----------
@@ -1907,8 +1907,8 @@ function generateFinancialInsights(selectedDate, direction){
     const lastYearAmt = amountForMonth('Expense', sub, lastYearObj, 'Closed');
     return {
       subcategory: sub, total,
-      pctOfTotal: totalExpenses13mo > 0 ? (total/totalExpenses13mo*100) : 0,
-      monthlyAvg: total / 13,
+      pctOfTotal: totalExpenses12mo > 0 ? (total/totalExpenses12mo*100) : 0,
+      monthlyAvg: total / 12,
       selAmt, prevAmt, lastYearAmt,
       momChange: safePctChange(selAmt, prevAmt),
       yoyChange: safePctChange(selAmt, lastYearAmt),
@@ -1933,7 +1933,7 @@ function generateFinancialInsights(selectedDate, direction){
       name: g.display, total, count: g.entries.length,
       avg: total / g.entries.length,
       max: Math.max(...g.entries.map(e=>Number(e.amount))),
-      monthlyFreq: g.entries.length / 13
+      monthlyFreq: g.entries.length / 12
     };
   }).sort((a,b)=>b.total - a.total).slice(0, 10);
 
@@ -2009,7 +2009,7 @@ function generateFinancialInsights(selectedDate, direction){
   // fact, not something a forward window can establish on its own. When
   // direction is 'future', this still shows (as a forecast basis) but the
   // render layer labels it as based on historical data.
-  const recurBasisPeriod = get13MonthPeriod(selectedDate, 'past');
+  const recurBasisPeriod = get12MonthPeriod(selectedDate, 'past');
   const recurBasisEntries = getInsightsEntries('Closed').filter(e=>{
     if(e.category !== 'Expense') return false;
     const d = parseLocalDate(e.date);
@@ -2046,7 +2046,7 @@ function generateFinancialInsights(selectedDate, direction){
     const monthlyAmount = frequency === 'Monthly' ? meanAmt
       : frequency === 'Quarterly' ? meanAmt/3
       : frequency === 'Yearly' ? meanAmt/12
-      : (amounts.reduce((a,v)=>a+v,0) / 13);
+      : (amounts.reduce((a,v)=>a+v,0) / 12);
     return {
       subcategory: last.subcategory,
       label: last.notes ? last.notes.trim() : last.subcategory,
@@ -2058,7 +2058,7 @@ function generateFinancialInsights(selectedDate, direction){
 
   // ---------- Spending concentration ----------
   const sortedCatTotals = categoryTotals.map(c=>c.total);
-  const cumPct = n => totalExpenses13mo > 0 ? (sortedCatTotals.slice(0,n).reduce((a,v)=>a+v,0)/totalExpenses13mo*100) : 0;
+  const cumPct = n => totalExpenses12mo > 0 ? (sortedCatTotals.slice(0,n).reduce((a,v)=>a+v,0)/totalExpenses12mo*100) : 0;
   const concentration = { top1: cumPct(1), top3: cumPct(3), top5: cumPct(5), top10: cumPct(10) };
 
   // ---------- Needs vs Discretionary ----------
@@ -2068,22 +2068,22 @@ function generateFinancialInsights(selectedDate, direction){
   });
   const needsVsDiscretionary = {
     needsTotal, discTotal,
-    needsPct: totalExpenses13mo>0 ? needsTotal/totalExpenses13mo*100 : 0,
-    discPct: totalExpenses13mo>0 ? discTotal/totalExpenses13mo*100 : 0
+    needsPct: totalExpenses12mo>0 ? needsTotal/totalExpenses12mo*100 : 0,
+    discPct: totalExpenses12mo>0 ? discTotal/totalExpenses12mo*100 : 0
   };
 
   // ---------- Financial health ratios ----------
   const financialHealth = {
-    savingsRate: totalIncome13mo>0 ? (totalIncome13mo-totalExpenses13mo)/totalIncome13mo*100 : null,
-    investmentRate: totalIncome13mo>0 ? totalInvestment13mo/totalIncome13mo*100 : null,
-    expenseRatio: totalIncome13mo>0 ? totalExpenses13mo/totalIncome13mo*100 : null,
-    avgMonthlySurplus: overview.netCashFlow13mo / 13
+    savingsRate: totalIncome12mo>0 ? (totalIncome12mo-totalExpenses12mo)/totalIncome12mo*100 : null,
+    investmentRate: totalIncome12mo>0 ? totalInvestment12mo/totalIncome12mo*100 : null,
+    expenseRatio: totalIncome12mo>0 ? totalExpenses12mo/totalIncome12mo*100 : null,
+    avgMonthlySurplus: overview.netCashFlow12mo / 12
   };
 
   // ---------- Selected month comparison ----------
   const avgM = {
-    income: totalIncome13mo/13, expense: totalExpenses13mo/13,
-    investment: totalInvestment13mo/13, netCashFlow: overview.netCashFlow13mo/13
+    income: totalIncome12mo/12, expense: totalExpenses12mo/12,
+    investment: totalInvestment12mo/12, netCashFlow: overview.netCashFlow12mo/12
   };
   function compareRow(field, category){
     const selVal = selMonthly[field];
@@ -2126,31 +2126,37 @@ function generateFinancialInsights(selectedDate, direction){
   };
 
   // ---------- Key natural-language insights ----------
+  // Amounts ($ and %) are bolded for scannability. Where the insight is
+  // about an Expense subcategory (or total expenses), the amount is
+  // colored red when positive/an increase, green when negative/a decrease
+  // — matching the rest of the app's expense-outflow convention.
   const keyInsights = [];
   if(categoryTotals.length > 0){
     const top = categoryTotals[0];
-    keyInsights.push({ icon:'💡', text:`Your largest expense category over the ${direction==='future'?'next':'last'} 13 months ${direction==='future'?'is projected to be':'was'} ${top.subcategory}, accounting for ${top.pctOfTotal.toFixed(0)}% of total spending.`, weight: 100 });
+    keyInsights.push({ icon:'💡', text:`Your largest expense category over the ${direction==='future'?'next':'last'} 12 months ${direction==='future'?'is projected to be':'was'} <strong>${top.subcategory}</strong>, accounting for <strong style="color:var(--terracotta)">${top.pctOfTotal.toFixed(0)}%</strong> of total spending.`, weight: 100 });
   }
   if(biggestIncreasesYoY[0] && biggestIncreasesYoY[0].pctChange.pct !== null){
     const c = biggestIncreasesYoY[0];
-    keyInsights.push({ icon:'📈', text:`${c.subcategory} spending is ${c.pctChange.label} compared with the same month last year.`, weight: 60 });
+    const changeColor = c.pctChange.pct >= 0 ? 'var(--terracotta)' : 'var(--sage)';
+    keyInsights.push({ icon:'📈', text:`<strong>${c.subcategory}</strong> spending is <strong style="color:${changeColor}">${c.pctChange.label}</strong> compared with the same month last year.`, weight: 60 });
   }
   if(unusualCategories[0]){
     const u = unusualCategories[0];
-    keyInsights.push({ icon:'⚠️', text:`${u.subcategory} spending ${direction==='future'?'is scheduled at':'was'} ${fmtMoney(u.selAmt)} this month, ${u.pctAbove}% above your typical ${fmtMoney(u.mean)}.`, weight: 90 });
+    keyInsights.push({ icon:'⚠️', text:`<strong>${u.subcategory}</strong> spending ${direction==='future'?'is scheduled at':'was'} <strong style="color:var(--terracotta)">${fmtMoney(u.selAmt)}</strong> this month, <strong style="color:var(--terracotta)">${u.pctAbove}%</strong> above your typical <strong style="color:var(--terracotta)">${fmtMoney(u.mean)}</strong>.`, weight: 90 });
   }
   if(financialHealth.investmentRate !== null){
-    keyInsights.push({ icon:'💰', text:`You ${direction==='future'?'are on track to invest':'invested'} ${financialHealth.investmentRate.toFixed(0)}% of your income over this 13-month period.`, weight: 40 });
+    keyInsights.push({ icon:'💰', text:`You ${direction==='future'?'are on track to invest':'invested'} <strong>${financialHealth.investmentRate.toFixed(0)}%</strong> of your income over this 12-month period.`, weight: 40 });
   }
   if(estimatedRecurringMonthly > 0){
-    keyInsights.push({ icon:'🔄', text:`You have approximately ${fmtMoney(estimatedRecurringMonthly)}/month in recurring expenses, based on historical patterns.`, weight: 50 });
+    keyInsights.push({ icon:'🔄', text:`You have approximately <strong style="color:var(--terracotta)">${fmtMoney(estimatedRecurringMonthly)}</strong>/month in recurring expenses, based on historical patterns.`, weight: 50 });
   }
-  keyInsights.push({ icon:'🎯', text:`Your top 3 expense categories represent ${concentration.top3.toFixed(0)}% of total spending.`, weight: 45 });
+  keyInsights.push({ icon:'🎯', text:`Your top 3 expense categories represent <strong style="color:var(--terracotta)">${concentration.top3.toFixed(0)}%</strong> of total spending.`, weight: 45 });
   if(financialHealth.savingsRate !== null){
-    keyInsights.push({ icon: financialHealth.savingsRate >= 0 ? '✅' : '🚨', text:`Your overall savings rate over this period is ${financialHealth.savingsRate.toFixed(0)}%.`, weight: 55 });
+    keyInsights.push({ icon: financialHealth.savingsRate >= 0 ? '✅' : '🚨', text:`Your overall savings rate over this period is <strong>${financialHealth.savingsRate.toFixed(0)}%</strong>.`, weight: 55 });
   }
   if(overview.vsPrevMonth.pct !== null && Math.abs(overview.vsPrevMonth.pct) >= 10){
-    keyInsights.push({ icon: overview.vsPrevMonth.pct>0?'📈':'📉', text:`${direction==='future'?'Scheduled':'Total'} expenses this month are ${overview.vsPrevMonth.label} vs. last month.`, weight: 70 });
+    const vsColor = overview.vsPrevMonth.pct > 0 ? 'var(--terracotta)' : 'var(--sage)';
+    keyInsights.push({ icon: overview.vsPrevMonth.pct>0?'📈':'📉', text:`${direction==='future'?'Scheduled':'Total'} expenses this month are <strong style="color:${vsColor}">${overview.vsPrevMonth.label}</strong> vs. last month.`, weight: 70 });
   }
   keyInsights.sort((a,b)=>b.weight-a.weight);
 
@@ -2192,7 +2198,7 @@ function classifyCategoryTrend(monthlyAmounts){
 // merchant level here is entirely derived from normalizeMerchant(notes) —
 // it never touches or reshapes the original entries.
 
-// Monthly amounts for one subcategory across a 13-month period (any direction).
+// Monthly amounts for one subcategory across a 12-month period (any direction).
 function monthlyAmountsForSubcategory(period, sub, statusFilter){
   return period.map(m=>{
     return getInsightsEntries(statusFilter).filter(e=>{
@@ -2255,8 +2261,8 @@ function renderInsightsView(){
   const subtitleEl = document.getElementById('insightsPeriodSubtitle');
   if(subtitleEl){
     subtitleEl.textContent = insightsDirection === 'future'
-      ? 'Projecting the 13 months from the selected month forward'
-      : 'Analyzing the 13 months through the selected month';
+      ? 'Projecting the 12 months from the selected month forward'
+      : 'Analyzing the 12 months through the selected month';
   }
 
   const data = generateFinancialInsights(insightsRefDate, insightsDirection);
@@ -2270,9 +2276,9 @@ function renderInsightsView(){
       <button id="insightsDirFuture" class="insights-dir-btn" style="flex:1;padding:8px 0;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;background:${insightsDirection==='future'?'var(--card)':'transparent'};color:${insightsDirection==='future'?'var(--navy)':'var(--slate)'};">Next 13 Months</button>
     </div>`;
 
-  const hasAnyExpense = data.overview.totalExpenses13mo > 0;
+  const hasAnyExpense = data.overview.totalExpenses12mo > 0;
   if(!hasAnyExpense){
-    container.innerHTML = toggleHtml + `<div class="card"><div class="muted" style="padding:8px 2px;">No ${insightsDirection==='future'?'scheduled':'expense'} data in this 13-month period ${insightsDirection==='future'?'yet — add recurring or future entries':'— add some entries'} to see insights.</div></div>`;
+    container.innerHTML = toggleHtml + `<div class="card"><div class="muted" style="padding:8px 2px;">No ${insightsDirection==='future'?'scheduled':'expense'} data in this 12-month period ${insightsDirection==='future'?'yet — add recurring or future entries':'— add some entries'} to see insights.</div></div>`;
     wireDirectionToggle();
     return;
   }
@@ -2304,6 +2310,7 @@ function renderInsightsView(){
     ${renderMonthComparisonCard(data)}
     ${renderCategoryRankingCard(data)}
     ${renderTop3AreasCard(data)}
+    ${renderCostReductionCard(data)}
     ${renderMonthlyTrendCard(data)}
     ${renderCategoryTrendCard(data)}
     ${renderBiggestChangesCard(data)}
@@ -2401,17 +2408,16 @@ function renderOverviewCard(data){
   const o = data.overview;
   return `
     <div class="card">
-      <div class="card-title">Financial Overview <span class="muted" style="font-weight:400;font-size:11px;">${data.direction==='future'?'13-month projected total':'13-month total'}</span></div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-        <div><div class="muted" style="font-size:10px;text-transform:uppercase;">Income</div><div class="breakdown-amt" style="color:var(--sage);font-size:15px;">${fmtMoney(o.totalIncome13mo)}</div></div>
-        <div><div class="muted" style="font-size:10px;text-transform:uppercase;">Expenses</div><div class="breakdown-amt" style="color:var(--terracotta);font-size:15px;">${fmtMoney(o.totalExpenses13mo)}</div></div>
-        <div><div class="muted" style="font-size:10px;text-transform:uppercase;">Investments</div><div class="breakdown-amt" style="color:var(--gold);font-size:15px;">${fmtMoney(o.totalInvestment13mo)}</div></div>
-        <div><div class="muted" style="font-size:10px;text-transform:uppercase;">Net Cash Flow</div><div class="breakdown-amt" style="color:${o.netCashFlow13mo>=0?'var(--sage)':'var(--terracotta)'};font-size:15px;">${fmtMoney(o.netCashFlow13mo)}</div></div>
+      <div class="card-title">Financial Overview <span class="muted" style="font-weight:400;font-size:11px;">${data.direction==='future'?'12-month projected total':'12-month total'}</span></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+        <div><div class="muted" style="font-size:10px;text-transform:uppercase;">Income</div><div class="breakdown-amt" style="color:var(--sage);font-size:15px;">${fmtMoney(o.totalIncome12mo)}</div></div>
+        <div><div class="muted" style="font-size:10px;text-transform:uppercase;">Expenses</div><div class="breakdown-amt" style="color:var(--terracotta);font-size:15px;">${fmtMoney(o.totalExpenses12mo)}</div></div>
+        <div><div class="muted" style="font-size:10px;text-transform:uppercase;">Investments</div><div class="breakdown-amt" style="color:var(--gold);font-size:15px;">${fmtMoney(o.totalInvestment12mo)}</div></div>
       </div>
       <div style="margin-top:14px;border-top:1px solid var(--slate-light);padding-top:10px;">
         <div style="display:flex;justify-content:space-between;font-size:12.5px;padding:4px 0;"><span class="muted">Avg monthly expenses</span><span>${fmtMoney(o.avgMonthlyExpense)}</span></div>
         <div style="display:flex;justify-content:space-between;font-size:12.5px;padding:4px 0;"><span class="muted">This month vs last month</span><span style="color:${pctColor(o.vsPrevMonth.pct,true)}">${o.vsPrevMonth.label}</span></div>
-        <div style="display:flex;justify-content:space-between;font-size:12.5px;padding:4px 0;"><span class="muted">This month vs 13-mo average</span><span style="color:${pctColor(o.vs13moAvg.pct,true)}">${o.vs13moAvg.label}</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:12.5px;padding:4px 0;"><span class="muted">This month vs 12-mo average</span><span style="color:${pctColor(o.vs12moAvg.pct,true)}">${o.vs12moAvg.label}</span></div>
         <div style="display:flex;justify-content:space-between;font-size:12.5px;padding:4px 0;"><span class="muted">This month vs same month last year</span><span style="color:${pctColor(o.vsSameMonthLastYear.pct,true)}">${o.vsSameMonthLastYear.label}</span></div>
         <div style="display:flex;justify-content:space-between;font-size:12.5px;padding:4px 0;"><span class="muted">Highest spending month</span><span>${data.overview.highestMonth.label} (${fmtMoney(data.overview.highestMonth.expense)})</span></div>
         <div style="display:flex;justify-content:space-between;font-size:12.5px;padding:4px 0;"><span class="muted">Lowest spending month</span><span>${data.overview.lowestMonth.label} (${fmtMoney(data.overview.lowestMonth.expense)})</span></div>
@@ -2450,7 +2456,6 @@ function renderMonthComparisonCard(data){
       ${row('Income','income',false)}
       ${row('Expenses','expense',true)}
       ${row('Investments','investment',false)}
-      ${row('Net Cash Flow','netCashFlow',false)}
     </div>`;
 }
 
@@ -2498,6 +2503,51 @@ function renderTop3AreasCard(data){
     </div>`;
 }
 
+function renderCostReductionCard(data){
+  const n = data.needsVsDiscretionary;
+  const discretionaryCats = data.categoryTotals
+    .filter(c => !NEEDS_SUBCATEGORIES.has(c.subcategory))
+    .sort((a,b)=> b.total - a.total);
+  if(discretionaryCats.length === 0 || n.discTotal === 0){
+    return `<div class="card"><div class="card-title">Cost-Cutting Opportunities</div><div class="muted" style="font-size:12px;">No non-essential spending detected in this period.</div></div>`;
+  }
+  const monthlyDisc = n.discTotal / 12;
+  const save10 = monthlyDisc * 0.10, save20 = monthlyDisc * 0.20;
+  const recurDisc = data.recurring
+    .filter(r => !NEEDS_SUBCATEGORIES.has(r.subcategory))
+    .sort((a,b)=> b.monthlyAmount - a.monthlyAmount);
+  const recurDiscMonthly = recurDisc.reduce((a,r)=>a+r.monthlyAmount, 0);
+
+  const rows = discretionaryCats.slice(0,5).map(c=>`
+    <div class="breakdown-row insights-cat-row" data-sub="${c.subcategory}" style="cursor:pointer;">
+      <div style="flex:1;min-width:0;">
+        <div class="breakdown-name">${c.subcategory}</div>
+        <div class="muted" style="font-size:10.5px;">avg ${fmtMoney(c.monthlyAvg)}/mo · ${((c.total/n.discTotal)*100).toFixed(0)}% of non-essential spend</div>
+      </div>
+      <div class="breakdown-amt" style="font-size:13px;color:var(--gold);">${fmtMoney(c.total)}</div>
+    </div>`).join('');
+
+  return `
+    <div class="card">
+      <div class="card-title">Cost-Cutting Opportunities <span class="muted" style="font-weight:400;font-size:10.5px;">(non-essential spending)</span></div>
+      <div class="muted" style="font-size:11.5px;margin-bottom:10px;">Non-essential spending: ${fmtMoney(n.discTotal)} over 12 months (${n.discPct.toFixed(0)}% of total) — avg ${fmtMoney(monthlyDisc)}/month</div>
+      <div style="background:var(--sky-light);border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:12.5px;line-height:1.5;">
+        Cutting non-essential spending by <strong>10%</strong> saves ~${fmtMoney(save10)}/mo (${fmtMoney(save10*12)}/yr).<br>
+        Cutting by <strong>20%</strong> saves ~${fmtMoney(save20)}/mo (${fmtMoney(save20*12)}/yr).
+      </div>
+      <div class="muted" style="font-size:10.5px;text-transform:uppercase;margin-bottom:4px;">Biggest non-essential categories — tap to explore</div>
+      ${rows}
+      ${recurDisc.length ? `
+        <div class="muted" style="font-size:10.5px;text-transform:uppercase;margin:14px 0 4px;">Recurring non-essential costs worth reviewing</div>
+        ${recurDisc.slice(0,5).map(r=>`
+          <div style="display:flex;justify-content:space-between;font-size:12px;padding:4px 0;">
+            <span>${r.label}</span><span>${fmtMoney(r.monthlyAmount)}/mo</span>
+          </div>`).join('')}
+        <div class="muted" style="font-size:11px;margin-top:4px;border-top:1px solid var(--slate-light);padding-top:6px;">Total: ${fmtMoney(recurDiscMonthly)}/month — review for anything you no longer use.</div>
+      ` : ''}
+    </div>`;
+}
+
 function renderBreadcrumb(data){
   const crumbs = [{ label:'All Expenses', idx:-1 }];
   insightsDrillPath.forEach((p,i)=> crumbs.push({ label: p.value, idx: i }));
@@ -2533,7 +2583,7 @@ function renderSubcategoryDrillScreen(data, sub){
         <span class="muted">vs same month last year</span><span style="color:${pctColor(cat.yoyChange.pct,true)}">${pctArrow(cat.yoyChange.pct)} ${fmtSigned(cat.selAmt-cat.lastYearAmt)} (${cat.yoyChange.label})</span>
       </div>
       <div style="display:flex;justify-content:space-between;font-size:11.5px;padding:4px 0;">
-        <span class="muted">vs 13-month average</span><span style="color:${pctColor(cat.monthlyAvg>0?((cat.selAmt-cat.monthlyAvg)/cat.monthlyAvg*100):null,true)}">${fmtSigned(cat.selAmt-cat.monthlyAvg)}</span>
+        <span class="muted">vs 12-month average</span><span style="color:${pctColor(cat.monthlyAvg>0?((cat.selAmt-cat.monthlyAvg)/cat.monthlyAvg*100):null,true)}">${fmtSigned(cat.selAmt-cat.monthlyAvg)}</span>
       </div>
       <div style="display:flex;align-items:center;gap:8px;margin:12px 0 6px;">
         <span style="background:${badgeColor};color:#fff;font-size:10.5px;font-weight:600;padding:3px 8px;border-radius:20px;">${trendInfo.trend}</span>
@@ -2593,7 +2643,6 @@ function renderMonthlyTrendCard(data){
           <option value="expense" ${insightsMonthlyChartMode==='expense'?'selected':''}>Expenses</option>
           <option value="income" ${insightsMonthlyChartMode==='income'?'selected':''}>Income</option>
           <option value="investment" ${insightsMonthlyChartMode==='investment'?'selected':''}>Investments</option>
-          <option value="netCashFlow" ${insightsMonthlyChartMode==='netCashFlow'?'selected':''}>Net Cash Flow</option>
         </select>
       </div>
       <div class="chart-wrap"><canvas id="insightsMonthlyChart"></canvas></div>
@@ -2660,12 +2709,12 @@ function renderUnusualSpendingCard(data){
       ${data.unusualCategories.map(u=>`
         <div style="display:flex;gap:8px;padding:6px 0;border-bottom:1px solid var(--slate-light);">
           <div style="font-size:15px;">⚠️</div>
-          <div style="font-size:12px;">${u.subcategory} spending was ${fmtMoney(u.selAmt)} this month, ${u.pctAbove}% above your typical ${fmtMoney(u.mean)}.</div>
+          <div style="font-size:12px;"><strong>${u.subcategory}</strong> spending was <strong style="color:var(--terracotta)">${fmtMoney(u.selAmt)}</strong> this month, <strong style="color:var(--terracotta)">${u.pctAbove}%</strong> above your typical <strong style="color:var(--terracotta)">${fmtMoney(u.mean)}</strong>.</div>
         </div>`).join('')}
       ${data.unusualTransactions.slice(0,5).map(u=>`
         <div style="display:flex;gap:8px;padding:6px 0;border-bottom:1px solid var(--slate-light);">
           <div style="font-size:15px;">💸</div>
-          <div style="font-size:12px;">${u.entry.subcategory}${u.entry.notes?' — '+u.entry.notes:''}: ${fmtMoney(u.entry.amount)} is ${u.multiple.toFixed(1)}× your typical entry for this category (${u.entry.date}).</div>
+          <div style="font-size:12px;"><strong>${u.entry.subcategory}</strong>${u.entry.notes?' — '+u.entry.notes:''}: <strong style="color:var(--terracotta)">${fmtMoney(u.entry.amount)}</strong> is ${u.multiple.toFixed(1)}× your typical entry for this category (${u.entry.date}).</div>
         </div>`).join('')}
     </div>`;
 }
