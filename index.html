@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v34 -->
+<!-- WEALTH.ME — v40 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -916,7 +916,6 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
         <div class="label" id="insightsMonthLabel">June 2026</div>
         <button id="insightsNext">&#8250;</button>
       </div>
-      <div class="muted" style="font-size:11.5px;margin:-4px 2px 12px;" id="insightsPeriodSubtitle">Analyzing the 12 months through the selected month</div>
       <div id="insightsContainer"></div>
     </section>
 
@@ -1089,7 +1088,7 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
       </div>
       <button class="btn btn-secondary btn-block" id="refreshAppBtn" style="margin-top:12px;">↻ Refresh App (get latest version)</button>
       <div id="refreshStatus" class="muted" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 34</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 40</p>
     </div>
   </div>
 
@@ -1473,7 +1472,7 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 34;
+const APP_VERSION = 40;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -1885,6 +1884,23 @@ function generateFinancialInsights(selectedDate, direction){
   const prevExpense = amountForMonth('Expense', null, prevMonthObj, 'Closed');
   const sameLastYearExpense = amountForMonth('Expense', null, lastYearObj, 'Closed');
 
+  // In 'future' mode, "vs last month" / "vs same month last year" have no
+  // clear anchor to "now" since the selected month is itself a future date.
+  // Instead, compare the selected month against what comes NEXT within the
+  // same forward projection: the following month, and the same month a
+  // year ahead — both using the window's status filter (Open+Closed),
+  // since they're forward/projected months too.
+  let nextMonthExpense = null, sameMonthNextYearExpense = null;
+  if(direction === 'future'){
+    const nextMonthDate = new Date(selectedDate.getFullYear(), selectedDate.getMonth()+1, 1);
+    const nextMonthObj = { year: nextMonthDate.getFullYear(), month: nextMonthDate.getMonth() };
+    nextMonthExpense = amountForMonth('Expense', null, nextMonthObj, windowStatusFilter);
+
+    const nextYearSameMonthDate = new Date(selectedDate.getFullYear()+1, selectedDate.getMonth(), 1);
+    const nextYearSameMonthObj = { year: nextYearSameMonthDate.getFullYear(), month: nextYearSameMonthDate.getMonth() };
+    sameMonthNextYearExpense = amountForMonth('Expense', null, nextYearSameMonthObj, windowStatusFilter);
+  }
+
   const highestMonth = monthlyTotals.reduce((max,m)=> m.expense > max.expense ? m : max, monthlyTotals[0]);
   const lowestMonth = monthlyTotals.reduce((min,m)=> m.expense < min.expense ? m : min, monthlyTotals[0]);
 
@@ -1894,6 +1910,8 @@ function generateFinancialInsights(selectedDate, direction){
     vsPrevMonth: safePctChange(selExpense, prevExpense),
     vs12moAvg: safePctChange(selExpense, avgMonthlyExpense),
     vsSameMonthLastYear: safePctChange(selExpense, sameLastYearExpense),
+    vsNextMonth: direction === 'future' ? safePctChange(nextMonthExpense, selExpense) : null,
+    vsSameMonthNextYear: direction === 'future' ? safePctChange(sameMonthNextYearExpense, selExpense) : null,
     totalIncome12mo, totalInvestment12mo, totalCapital12mo,
     netCashFlow12mo: totalIncome12mo - totalExpenses12mo - totalInvestment12mo
   };
@@ -2258,23 +2276,20 @@ function renderInsightsView(){
   if(!container) return;
   document.getElementById('insightsMonthLabel').textContent = fmtMonthYear(insightsRefDate);
 
-  const subtitleEl = document.getElementById('insightsPeriodSubtitle');
-  if(subtitleEl){
-    subtitleEl.textContent = insightsDirection === 'future'
-      ? 'Projecting the 12 months from the selected month forward'
-      : 'Analyzing the 12 months through the selected month';
-  }
-
   const data = generateFinancialInsights(insightsRefDate, insightsDirection);
   if(!insightsSelectedTrendCategory || !data.categoryTotals.some(c=>c.subcategory===insightsSelectedTrendCategory)){
     insightsSelectedTrendCategory = data.categoryTotals[0] ? data.categoryTotals[0].subcategory : null;
   }
 
+  const periodFromLabel = fmtMonthYear(data.period[0].date);
+  const periodToLabel = fmtMonthYear(data.period[data.period.length - 1].date);
+
   const toggleHtml = `
-    <div style="display:flex;background:var(--slate-light);border-radius:10px;padding:3px;margin-bottom:12px;">
-      <button id="insightsDirPast" class="insights-dir-btn" style="flex:1;padding:8px 0;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;background:${insightsDirection==='past'?'var(--card)':'transparent'};color:${insightsDirection==='past'?'var(--navy)':'var(--slate)'};">Past 13 Months</button>
-      <button id="insightsDirFuture" class="insights-dir-btn" style="flex:1;padding:8px 0;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;background:${insightsDirection==='future'?'var(--card)':'transparent'};color:${insightsDirection==='future'?'var(--navy)':'var(--slate)'};">Next 13 Months</button>
-    </div>`;
+    <div style="display:flex;background:var(--slate-light);border-radius:10px;padding:3px;margin-bottom:6px;">
+      <button id="insightsDirPast" class="insights-dir-btn" style="flex:1;padding:8px 0;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;background:${insightsDirection==='past'?'var(--card)':'transparent'};color:${insightsDirection==='past'?'var(--navy)':'var(--slate)'};">Past 12 Months</button>
+      <button id="insightsDirFuture" class="insights-dir-btn" style="flex:1;padding:8px 0;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;background:${insightsDirection==='future'?'var(--card)':'transparent'};color:${insightsDirection==='future'?'var(--navy)':'var(--slate)'};">Next 12 Months</button>
+    </div>
+    <div class="muted" style="font-size:11.5px;margin:0 2px 12px;">${insightsDirection==='future'?'Projected':'Historical'}: ${periodFromLabel} to ${periodToLabel}</div>`;
 
   const hasAnyExpense = data.overview.totalExpenses12mo > 0;
   if(!hasAnyExpense){
@@ -2416,9 +2431,15 @@ function renderOverviewCard(data){
       </div>
       <div style="margin-top:14px;border-top:1px solid var(--slate-light);padding-top:10px;">
         <div style="display:flex;justify-content:space-between;font-size:12.5px;padding:4px 0;"><span class="muted">Avg monthly expenses</span><span>${fmtMoney(o.avgMonthlyExpense)}</span></div>
-        <div style="display:flex;justify-content:space-between;font-size:12.5px;padding:4px 0;"><span class="muted">This month vs last month</span><span style="color:${pctColor(o.vsPrevMonth.pct,true)}">${o.vsPrevMonth.label}</span></div>
-        <div style="display:flex;justify-content:space-between;font-size:12.5px;padding:4px 0;"><span class="muted">This month vs 12-mo average</span><span style="color:${pctColor(o.vs12moAvg.pct,true)}">${o.vs12moAvg.label}</span></div>
-        <div style="display:flex;justify-content:space-between;font-size:12.5px;padding:4px 0;"><span class="muted">This month vs same month last year</span><span style="color:${pctColor(o.vsSameMonthLastYear.pct,true)}">${o.vsSameMonthLastYear.label}</span></div>
+        ${data.direction === 'future' ? `
+        <div style="display:flex;justify-content:space-between;font-size:12.5px;padding:4px 0;"><span class="muted">Next month vs selected month</span><span style="color:${pctColor(o.vsNextMonth.pct,true)}">${o.vsNextMonth.label}</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:12.5px;padding:4px 0;"><span class="muted">Selected month vs 12-mo average</span><span style="color:${pctColor(o.vs12moAvg.pct,true)}">${o.vs12moAvg.label}</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:12.5px;padding:4px 0;"><span class="muted">Same month next year vs selected month</span><span style="color:${pctColor(o.vsSameMonthNextYear.pct,true)}">${o.vsSameMonthNextYear.label}</span></div>
+        ` : `
+        <div style="display:flex;justify-content:space-between;font-size:12.5px;padding:4px 0;"><span class="muted">Selected month vs last month</span><span style="color:${pctColor(o.vsPrevMonth.pct,true)}">${o.vsPrevMonth.label}</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:12.5px;padding:4px 0;"><span class="muted">Selected month vs 12-mo average</span><span style="color:${pctColor(o.vs12moAvg.pct,true)}">${o.vs12moAvg.label}</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:12.5px;padding:4px 0;"><span class="muted">Selected month vs same month last year</span><span style="color:${pctColor(o.vsSameMonthLastYear.pct,true)}">${o.vsSameMonthLastYear.label}</span></div>
+        `}
         <div style="display:flex;justify-content:space-between;font-size:12.5px;padding:4px 0;"><span class="muted">Highest spending month</span><span>${data.overview.highestMonth.label} (${fmtMoney(data.overview.highestMonth.expense)})</span></div>
         <div style="display:flex;justify-content:space-between;font-size:12.5px;padding:4px 0;"><span class="muted">Lowest spending month</span><span>${data.overview.lowestMonth.label} (${fmtMoney(data.overview.lowestMonth.expense)})</span></div>
       </div>
@@ -2638,7 +2659,7 @@ function renderMonthlyTrendCard(data){
   return `
     <div class="card">
       <div class="card-title" style="display:flex;justify-content:space-between;align-items:center;">
-        <span>13-Month Trend</span>
+        <span>12-Month Trend</span>
         <select id="insightsTrendToggle" style="font-size:11px;padding:4px 6px;border-radius:6px;border:1px solid var(--slate-light);background:var(--card);">
           <option value="expense" ${insightsMonthlyChartMode==='expense'?'selected':''}>Expenses</option>
           <option value="income" ${insightsMonthlyChartMode==='income'?'selected':''}>Income</option>
@@ -2700,8 +2721,10 @@ function renderBiggestChangesCard(data){
 }
 
 function renderUnusualSpendingCard(data){
+  const monthWord = data.direction === 'future' ? 'the selected month' : 'this month';
+  const verbWord = data.direction === 'future' ? 'is scheduled at' : 'was';
   if(data.unusualCategories.length === 0 && data.unusualTransactions.length === 0){
-    return `<div class="card"><div class="card-title">Unusual Spending</div><div class="muted" style="font-size:12px;">Nothing unusual this month — spending looks consistent with your history.</div></div>`;
+    return `<div class="card"><div class="card-title">Unusual Spending</div><div class="muted" style="font-size:12px;">Nothing unusual in ${monthWord} — spending looks consistent with your history.</div></div>`;
   }
   return `
     <div class="card">
@@ -2709,7 +2732,7 @@ function renderUnusualSpendingCard(data){
       ${data.unusualCategories.map(u=>`
         <div style="display:flex;gap:8px;padding:6px 0;border-bottom:1px solid var(--slate-light);">
           <div style="font-size:15px;">⚠️</div>
-          <div style="font-size:12px;"><strong>${u.subcategory}</strong> spending was <strong style="color:var(--terracotta)">${fmtMoney(u.selAmt)}</strong> this month, <strong style="color:var(--terracotta)">${u.pctAbove}%</strong> above your typical <strong style="color:var(--terracotta)">${fmtMoney(u.mean)}</strong>.</div>
+          <div style="font-size:12px;"><strong>${u.subcategory}</strong> spending ${verbWord} <strong style="color:var(--terracotta)">${fmtMoney(u.selAmt)}</strong> in ${monthWord}, <strong style="color:var(--terracotta)">${u.pctAbove}%</strong> above your typical <strong style="color:var(--terracotta)">${fmtMoney(u.mean)}</strong>.</div>
         </div>`).join('')}
       ${data.unusualTransactions.slice(0,5).map(u=>`
         <div style="display:flex;gap:8px;padding:6px 0;border-bottom:1px solid var(--slate-light);">
