@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v40 -->
+<!-- WEALTH.ME — v49 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,7 +12,7 @@
 <style>
 :root{
   --navy:#0F1B2D;
-  --cream:#F7F4EF;
+  --cream:#F5F7F3;
   --card:#FFFFFF;
   --sage:#3E7C59;
   --sage-light:#E7F0EA;
@@ -26,6 +26,22 @@
   --sky-light:#E8EFF6;
   --line:#E3DFD6;
   --radius:14px;
+}
+[data-theme="dark"]{
+  --navy:#E9E7E2;
+  --cream:#161A1F;
+  --card:#20262E;
+  --sage:#6BB088;
+  --sage-light:#1C2B22;
+  --terracotta:#E38068;
+  --terracotta-light:#332019;
+  --gold:#E5BC70;
+  --gold-light:#332A1A;
+  --slate:#93A0AD;
+  --slate-light:#262C34;
+  --sky:#7CA3D1;
+  --sky-light:#1B2530;
+  --line:#2B323B;
 }
 *{box-sizing:border-box;}
 html,body{margin:0;padding:0;}
@@ -56,7 +72,9 @@ body{
   top:0;
   background:var(--cream);
   z-index:50;
+  transition:background .2s ease;
 }
+.topbar.insights-active{background:var(--sky-light);}
 .logo{
   display:flex;
   align-items:center;
@@ -102,6 +120,11 @@ main{
 }
 .view{display:none;}
 .view.active{display:block;animation:fadeIn .25s ease;}
+#view-insights.active{
+  background:var(--sky-light);
+  margin:0 -16px;
+  padding:12px 16px 0;
+}
 @keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
 
 /* ===== Month nav ===== */
@@ -1081,6 +1104,14 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
         <button class="btn btn-secondary btn-block" id="changePasswordBtn">Change Password</button>
       </div>
 
+      <div class="section-title">Appearance</div>
+      <div class="csv-row" style="align-items:center;margin-bottom:16px;">
+        <span style="flex:1;font-size:13.5px;">Dark Mode</span>
+        <button id="darkModeToggle" style="width:48px;height:28px;border-radius:14px;border:none;cursor:pointer;position:relative;background:var(--slate-light);transition:background .2s ease;">
+          <span id="darkModeToggleKnob" style="position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:var(--card);box-shadow:0 1px 3px rgba(0,0,0,0.3);transition:transform .2s ease;"></span>
+        </button>
+      </div>
+
       <div class="section-title">Reset</div>
       <div class="csv-row">
         <button class="btn btn-danger" id="emptyDataBtn" style="flex:1;">Empty All Data</button>
@@ -1088,7 +1119,7 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
       </div>
       <button class="btn btn-secondary btn-block" id="refreshAppBtn" style="margin-top:12px;">↻ Refresh App (get latest version)</button>
       <div id="refreshStatus" class="muted" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 40</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 49</p>
     </div>
   </div>
 
@@ -1472,7 +1503,7 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 40;
+const APP_VERSION = 49;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -1515,6 +1546,44 @@ let SETTINGS = {
 /* ---------- STATE ---------- */
 let entries = [];
 let nextId = 1;
+
+/* ---------- THEME (light/dark) ---------- */
+let currentTheme = 'light'; // 'light' | 'dark'
+
+function loadTheme(){
+  try{
+    const saved = localStorage.getItem('wealthme_theme');
+    currentTheme = saved === 'dark' ? 'dark' : 'light';
+  }catch(e){ currentTheme = 'light'; }
+  applyTheme();
+}
+function applyTheme(){
+  document.documentElement.setAttribute('data-theme', currentTheme);
+}
+function setTheme(theme){
+  currentTheme = theme === 'dark' ? 'dark' : 'light';
+  applyTheme();
+  try{ localStorage.setItem('wealthme_theme', currentTheme); }catch(e){}
+  // Chart.js draws to a canvas bitmap, so it doesn't pick up CSS variable
+  // changes automatically — re-render whatever chart is currently visible.
+  renderCurrentView(getActiveViewName());
+}
+function updateDarkModeToggleUI(){
+  const toggle = document.getElementById('darkModeToggle');
+  const knob = document.getElementById('darkModeToggleKnob');
+  if(!toggle || !knob) return;
+  const isDark = currentTheme === 'dark';
+  toggle.style.background = isDark ? 'var(--navy)' : 'var(--slate-light)';
+  knob.style.transform = isDark ? 'translateX(20px)' : 'translateX(0)';
+}
+// Literal hex values for anything Chart.js needs (canvas rendering can't
+// use CSS variables directly). Mirrors the :root / [data-theme="dark"]
+// palette above — keep these in sync if that palette ever changes.
+function chartColors(){
+  return currentTheme === 'dark'
+    ? { tooltipBg:'#E9E7E2', tooltipText:'#161A1F', grid:'#2B323B', tick:'#93A0AD', lineColor:'#E9E7E2', pageBg:'#161A1F', slateLight:'#262C34' }
+    : { tooltipBg:'#0F1B2D', tooltipText:'#F7F4EF', grid:'#E3DFD6', tick:'#5C6B7A', lineColor:'#0F1B2D', pageBg:'#F5F7F3', slateLight:'#E7EAED' };
+}
 
 const _now = new Date();
 let homeDate = new Date(_now.getFullYear(), _now.getMonth(), 1); // always current month
@@ -1934,27 +2003,6 @@ function generateFinancialInsights(selectedDate, direction){
     };
   }).filter(c=>c.total > 0).sort((a,b)=> b.total - a.total);
 
-  // ---------- Top rankings ----------
-  const topTransactions = expenseEntries.slice()
-    .sort((a,b)=> Number(b.amount) - Number(a.amount)).slice(0, 10);
-
-  const merchantGroups = {};
-  expenseEntries.forEach(e=>{
-    const key = normalizeMerchant(e.notes);
-    if(!key) return;
-    if(!merchantGroups[key]) merchantGroups[key] = { display: e.notes.trim(), entries: [] };
-    merchantGroups[key].entries.push(e);
-  });
-  const topMerchants = Object.values(merchantGroups).map(g=>{
-    const total = g.entries.reduce((a,e)=>a+Number(e.amount),0);
-    return {
-      name: g.display, total, count: g.entries.length,
-      avg: total / g.entries.length,
-      max: Math.max(...g.entries.map(e=>Number(e.amount))),
-      monthlyFreq: g.entries.length / 12
-    };
-  }).sort((a,b)=>b.total - a.total).slice(0, 10);
-
   // ---------- Biggest MoM / YoY changes (safe zero-denominator handling) ----------
   function biggestChanges(kind){
     return categoryTotals.map(c=>{
@@ -2101,7 +2149,7 @@ function generateFinancialInsights(selectedDate, direction){
   // ---------- Selected month comparison ----------
   const avgM = {
     income: totalIncome12mo/12, expense: totalExpenses12mo/12,
-    investment: totalInvestment12mo/12, netCashFlow: overview.netCashFlow12mo/12
+    investment: totalInvestment12mo/12
   };
   function compareRow(field, category){
     const selVal = selMonthly[field];
@@ -2114,33 +2162,9 @@ function generateFinancialInsights(selectedDate, direction){
       vsLastYear: safePctChange(selVal, lastYearVal)
     };
   }
-  function compareNetCashFlow(){
-    const selVal = selMonthly.netCashFlow;
-    const prevVal = amountForMonth('Income',null,prevMonthObj,'Closed') - amountForMonth('Expense',null,prevMonthObj,'Closed') - amountForMonth('Investment',null,prevMonthObj,'Closed');
-    const lastYearVal = amountForMonth('Income',null,lastYearObj,'Closed') - amountForMonth('Expense',null,lastYearObj,'Closed') - amountForMonth('Investment',null,lastYearObj,'Closed');
-    return {
-      selected: selVal,
-      vsPrev: safePctChange(selVal, prevVal),
-      vsAvg: safePctChange(selVal, avgM.netCashFlow),
-      vsLastYear: safePctChange(selVal, lastYearVal)
-    };
-  }
   const monthComparison = {
     income: compareRow('income','Income'), expense: compareRow('expense','Expense'),
-    investment: compareRow('investment','Investment'), netCashFlow: compareNetCashFlow()
-  };
-
-  // ---------- Top spending days (selected month — heatmap substitute) ----------
-  const dayTotals = {};
-  expenseEntries.filter(e=>inMonth(e, selMonth)).forEach(e=>{
-    dayTotals[e.date] = (dayTotals[e.date]||0) + Number(e.amount);
-  });
-  const dayEntries = Object.entries(dayTotals).sort((a,b)=>b[1]-a[1]);
-  const topSpendingDays = {
-    days: dayEntries.slice(0,5).map(([date,amt])=>({date,amt})),
-    spendingDaysCount: dayEntries.length,
-    avgPerSpendingDay: dayEntries.length>0 ? dayEntries.reduce((a,[,v])=>a+v,0)/dayEntries.length : 0,
-    largestDay: dayEntries.length>0 ? dayEntries[0] : null
+    investment: compareRow('investment','Investment')
   };
 
   // ---------- Key natural-language insights ----------
@@ -2180,11 +2204,11 @@ function generateFinancialInsights(selectedDate, direction){
 
   const result = {
     direction, period, selMonth, prevMonthObj, lastYearObj,
-    monthlyTotals, overview, categoryTotals, topTransactions, topMerchants,
+    monthlyTotals, overview, categoryTotals,
     biggestIncreasesMoM, biggestDecreasesMoM, biggestIncreasesYoY, biggestDecreasesYoY,
     unusualCategories, unusualTransactions, recurring, estimatedRecurringMonthly,
     concentration, needsVsDiscretionary, financialHealth, monthComparison,
-    topSpendingDays, keyInsights: keyInsights.slice(0,8)
+    keyInsights: keyInsights.slice(0,8)
   };
   _insightsCache[cacheKey] = result;
   return result;
@@ -2252,8 +2276,12 @@ function getMerchantsForSubcategory(subEntries){
    FINANCIAL INSIGHTS — render layer
    ========================================================= */
 let insightsMonthlyChartInstance = null;
-let insightsCategoryChartInstance = null;
-let insightsMonthlyChartMode = 'expense'; // expense | income | investment | netCashFlow
+// Shared between the top-level Category Trend chart and the drill-down
+// subcategory chart — they're never both on screen at once, so one
+// tracking variable is safe, but it's genuinely used for two different
+// canvases depending on which screen is currently rendered.
+let insightsSecondaryChartInstance = null;
+let insightsMonthlyChartMode = 'expense'; // expense | income | investment
 let insightsSelectedTrendCategory = null;
 let insightsDirection = 'past'; // 'past' | 'future'
 let insightsDrillPath = []; // [] = top level; [{level:'subcategory',value}] ; [{level:'subcategory',value},{level:'merchant',value}]
@@ -2324,15 +2352,12 @@ function renderInsightsView(){
     ${renderKeyInsightsCard(data)}
     ${renderMonthComparisonCard(data)}
     ${renderCategoryRankingCard(data)}
-    ${renderTop3AreasCard(data)}
     ${renderCostReductionCard(data)}
     ${renderMonthlyTrendCard(data)}
     ${renderCategoryTrendCard(data)}
     ${renderBiggestChangesCard(data)}
     ${renderUnusualSpendingCard(data)}
     ${renderRecurringCard(data)}
-    ${data.topMerchants.length ? renderMerchantsCard(data) : ''}
-    ${renderBiggestTransactionsCard(data)}
     ${renderFinancialHealthCard(data)}
   `;
 
@@ -2383,9 +2408,9 @@ function wireBreadcrumb(){
 function renderDrillChart(monthlyAmounts, period){
   const ctx = document.getElementById('insightsDrillChart');
   if(!ctx) return;
-  if(insightsCategoryChartInstance) insightsCategoryChartInstance.destroy();
+  if(insightsSecondaryChartInstance) insightsSecondaryChartInstance.destroy();
   const labels = period.map(m=>m.label);
-  insightsCategoryChartInstance = new Chart(ctx, {
+  insightsSecondaryChartInstance = new Chart(ctx, {
     type: 'line',
     data: {
       labels,
@@ -2400,23 +2425,22 @@ function renderDrillChart(monthlyAmounts, period){
       plugins:{
         legend:{display:false},
         tooltip:{
-          backgroundColor:'#0F1B2D', titleColor:'#F7F4EF',
+          backgroundColor: chartColors().tooltipBg, titleColor: chartColors().tooltipText,
           titleFont:{family:"'Fraunces', serif", size:13, weight:'600'},
-          bodyColor:'#F7F4EF', bodyFont:{family:"'Inter', sans-serif", size:12},
+          bodyColor: chartColors().tooltipText, bodyFont:{family:"'Inter', sans-serif", size:12},
           padding:10, cornerRadius:8, displayColors:false,
           callbacks: { label: c => fmtMoney(c.parsed.y) }
         }
       },
       scales: {
-        x: { grid:{display:false}, ticks:{maxTicksLimit:7, font:{size:9}, color:'#5C6B7A'} },
-        y: { grid:{color:'#E3DFD6'}, ticks:{display:false} }
+        x: { grid:{display:false}, ticks:{maxTicksLimit:7, font:{size:9}, color: chartColors().tick} },
+        y: { grid:{color: chartColors().grid}, ticks:{display:false} }
       }
     }
   });
 }
 
 
-function fmtPct(n){ return (n===null||n===undefined) ? '—' : n.toFixed(0)+'%'; }
 function fmtSigned(n){ return (n>=0?'+':'') + fmtMoney(n); }
 
 function renderOverviewCard(data){
@@ -2504,23 +2528,6 @@ function renderCategoryRankingCard(data){
       <div class="card-title">Where Your Money Went</div>
       <div class="muted" style="font-size:11px;margin-bottom:6px;">Tap a category to drill in</div>
       ${rows}
-    </div>`;
-}
-
-function renderTop3AreasCard(data){
-  const top3 = data.categoryTotals.slice(0,3);
-  if(top3.length === 0) return '';
-  const sum = top3.reduce((a,c)=>a+c.total,0);
-  return `
-    <div class="card">
-      <div class="card-title">Your Top 3 Expense Areas</div>
-      ${top3.map(c=>`
-        <div style="display:flex;justify-content:space-between;font-size:12.5px;padding:4px 0;">
-          <span>${c.subcategory}</span><span>${fmtMoney(c.total)}</span>
-        </div>`).join('')}
-      <div style="border-top:1px solid var(--slate-light);margin-top:8px;padding-top:8px;font-size:12.5px;">
-        Together: <strong>${fmtMoney(sum)}</strong> — that's <strong>${data.concentration.top3.toFixed(1)}%</strong> of all your expenses.
-      </div>
     </div>`;
 }
 
@@ -2660,7 +2667,7 @@ function renderMonthlyTrendCard(data){
     <div class="card">
       <div class="card-title" style="display:flex;justify-content:space-between;align-items:center;">
         <span>12-Month Trend</span>
-        <select id="insightsTrendToggle" style="font-size:11px;padding:4px 6px;border-radius:6px;border:1px solid var(--slate-light);background:var(--card);">
+        <select id="insightsTrendToggle" style="font-size:11px;padding:4px 6px;border-radius:6px;border:1px solid var(--slate-light);background:var(--card);color:var(--navy);">
           <option value="expense" ${insightsMonthlyChartMode==='expense'?'selected':''}>Expenses</option>
           <option value="income" ${insightsMonthlyChartMode==='income'?'selected':''}>Income</option>
           <option value="investment" ${insightsMonthlyChartMode==='investment'?'selected':''}>Investments</option>
@@ -2686,7 +2693,7 @@ function renderCategoryTrendCard(data){
     <div class="card">
       <div class="card-title" style="display:flex;justify-content:space-between;align-items:center;">
         <span>Category Trend</span>
-        <select id="insightsCategorySelector" style="font-size:11px;padding:4px 6px;border-radius:6px;border:1px solid var(--slate-light);background:var(--card);">
+        <select id="insightsCategorySelector" style="font-size:11px;padding:4px 6px;border-radius:6px;border:1px solid var(--slate-light);background:var(--card);color:var(--navy);">
           ${data.categoryTotals.map(c=>`<option value="${c.subcategory}" ${c.subcategory===insightsSelectedTrendCategory?'selected':''}>${c.subcategory}</option>`).join('')}
         </select>
       </div>
@@ -2764,37 +2771,6 @@ function renderRecurringCard(data){
     </div>`;
 }
 
-function renderMerchantsCard(data){
-  return `
-    <div class="card">
-      <div class="card-title">Top Merchants</div>
-      <div class="muted" style="font-size:10.5px;margin-bottom:6px;">Based on transaction notes — only entries with notes are included</div>
-      ${data.topMerchants.map(m=>`
-        <div class="breakdown-row">
-          <div style="flex:1;min-width:0;">
-            <div class="breakdown-name">${m.name}</div>
-            <div class="muted" style="font-size:10.5px;">${m.count} transactions · avg ${fmtMoney(m.avg)} · largest ${fmtMoney(m.max)}</div>
-          </div>
-          <div class="breakdown-amt" style="font-size:13px;">${fmtMoney(m.total)}</div>
-        </div>`).join('')}
-    </div>`;
-}
-
-function renderBiggestTransactionsCard(data){
-  return `
-    <div class="card">
-      <div class="card-title">Biggest Transactions</div>
-      ${data.topTransactions.map(e=>`
-        <div class="breakdown-row insights-tx-row" data-id="${e.id}" style="cursor:pointer;">
-          <div style="flex:1;min-width:0;">
-            <div class="breakdown-name">${e.subcategory}${e.notes?' — '+e.notes:''}</div>
-            <div class="muted" style="font-size:10.5px;">${e.date}</div>
-          </div>
-          <div class="breakdown-amt" style="font-size:13px;color:var(--terracotta);">${fmtMoney(e.amount)}</div>
-        </div>`).join('')}
-    </div>`;
-}
-
 function renderFinancialHealthCard(data){
   const h = data.financialHealth;
   const row = (label, val) => `
@@ -2844,7 +2820,7 @@ function renderMonthlyTrendChart(data){
   if(insightsMonthlyChartInstance) insightsMonthlyChartInstance.destroy();
   const labels = data.monthlyTotals.map(m=>m.label);
   const values = data.monthlyTotals.map(m=>m[insightsMonthlyChartMode]);
-  const colorMap = { expense:'#C1583F', income:'#3E7C59', investment:'#D4A24E', netCashFlow:'#3E6FA8' };
+  const colorMap = { expense:'#C1583F', income:'#3E7C59', investment:'#D4A24E' };
   const color = colorMap[insightsMonthlyChartMode];
   const highlightIdx = data.monthlyTotals.length - 1;
   insightsMonthlyChartInstance = new Chart(ctx, {
@@ -2863,16 +2839,16 @@ function renderMonthlyTrendChart(data){
       plugins: {
         legend: { display:false },
         tooltip: {
-          backgroundColor:'#0F1B2D', titleColor:'#F7F4EF',
+          backgroundColor: chartColors().tooltipBg, titleColor: chartColors().tooltipText,
           titleFont:{family:"'Fraunces', serif", size:13, weight:'600'},
-          bodyColor:'#F7F4EF', bodyFont:{family:"'Inter', sans-serif", size:12},
+          bodyColor: chartColors().tooltipText, bodyFont:{family:"'Inter', sans-serif", size:12},
           padding:10, cornerRadius:8, displayColors:false,
           callbacks: { label: c => fmtMoney(c.parsed.y) }
         }
       },
       scales: {
-        x: { grid:{display:false}, ticks:{maxTicksLimit:7, font:{size:9}, color:'#5C6B7A'} },
-        y: { grid:{color:'#E3DFD6'}, ticks:{display:false} }
+        x: { grid:{display:false}, ticks:{maxTicksLimit:7, font:{size:9}, color: chartColors().tick} },
+        y: { grid:{color: chartColors().grid}, ticks:{display:false} }
       }
     }
   });
@@ -2881,7 +2857,7 @@ function renderMonthlyTrendChart(data){
 function renderCategoryTrendChart(data){
   const ctx = document.getElementById('insightsCategoryChart');
   if(!ctx || !insightsSelectedTrendCategory) return;
-  if(insightsCategoryChartInstance) insightsCategoryChartInstance.destroy();
+  if(insightsSecondaryChartInstance) insightsSecondaryChartInstance.destroy();
   const labels = data.period.map(m=>m.label);
   const values = data.period.map(m=>{
     return entries.filter(e=>{
@@ -2890,7 +2866,7 @@ function renderCategoryTrendChart(data){
       return d.getFullYear()===m.year && d.getMonth()===m.month;
     }).reduce((a,e)=>a+Number(e.amount),0);
   });
-  insightsCategoryChartInstance = new Chart(ctx, {
+  insightsSecondaryChartInstance = new Chart(ctx, {
     type: 'line',
     data: {
       labels,
@@ -2905,16 +2881,16 @@ function renderCategoryTrendChart(data){
       plugins:{
         legend:{display:false},
         tooltip:{
-          backgroundColor:'#0F1B2D', titleColor:'#F7F4EF',
+          backgroundColor: chartColors().tooltipBg, titleColor: chartColors().tooltipText,
           titleFont:{family:"'Fraunces', serif", size:13, weight:'600'},
-          bodyColor:'#F7F4EF', bodyFont:{family:"'Inter', sans-serif", size:12},
+          bodyColor: chartColors().tooltipText, bodyFont:{family:"'Inter', sans-serif", size:12},
           padding:10, cornerRadius:8, displayColors:false,
           callbacks: { label: c => fmtMoney(c.parsed.y) }
         }
       },
       scales: {
-        x: { grid:{display:false}, ticks:{maxTicksLimit:7, font:{size:9}, color:'#5C6B7A'} },
-        y: { grid:{color:'#E3DFD6'}, ticks:{display:false} }
+        x: { grid:{display:false}, ticks:{maxTicksLimit:7, font:{size:9}, color: chartColors().tick} },
+        y: { grid:{color: chartColors().grid}, ticks:{display:false} }
       }
     }
   });
@@ -3169,17 +3145,20 @@ function renderMoneyLineChart(){
         legend: {
           display: true,
           position: 'bottom',
-          labels: { font: { size: 11, family: "'Inter', sans-serif" }, color: '#5C6B7A', boxWidth: 12, padding: 12 }
+          labels: { font: { size: 11, family: "'Inter', sans-serif" }, color: chartColors().tick, boxWidth: 12, padding: 12 }
         },
         tooltip: {
+          backgroundColor: chartColors().tooltipBg,
+          titleColor: chartColors().tooltipText,
+          bodyColor: chartColors().tooltipText,
           callbacks: {
             label: (ctx) => `${ctx.dataset.label}: ${fmtMoney(ctx.parsed.y)}`
           }
         }
       },
       scales: {
-        x: { grid: { display: false }, ticks: { font: { size: 10 }, color: '#5C6B7A' } },
-        y: { grid: { color: '#E3DFD6' }, ticks: { display: false } }
+        x: { grid: { display: false }, ticks: { font: { size: 10 }, color: chartColors().tick } },
+        y: { grid: { color: chartColors().grid }, ticks: { display: false } }
       }
     }
   });
@@ -3332,6 +3311,9 @@ document.getElementById('accountDetailModalOverlay').addEventListener('click', (
 function switchView(viewName){
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   document.querySelectorAll('.navtab').forEach(t=>t.classList.remove('active'));
+
+  const topbar = document.querySelector('.topbar');
+  if(topbar) topbar.classList.toggle('insights-active', viewName === 'insights');
 
   if(viewName === 'detail'){
     document.getElementById('view-detail').classList.add('active');
@@ -4410,111 +4392,6 @@ async function autoSyncSequential(items, syncFn){
   }
 }
 
-// Full push — used manually via Settings button
-async function syncPush(){
-  if(!syncUrl){ setSyncStatus('No URL configured.', 'var(--terracotta)'); return; }
-  if(syncInProgress){ setSyncStatus('Sync in progress...'); return; }
-  syncInProgress = true;
-  setSyncStatus('Pushing all entries…', 'var(--slate)');
-  try{
-    const payload = JSON.stringify(entries.concat(buildSettingsRows()));
-    const CHUNK_SIZE = 2000;
-    const chunks = [];
-    for(let i = 0; i < payload.length; i += CHUNK_SIZE) chunks.push(payload.slice(i, i + CHUNK_SIZE));
-    const sessionId = Date.now().toString(36);
-    for(let i = 0; i < chunks.length; i++){
-      setSyncStatus(`Pushing… ${i+1}/${chunks.length}`, 'var(--slate)');
-      const url = `${syncUrl}?action=chunk&session=${sessionId}&index=${i}&total=${chunks.length}&data=${encodeURIComponent(chunks[i])}`;
-      const json = await jsonpFetch(url);
-      if(json.error){ setSyncStatus('Push failed: ' + json.error, 'var(--terracotta)'); syncInProgress=false; return; }
-    }
-    setSyncStatus(`✓ Pushed ${entries.length} entries + settings to Sheet`, 'var(--sage)');
-    showToast('Synced to Google Sheet');
-  }catch(err){
-    setSyncStatus('Push failed: ' + err.message, 'var(--terracotta)');
-  }
-  syncInProgress = false;
-}
-
-async function syncPull(){
-  if(!syncUrl){ setSyncStatus('No URL configured.', 'var(--terracotta)'); return; }
-  if(syncInProgress){ setSyncStatus('Sync in progress...'); return; }
-  syncInProgress = true;
-  setSyncStatus('Pulling from Google Sheet…', 'var(--slate)');
-  try{
-    const data = await jsonpFetch(`${syncUrl}?action=read`);
-    if(data.entries){
-      const settingsRows = data.entries.filter(isSettingsRow);
-      let settingsApplied = false;
-      settingsRows.forEach(row => { if(applySettingsRow(row)) settingsApplied = true; });
-      entries = data.entries.filter(e=>!isSettingsRow(e)).map(e=>({
-        ...e,
-        id: Number(e.id)||uid(),
-        amount: Number(e.amount)||0,
-        date: normalizeDateStr(e.date) // fix ISO dates from Google Sheets
-      }));
-      const maxId = entries.reduce((a,e)=>Math.max(a,Number(e.id)||0),0);
-      if(maxId >= nextId) nextId = maxId + 1;
-      invalidateFinancialsCache();
-      saveState();
-      setSyncStatus(`✓ Pulled ${entries.length} entries${settingsApplied ? ' + settings' : ''} from Sheet`, 'var(--sage)');
-      showToast(settingsApplied ? 'Pulled entries + settings from Google Sheet' : 'Pulled from Google Sheet');
-      closeSettingsModal();
-      renderCurrentView(getActiveViewName());
-    } else {
-      setSyncStatus('Pull failed: ' + (data.error||'Unknown error'), 'var(--terracotta)');
-    }
-  }catch(err){
-    setSyncStatus('Pull failed: ' + err.message, 'var(--terracotta)');
-  }
-  syncInProgress = false;
-}
-
-async function syncTest(){
-  const url = document.getElementById('syncUrlInput').value.trim();
-  if(!url){ setSyncStatus('Enter a URL first.', 'var(--terracotta)'); return; }
-  setSyncStatus('Testing connection…', 'var(--slate)');
-  try{
-    // Clear any stuck properties first
-    await jsonpFetch(`${url}?action=clearprops`);
-    const ping = await jsonpFetch(`${url}?action=ping`);
-    if(ping.ok){ setSyncStatus('✓ Connected! ' + ping.message, 'var(--sage)'); }
-    else { setSyncStatus('Connection failed: ' + (ping.error||'No response'), 'var(--terracotta)'); }
-  }catch(err){
-    setSyncStatus('Connection failed: ' + err.message, 'var(--terracotta)');
-  }
-}
-
-// Legacy autoSync kept for compatibility — now delegates to per-entry sync
-async function autoSync(){ }
-
-
-async function autoSync(){
-  if(!syncUrl) return;
-  const badge = document.getElementById('syncBadge');
-  if(badge){ badge.style.background = 'var(--gold)'; badge.title = 'Syncing…'; }
-  try{
-    const payload = JSON.stringify(entries);
-    const CHUNK_SIZE = 1500; // smaller chunks for reliability
-    const chunks = [];
-    for(let i = 0; i < payload.length; i += CHUNK_SIZE) chunks.push(payload.slice(i, i + CHUNK_SIZE));
-    const sessionId = Date.now().toString(36);
-    for(let i = 0; i < chunks.length; i++){
-      const url = `${syncUrl}?action=chunk&session=${sessionId}&index=${i}&total=${chunks.length}&data=${encodeURIComponent(chunks[i])}`;
-      const json = await jsonpFetch(url);
-      if(json.error) throw new Error(json.error);
-    }
-    if(badge){ badge.style.background = 'var(--sage)'; badge.title = 'Synced to Google Sheet'; }
-  }catch(err){
-    if(badge){
-      badge.style.background = 'var(--terracotta)';
-      badge.title = 'Sync failed: ' + err.message;
-    }
-    // Show the error visibly so user knows what went wrong
-    showToast('Sync failed: ' + err.message.slice(0, 60));
-  }
-}
-
 async function syncPush(){
   if(!syncUrl){ setSyncStatus('No URL configured.', 'var(--terracotta)'); return; }
   if(syncInProgress){ setSyncStatus('Sync in progress...'); return; }
@@ -4668,6 +4545,7 @@ function openSettingsModal(){
   const pwEnabled = isPasswordEnabled();
   document.getElementById('passwordEnabledToggle').checked = pwEnabled;
   document.getElementById('passwordFieldsWrap').style.display = pwEnabled ? 'block' : 'none';
+  updateDarkModeToggleUI();
   document.getElementById('settingsModalOverlay').classList.add('active');
 }
 function closeSettingsModal(){
@@ -5239,6 +5117,11 @@ document.getElementById('resetDataBtn').addEventListener('click', ()=>{
   });
 });
 
+document.getElementById('darkModeToggle').addEventListener('click', ()=>{
+  setTheme(currentTheme === 'dark' ? 'light' : 'dark');
+  updateDarkModeToggleUI();
+});
+
 document.getElementById('refreshAppBtn').addEventListener('click', async ()=>{
   // Fetch the live file from GitHub with cache disabled, so this always
   // sees whatever is actually deployed — never a cached copy. Parse out
@@ -5275,6 +5158,7 @@ document.getElementById('refreshAppBtn').addEventListener('click', async ()=>{
 
 function init(){
   currentLang = 'en';
+  loadTheme();
   loadSyncUrl();
   const hadStoredData = loadState();
   if(!hadStoredData){
@@ -5731,13 +5615,13 @@ function renderDetailTrendChart(){
         pointRadius: 0,
         pointHoverRadius: 5,
         pointHoverBackgroundColor: catColor,
-        pointHoverBorderColor: '#0F1B2D',
+        pointHoverBorderColor: chartColors().lineColor,
         pointHoverBorderWidth: 2,
         borderWidth: 2,
         segment: {
           borderColor: ctx2 => {
             const y0 = ctx2.p0.parsed.y, y1 = ctx2.p1.parsed.y;
-            return (y0 === 0 && y1 === 0) ? 'rgba(0,0,0,0.1)' : catColor;
+            return (y0 === 0 && y1 === 0) ? 'rgba(128,128,128,0.15)' : catColor;
           }
         }
       }]
@@ -5749,10 +5633,10 @@ function renderDetailTrendChart(){
       plugins: {
         legend: { display: false },
         tooltip: {
-          backgroundColor: '#0F1B2D',
-          titleColor: '#F7F4EF',
+          backgroundColor: chartColors().tooltipBg,
+          titleColor: chartColors().tooltipText,
           titleFont: { family:"'Fraunces', serif", size:13, weight:'600' },
-          bodyColor: '#F7F4EF',
+          bodyColor: chartColors().tooltipText,
           bodyFont: { family:"'Inter', sans-serif", size:12 },
           padding: 10,
           cornerRadius: 8,
@@ -5771,8 +5655,8 @@ function renderDetailTrendChart(){
         }
       },
       scales: {
-        x: { grid:{ display:false }, ticks:{ maxTicksLimit:8, font:{ size:10 }, color:'#5C6B7A' } },
-        y: { grid:{ color:'#E3DFD6' }, ticks:{ display:false } }
+        x: { grid:{ display:false }, ticks:{ maxTicksLimit:8, font:{ size:10 }, color: chartColors().tick } },
+        y: { grid:{ color: chartColors().grid }, ticks:{ display:false } }
       }
     }
   });
@@ -5918,7 +5802,7 @@ function renderLineChart(){
       datasets: [{
         label: 'Balance',
         data: values,
-        borderColor: '#0F1B2D',
+        borderColor: chartColors().lineColor,
         backgroundColor: 'rgba(212,162,78,0.15)',
         fill: true,
         tension: 0.35,
@@ -5926,14 +5810,14 @@ function renderLineChart(){
         pointHoverRadius: 5,
         pointBackgroundColor: '#D4A24E',
         pointHoverBackgroundColor: '#D4A24E',
-        pointHoverBorderColor: '#0F1B2D',
+        pointHoverBorderColor: chartColors().lineColor,
         pointHoverBorderWidth: 2,
         borderWidth: 2,
         segment: {
           borderColor: (ctx) => {
             const y0 = ctx.p0.parsed.y;
             const y1 = ctx.p1.parsed.y;
-            return (y0 < 0 || y1 < 0) ? '#C1583F' : '#0F1B2D';
+            return (y0 < 0 || y1 < 0) ? '#C1583F' : chartColors().lineColor;
           },
           backgroundColor: (ctx) => {
             const y0 = ctx.p0.parsed.y;
@@ -5954,10 +5838,10 @@ function renderLineChart(){
       plugins: {
         legend: {display: false},
         tooltip: {
-          backgroundColor: '#0F1B2D',
-          titleColor: '#F7F4EF',
+          backgroundColor: chartColors().tooltipBg,
+          titleColor: chartColors().tooltipText,
           titleFont: {family:"'Fraunces', serif", size:13, weight:'600'},
-          bodyColor: '#F7F4EF',
+          bodyColor: chartColors().tooltipText,
           bodyFont: {family:"'Inter', sans-serif", size:13, weight:'700'},
           padding: 10,
           cornerRadius: 8,
@@ -5969,8 +5853,8 @@ function renderLineChart(){
         }
       },
       scales: {
-        x: {grid:{display:false}, ticks:{maxTicksLimit:8, font:{size:10}, color:'#5C6B7A'}},
-        y: {grid:{color:'#E3DFD6'}, ticks:{display:false}}
+        x: {grid:{display:false}, ticks:{maxTicksLimit:8, font:{size:10}, color: chartColors().tick}},
+        y: {grid:{color: chartColors().grid}, ticks:{display:false}}
       }
     },
     plugins: [todayLinePlugin]
@@ -5986,7 +5870,7 @@ function renderDonutChart(){
     document.getElementById('donutBreakdownList').innerHTML = '<div class="empty-state"><div class="big">∅</div>No ' + donutCategory.toLowerCase() + ' entries this month.</div>';
     donutChartInstance = new Chart(ctx, {
       type:'doughnut',
-      data:{labels:['No data'], datasets:[{data:[1], backgroundColor:['#E7EAED'], borderWidth:0}]},
+      data:{labels:['No data'], datasets:[{data:[1], backgroundColor:[chartColors().slateLight], borderWidth:0}]},
       options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}, tooltip:{enabled:false}}, cutout:'68%'}
     });
     return;
@@ -6000,7 +5884,7 @@ function renderDonutChart(){
         data: rows.map(r=>Math.abs(r.amount)),
         backgroundColor: rows.map((_,i)=>PALETTE[i % PALETTE.length]),
         borderWidth: 2,
-        borderColor: '#F7F4EF'
+        borderColor: chartColors().pageBg
       }]
     },
     options: {
@@ -6010,6 +5894,9 @@ function renderDonutChart(){
       plugins:{
         legend:{display:false},
         tooltip:{
+          backgroundColor: chartColors().tooltipBg,
+          titleColor: chartColors().tooltipText,
+          bodyColor: chartColors().tooltipText,
           callbacks:{
             label: (ctx)=>{
               const row = rows[ctx.dataIndex];
