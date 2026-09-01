@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v49 -->
+<!-- WEALTH.ME — v51 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1119,7 +1119,7 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
       </div>
       <button class="btn btn-secondary btn-block" id="refreshAppBtn" style="margin-top:12px;">↻ Refresh App (get latest version)</button>
       <div id="refreshStatus" class="muted" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 49</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 51</p>
     </div>
   </div>
 
@@ -1503,7 +1503,7 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 49;
+const APP_VERSION = 51;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -2276,13 +2276,8 @@ function getMerchantsForSubcategory(subEntries){
    FINANCIAL INSIGHTS — render layer
    ========================================================= */
 let insightsMonthlyChartInstance = null;
-// Shared between the top-level Category Trend chart and the drill-down
-// subcategory chart — they're never both on screen at once, so one
-// tracking variable is safe, but it's genuinely used for two different
-// canvases depending on which screen is currently rendered.
-let insightsSecondaryChartInstance = null;
+let insightsDrillChartInstance = null;
 let insightsMonthlyChartMode = 'expense'; // expense | income | investment
-let insightsSelectedTrendCategory = null;
 let insightsDirection = 'past'; // 'past' | 'future'
 let insightsDrillPath = []; // [] = top level; [{level:'subcategory',value}] ; [{level:'subcategory',value},{level:'merchant',value}]
 
@@ -2305,9 +2300,6 @@ function renderInsightsView(){
   document.getElementById('insightsMonthLabel').textContent = fmtMonthYear(insightsRefDate);
 
   const data = generateFinancialInsights(insightsRefDate, insightsDirection);
-  if(!insightsSelectedTrendCategory || !data.categoryTotals.some(c=>c.subcategory===insightsSelectedTrendCategory)){
-    insightsSelectedTrendCategory = data.categoryTotals[0] ? data.categoryTotals[0].subcategory : null;
-  }
 
   const periodFromLabel = fmtMonthYear(data.period[0].date);
   const periodToLabel = fmtMonthYear(data.period[data.period.length - 1].date);
@@ -2354,7 +2346,6 @@ function renderInsightsView(){
     ${renderCategoryRankingCard(data)}
     ${renderCostReductionCard(data)}
     ${renderMonthlyTrendCard(data)}
-    ${renderCategoryTrendCard(data)}
     ${renderBiggestChangesCard(data)}
     ${renderUnusualSpendingCard(data)}
     ${renderRecurringCard(data)}
@@ -2362,12 +2353,10 @@ function renderInsightsView(){
   `;
 
   wireCategoryRankingDrill();
-  wireCategoryTrendSelector(data);
   wireMonthlyTrendToggle(data);
   wireTransactionClicks(data);
   wireDirectionToggle();
   renderMonthlyTrendChart(data);
-  renderCategoryTrendChart(data);
 }
 
 function wireDirectionToggle(){
@@ -2408,9 +2397,9 @@ function wireBreadcrumb(){
 function renderDrillChart(monthlyAmounts, period){
   const ctx = document.getElementById('insightsDrillChart');
   if(!ctx) return;
-  if(insightsSecondaryChartInstance) insightsSecondaryChartInstance.destroy();
+  if(insightsDrillChartInstance) insightsDrillChartInstance.destroy();
   const labels = period.map(m=>m.label);
-  insightsSecondaryChartInstance = new Chart(ctx, {
+  insightsDrillChartInstance = new Chart(ctx, {
     type: 'line',
     data: {
       labels,
@@ -2677,35 +2666,6 @@ function renderMonthlyTrendCard(data){
     </div>`;
 }
 
-function renderCategoryTrendCard(data){
-  if(!insightsSelectedTrendCategory) return '';
-  const monthlyAmounts = data.period.map(m=>{
-    return entries.filter(e=>{
-      if(e.category!=='Expense' || e.subcategory!==insightsSelectedTrendCategory || e.status!=='Closed') return false;
-      const d = parseLocalDate(e.date);
-      return d.getFullYear()===m.year && d.getMonth()===m.month;
-    }).reduce((a,e)=>a+Number(e.amount),0);
-  });
-  const trendInfo = classifyCategoryTrend(monthlyAmounts);
-  const badgeColor = trendInfo.trend==='Increasing' ? 'var(--terracotta)' : trendInfo.trend==='Decreasing' ? 'var(--sage)' : trendInfo.trend==='Volatile' ? 'var(--gold)' : 'var(--slate)';
-  const selAmt = monthlyAmounts[monthlyAmounts.length-1];
-  return `
-    <div class="card">
-      <div class="card-title" style="display:flex;justify-content:space-between;align-items:center;">
-        <span>Category Trend</span>
-        <select id="insightsCategorySelector" style="font-size:11px;padding:4px 6px;border-radius:6px;border:1px solid var(--slate-light);background:var(--card);color:var(--navy);">
-          ${data.categoryTotals.map(c=>`<option value="${c.subcategory}" ${c.subcategory===insightsSelectedTrendCategory?'selected':''}>${c.subcategory}</option>`).join('')}
-        </select>
-      </div>
-      <div style="display:flex;align-items:center;gap:8px;margin:6px 0 10px;">
-        <span style="background:${badgeColor};color:#fff;font-size:10.5px;font-weight:600;padding:3px 8px;border-radius:20px;">${trendInfo.trend}</span>
-        <span class="muted" style="font-size:11px;">avg ${fmtMoney(trendInfo.avg)} · range ${fmtMoney(trendInfo.min)}–${fmtMoney(trendInfo.max)}</span>
-      </div>
-      <div class="chart-wrap"><canvas id="insightsCategoryChart"></canvas></div>
-      <div class="muted" style="font-size:11px;margin-top:8px;">Selected month (${fmtMoney(selAmt)}) vs average: ${trendInfo.avg>0 ? (((selAmt-trendInfo.avg)/trendInfo.avg*100)>=0?'+':'')+((selAmt-trendInfo.avg)/trendInfo.avg*100).toFixed(0)+'%' : '—'}</div>
-    </div>`;
-}
-
 function renderChangeRow(c){
   return `
     <div style="display:flex;justify-content:space-between;font-size:12.5px;padding:5px 0;">
@@ -2796,15 +2756,6 @@ function wireTransactionClicks(data){
   });
 }
 
-function wireCategoryTrendSelector(data){
-  const sel = document.getElementById('insightsCategorySelector');
-  if(!sel) return;
-  sel.addEventListener('change', ()=>{
-    insightsSelectedTrendCategory = sel.value;
-    renderInsightsView();
-  });
-}
-
 function wireMonthlyTrendToggle(data){
   const sel = document.getElementById('insightsTrendToggle');
   if(!sel) return;
@@ -2818,7 +2769,9 @@ function renderMonthlyTrendChart(data){
   const ctx = document.getElementById('insightsMonthlyChart');
   if(!ctx) return;
   if(insightsMonthlyChartInstance) insightsMonthlyChartInstance.destroy();
-  const labels = data.monthlyTotals.map(m=>m.label);
+  // Abbreviated 2-digit year for this chart's axis only (e.g. "Aug 26")
+  // — other charts keep the full 4-digit year label.
+  const labels = data.monthlyTotals.map(m => m.date.toLocaleString(undefined, {month:'short', year:'2-digit'}));
   const values = data.monthlyTotals.map(m=>m[insightsMonthlyChartMode]);
   const colorMap = { expense:'#C1583F', income:'#3E7C59', investment:'#D4A24E' };
   const color = colorMap[insightsMonthlyChartMode];
@@ -2839,48 +2792,6 @@ function renderMonthlyTrendChart(data){
       plugins: {
         legend: { display:false },
         tooltip: {
-          backgroundColor: chartColors().tooltipBg, titleColor: chartColors().tooltipText,
-          titleFont:{family:"'Fraunces', serif", size:13, weight:'600'},
-          bodyColor: chartColors().tooltipText, bodyFont:{family:"'Inter', sans-serif", size:12},
-          padding:10, cornerRadius:8, displayColors:false,
-          callbacks: { label: c => fmtMoney(c.parsed.y) }
-        }
-      },
-      scales: {
-        x: { grid:{display:false}, ticks:{maxTicksLimit:7, font:{size:9}, color: chartColors().tick} },
-        y: { grid:{color: chartColors().grid}, ticks:{display:false} }
-      }
-    }
-  });
-}
-
-function renderCategoryTrendChart(data){
-  const ctx = document.getElementById('insightsCategoryChart');
-  if(!ctx || !insightsSelectedTrendCategory) return;
-  if(insightsSecondaryChartInstance) insightsSecondaryChartInstance.destroy();
-  const labels = data.period.map(m=>m.label);
-  const values = data.period.map(m=>{
-    return entries.filter(e=>{
-      if(e.category!=='Expense' || e.subcategory!==insightsSelectedTrendCategory || e.status!=='Closed') return false;
-      const d = parseLocalDate(e.date);
-      return d.getFullYear()===m.year && d.getMonth()===m.month;
-    }).reduce((a,e)=>a+Number(e.amount),0);
-  });
-  insightsSecondaryChartInstance = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels,
-      datasets: [{
-        data: values, borderColor:'#C1583F', backgroundColor:'rgba(193,88,63,0.12)',
-        fill:true, tension:0.35, pointRadius:0, pointHoverRadius:5,
-        pointHoverBackgroundColor:'#C1583F', borderWidth:2
-      }]
-    },
-    options: {
-      responsive:true, maintainAspectRatio:false,
-      plugins:{
-        legend:{display:false},
-        tooltip:{
           backgroundColor: chartColors().tooltipBg, titleColor: chartColors().tooltipText,
           titleFont:{family:"'Fraunces', serif", size:13, weight:'600'},
           bodyColor: chartColors().tooltipText, bodyFont:{family:"'Inter', sans-serif", size:12},
