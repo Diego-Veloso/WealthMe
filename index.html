@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v51 -->
+<!-- WEALTH.ME — v53 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1119,7 +1119,7 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
       </div>
       <button class="btn btn-secondary btn-block" id="refreshAppBtn" style="margin-top:12px;">↻ Refresh App (get latest version)</button>
       <div id="refreshStatus" class="muted" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 51</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 53</p>
     </div>
   </div>
 
@@ -1503,7 +1503,7 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 51;
+const APP_VERSION = 53;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -1926,6 +1926,15 @@ function generateFinancialInsights(selectedDate, direction){
   });
   const expenseEntries = periodEntries.filter(e=>e.category === 'Expense');
 
+  // All-status (Closed+Open) version of periodEntries — used only by the
+  // 12-Month Trend chart, so its bars reflect true total money movement
+  // including scheduled/pending entries. Everything else on this page
+  // keeps using periodEntries above (Closed-only in 'past' mode) unchanged.
+  const periodEntriesAllStatus = getInsightsEntries(null).filter(e=>{
+    const d = parseLocalDate(e.date);
+    return period.some(m => d.getFullYear() === m.year && d.getMonth() === m.month);
+  });
+
   function safePctChange(current, base){
     if(base === 0){ return current === 0 ? {pct:0, label:'—'} : {pct:null, label: current>0 ? 'New' : 'N/A'}; }
     const pct = ((current - base) / Math.abs(base)) * 100;
@@ -1942,6 +1951,18 @@ function generateFinancialInsights(selectedDate, direction){
     return { ...m, income, expense, investment, capital, netCashFlow: income - expense - investment };
   });
 
+  // Same as above but Closed+Open (all statuses) — used only by the
+  // 12-Month Trend chart. In 'future' mode this is identical to
+  // monthlyTotals (already all-status there); in 'past' mode it includes
+  // scheduled/pending entries that monthlyTotals excludes.
+  const monthlyTotalsAllStatus = period.map(m=>{
+    const inM = e => inMonth(e, m);
+    const income = periodEntriesAllStatus.filter(e=>e.category==='Income' && inM(e)).reduce((a,e)=>a+Number(e.amount),0);
+    const expense = periodEntriesAllStatus.filter(e=>e.category==='Expense' && inM(e)).reduce((a,e)=>a+Number(e.amount),0);
+    const investment = periodEntriesAllStatus.filter(e=>e.category==='Investment' && inM(e)).reduce((a,e)=>a+Number(e.amount),0);
+    return { ...m, income, expense, investment };
+  });
+
   const totalExpenses12mo = monthlyTotals.reduce((a,m)=>a+m.expense,0);
   const totalIncome12mo = monthlyTotals.reduce((a,m)=>a+m.income,0);
   const totalInvestment12mo = monthlyTotals.reduce((a,m)=>a+m.investment,0);
@@ -1950,8 +1971,18 @@ function generateFinancialInsights(selectedDate, direction){
 
   const selMonthly = direction === 'future' ? monthlyTotals[0] : monthlyTotals[monthlyTotals.length-1];
   const selExpense = selMonthly.expense;
-  const prevExpense = amountForMonth('Expense', null, prevMonthObj, 'Closed');
-  const sameLastYearExpense = amountForMonth('Expense', null, lastYearObj, 'Closed');
+
+  // "vs last month" / "vs same month last year" now include Open (scheduled/
+  // pending) expenses as well as Closed ones, on both sides of the
+  // comparison — otherwise a month with several still-open expenses would
+  // look artificially lower than it really is. This is intentionally
+  // separate from the Closed-only totals used elsewhere on this page (the
+  // 12-month total, category rankings, "vs 12-mo average", etc.), which are
+  // unchanged and still reflect settled spending only.
+  const selMonthObj = { year: selectedDate.getFullYear(), month: selectedDate.getMonth() };
+  const selExpenseAllStatus = amountForMonth('Expense', null, selMonthObj, null);
+  const prevExpense = amountForMonth('Expense', null, prevMonthObj, null);
+  const sameLastYearExpense = amountForMonth('Expense', null, lastYearObj, null);
 
   // In 'future' mode, "vs last month" / "vs same month last year" have no
   // clear anchor to "now" since the selected month is itself a future date.
@@ -1976,9 +2007,9 @@ function generateFinancialInsights(selectedDate, direction){
   const overview = {
     totalExpenses12mo, avgMonthlyExpense, selExpense, prevExpense,
     highestMonth, lowestMonth,
-    vsPrevMonth: safePctChange(selExpense, prevExpense),
+    vsPrevMonth: safePctChange(selExpenseAllStatus, prevExpense),
     vs12moAvg: safePctChange(selExpense, avgMonthlyExpense),
-    vsSameMonthLastYear: safePctChange(selExpense, sameLastYearExpense),
+    vsSameMonthLastYear: safePctChange(selExpenseAllStatus, sameLastYearExpense),
     vsNextMonth: direction === 'future' ? safePctChange(nextMonthExpense, selExpense) : null,
     vsSameMonthNextYear: direction === 'future' ? safePctChange(sameMonthNextYearExpense, selExpense) : null,
     totalIncome12mo, totalInvestment12mo, totalCapital12mo,
@@ -2153,6 +2184,21 @@ function generateFinancialInsights(selectedDate, direction){
   };
   function compareRow(field, category){
     const selVal = selMonthly[field];
+    if(field === 'expense'){
+      // Include Open (scheduled) expenses alongside Closed ones here too —
+      // same reasoning as selExpenseAllStatus above, so this card's
+      // month-over-month / year-over-year comparison matches the Overview
+      // card's, and the displayed $ figure reconciles with those two
+      // comparisons. "vs 12-mo average" is unaffected (still Closed-only).
+      const prevVal = amountForMonth(category, null, prevMonthObj, null);
+      const lastYearVal = amountForMonth(category, null, lastYearObj, null);
+      return {
+        selected: selExpenseAllStatus,
+        vsPrev: safePctChange(selExpenseAllStatus, prevVal),
+        vsAvg: safePctChange(selVal, avgM[field]),
+        vsLastYear: safePctChange(selExpenseAllStatus, lastYearVal)
+      };
+    }
     const prevVal = amountForMonth(category, null, prevMonthObj, 'Closed');
     const lastYearVal = amountForMonth(category, null, lastYearObj, 'Closed');
     return {
@@ -2204,7 +2250,7 @@ function generateFinancialInsights(selectedDate, direction){
 
   const result = {
     direction, period, selMonth, prevMonthObj, lastYearObj,
-    monthlyTotals, overview, categoryTotals,
+    monthlyTotals, monthlyTotalsAllStatus, overview, categoryTotals,
     biggestIncreasesMoM, biggestDecreasesMoM, biggestIncreasesYoY, biggestDecreasesYoY,
     unusualCategories, unusualTransactions, recurring, estimatedRecurringMonthly,
     concentration, needsVsDiscretionary, financialHealth, monthComparison,
@@ -2771,11 +2817,14 @@ function renderMonthlyTrendChart(data){
   if(insightsMonthlyChartInstance) insightsMonthlyChartInstance.destroy();
   // Abbreviated 2-digit year for this chart's axis only (e.g. "Aug 26")
   // — other charts keep the full 4-digit year label.
-  const labels = data.monthlyTotals.map(m => m.date.toLocaleString(undefined, {month:'short', year:'2-digit'}));
-  const values = data.monthlyTotals.map(m=>m[insightsMonthlyChartMode]);
+  // Uses monthlyTotalsAllStatus (Closed+Open) so every bar, including the
+  // selected month, reflects true total money movement — not just what's
+  // settled. Other cards on this page intentionally keep Closed-only data.
+  const labels = data.monthlyTotalsAllStatus.map(m => m.date.toLocaleString(undefined, {month:'short', year:'2-digit'}));
+  const values = data.monthlyTotalsAllStatus.map(m=>m[insightsMonthlyChartMode]);
   const colorMap = { expense:'#C1583F', income:'#3E7C59', investment:'#D4A24E' };
   const color = colorMap[insightsMonthlyChartMode];
-  const highlightIdx = data.monthlyTotals.length - 1;
+  const highlightIdx = data.monthlyTotalsAllStatus.length - 1;
   insightsMonthlyChartInstance = new Chart(ctx, {
     type: 'bar',
     data: {
