@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v59 -->
+<!-- WEALTH.ME — v66 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -25,7 +25,7 @@
   --sky:#3E6FA8;
   --sky-light:#E8EFF6;
   --line:#E3DFD6;
-  --radius:14px;
+  --radius:10px;
 }
 [data-theme="dark"]{
   --navy:#E9E7E2;
@@ -51,6 +51,7 @@ body{
   color:var(--navy);
   -webkit-font-smoothing:antialiased;
   min-height:100vh;
+  font-variant-numeric:tabular-nums;
 }
 #app{
   max-width:720px;
@@ -181,6 +182,8 @@ main{
 .balance-hero .sub{
   font-size:13px;color:var(--slate);margin-top:8px;
 }
+.balance-hero .sub .pos{color:var(--sage);font-weight:600;}
+.balance-hero .sub .neg{color:var(--terracotta);font-weight:600;}
 
 /* ===== Cards / grid ===== */
 .card{
@@ -376,6 +379,12 @@ main{
 }
 .navtab.active{color:var(--navy);}
 .navtab svg{width:21px;height:21px;}
+
+/* Desktop-only sidebar additions — hidden on mobile so the bottom tab
+   bar stays exactly as it was; shown only inside the 900px+ query. */
+.sidebar-brand,
+.sidebar-footer,
+.sidebar-only-tab{display:none;}
 
 /* ===== Buttons ===== */
 .btn{
@@ -622,7 +631,162 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
 .accordion-body.open{display:block;animation:fadeIn .2s ease;}
 .accordion-body ol{margin:0;padding-left:20px;font-size:14px;line-height:1.85;color:var(--navy);}
 .accordion-body ol li{margin-bottom:2px;}
+/* =========================================================
+   DESKTOP / WIDE-SCREEN LAYOUT (real responsive redesign)
+   Purely additive — every rule here only activates above 900px,
+   so phones and narrow/portrait views are completely unaffected.
+   ========================================================= */
+@media (min-width:900px){
+  #app{
+    max-width:1100px;
+    margin-top:0;
+    margin-bottom:0;
+    /* Center the content column within the space to the right of the
+       fixed 220px sidebar (plus its 20px gutter), instead of hugging
+       the sidebar and leaving a dead zone on the right on wide screens. */
+    margin-left:calc(240px + max(0px, (100vw - 240px - 1100px) / 2));
+    margin-right:auto;
+  }
+
+  /* Bottom tab bar becomes a fixed left sidebar */
+  .bottomnav{
+    position:fixed;
+    top:0; left:0; right:auto; bottom:0;
+    max-width:220px; width:220px;
+    margin:0;
+    flex-direction:column;
+    align-items:stretch;
+    justify-content:flex-start;
+    padding:28px 12px;
+    border-top:none;
+    border-right:1px solid var(--line);
+    gap:4px;
+  }
+  .navtab{
+    flex-direction:row;
+    justify-content:flex-start;
+    gap:12px;
+    padding:12px 14px;
+    border-radius:10px;
+    font-size:13px;
+  }
+  .navtab:hover{background:var(--slate-light);}
+  .navtab.active{background:var(--slate-light);}
+  .navtab svg{width:20px;height:20px;}
+  .sidebar-only-tab{display:flex;}
+
+  /* Sidebar branding header */
+  .sidebar-brand{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:4px 14px 20px;
+    margin-bottom:8px;
+    border-bottom:1px solid var(--line);
+  }
+  .sidebar-brand .logo-mark{width:32px;height:32px;}
+  .sidebar-brand .logo-text{font-size:17px;}
+  .sidebar-brand .sync-badge{margin-left:auto;}
+
+  /* Settings/Help footer, pinned to the bottom of the sidebar column */
+  .sidebar-footer{
+    display:flex;
+    flex-direction:column;
+    gap:2px;
+    margin-top:auto;
+    padding-top:12px;
+    border-top:1px solid var(--line);
+  }
+  .sidebar-footer-btn{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:10px 14px;
+    border:none;
+    background:transparent;
+    border-radius:10px;
+    cursor:pointer;
+    color:var(--slate);
+    font-family:'Inter',sans-serif;
+    font-size:13px;
+    font-weight:600;
+  }
+  .sidebar-footer-btn:hover{background:var(--slate-light);}
+  .sidebar-footer-btn svg{width:18px;height:18px;flex-shrink:0;}
+
+  main{padding-bottom:32px;}
+
+  /* Floating buttons dock to the viewport's bottom-right corner instead
+     of tracking the (no-longer-centered) content column */
+  .fab{right:32px;}
+
+  /* Logo/Help/Settings now live in the sidebar; Insights is a sidebar
+     nav item instead of a floating button, so hide their mobile forms. */
+  .topbar{display:none;}
+  .fab-secondary{display:none;}
+
+  /* Home and Money are both single-column stacked reports now — every
+     direct child fills the full content width, with a consistent gap
+     between sections. (Home previously let Daily Cashflow and Breakdown
+     flow side-by-side, but their mismatched heights — Breakdown's list
+     can grow much taller than the chart — looked unbalanced even after
+     stretching to a flush height, so Daily Cashflow is now wide and
+     Breakdown sits below it, same single-column treatment as Money.) */
+  #view-home.active,
+  #view-money.active{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:18px;
+  }
+
+  /* The 6 summary stat cards (Gross Income, Net Income, etc. on Home;
+     Invested, Planned, Cumulative Invested [double-width], Capital,
+     Net Position on Money) stay at a fixed 2-column layout on mobile;
+     at desktop widths that stretched each card to roughly half the
+     1100px content column for a couple of short lines of text.
+     A fixed 6-column grid keeps every row's units summing to exactly
+     6 (Money's double-width card counts as 2), so cards always fill
+     one clean row instead of leaving a ragged gap on the trailing
+     row at in-between desktop widths where auto-fit's column count
+     didn't divide evenly into the number of cards. */
+  .summary-grid{
+    grid-template-columns:repeat(6, minmax(90px, 1fr));
+  }
+
+  /* Insights: same idea, applied to its content container since
+     everything renders inside a single wrapper div */
+  #insightsContainer{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(340px,1fr));
+    gap:18px;
+    align-items:start;
+  }
+  .insights-fullspan{grid-column:1 / -1;}
+  /* The Financial Overview card was explicitly tagged full-span, but the
+     other 9 report sections (Key Insights, Month Comparison, Category
+     Ranking, Cost Reduction, Monthly Trend chart, Biggest Changes,
+     Unusual Spending, Recurring, Financial Health) were left as plain
+     .card divs — same oversight as Money's — so they fell into the
+     auto-fit grid unmarked and got scattered across columns despite
+     having very different heights (a short 3-line insight next to a
+     full chart), leaving large ragged gaps. Insights is a sequential
+     report, not a card dashboard, so keep it single-column throughout. */
+  #insightsContainer > .card{
+    grid-column:1 / -1;
+  }
+
+  /* Modals become centered dialogs instead of bottom sheets */
+  .modal-overlay{align-items:center;}
+  .modal{
+    max-width:480px;
+    border-radius:20px;
+    max-height:80vh;
+    animation:fadeInDialog .2s ease;
+  }
+  @keyframes fadeInDialog{from{transform:translateY(12px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+}
 </style>
+
 </head>
 <body>
 <!-- ===== Password Lock Screen ===== -->
@@ -662,7 +826,7 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
       <div class="logo-text">Wealth<span>.</span>Me</div>
     </div>
     <div style="display:flex;gap:8px;align-items:center;">
-      <div id="syncBadge" title="Cloud Sync Active" style="display:none;width:8px;height:8px;border-radius:50%;background:var(--sage);flex-shrink:0;"></div>
+      <div id="syncBadge" class="sync-badge" title="Cloud Sync Active" style="display:none;width:8px;height:8px;border-radius:50%;background:var(--sage);flex-shrink:0;"></div>
       <button class="icon-btn" id="helpBtn" title="Instructions">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
       </button>
@@ -686,6 +850,7 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
         <div class="eyebrow">Balance (Cashflow)</div>
         <div class="figure" id="homeBalanceFig">$0</div>
         <div class="underline"></div>
+        <div class="sub" id="homeBalanceDelta"></div>
       </div>
 
       <div class="summary-grid">
@@ -950,8 +1115,15 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="24" height="24"><path d="M12 3l1.6 4.8L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.2L12 3z"/><path d="M19 13l0.8 2.2L22 16l-2.2 0.8L19 19l-0.8-2.2L16 16l2.2-0.8L19 13z"/><path d="M5 14l0.6 1.6L7 16l-1.4 0.6L5 18l-0.6-1.4L3 16l1.4-0.4L5 14z"/></svg>
   </button>
 
-  <!-- ===== Bottom Navigation ===== -->
+  <!-- ===== Bottom Navigation (becomes the desktop sidebar at 900px+) ===== -->
   <nav class="bottomnav">
+    <!-- Desktop-only: sidebar branding header. Hidden on mobile; the
+         actual logo image is cloned in via JS (see initSidebarBrand)
+         instead of duplicating the base64 image in the markup. -->
+    <div class="sidebar-brand" id="sidebarBrand">
+      <div class="logo-text">Wealth<span>.</span>Me</div>
+      <div id="syncBadgeSidebar" class="sync-badge" title="Cloud Sync Active" style="display:none;width:8px;height:8px;border-radius:50%;background:var(--sage);flex-shrink:0;"></div>
+    </div>
     <button class="navtab active" data-view="home">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
       Home
@@ -968,6 +1140,27 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
       Money
     </button>
+    <!-- Desktop-only: Insights isn't in the mobile bottom tab bar (it's
+         reached via the floating sparkle FAB there); on desktop it gets
+         a proper sidebar entry. Reuses the existing generic .navtab
+         click-wiring and switchView() logic below — no new JS needed. -->
+    <button class="navtab sidebar-only-tab" data-view="insights">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="21" height="21"><path d="M12 3l1.6 4.8L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.2L12 3z"/><path d="M19 13l0.8 2.2L22 16l-2.2 0.8L19 19l-0.8-2.2L16 16l2.2-0.8L19 13z"/><path d="M5 14l0.6 1.6L7 16l-1.4 0.6L5 18l-0.6-1.4L3 16l1.4-0.4L5 14z"/></svg>
+      Insights
+    </button>
+    <!-- Desktop-only: Settings/Help live in the topbar on mobile; on
+         desktop they're duplicated here (with their own IDs, wired
+         alongside the originals below) so the sidebar is self-contained. -->
+    <div class="sidebar-footer">
+      <button class="sidebar-footer-btn" id="sidebarHelpBtn" title="Instructions">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        Help
+      </button>
+      <button class="sidebar-footer-btn" id="sidebarSettingsBtn" title="Settings">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Settings
+      </button>
+    </div>
   </nav>
 
   <!-- ===== Entry Edit/Add Modal ===== -->
@@ -1119,7 +1312,7 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
       </div>
       <button class="btn btn-secondary btn-block" id="refreshAppBtn" style="margin-top:12px;">↻ Refresh App (get latest version)</button>
       <div id="refreshStatus" class="muted" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 59</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 60</p>
     </div>
   </div>
 
@@ -1503,7 +1696,7 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 59;
+const APP_VERSION = 66;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -1619,6 +1812,17 @@ function fmtMoney(n){
 }
 function fmtMonthYear(d){
   return d.toLocaleString(undefined,{month:'long',year:'numeric'});
+}
+function animateValue(el, fromVal, toVal, duration, formatFn){
+  const start = performance.now();
+  function step(now){
+    const progress = Math.min((now - start) / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3);
+    el.textContent = formatFn(fromVal + (toVal - fromVal) * eased);
+    if(progress < 1) requestAnimationFrame(step);
+    else el.textContent = formatFn(toVal);
+  }
+  requestAnimationFrame(step);
 }
 function uid(){ return nextId++; }
 function showToast(msg){
@@ -2357,11 +2561,13 @@ function renderInsightsView(){
   const periodToLabel = fmtMonthYear(data.period[data.period.length - 1].date);
 
   const toggleHtml = `
-    <div style="display:flex;background:var(--slate-light);border-radius:10px;padding:3px;margin-bottom:6px;">
-      <button id="insightsDirPast" class="insights-dir-btn" style="flex:1;padding:8px 0;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;background:${insightsDirection==='past'?'var(--card)':'transparent'};color:${insightsDirection==='past'?'var(--navy)':'var(--slate)'};">Past 12 Months</button>
-      <button id="insightsDirFuture" class="insights-dir-btn" style="flex:1;padding:8px 0;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;background:${insightsDirection==='future'?'var(--card)':'transparent'};color:${insightsDirection==='future'?'var(--navy)':'var(--slate)'};">Next 12 Months</button>
-    </div>
-    <div class="muted" style="font-size:11.5px;margin:0 2px 12px;">${insightsDirection==='future'?'Projected':'Historical'}: ${periodFromLabel} to ${periodToLabel}</div>`;
+    <div class="insights-fullspan">
+      <div style="display:flex;background:var(--slate-light);border-radius:10px;padding:3px;margin-bottom:6px;">
+        <button id="insightsDirPast" class="insights-dir-btn" style="flex:1;padding:8px 0;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;background:${insightsDirection==='past'?'var(--card)':'transparent'};color:${insightsDirection==='past'?'var(--navy)':'var(--slate)'};">Past 12 Months</button>
+        <button id="insightsDirFuture" class="insights-dir-btn" style="flex:1;padding:8px 0;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;background:${insightsDirection==='future'?'var(--card)':'transparent'};color:${insightsDirection==='future'?'var(--navy)':'var(--slate)'};">Next 12 Months</button>
+      </div>
+      <div class="muted" style="font-size:11.5px;margin:0 2px 12px;">${insightsDirection==='future'?'Projected':'Historical'}: ${periodFromLabel} to ${periodToLabel}</div>
+    </div>`;
 
   const hasAnyExpense = data.overview.totalExpenses12mo > 0;
   if(!hasAnyExpense){
@@ -2373,7 +2579,7 @@ function renderInsightsView(){
   // ---------- Drilled-in screens ----------
   if(insightsDrillPath.length === 1){
     const sub = insightsDrillPath[0].value;
-    container.innerHTML = toggleHtml + renderBreadcrumb(data) + renderSubcategoryDrillScreen(data, sub);
+    container.innerHTML = toggleHtml + renderBreadcrumb(data) + `<div class="insights-fullspan">${renderSubcategoryDrillScreen(data, sub)}</div>`;
     wireBreadcrumb();
     wireDirectionToggle();
     wireMerchantDrillClicks();
@@ -2383,7 +2589,7 @@ function renderInsightsView(){
   if(insightsDrillPath.length === 2){
     const sub = insightsDrillPath[0].value;
     const merchantName = insightsDrillPath[1].value;
-    container.innerHTML = toggleHtml + renderBreadcrumb(data) + renderMerchantDrillScreen(data, sub, merchantName);
+    container.innerHTML = toggleHtml + renderBreadcrumb(data) + `<div class="insights-fullspan">${renderMerchantDrillScreen(data, sub, merchantName)}</div>`;
     wireBreadcrumb();
     wireDirectionToggle();
     wireTransactionClicks(data);
@@ -2451,12 +2657,16 @@ function renderDrillChart(monthlyAmounts, period){
   if(!ctx) return;
   if(insightsDrillChartInstance) insightsDrillChartInstance.destroy();
   const labels = period.map(m=>m.label);
+  const ctx2d = ctx.getContext('2d');
+  const fillGradient = ctx2d.createLinearGradient(0, 0, 0, ctx.clientHeight || 200);
+  fillGradient.addColorStop(0, 'rgba(193,88,63,0.24)');
+  fillGradient.addColorStop(1, 'rgba(193,88,63,0)');
   insightsDrillChartInstance = new Chart(ctx, {
     type: 'line',
     data: {
       labels,
       datasets: [{
-        data: monthlyAmounts, borderColor:'#C1583F', backgroundColor:'rgba(193,88,63,0.12)',
+        data: monthlyAmounts, borderColor:'#C1583F', backgroundColor:fillGradient,
         fill:true, tension:0.35, pointRadius:0, pointHoverRadius:5,
         pointHoverBackgroundColor:'#C1583F', borderWidth:2
       }]
@@ -2621,7 +2831,7 @@ function renderBreadcrumb(data){
   const crumbs = [{ label:'All Expenses', idx:-1 }];
   insightsDrillPath.forEach((p,i)=> crumbs.push({ label: p.value, idx: i }));
   return `
-    <div class="card" style="padding:10px 14px;display:flex;flex-wrap:wrap;gap:4px;align-items:center;">
+    <div class="card insights-fullspan" style="padding:10px 14px;display:flex;flex-wrap:wrap;gap:4px;align-items:center;">
       ${crumbs.map((c,i)=>`
         <span class="insights-crumb" data-idx="${c.idx}" style="cursor:pointer;font-size:12.5px;font-weight:${i===crumbs.length-1?'700':'500'};color:${i===crumbs.length-1?'var(--navy)':'var(--slate)'};">${c.label}</span>
         ${i<crumbs.length-1?'<span class="muted" style="font-size:12px;">›</span>':''}
@@ -4279,9 +4489,10 @@ function setSyncStatus(msg, color){
 }
 
 function updateSyncBadge(){
-  // Show a small cloud icon in topbar if sync is configured
-  const badge = document.getElementById('syncBadge');
-  if(badge) badge.style.display = syncUrl ? 'flex' : 'none';
+  // Show a small cloud icon in topbar (and its desktop sidebar copy) if sync is configured
+  document.querySelectorAll('.sync-badge').forEach(badge=>{
+    badge.style.display = syncUrl ? 'flex' : 'none';
+  });
 }
 
 // Silent background auto-sync — fires after every entry save/delete
@@ -4306,8 +4517,8 @@ function syncSleep(ms){ return new Promise(res => setTimeout(res, ms)); }
 
 async function autoSyncEntry(entry){
   if(!syncUrl) return;
-  const badge = document.getElementById('syncBadge');
-  if(badge){ badge.style.background = 'var(--gold)'; badge.title = 'Syncing…'; }
+  const badges = document.querySelectorAll('.sync-badge');
+  badges.forEach(badge=>{ badge.style.background = 'var(--gold)'; badge.title = 'Syncing…'; });
   const encoded = encodeURIComponent(JSON.stringify(entry));
   const url = `${syncUrl}?action=addone&data=${encoded}`;
   const MAX_RETRIES = 3;
@@ -4315,11 +4526,11 @@ async function autoSyncEntry(entry){
     try{
       const json = await jsonpFetch(url);
       if(json.error) throw new Error(json.error);
-      if(badge){ badge.style.background = 'var(--sage)'; badge.title = 'Synced to Google Sheet'; }
+      badges.forEach(badge=>{ badge.style.background = 'var(--sage)'; badge.title = 'Synced to Google Sheet'; });
       return;
     }catch(err){
       if(attempt < MAX_RETRIES){ await syncSleep(500 * Math.pow(2, attempt)); continue; }
-      if(badge){ badge.style.background = 'var(--terracotta)'; badge.title = 'Sync failed: ' + err.message; }
+      badges.forEach(badge=>{ badge.style.background = 'var(--terracotta)'; badge.title = 'Sync failed: ' + err.message; });
       showToast('Sync failed: ' + err.message.slice(0,60));
     }
   }
@@ -4328,19 +4539,19 @@ async function autoSyncEntry(entry){
 // Sync a deletion
 async function autoSyncDelete(id){
   if(!syncUrl) return;
-  const badge = document.getElementById('syncBadge');
-  if(badge){ badge.style.background = 'var(--gold)'; badge.title = 'Syncing…'; }
+  const badges = document.querySelectorAll('.sync-badge');
+  badges.forEach(badge=>{ badge.style.background = 'var(--gold)'; badge.title = 'Syncing…'; });
   const url = `${syncUrl}?action=deleteone&id=${id}`;
   const MAX_RETRIES = 3;
   for(let attempt = 0; attempt <= MAX_RETRIES; attempt++){
     try{
       const json = await jsonpFetch(url);
       if(json.error) throw new Error(json.error);
-      if(badge){ badge.style.background = 'var(--sage)'; badge.title = 'Synced to Google Sheet'; }
+      badges.forEach(badge=>{ badge.style.background = 'var(--sage)'; badge.title = 'Synced to Google Sheet'; });
       return;
     }catch(err){
       if(attempt < MAX_RETRIES){ await syncSleep(500 * Math.pow(2, attempt)); continue; }
-      if(badge){ badge.style.background = 'var(--terracotta)'; badge.title = 'Sync failed: ' + err.message; }
+      badges.forEach(badge=>{ badge.style.background = 'var(--terracotta)'; badge.title = 'Sync failed: ' + err.message; });
       showToast('Sync failed: ' + err.message.slice(0,60));
     }
   }
@@ -4533,6 +4744,19 @@ document.querySelectorAll('.accordion-header').forEach(header=>{
 document.getElementById('helpBtn').addEventListener('click', ()=>{
   document.getElementById('helpModalOverlay').classList.add('active');
 });
+// Desktop sidebar duplicates of the topbar Help/Settings buttons — same
+// actions, separate IDs since they're separate DOM nodes.
+document.getElementById('sidebarHelpBtn')?.addEventListener('click', ()=>{
+  document.getElementById('helpModalOverlay').classList.add('active');
+});
+// Sidebar branding: clone the topbar's logo image mark (rather than
+// duplicating the embedded base64 image in the HTML markup) into the
+// sidebar-brand header, ahead of its "Wealth.Me" text.
+(function initSidebarBrand(){
+  const brand = document.getElementById('sidebarBrand');
+  const mark = document.querySelector('.topbar .logo-mark');
+  if(brand && mark) brand.insertBefore(mark.cloneNode(true), brand.firstChild);
+})();
 document.getElementById('helpModalClose').addEventListener('click', ()=>{
   document.getElementById('helpModalOverlay').classList.remove('active');
 });
@@ -4810,6 +5034,7 @@ document.getElementById('copyScriptBtn').addEventListener('click', async ()=>{
 });
 
 document.getElementById('settingsBtn').addEventListener('click', openSettingsModal);
+document.getElementById('sidebarSettingsBtn')?.addEventListener('click', openSettingsModal);
 document.getElementById('settingsModalClose').addEventListener('click', closeSettingsModal);
 document.getElementById('settingsModalOverlay').addEventListener('click', (e)=>{
   if(e.target.id === 'settingsModalOverlay') closeSettingsModal();
@@ -5136,8 +5361,9 @@ function init(){
   switchView('home');
   updateSyncBadge();
   // Reset badge to neutral on every open — green only means a live successful sync
-  const badge = document.getElementById('syncBadge');
-  if(badge && syncUrl) badge.style.background = 'var(--slate)';
+  if(syncUrl){
+    document.querySelectorAll('.sync-badge').forEach(badge=>{ badge.style.background = 'var(--slate)'; });
+  }
   const versionEl = document.getElementById('versionFooterText');
   if(versionEl) versionEl.textContent = 'Wealth.Me · version ' + APP_VERSION;
 }
@@ -5712,8 +5938,24 @@ function renderHome(){
   const cash = computeMonthFinancials(homeDate, true);
 
   const balFig = document.getElementById('homeBalanceFig');
-  balFig.textContent = fmtMoney(cash.balance);
+  const prevRaw = balFig.dataset.rawValue !== undefined ? Number(balFig.dataset.rawValue) : cash.balance;
+  animateValue(balFig, prevRaw, cash.balance, 600, fmtMoney);
+  balFig.dataset.rawValue = cash.balance;
   balFig.classList.toggle('negative', cash.balance < 0);
+
+  const lastMonthDate = new Date(homeDate.getFullYear(), homeDate.getMonth() - 1, 1);
+  const lastMonthCash = computeMonthFinancials(lastMonthDate, true);
+  const delta = cash.balance - lastMonthCash.balance;
+  const deltaEl = document.getElementById('homeBalanceDelta');
+  if(deltaEl){
+    if(Math.abs(delta) < 0.005){
+      deltaEl.textContent = 'Flat vs last month';
+    }else{
+      const arrow = delta > 0 ? '▲' : '▼';
+      const cls = delta > 0 ? 'pos' : 'neg';
+      deltaEl.innerHTML = `<span class="${cls}">${arrow} ${fmtMoney(Math.abs(delta))}</span> vs last month`;
+    }
+  }
 
   document.getElementById('sumGross').textContent = fmtMoney(proj.grossIncome);
   document.getElementById('sumNet').textContent = fmtMoney(proj.netIncome);
@@ -5734,6 +5976,11 @@ function renderLineChart(){
   const {labels, values} = computeDailyCashflow(homeDate);
   const ctx = document.getElementById('lineChart');
   if(lineChartInstance){ lineChartInstance.destroy(); }
+
+  const ctx2d = ctx.getContext('2d');
+  const fillGradient = ctx2d.createLinearGradient(0, 0, 0, ctx.clientHeight || 200);
+  fillGradient.addColorStop(0, 'rgba(212,162,78,0.30)');
+  fillGradient.addColorStop(1, 'rgba(212,162,78,0)');
 
   // Find today's index within the chart (only relevant when viewing the current month)
   const now = new Date();
@@ -5769,7 +6016,7 @@ function renderLineChart(){
         label: 'Balance',
         data: values,
         borderColor: chartColors().lineColor,
-        backgroundColor: 'rgba(212,162,78,0.15)',
+        backgroundColor: fillGradient,
         fill: true,
         tension: 0.35,
         pointRadius: 0,
