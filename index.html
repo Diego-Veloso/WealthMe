@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v66 -->
+<!-- WEALTH.ME — v70 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,8 +11,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
-  --navy:#0F1B2D;
-  --cream:#F5F7F3;
+  --navy:#002448;
+  --cream:#F4F7FA;
   --card:#FFFFFF;
   --sage:#3E7C59;
   --sage-light:#E7F0EA;
@@ -24,8 +24,14 @@
   --slate-light:#E7EAED;
   --sky:#3E6FA8;
   --sky-light:#E8EFF6;
-  --line:#E3DFD6;
+  --line:#DCE4EC;
   --radius:10px;
+  /* Theme-independent brand tokens, sampled from the logo (navy #002448,
+     accent #00B0F0 toned down for large-area UI use) — not redefined
+     under [data-theme="dark"], so the sidebar stays consistently
+     branded regardless of the app's light/dark setting. */
+  --brand-navy:#002448;
+  --accent-blue:#0EA5E9;
 }
 [data-theme="dark"]{
   --navy:#E9E7E2;
@@ -293,15 +299,31 @@ main{
 /* ===== Lists ===== */
 .entry-list{list-style:none;margin:0;padding:0;}
 .entry-row{
+  position:relative;
+  overflow:hidden;
+  border-bottom:1px solid var(--line);
+}
+.entry-row:last-child{border-bottom:none;}
+.entry-row-content{
   display:flex;
   align-items:center;
   justify-content:space-between;
   padding:11px 2px;
-  border-bottom:1px solid var(--line);
+  background:var(--card);
+  position:relative;
+  cursor:pointer;
+  transform:translateX(0);
+}
+.entry-row-content:active{background:var(--slate-light);}
+.entry-row-actions{
+  position:absolute;top:0;right:0;bottom:0;
+  display:flex;align-items:stretch;
+}
+.swipe-delete-btn{
+  background:var(--terracotta);color:#fff;border:none;
+  width:84px;font-weight:700;font-size:13px;font-family:'Inter',sans-serif;
   cursor:pointer;
 }
-.entry-row:last-child{border-bottom:none;}
-.entry-row:active{background:var(--slate-light);}
 .entry-main{display:flex;align-items:center;gap:10px;}
 .entry-dot{
   width:8px;height:8px;border-radius:50%;flex-shrink:0;
@@ -555,6 +577,64 @@ main{
   z-index:200;opacity:0;transition:opacity .25s,transform .25s;pointer-events:none;
 }
 .toast.show{opacity:1;transform:translateX(-50%) translateY(-6px);}
+.toast.with-action{pointer-events:auto;display:flex;align-items:center;gap:14px;}
+.toast-action{background:none;border:none;color:var(--gold);font-weight:700;font-size:13px;font-family:'Inter',sans-serif;cursor:pointer;padding:0;}
+.btn-spinner{
+  display:inline-block;width:12px;height:12px;border-radius:50%;
+  border:2px solid rgba(255,255,255,0.4);border-top-color:currentColor;
+  vertical-align:-2px;margin-right:2px;
+  animation:btnSpin .6s linear infinite;
+}
+@keyframes btnSpin{to{transform:rotate(360deg);}}
+.btn:disabled{opacity:0.7;cursor:default;}
+
+/* Command Palette — top-anchored on both mobile and desktop, ID rules so
+   they win over the generic .modal-overlay/.modal bottom-sheet defaults
+   regardless of viewport. */
+#cmdPaletteOverlay{
+  align-items:flex-start;
+  padding-top:64px;
+  z-index:160;
+}
+#cmdPaletteModal{
+  width:100%;
+  max-width:560px;
+  border-radius:16px;
+  padding:14px 16px 8px;
+  max-height:64vh;
+  display:flex;
+  flex-direction:column;
+  animation:none;
+}
+#cmdPaletteInput{
+  width:100%;border:none;background:transparent;outline:none;
+  font-size:16px;font-family:'Inter',sans-serif;color:var(--navy);
+  padding:8px 2px 12px;border-bottom:1px solid var(--line);flex-shrink:0;
+}
+#cmdPaletteResults{overflow-y:auto;margin-top:6px;padding-bottom:8px;}
+.cmd-section-label{
+  font-size:11px;text-transform:uppercase;letter-spacing:0.6px;
+  color:var(--slate);font-weight:600;margin:10px 6px 4px;
+}
+.cmd-item{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:10px 8px;border-radius:8px;cursor:pointer;font-size:14px;
+}
+.cmd-item:hover,.cmd-item.active{background:var(--slate-light);}
+.cmd-item .cmd-meta{font-size:12px;color:var(--slate);flex-shrink:0;}
+.insights-info-btn{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:15px;height:15px;border-radius:50%;
+  border:1px solid var(--slate);color:var(--slate);
+  background:none;font-size:10px;font-weight:700;
+  font-family:Georgia,'Times New Roman',serif;font-style:italic;
+  cursor:pointer;margin-left:6px;line-height:1;padding:0;vertical-align:1px;
+}
+.insights-explain{
+  display:none;font-size:11.5px;color:var(--slate);line-height:1.5;
+  background:var(--slate-light);border-radius:8px;padding:8px 10px;margin:8px 0 4px;
+}
+.insights-explain.show{display:block;}
 .percent-note{font-size:12px;color:var(--slate);margin-top:-4px;margin-bottom:10px;}
 .year-progress-card .pct-label{
   display:flex;justify-content:space-between;font-size:13px;font-weight:600;margin-bottom:2px;
@@ -648,7 +728,10 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
     margin-right:auto;
   }
 
-  /* Bottom tab bar becomes a fixed left sidebar */
+  /* Bottom tab bar becomes a fixed left sidebar, styled in the logo's
+     navy/white/sky-blue palette — a persistently-branded nav regardless
+     of the app's light/dark theme setting (brand-navy and accent-blue
+     are theme-independent tokens). */
   .bottomnav{
     position:fixed;
     top:0; left:0; right:auto; bottom:0;
@@ -659,7 +742,8 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
     justify-content:flex-start;
     padding:28px 12px;
     border-top:none;
-    border-right:1px solid var(--line);
+    border-right:none;
+    background:var(--brand-navy);
     gap:4px;
   }
   .navtab{
@@ -669,9 +753,14 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
     padding:12px 14px;
     border-radius:10px;
     font-size:13px;
+    color:rgba(255,255,255,0.72);
   }
-  .navtab:hover{background:var(--slate-light);}
-  .navtab.active{background:var(--slate-light);}
+  .navtab:hover{background:rgba(255,255,255,0.08);color:#fff;}
+  .navtab.active{
+    background:rgba(255,255,255,0.10);
+    color:#fff;
+    box-shadow:inset 3px 0 0 var(--accent-blue);
+  }
   .navtab svg{width:20px;height:20px;}
   .sidebar-only-tab{display:flex;}
 
@@ -682,10 +771,11 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
     gap:10px;
     padding:4px 14px 20px;
     margin-bottom:8px;
-    border-bottom:1px solid var(--line);
+    border-bottom:1px solid rgba(255,255,255,0.15);
   }
   .sidebar-brand .logo-mark{width:32px;height:32px;}
-  .sidebar-brand .logo-text{font-size:17px;}
+  .sidebar-brand .logo-text{font-size:17px;color:#fff;}
+  .sidebar-brand .logo-text span{color:var(--accent-blue);}
   .sidebar-brand .sync-badge{margin-left:auto;}
 
   /* Settings/Help footer, pinned to the bottom of the sidebar column */
@@ -695,7 +785,7 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
     gap:2px;
     margin-top:auto;
     padding-top:12px;
-    border-top:1px solid var(--line);
+    border-top:1px solid rgba(255,255,255,0.15);
   }
   .sidebar-footer-btn{
     display:flex;
@@ -706,12 +796,12 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
     background:transparent;
     border-radius:10px;
     cursor:pointer;
-    color:var(--slate);
+    color:rgba(255,255,255,0.72);
     font-family:'Inter',sans-serif;
     font-size:13px;
     font-weight:600;
   }
-  .sidebar-footer-btn:hover{background:var(--slate-light);}
+  .sidebar-footer-btn:hover{background:rgba(255,255,255,0.08);color:#fff;}
   .sidebar-footer-btn svg{width:18px;height:18px;flex-shrink:0;}
 
   main{padding-bottom:32px;}
@@ -827,6 +917,9 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
     </div>
     <div style="display:flex;gap:8px;align-items:center;">
       <div id="syncBadge" class="sync-badge" title="Cloud Sync Active" style="display:none;width:8px;height:8px;border-radius:50%;background:var(--sage);flex-shrink:0;"></div>
+      <button class="icon-btn" id="cmdPaletteBtn" title="Search (Ctrl/Cmd+K)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </button>
       <button class="icon-btn" id="helpBtn" title="Instructions">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
       </button>
@@ -1152,6 +1245,10 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
          desktop they're duplicated here (with their own IDs, wired
          alongside the originals below) so the sidebar is self-contained. -->
     <div class="sidebar-footer">
+      <button class="sidebar-footer-btn" id="sidebarCmdPaletteBtn" title="Search (Ctrl/Cmd+K)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        Search
+      </button>
       <button class="sidebar-footer-btn" id="sidebarHelpBtn" title="Instructions">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
         Help
@@ -1685,6 +1782,14 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
       </div>
     </div>
   </div>
+
+  <!-- ===== Command Palette (Cmd/Ctrl+K, or the search button) ===== -->
+  <div class="modal-overlay" id="cmdPaletteOverlay">
+    <div class="modal" id="cmdPaletteModal">
+      <input type="text" id="cmdPaletteInput" placeholder="Search pages, transactions..." autocomplete="off">
+      <div id="cmdPaletteResults"></div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -1696,7 +1801,7 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 66;
+const APP_VERSION = 70;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -1825,11 +1930,25 @@ function animateValue(el, fromVal, toVal, duration, formatFn){
   requestAnimationFrame(step);
 }
 function uid(){ return nextId++; }
-function showToast(msg){
+let toastHideTimer = null;
+function showToast(msg, actionLabel, actionFn){
   const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'), 1800);
+  if(toastHideTimer) clearTimeout(toastHideTimer);
+  if(actionLabel && actionFn){
+    t.innerHTML = `<span>${msg}</span><button type="button" class="toast-action">${actionLabel}</button>`;
+    t.classList.add('show', 'with-action');
+    t.querySelector('.toast-action').addEventListener('click', ()=>{
+      clearTimeout(toastHideTimer);
+      t.classList.remove('show', 'with-action');
+      actionFn();
+    });
+    toastHideTimer = setTimeout(()=>t.classList.remove('show', 'with-action'), 5000);
+  }else{
+    t.textContent = msg;
+    t.classList.remove('with-action');
+    t.classList.add('show');
+    toastHideTimer = setTimeout(()=>t.classList.remove('show'), 1800);
+  }
 }
 // Parse a "YYYY-MM-DD" date string as a LOCAL date (avoids the off-by-one-day
 // bug that occurs when "YYYY-MM-DD" is parsed as UTC midnight and then read
@@ -2656,7 +2775,7 @@ function renderDrillChart(monthlyAmounts, period){
   const ctx = document.getElementById('insightsDrillChart');
   if(!ctx) return;
   if(insightsDrillChartInstance) insightsDrillChartInstance.destroy();
-  const labels = period.map(m=>m.label);
+  const labels = period.map(m => m.date.toLocaleString(undefined, {month:'short', year:'2-digit'}));
   const ctx2d = ctx.getContext('2d');
   const fillGradient = ctx2d.createLinearGradient(0, 0, 0, ctx.clientHeight || 200);
   fillGradient.addColorStop(0, 'rgba(193,88,63,0.24)');
@@ -2684,7 +2803,7 @@ function renderDrillChart(monthlyAmounts, period){
         }
       },
       scales: {
-        x: { grid:{display:false}, ticks:{maxTicksLimit:7, font:{size:9}, color: chartColors().tick} },
+        x: { grid:{display:false}, ticks:{font:{size:9}, color: chartColors().tick} },
         y: { grid:{color: chartColors().grid}, ticks:{display:false} }
       }
     }
@@ -2788,7 +2907,7 @@ function renderCostReductionCard(data){
     .filter(c => !NEEDS_SUBCATEGORIES.has(c.subcategory))
     .sort((a,b)=> b.total - a.total);
   if(discretionaryCats.length === 0 || n.discTotal === 0){
-    return `<div class="card"><div class="card-title">Cost-Cutting Opportunities</div><div class="muted" style="font-size:12px;">No non-essential spending detected in this period.</div></div>`;
+    return `<div class="card"><div class="card-title">Cost-Cutting Opportunities<button type="button" class="insights-info-btn" data-explain-toggle="cost-cut" title="What is this?">i</button></div><div class="insights-explain" id="explain-cost-cut">Non-essential spending is any subcategory not on your Needs list (set in Settings). No non-essential spending detected in this period.</div><div class="muted" style="font-size:12px;">No non-essential spending detected in this period.</div></div>`;
   }
   const monthlyDisc = n.discTotal / 12;
   const save10 = monthlyDisc * 0.10, save20 = monthlyDisc * 0.20;
@@ -2808,7 +2927,8 @@ function renderCostReductionCard(data){
 
   return `
     <div class="card">
-      <div class="card-title">Cost-Cutting Opportunities <span class="muted" style="font-weight:400;font-size:10.5px;">(non-essential spending)</span></div>
+      <div class="card-title">Cost-Cutting Opportunities <span class="muted" style="font-weight:400;font-size:10.5px;">(non-essential spending)</span><button type="button" class="insights-info-btn" data-explain-toggle="cost-cut" title="What is this?">i</button></div>
+      <div class="insights-explain" id="explain-cost-cut">Non-essential spending is any subcategory not on your Needs list (set in Settings). The 10%/20% projections apply that cut to your average monthly non-essential spend.</div>
       <div class="muted" style="font-size:11.5px;margin-bottom:10px;">Non-essential spending: ${fmtMoney(n.discTotal)} over 12 months (${n.discPct.toFixed(0)}% of total) — avg ${fmtMoney(monthlyDisc)}/month</div>
       <div style="background:var(--sky-light);border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:12.5px;line-height:1.5;">
         Cutting non-essential spending by <strong>10%</strong> saves ~${fmtMoney(save10)}/mo (${fmtMoney(save10*12)}/yr).<br>
@@ -2952,12 +3072,15 @@ function renderBiggestChangesCard(data){
 function renderUnusualSpendingCard(data){
   const monthWord = data.direction === 'future' ? 'the selected month' : 'this month';
   const verbWord = data.direction === 'future' ? 'is scheduled at' : 'was';
+  const explainHtml = `<button type="button" class="insights-info-btn" data-explain-toggle="unusual-spend" title="What is this?">i</button>`;
+  const explainPanel = `<div class="insights-explain" id="explain-unusual-spend">Flags a subcategory whose amount this period is well above its typical monthly average across the 12-month window, or a single transaction much larger than your usual entries in that category.</div>`;
   if(data.unusualCategories.length === 0 && data.unusualTransactions.length === 0){
-    return `<div class="card"><div class="card-title">Unusual Spending</div><div class="muted" style="font-size:12px;">Nothing unusual in ${monthWord} — spending looks consistent with your history.</div></div>`;
+    return `<div class="card"><div class="card-title">Unusual Spending${explainHtml}</div>${explainPanel}<div class="muted" style="font-size:12px;">Nothing unusual in ${monthWord} — spending looks consistent with your history.</div></div>`;
   }
   return `
     <div class="card">
-      <div class="card-title">Unusual Spending</div>
+      <div class="card-title">Unusual Spending${explainHtml}</div>
+      ${explainPanel}
       ${data.unusualCategories.map(u=>`
         <div style="display:flex;gap:8px;padding:6px 0;border-bottom:1px solid var(--slate-light);">
           <div style="font-size:15px;">⚠️</div>
@@ -3001,7 +3124,8 @@ function renderFinancialHealthCard(data){
     </div>`;
   return `
     <div class="card">
-      <div class="card-title">Financial Health</div>
+      <div class="card-title">Financial Health<button type="button" class="insights-info-btn" data-explain-toggle="fin-health" title="What is this?">i</button></div>
+      <div class="insights-explain" id="explain-fin-health">Savings rate is (income − expenses) ÷ income. Investment rate is investment contributions ÷ income. Expense-to-income ratio is expenses ÷ income. All are averaged across the 12-month period shown.</div>
       ${row('Savings rate', h.savingsRate)}
       ${row('Investment rate', h.investmentRate)}
       ${row('Expense-to-income ratio', h.expenseRatio)}
@@ -3065,7 +3189,7 @@ function renderMonthlyTrendChart(data){
         }
       },
       scales: {
-        x: { grid:{display:false}, ticks:{maxTicksLimit:7, font:{size:9}, color: chartColors().tick} },
+        x: { grid:{display:false}, ticks:{font:{size:9}, color: chartColors().tick} },
         y: { grid:{color: chartColors().grid}, ticks:{display:false} }
       }
     }
@@ -4029,13 +4153,35 @@ document.getElementById('entryDeleteBtn').addEventListener('click', ()=>{
   const idVal = document.getElementById('entryId').value;
   if(!idVal) return;
   const deletedId = Number(idVal);
+  const deletedEntry = entries.find(e=>e.id === deletedId);
   entries = entries.filter(e=>e.id !== deletedId);
   saveState();
   closeEntryModal();
-  showToast('Entry deleted');
   renderCurrentView(getActiveViewName());
-  autoSyncDelete(deletedId);
+  scheduleUndoableDelete(deletedEntry, deletedId);
 });
+
+// Deletes made via the entry edit modal are undoable for a short window:
+// the entry is removed from local state immediately (so the UI feels
+// instant), but the cloud-sheet delete is delayed until the window
+// passes, so an Undo click never has to reverse a sync that already
+// happened. Each pending delete tracks its own timer so rapid
+// successive deletes don't clobber each other's sync commitment.
+const pendingDeletes = new Map(); // id -> timer
+function scheduleUndoableDelete(deletedEntry, deletedId){
+  showToast('Entry deleted', 'Undo', ()=>{
+    const timer = pendingDeletes.get(deletedId);
+    if(timer){ clearTimeout(timer); pendingDeletes.delete(deletedId); }
+    entries.push(deletedEntry);
+    saveState();
+    renderCurrentView(getActiveViewName());
+  });
+  const timer = setTimeout(()=>{
+    pendingDeletes.delete(deletedId);
+    autoSyncDelete(deletedId);
+  }, 5000);
+  pendingDeletes.set(deletedId, timer);
+}
 
 document.getElementById('addFab').addEventListener('click', ()=> openEntryModal(null));
 document.getElementById('insightsFab').addEventListener('click', ()=> switchView('insights'));
@@ -4488,6 +4634,24 @@ function setSyncStatus(msg, color){
   if(el){ el.textContent = msg; el.style.color = color || 'var(--slate)'; }
 }
 
+// Disables Push/Pull and shows an inline spinner on them while a sync is
+// running, so there's visual feedback right at the button someone clicked
+// instead of only in the separate status line above.
+function setSyncButtonsBusy(busy){
+  ['syncPushBtn', 'syncPullBtn'].forEach(id=>{
+    const btn = document.getElementById(id);
+    if(!btn) return;
+    if(busy){
+      if(!btn.dataset.originalLabel) btn.dataset.originalLabel = btn.textContent;
+      btn.disabled = true;
+      btn.innerHTML = `<span class="btn-spinner"></span> Syncing…`;
+    }else{
+      btn.disabled = false;
+      if(btn.dataset.originalLabel) btn.textContent = btn.dataset.originalLabel;
+    }
+  });
+}
+
 function updateSyncBadge(){
   // Show a small cloud icon in topbar (and its desktop sidebar copy) if sync is configured
   document.querySelectorAll('.sync-badge').forEach(badge=>{
@@ -4573,6 +4737,7 @@ async function syncPush(){
   if(!syncUrl){ setSyncStatus('No URL configured.', 'var(--terracotta)'); return; }
   if(syncInProgress){ setSyncStatus('Sync in progress...'); return; }
   syncInProgress = true;
+  setSyncButtonsBusy(true);
   setSyncStatus('Pushing to Google Sheet…', 'var(--slate)');
   try{
     // Batched by entry count (not raw character chunks) — each batch is sent
@@ -4593,7 +4758,7 @@ async function syncPush(){
     // combining it with the first batch's write risked exceeding the timeout.
     setSyncStatus('Clearing existing sheet data…', 'var(--slate)');
     const clearResult = await jsonpFetch(`${syncUrl}?action=clearsheet`);
-    if(clearResult.error){ setSyncStatus('Push failed: ' + clearResult.error, 'var(--terracotta)'); syncInProgress=false; return; }
+    if(clearResult.error){ setSyncStatus('Push failed: ' + clearResult.error, 'var(--terracotta)'); return; }
 
     // Small pause between requests + retry-with-backoff on failure. Firing
     // ~700+ requests back-to-back with zero pacing risks Google throttling
@@ -4613,7 +4778,7 @@ async function syncPush(){
           : `Pushing… batch ${i+1}/${batches.length} (retry ${attempt}/${MAX_RETRIES})`, 'var(--slate)');
         try{
           const json = await jsonpFetch(url);
-          if(json.error){ setSyncStatus('Push failed: ' + json.error, 'var(--terracotta)'); syncInProgress=false; return; }
+          if(json.error){ setSyncStatus('Push failed: ' + json.error, 'var(--terracotta)'); return; }
           succeeded = true;
           break;
         }catch(err){
@@ -4621,21 +4786,24 @@ async function syncPush(){
           if(attempt < MAX_RETRIES) await sleep(500 * Math.pow(2, attempt)); // 0.5s, 1s, 2s, 4s
         }
       }
-      if(!succeeded){ setSyncStatus(`Push failed at batch ${i+1}/${batches.length}: ` + lastErr.message, 'var(--terracotta)'); syncInProgress=false; return; }
+      if(!succeeded){ setSyncStatus(`Push failed at batch ${i+1}/${batches.length}: ` + lastErr.message, 'var(--terracotta)'); return; }
       await sleep(150); // brief pacing gap between successful requests
     }
     setSyncStatus(`✓ Pushed ${entries.length} entries + settings to Sheet`, 'var(--sage)');
     showToast('Synced to Google Sheet');
   }catch(err){
     setSyncStatus('Push failed: ' + err.message, 'var(--terracotta)');
+  }finally{
+    syncInProgress = false;
+    setSyncButtonsBusy(false);
   }
-  syncInProgress = false;
 }
 
 async function syncPull(){
   if(!syncUrl){ setSyncStatus('No URL configured.', 'var(--terracotta)'); return; }
   if(syncInProgress){ setSyncStatus('Sync in progress...'); return; }
   syncInProgress = true;
+  setSyncButtonsBusy(true);
   setSyncStatus('Pulling from Google Sheet…', 'var(--slate)');
   try{
     const data = await jsonpFetch(`${syncUrl}?action=read`);
@@ -4662,8 +4830,10 @@ async function syncPull(){
     }
   }catch(err){
     setSyncStatus('Pull failed: ' + err.message, 'var(--terracotta)');
+  }finally{
+    syncInProgress = false;
+    setSyncButtonsBusy(false);
   }
-  syncInProgress = false;
 }
 
 async function syncTest(){
@@ -4739,6 +4909,123 @@ document.querySelectorAll('.accordion-header').forEach(header=>{
     body.classList.toggle('open', !isOpen);
     header.classList.toggle('open', !isOpen);
   });
+});
+
+// ===== Command Palette =====
+// Cmd/Ctrl+K (or the search button in the topbar / desktop sidebar) opens
+// a quick-jump search across pages and transactions. Kept as a single
+// self-contained block since nothing else in the app depends on it.
+function getCmdPalettePages(){
+  return [
+    {label:'Home', view:'home'},
+    {label:'Transactions', view:'transactions'},
+    {label:'Debts', view:'debts'},
+    {label:'Money', view:'money'},
+    {label:'Insights', view:'insights'},
+  ];
+}
+
+let cmdActiveIndex = -1;
+
+function openCommandPalette(){
+  const overlay = document.getElementById('cmdPaletteOverlay');
+  const input = document.getElementById('cmdPaletteInput');
+  overlay.classList.add('active');
+  input.value = '';
+  renderCmdResults('');
+  setTimeout(()=>input.focus(), 10);
+}
+function closeCommandPalette(){
+  document.getElementById('cmdPaletteOverlay').classList.remove('active');
+}
+
+function renderCmdResults(query){
+  const q = query.trim().toLowerCase();
+  const resultsEl = document.getElementById('cmdPaletteResults');
+  const pages = getCmdPalettePages().filter(p => !q || p.label.toLowerCase().includes(q));
+
+  let txMatches = [];
+  if(q.length > 0){
+    txMatches = entries.filter(e=>{
+      const hay = `${e.subcategory||''} ${e.notes||''} ${e.category||''} ${e.amount}`.toLowerCase();
+      return hay.includes(q);
+    }).slice(0, 8);
+  }
+
+  cmdActiveIndex = -1;
+  if(pages.length === 0 && txMatches.length === 0){
+    resultsEl.innerHTML = `<div class="muted" style="padding:14px 8px;">No matches</div>`;
+    return;
+  }
+
+  let html = '';
+  if(pages.length){
+    html += `<div class="cmd-section-label">Pages</div>`;
+    html += pages.map(p=>`<div class="cmd-item" data-kind="page" data-view="${p.view}"><span>${p.label}</span></div>`).join('');
+  }
+  if(txMatches.length){
+    html += `<div class="cmd-section-label">Transactions</div>`;
+    html += txMatches.map(e=>`
+      <div class="cmd-item" data-kind="entry" data-id="${e.id}">
+        <span>${e.subcategory || e.category}${e.notes ? ' — ' + e.notes : ''}</span>
+        <span class="cmd-meta">${fmtMoney(e.amount)}</span>
+      </div>`).join('');
+  }
+  resultsEl.innerHTML = html;
+}
+
+function activateCmdItem(item){
+  if(!item) return;
+  closeCommandPalette();
+  if(item.dataset.kind === 'page') switchView(item.dataset.view);
+  else if(item.dataset.kind === 'entry') openEntryModal(Number(item.dataset.id));
+}
+function updateCmdActiveHighlight(items){
+  items.forEach((el,i)=> el.classList.toggle('active', i === cmdActiveIndex));
+  if(items[cmdActiveIndex]) items[cmdActiveIndex].scrollIntoView({block:'nearest'});
+}
+
+document.getElementById('cmdPaletteInput').addEventListener('input', (e)=> renderCmdResults(e.target.value));
+document.getElementById('cmdPaletteInput').addEventListener('keydown', (e)=>{
+  const items = Array.from(document.querySelectorAll('#cmdPaletteResults .cmd-item'));
+  if(e.key === 'ArrowDown'){
+    e.preventDefault();
+    cmdActiveIndex = Math.min(cmdActiveIndex + 1, items.length - 1);
+    updateCmdActiveHighlight(items);
+  }else if(e.key === 'ArrowUp'){
+    e.preventDefault();
+    cmdActiveIndex = Math.max(cmdActiveIndex - 1, 0);
+    updateCmdActiveHighlight(items);
+  }else if(e.key === 'Enter'){
+    e.preventDefault();
+    activateCmdItem(items[cmdActiveIndex] || items[0]);
+  }else if(e.key === 'Escape'){
+    closeCommandPalette();
+  }
+});
+document.getElementById('cmdPaletteResults').addEventListener('click', (e)=>{
+  activateCmdItem(e.target.closest('.cmd-item'));
+});
+document.getElementById('cmdPaletteOverlay').addEventListener('click', (e)=>{
+  if(e.target.id === 'cmdPaletteOverlay') closeCommandPalette();
+});
+document.getElementById('cmdPaletteBtn').addEventListener('click', openCommandPalette);
+document.getElementById('sidebarCmdPaletteBtn').addEventListener('click', openCommandPalette);
+document.addEventListener('keydown', (e)=>{
+  if((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k'){
+    e.preventDefault();
+    openCommandPalette();
+  }
+});
+
+// Insights "explain this" info buttons — delegated on document since
+// Insights redraws its whole innerHTML on every update, which would
+// orphan any listeners bound directly to the buttons.
+document.addEventListener('click', (e)=>{
+  const btn = e.target.closest('.insights-info-btn');
+  if(!btn) return;
+  const panel = document.getElementById('explain-' + btn.dataset.explainToggle);
+  if(panel) panel.classList.toggle('show');
 });
 
 document.getElementById('helpBtn').addEventListener('click', ()=>{
@@ -5847,7 +6134,7 @@ function renderDetailTrendChart(){
         }
       },
       scales: {
-        x: { grid:{ display:false }, ticks:{ maxTicksLimit:8, font:{ size:10 }, color: chartColors().tick } },
+        x: { grid:{ display:false }, ticks:{ font:{ size:10 }, color: chartColors().tick } },
         y: { grid:{ color: chartColors().grid }, ticks:{ display:false } }
       }
     }
@@ -5904,20 +6191,23 @@ function renderEntryRow(e, selectable, isTransactionsPage){
     : '';
 
   return `
-    <li class="entry-row" data-id="${e.id}">
-      <div style="display:flex;align-items:center;gap:10px;min-width:0;flex:1;">
-        ${checkboxHtml}
-        <div class="entry-main">
-          <div class="entry-dot" style="background:${dotColor}"></div>
-          <div class="entry-info">
-            <div class="sub">${e.subcategory}</div>
-            <div class="meta">${metaText}</div>
+    <li class="entry-row" data-id="${e.id}"${selectable ? ' data-selectable="1"' : ''}>
+      <div class="entry-row-actions"><button type="button" class="swipe-delete-btn" data-id="${e.id}">Delete</button></div>
+      <div class="entry-row-content">
+        <div style="display:flex;align-items:center;gap:10px;min-width:0;flex:1;">
+          ${checkboxHtml}
+          <div class="entry-main">
+            <div class="entry-dot" style="background:${dotColor}"></div>
+            <div class="entry-info">
+              <div class="sub">${e.subcategory}</div>
+              <div class="meta">${metaText}</div>
+            </div>
           </div>
         </div>
-      </div>
-      <div style="display:flex;align-items:center;flex-shrink:0;">
-        <div class="entry-amt ${amtClass}">${displayAmt}</div>
-        <span class="status-badge ${e.status.toLowerCase()}">${e.status}</span>
+        <div style="display:flex;align-items:center;flex-shrink:0;">
+          <div class="entry-amt ${amtClass}">${displayAmt}</div>
+          <span class="status-badge ${e.status.toLowerCase()}">${e.status}</span>
+        </div>
       </div>
     </li>
   `;
@@ -5926,10 +6216,88 @@ function attachEntryRowHandlers(container){
   container.querySelectorAll('.entry-row').forEach(row=>{
     row.addEventListener('click', (e)=>{
       if(e.target.closest('.entry-select')) return;
+      if(row.classList.contains('swiped')) return; // capture handler below closes it instead
       const id = Number(row.dataset.id);
       openEntryModal(id);
     });
+    if(!row.dataset.selectable) attachSwipeToDelete(row);
   });
+}
+
+// Swipe-left-to-delete on mobile transaction rows. Runs purely off touch
+// events, so it's naturally inert under mouse/pointer input on desktop —
+// no separate gating needed. A swiped-open row is tracked globally so
+// opening a new one closes whichever was previously open.
+let openSwipeRow = null;
+function attachSwipeToDelete(row){
+  const content = row.querySelector('.entry-row-content');
+  const deleteBtn = row.querySelector('.swipe-delete-btn');
+  if(!content) return;
+  const REVEAL = -84;
+  let startX = 0, dx = 0, dragging = false;
+
+  content.addEventListener('touchstart', (e)=>{
+    startX = e.touches[0].clientX;
+    dragging = true;
+    content.style.transition = 'none';
+  }, {passive:true});
+
+  content.addEventListener('touchmove', (e)=>{
+    if(!dragging) return;
+    dx = e.touches[0].clientX - startX;
+    const base = row.classList.contains('swiped') ? REVEAL : 0;
+    let x = base + dx;
+    if(x > 0) x = 0;
+    if(x < REVEAL) x = REVEAL + (x - REVEAL) * 0.25; // resistance past full reveal
+    content.style.transform = `translateX(${x}px)`;
+  }, {passive:true});
+
+  content.addEventListener('touchend', ()=>{
+    dragging = false;
+    content.style.transition = 'transform .2s ease';
+    const base = row.classList.contains('swiped') ? REVEAL : 0;
+    if(base + dx < REVEAL / 2) openSwipedRow(row, content);
+    else closeSwipedRow(row, content);
+    dx = 0;
+  });
+
+  // While swiped open, a tap on the row closes it instead of opening
+  // the edit modal — capture phase so it runs before the row's own
+  // bubble-phase click listener.
+  content.addEventListener('click', (e)=>{
+    if(row.classList.contains('swiped')){
+      e.stopPropagation();
+      e.preventDefault();
+      closeSwipedRow(row, content);
+    }
+  }, true);
+
+  if(deleteBtn){
+    deleteBtn.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      const id = Number(row.dataset.id);
+      const deletedEntry = entries.find(en=>en.id === id);
+      if(!deletedEntry) return;
+      entries = entries.filter(en=>en.id !== id);
+      saveState();
+      renderCurrentView(getActiveViewName());
+      scheduleUndoableDelete(deletedEntry, id);
+    });
+  }
+}
+function openSwipedRow(row, content){
+  if(openSwipeRow && openSwipeRow !== row){
+    const prevContent = openSwipeRow.querySelector('.entry-row-content');
+    if(prevContent) closeSwipedRow(openSwipeRow, prevContent);
+  }
+  row.classList.add('swiped');
+  content.style.transform = 'translateX(-84px)';
+  openSwipeRow = row;
+}
+function closeSwipedRow(row, content){
+  row.classList.remove('swiped');
+  content.style.transform = 'translateX(0)';
+  if(openSwipeRow === row) openSwipeRow = null;
 }
 function renderHome(){
   document.getElementById('homeMonthLabel').textContent = fmtMonthYear(homeDate);
