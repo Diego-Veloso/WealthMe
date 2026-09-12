@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v77 -->
+<!-- WEALTH.ME — v79 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -355,13 +355,22 @@ main{
   transform:translateX(0);
 }
 .entry-row-content:active{background:var(--slate-light);}
-.entry-row-actions{
+.entry-row-actions-left{
+  position:absolute;top:0;left:0;bottom:0;
+  display:flex;align-items:stretch;
+}
+.entry-row-actions-right{
   position:absolute;top:0;right:0;bottom:0;
   display:flex;align-items:stretch;
 }
 .swipe-delete-btn{
   background:var(--terracotta);color:#fff;border:none;
   width:84px;font-weight:700;font-size:13px;font-family:'Inter',sans-serif;
+  cursor:pointer;
+}
+.swipe-close-btn{
+  background:var(--sage);color:#fff;border:none;
+  width:104px;font-weight:700;font-size:13px;font-family:'Inter',sans-serif;
   cursor:pointer;
 }
 .entry-main{display:flex;align-items:center;gap:10px;}
@@ -1866,7 +1875,7 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 77;
+const APP_VERSION = 79;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -6301,7 +6310,8 @@ function renderEntryRow(e, selectable, isTransactionsPage){
 
   return `
     <li class="entry-row" data-id="${e.id}"${selectable ? ' data-selectable="1"' : ''}>
-      <div class="entry-row-actions"><button type="button" class="swipe-delete-btn" data-id="${e.id}">Delete</button></div>
+      <div class="entry-row-actions entry-row-actions-left"><button type="button" class="swipe-delete-btn" data-id="${e.id}">Delete</button></div>
+      <div class="entry-row-actions entry-row-actions-right"><button type="button" class="swipe-close-btn" data-id="${e.id}">Mark Closed</button></div>
       <div class="entry-row-content">
         <div style="display:flex;align-items:center;gap:10px;min-width:0;flex:1;">
           ${checkboxHtml}
@@ -6325,25 +6335,34 @@ function attachEntryRowHandlers(container){
   container.querySelectorAll('.entry-row').forEach(row=>{
     row.addEventListener('click', (e)=>{
       if(e.target.closest('.entry-select')) return;
-      if(row.classList.contains('swiped')) return; // capture handler below closes it instead
+      if(row.dataset.swipeState) return; // capture handler below closes it instead
       const id = Number(row.dataset.id);
       openEntryModal(id);
     });
-    if(!row.dataset.selectable) attachSwipeToDelete(row);
+    attachSwipeActions(row);
   });
 }
 
-// Swipe-left-to-delete on mobile transaction rows. Runs purely off touch
-// events, so it's naturally inert under mouse/pointer input on desktop —
-// no separate gating needed. A swiped-open row is tracked globally so
-// opening a new one closes whichever was previously open.
+// Swipe on mobile transaction rows: right reveals Delete (left-side
+// panel), left reveals Mark Closed (right-side panel). Runs purely off
+// touch events, so it's naturally inert under mouse/pointer input on
+// desktop — no separate gating needed. A swiped-open row is tracked
+// globally so opening a new one closes whichever was previously open.
 let openSwipeRow = null;
-function attachSwipeToDelete(row){
+function attachSwipeActions(row){
   const content = row.querySelector('.entry-row-content');
   const deleteBtn = row.querySelector('.swipe-delete-btn');
+  const closeBtn = row.querySelector('.swipe-close-btn');
   if(!content) return;
-  const REVEAL = -84;
+  const REVEAL_RIGHT = 84;   // swipe right -> Delete panel (left side)
+  const REVEAL_LEFT = -104;  // swipe left -> Mark Closed panel (right side)
   let startX = 0, dx = 0, dragging = false;
+
+  function baseX(){
+    if(row.dataset.swipeState === 'delete') return REVEAL_RIGHT;
+    if(row.dataset.swipeState === 'close') return REVEAL_LEFT;
+    return 0;
+  }
 
   content.addEventListener('touchstart', (e)=>{
     startX = e.touches[0].clientX;
@@ -6354,18 +6373,18 @@ function attachSwipeToDelete(row){
   content.addEventListener('touchmove', (e)=>{
     if(!dragging) return;
     dx = e.touches[0].clientX - startX;
-    const base = row.classList.contains('swiped') ? REVEAL : 0;
-    let x = base + dx;
-    if(x > 0) x = 0;
-    if(x < REVEAL) x = REVEAL + (x - REVEAL) * 0.25; // resistance past full reveal
+    let x = baseX() + dx;
+    if(x > REVEAL_RIGHT) x = REVEAL_RIGHT + (x - REVEAL_RIGHT) * 0.25; // resistance past full reveal
+    if(x < REVEAL_LEFT) x = REVEAL_LEFT + (x - REVEAL_LEFT) * 0.25;
     content.style.transform = `translateX(${x}px)`;
   }, {passive:true});
 
   content.addEventListener('touchend', ()=>{
     dragging = false;
     content.style.transition = 'transform .2s ease';
-    const base = row.classList.contains('swiped') ? REVEAL : 0;
-    if(base + dx < REVEAL / 2) openSwipedRow(row, content);
+    const finalX = baseX() + dx;
+    if(finalX > REVEAL_RIGHT / 2) openSwipedRow(row, content, 'delete', REVEAL_RIGHT);
+    else if(finalX < REVEAL_LEFT / 2) openSwipedRow(row, content, 'close', REVEAL_LEFT);
     else closeSwipedRow(row, content);
     dx = 0;
   });
@@ -6374,7 +6393,7 @@ function attachSwipeToDelete(row){
   // the edit modal — capture phase so it runs before the row's own
   // bubble-phase click listener.
   content.addEventListener('click', (e)=>{
-    if(row.classList.contains('swiped')){
+    if(row.dataset.swipeState){
       e.stopPropagation();
       e.preventDefault();
       closeSwipedRow(row, content);
@@ -6393,18 +6412,32 @@ function attachSwipeToDelete(row){
       scheduleUndoableDelete(deletedEntry, id);
     });
   }
+
+  if(closeBtn){
+    closeBtn.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      const id = Number(row.dataset.id);
+      const entry = entries.find(en=>en.id === id);
+      if(!entry) return;
+      entry.status = 'Closed';
+      saveState();
+      renderCurrentView(getActiveViewName());
+      showToast('Marked as Closed');
+      if(syncUrl) autoSyncEntry(entry);
+    });
+  }
 }
-function openSwipedRow(row, content){
+function openSwipedRow(row, content, state, revealX){
   if(openSwipeRow && openSwipeRow !== row){
     const prevContent = openSwipeRow.querySelector('.entry-row-content');
     if(prevContent) closeSwipedRow(openSwipeRow, prevContent);
   }
-  row.classList.add('swiped');
-  content.style.transform = 'translateX(-84px)';
+  row.dataset.swipeState = state;
+  content.style.transform = `translateX(${revealX}px)`;
   openSwipeRow = row;
 }
 function closeSwipedRow(row, content){
-  row.classList.remove('swiped');
+  delete row.dataset.swipeState;
   content.style.transform = 'translateX(0)';
   if(openSwipeRow === row) openSwipeRow = null;
 }
