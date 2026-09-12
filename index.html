@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v70 -->
+<!-- WEALTH.ME — v73 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -399,7 +399,7 @@ main{
   font-size:11px;
   font-weight:600;
 }
-.navtab.active{color:var(--navy);}
+.navtab.active{color:var(--accent-blue);}
 .navtab svg{width:21px;height:21px;}
 
 /* Desktop-only sidebar additions — hidden on mobile so the bottom tab
@@ -1801,7 +1801,7 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 70;
+const APP_VERSION = 73;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -4745,13 +4745,29 @@ async function syncPush(){
     // arrival. Nothing is staged in PropertiesService, so this scales past
     // the ~500KB Properties quota regardless of how many entries there are.
     const allRows = entries.concat(buildSettingsRows());
-    // Kept small: at 50 entries/batch, the percent-encoded URL (every quote,
-    // colon, comma, brace expands to 3 chars) ran ~15-20KB — past Apps
-    // Script's practical ~8KB GET URL limit, which silently hangs the
-    // request instead of erroring. 15 entries/batch keeps URLs safely small.
-    const BATCH_SIZE = 15;
+    // Capped by actual encoded character length, not a fixed entry count.
+    // A fixed count (previously 15) protects the average case, but a batch
+    // that happens to contain entries with unusually long notes/text can
+    // still produce a URL past Apps Script's practical ~8KB GET URL limit
+    // — which silently hangs the request instead of erroring, and fails
+    // at that exact batch every single time since it's data-dependent,
+    // not a transient throttle. Sizing by real length is safe regardless
+    // of what any individual entry contains.
+    const MAX_BATCH_CHARS = 6000; // safe margin under the ~8KB practical limit
     const batches = [];
-    for(let i = 0; i < allRows.length; i += BATCH_SIZE) batches.push(allRows.slice(i, i + BATCH_SIZE));
+    let current = [];
+    let currentChars = 0;
+    for(const row of allRows){
+      const rowChars = encodeURIComponent(JSON.stringify(row)).length;
+      if(current.length > 0 && currentChars + rowChars > MAX_BATCH_CHARS){
+        batches.push(current);
+        current = [];
+        currentChars = 0;
+      }
+      current.push(row);
+      currentChars += rowChars;
+    }
+    if(current.length > 0) batches.push(current);
 
     // Clear the sheet as its own request, separate from writing data — on a
     // large sheet, clearing thousands of rows can itself take a while, and
@@ -4763,10 +4779,13 @@ async function syncPush(){
     // Small pause between requests + retry-with-backoff on failure. Firing
     // ~700+ requests back-to-back with zero pacing risks Google throttling
     // or dropping a connection mid-sequence (surfaces as "Load failed"
-    // rather than a normal error response) — a brief gap plus a few retries
-    // makes the push resilient to an occasional dropped request.
+    // rather than a normal error response). A wider pacing gap makes that
+    // less likely to happen in the first place; a longer backoff ceiling
+    // (up to 16s between retries, ~31.5s cumulative) gives a real chance
+    // to ride out a throttle window that needs 30-60s to clear, rather
+    // than giving up after only ~7.5s of total backoff.
     const sleep = ms => new Promise(res => setTimeout(res, ms));
-    const MAX_RETRIES = 4;
+    const MAX_RETRIES = 6;
     for(let i = 0; i < batches.length; i++){
       const encoded = encodeURIComponent(JSON.stringify(batches[i]));
       const url = `${syncUrl}?action=batch&index=${i}&total=${batches.length}&data=${encoded}`;
@@ -4783,11 +4802,11 @@ async function syncPush(){
           break;
         }catch(err){
           lastErr = err;
-          if(attempt < MAX_RETRIES) await sleep(500 * Math.pow(2, attempt)); // 0.5s, 1s, 2s, 4s
+          if(attempt < MAX_RETRIES) await sleep(500 * Math.pow(2, attempt)); // 0.5s, 1s, 2s, 4s, 8s, 16s, 32s
         }
       }
       if(!succeeded){ setSyncStatus(`Push failed at batch ${i+1}/${batches.length}: ` + lastErr.message, 'var(--terracotta)'); return; }
-      await sleep(150); // brief pacing gap between successful requests
+      await sleep(300); // wider pacing gap between successful requests
     }
     setSyncStatus(`✓ Pushed ${entries.length} entries + settings to Sheet`, 'var(--sage)');
     showToast('Synced to Google Sheet');
