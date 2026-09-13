@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v79 -->
+<!-- WEALTH.ME — v86 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -542,6 +542,20 @@ main{
   font-family:'Inter',sans-serif;font-size:19px;margin:0;font-weight:600;
 }
 .modal-header .icon-btn{width:32px;height:32px;}
+.pill-btn{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:5px 11px;
+  border:none;border-radius:999px;
+  background:var(--sky-light);
+  color:var(--sky);
+  font-family:'Inter',sans-serif;
+  font-size:11.5px;font-weight:700;
+  cursor:pointer;
+  white-space:nowrap;
+  flex-shrink:0;
+}
+.pill-btn:hover{background:var(--slate-light);}
+.pill-btn svg{width:13px;height:13px;flex-shrink:0;}
 
 .field{margin-bottom:13px;}
 .field label{
@@ -982,6 +996,10 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
           Debts
         </button>
+        <button class="topbar-menu-item" id="menuCategoryDetailBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+          Category Detail
+        </button>
         <button class="topbar-menu-item" data-view="money">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
           Money
@@ -1070,7 +1088,7 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
     <section class="view" id="view-detail">
       <div class="month-nav" style="justify-content:flex-start;gap:10px;">
         <button id="detailBack">&#8249;</button>
-        <div class="label" id="detailBackLabel" style="text-align:left;min-width:auto;">Detail</div>
+        <div class="label" id="detailBackLabel" style="text-align:left;min-width:auto;">Category Detail</div>
       </div>
       <div class="month-nav">
         <button id="detailPrev">&#8249;</button>
@@ -1120,7 +1138,6 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
     <!-- ============ TRANSACTIONS VIEW ============ -->
     <section class="view" id="view-transactions">
       <h2 class="card-title" style="margin:10px 0 14px;">Transactions</h2>
-      <button class="btn btn-secondary btn-block" id="recurringOpenBtn" style="margin-bottom:12px;">Add Recurring</button>
       <div class="search-bar">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         <input type="text" id="txSearchInput" placeholder="Search by category, subcategory, notes, account...">
@@ -1338,7 +1355,13 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
   <div class="modal-overlay" id="entryModalOverlay">
     <div class="modal">
       <div class="modal-header">
-        <h3 id="entryModalTitle">Add Entry</h3>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <h3 id="entryModalTitle">Add Entry</h3>
+          <button class="pill-btn" id="entryAddRecurringBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+            Add Recurring
+          </button>
+        </div>
         <button class="icon-btn" id="entryModalClose">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
@@ -1875,7 +1898,7 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 79;
+const APP_VERSION = 86;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -2388,15 +2411,16 @@ function generateFinancialInsights(selectedDate, direction){
   // Instead, compare the selected month against what comes NEXT within the
   // same forward projection: the following month, and the same month a
   // year ahead — both using the window's status filter (Open+Closed),
-  // since they're forward/projected months too.
+  // since they're forward/projected months too. These objects are hoisted
+  // to outer scope (not just inside the future branch) so categoryTotals
+  // below can reuse them for the same forward-looking comparisons.
+  const nextMonthDate = new Date(selectedDate.getFullYear(), selectedDate.getMonth()+1, 1);
+  const nextMonthObj = { year: nextMonthDate.getFullYear(), month: nextMonthDate.getMonth() };
+  const nextYearSameMonthDate = new Date(selectedDate.getFullYear()+1, selectedDate.getMonth(), 1);
+  const nextYearSameMonthObj = { year: nextYearSameMonthDate.getFullYear(), month: nextYearSameMonthDate.getMonth() };
   let nextMonthExpense = null, sameMonthNextYearExpense = null;
   if(direction === 'future'){
-    const nextMonthDate = new Date(selectedDate.getFullYear(), selectedDate.getMonth()+1, 1);
-    const nextMonthObj = { year: nextMonthDate.getFullYear(), month: nextMonthDate.getMonth() };
     nextMonthExpense = amountForMonth('Expense', null, nextMonthObj, windowStatusFilter);
-
-    const nextYearSameMonthDate = new Date(selectedDate.getFullYear()+1, selectedDate.getMonth(), 1);
-    const nextYearSameMonthObj = { year: nextYearSameMonthDate.getFullYear(), month: nextYearSameMonthDate.getMonth() };
     sameMonthNextYearExpense = amountForMonth('Expense', null, nextYearSameMonthObj, windowStatusFilter);
   }
 
@@ -2433,13 +2457,17 @@ function generateFinancialInsights(selectedDate, direction){
     const selAmt = subEntriesAllStatus.filter(e=>inMonth(e, selMonth)).reduce((a,e)=>a+Number(e.amount),0);
     const prevAmt = amountForMonth('Expense', sub, prevMonthObj, null);
     const lastYearAmt = amountForMonth('Expense', sub, lastYearObj, null);
+    // Forward-looking equivalents, only meaningful (and only computed) in
+    // future mode — mirrors the overview's vsNextMonth/vsSameMonthNextYear.
+    const nextMonthAmt = direction === 'future' ? amountForMonth('Expense', sub, nextMonthObj, windowStatusFilter) : null;
+    const nextYearAmt = direction === 'future' ? amountForMonth('Expense', sub, nextYearSameMonthObj, windowStatusFilter) : null;
     return {
       subcategory: sub, total,
       pctOfTotal: totalExpenses12mo > 0 ? (total/totalExpenses12mo*100) : 0,
       monthlyAvg, monthlyAvgAllStatus,
-      selAmt, prevAmt, lastYearAmt,
-      momChange: safePctChange(selAmt, prevAmt),
-      yoyChange: safePctChange(selAmt, lastYearAmt),
+      selAmt, prevAmt, lastYearAmt, nextMonthAmt, nextYearAmt,
+      momChange: direction === 'future' ? safePctChange(nextMonthAmt, selAmt) : safePctChange(selAmt, prevAmt),
+      yoyChange: direction === 'future' ? safePctChange(nextYearAmt, selAmt) : safePctChange(selAmt, lastYearAmt),
       entries: subEntries
     };
   }).filter(c=>c.total > 0).sort((a,b)=> b.total - a.total);
@@ -2554,11 +2582,21 @@ function generateFinancialInsights(selectedDate, direction){
       : frequency === 'Quarterly' ? meanAmt/3
       : frequency === 'Yearly' ? meanAmt/12
       : (amounts.reduce((a,v)=>a+v,0) / 12);
+    // Project the next occurrence forward from the last known one, in
+    // avgGap-day steps, until it lands on or after the reference month —
+    // used to show an upcoming date instead of a past one in future mode.
+    let nextDate = last.date;
+    if(avgGap > 0){
+      let d = parseLocalDate(last.date);
+      let guard = 0;
+      while(d < selectedDate && guard < 60){ d = new Date(d.getTime() + avgGap*86400000); guard++; }
+      nextDate = formatLocalDate(d);
+    }
     return {
       subcategory: last.subcategory,
       label: last.notes ? last.notes.trim() : last.subcategory,
       monthlyAmount, annualized: monthlyAmount*12,
-      frequency, occurrences: sorted.length, lastDate: last.date, confidence
+      frequency, occurrences: sorted.length, lastDate: last.date, nextDate, confidence
     };
   }).filter(Boolean).sort((a,b)=> b.monthlyAmount - a.monthlyAmount);
   const estimatedRecurringMonthly = recurring.reduce((a,r)=>a+r.monthlyAmount,0);
@@ -2629,7 +2667,7 @@ function generateFinancialInsights(selectedDate, direction){
   if(biggestIncreasesYoY[0] && biggestIncreasesYoY[0].pctChange.pct !== null){
     const c = biggestIncreasesYoY[0];
     const changeColor = c.pctChange.pct >= 0 ? 'var(--terracotta)' : 'var(--sage)';
-    keyInsights.push({ icon:'📈', text:`<strong>${c.subcategory}</strong> spending is <strong style="color:${changeColor}">${c.pctChange.label}</strong> compared with the same month last year.`, weight: 60 });
+    keyInsights.push({ icon:'📈', text:`<strong>${c.subcategory}</strong> spending is <strong style="color:${changeColor}">${c.pctChange.label}</strong> ${direction==='future' ? 'projected compared with the same month next year' : 'compared with the same month last year'}.`, weight: 60 });
   }
   if(unusualCategories[0]){
     const u = unusualCategories[0];
@@ -2645,9 +2683,10 @@ function generateFinancialInsights(selectedDate, direction){
   if(financialHealth.savingsRate !== null){
     keyInsights.push({ icon: financialHealth.savingsRate >= 0 ? '✅' : '🚨', text:`Your overall savings rate over this period is <strong>${financialHealth.savingsRate.toFixed(0)}%</strong>.`, weight: 55 });
   }
-  if(overview.vsPrevMonth.pct !== null && Math.abs(overview.vsPrevMonth.pct) >= 10){
-    const vsColor = overview.vsPrevMonth.pct > 0 ? 'var(--terracotta)' : 'var(--sage)';
-    keyInsights.push({ icon: overview.vsPrevMonth.pct>0?'📈':'📉', text:`${direction==='future'?'Scheduled':'Total'} expenses this month are <strong style="color:${vsColor}">${overview.vsPrevMonth.label}</strong> vs. last month.`, weight: 70 });
+  const monthVsAdjacent = direction === 'future' ? overview.vsNextMonth : overview.vsPrevMonth;
+  if(monthVsAdjacent.pct !== null && Math.abs(monthVsAdjacent.pct) >= 10){
+    const vsColor = monthVsAdjacent.pct > 0 ? 'var(--terracotta)' : 'var(--sage)';
+    keyInsights.push({ icon: monthVsAdjacent.pct>0?'📈':'📉', text:`${direction==='future'?'Scheduled':'Total'} expenses this month are <strong style="color:${vsColor}">${monthVsAdjacent.label}</strong> vs. ${direction==='future'?'next':'last'} month.`, weight: 70 });
   }
   keyInsights.sort((a,b)=>b.weight-a.weight);
 
@@ -2790,14 +2829,17 @@ function renderInsightsView(){
   }
 
   // ---------- Top level ----------
+  // Selected Month Comparison and Biggest Changes are both backward-looking
+  // (vs last month / vs last year), which doesn't make sense for a forward
+  // 12-month projection — shown only for Past 12 Months.
   container.innerHTML = toggleHtml + `
     ${renderOverviewCard(data)}
     ${renderKeyInsightsCard(data)}
-    ${renderMonthComparisonCard(data)}
+    ${insightsDirection === 'past' ? renderMonthComparisonCard(data) : ''}
     ${renderCategoryRankingCard(data)}
     ${renderCostReductionCard(data)}
     ${renderMonthlyTrendCard(data)}
-    ${renderBiggestChangesCard(data)}
+    ${insightsDirection === 'past' ? renderBiggestChangesCard(data) : ''}
     ${renderUnusualSpendingCard(data)}
     ${renderRecurringCard(data)}
     ${renderFinancialHealthCard(data)}
@@ -2959,7 +3001,7 @@ function renderCategoryRankingCard(data){
         </div>
         <div style="text-align:right;">
           <div class="breakdown-amt" style="font-size:13px;">${fmtMoney(c.total)}</div>
-          <div class="muted" style="font-size:10.5px;color:${pctColor(c.momChange.pct,true)}">MoM ${c.momChange.label}</div>
+          <div class="muted" style="font-size:10.5px;color:${pctColor(c.momChange.pct,true)}">${data.direction === 'future' ? 'Next mo' : 'MoM'} ${c.momChange.label}</div>
         </div>
       </div>
       <div style="height:6px;background:var(--slate-light);border-radius:4px;overflow:hidden;">
@@ -2969,7 +3011,7 @@ function renderCategoryRankingCard(data){
   `).join('');
   return `
     <div class="card">
-      <div class="card-title">Where Your Money Went</div>
+      <div class="card-title">Where Your Money ${data.direction === 'future' ? 'Go' : 'Went'}</div>
       <div class="muted" style="font-size:11px;margin-bottom:6px;">Tap a category to drill in</div>
       ${rows}
     </div>`;
@@ -3050,10 +3092,10 @@ function renderSubcategoryDrillScreen(data, sub){
       <div style="font-weight:700;font-size:22px;font-family:'Inter',sans-serif;margin-bottom:2px;">${fmtMoney(cat.total)}</div>
       <div class="muted" style="font-size:11.5px;margin-bottom:12px;">${cat.pctOfTotal.toFixed(1)}% of total expenses · avg ${fmtMoney(cat.monthlyAvg)}/mo</div>
       <div style="display:flex;justify-content:space-between;font-size:11.5px;padding:4px 0;border-top:1px solid var(--slate-light);">
-        <span class="muted">vs previous month</span><span style="color:${pctColor(cat.momChange.pct,true)}">${pctArrow(cat.momChange.pct)} ${fmtSigned(cat.selAmt-cat.prevAmt)} (${cat.momChange.label})</span>
+        <span class="muted">${data.direction === 'future' ? 'vs next month' : 'vs previous month'}</span><span style="color:${pctColor(cat.momChange.pct,true)}">${pctArrow(cat.momChange.pct)} ${fmtSigned(data.direction === 'future' ? cat.nextMonthAmt-cat.selAmt : cat.selAmt-cat.prevAmt)} (${cat.momChange.label})</span>
       </div>
       <div style="display:flex;justify-content:space-between;font-size:11.5px;padding:4px 0;">
-        <span class="muted">vs same month last year</span><span style="color:${pctColor(cat.yoyChange.pct,true)}">${pctArrow(cat.yoyChange.pct)} ${fmtSigned(cat.selAmt-cat.lastYearAmt)} (${cat.yoyChange.label})</span>
+        <span class="muted">${data.direction === 'future' ? 'vs same month next year' : 'vs same month last year'}</span><span style="color:${pctColor(cat.yoyChange.pct,true)}">${pctArrow(cat.yoyChange.pct)} ${fmtSigned(data.direction === 'future' ? cat.nextYearAmt-cat.selAmt : cat.selAmt-cat.lastYearAmt)} (${cat.yoyChange.label})</span>
       </div>
       <div style="display:flex;justify-content:space-between;font-size:11.5px;padding:4px 0;">
         <span class="muted">vs 12-month average</span><span style="color:${pctColor(cat.monthlyAvgAllStatus>0?((cat.selAmt-cat.monthlyAvgAllStatus)/cat.monthlyAvgAllStatus*100):null,true)}">${fmtSigned(cat.selAmt-cat.monthlyAvgAllStatus)}</span>
@@ -3183,7 +3225,7 @@ function renderRecurringCard(data){
         <div class="breakdown-row">
           <div style="flex:1;min-width:0;">
             <div class="breakdown-name">${r.label}</div>
-            <div class="muted" style="font-size:10.5px;">${r.frequency} · ${r.occurrences}× · confidence: ${r.confidence} · last ${r.lastDate}</div>
+            <div class="muted" style="font-size:10.5px;">${r.frequency} · ${r.occurrences}× · confidence: ${r.confidence} · ${data.direction === 'future' ? 'next ~' + r.nextDate : 'last ' + r.lastDate}</div>
           </div>
           <div class="breakdown-amt" style="font-size:13px;">${fmtMoney(r.monthlyAmount)}/mo</div>
         </div>`).join('')}
@@ -3238,7 +3280,12 @@ function renderMonthlyTrendChart(data){
   const values = data.monthlyTotalsAllStatus.map(m=>m[insightsMonthlyChartMode]);
   const colorMap = { expense:'#C1583F', income:'#3E7C59', investment:'#D4A24E' };
   const color = colorMap[insightsMonthlyChartMode];
-  const highlightIdx = data.monthlyTotalsAllStatus.length - 1;
+  // Highlights the current month's bar. For Past 12 Months, that's the
+  // last index (period runs oldest→current). For Next 12 Months, the
+  // period runs current→furthest-future, so the current month is the
+  // FIRST index — using length-1 here would highlight the furthest
+  // future month instead.
+  const highlightIdx = data.direction === 'future' ? 0 : data.monthlyTotalsAllStatus.length - 1;
   insightsMonthlyChartInstance = new Chart(ctx, {
     type: 'bar',
     data: {
@@ -4123,12 +4170,14 @@ function openEntryModal(id){
   const overlay = document.getElementById('entryModalOverlay');
   const title = document.getElementById('entryModalTitle');
   const deleteBtn = document.getElementById('entryDeleteBtn');
+  const addRecurringBtn = document.getElementById('entryAddRecurringBtn');
 
   if(id){
     const entry = entries.find(e=>e.id === id);
     if(!entry) return;
     title.textContent = 'Edit Entry';
     deleteBtn.style.display = 'block';
+    addRecurringBtn.style.display = 'none';
     document.getElementById('entryId').value = entry.id;
     document.getElementById('entryDate').value = entry.date;
     populateEntryCategorySelectors(entry.category, entry.subcategory);
@@ -4143,6 +4192,7 @@ function openEntryModal(id){
   } else {
     title.textContent = 'Add Entry';
     deleteBtn.style.display = 'none';
+    addRecurringBtn.style.display = 'inline-flex';
     document.getElementById('entryId').value = '';
     const today = new Date();
     document.getElementById('entryDate').value = formatLocalDate(today);
@@ -4223,6 +4273,10 @@ document.getElementById('entrySaveBtn').addEventListener('click', ()=>{
   }
 });
 
+document.getElementById('entryAddRecurringBtn').addEventListener('click', ()=>{
+  closeEntryModal();
+  openRecurringModal();
+});
 document.getElementById('entryDeleteBtn').addEventListener('click', ()=>{
   const idVal = document.getElementById('entryId').value;
   if(!idVal) return;
@@ -4255,6 +4309,28 @@ function scheduleUndoableDelete(deletedEntry, deletedId){
     autoSyncDelete(deletedId);
   }, 5000);
   pendingDeletes.set(deletedId, timer);
+}
+
+// Status changes made via swipe-to-close are undoable the same way as
+// swipe-to-delete: applied immediately locally, but the cloud sync is
+// delayed until the undo window passes, so Undo never has to reverse a
+// sync that already went out. Separate map from pendingDeletes since
+// the revert action differs (restore previous status vs. re-add the
+// entry) and an id could in principle have both pending at once.
+const pendingStatusChanges = new Map(); // id -> timer
+function scheduleUndoableStatusChange(entry, id, previousStatus){
+  showToast('Marked as Closed', 'Undo', ()=>{
+    const timer = pendingStatusChanges.get(id);
+    if(timer){ clearTimeout(timer); pendingStatusChanges.delete(id); }
+    entry.status = previousStatus;
+    saveState();
+    renderCurrentView(getActiveViewName());
+  });
+  const timer = setTimeout(()=>{
+    pendingStatusChanges.delete(id);
+    if(syncUrl) autoSyncEntry(entry);
+  }, 5000);
+  pendingStatusChanges.set(id, timer);
 }
 
 document.getElementById('addFab').addEventListener('click', ()=> openEntryModal(null));
@@ -4362,7 +4438,9 @@ function openRecurringModal(){
 function closeRecurringModal(){
   document.getElementById('recurringModalOverlay').classList.remove('active');
 }
-document.getElementById('recurringOpenBtn').addEventListener('click', openRecurringModal);
+// The standalone "Add Recurring" button was replaced by the + FAB's
+// menu (wired above); openRecurringModal/closeRecurringModal are called
+// from there and from the close button below.
 document.getElementById('recurringModalClose').addEventListener('click', closeRecurringModal);
 document.getElementById('recurringModalOverlay').addEventListener('click', (e)=>{
   if(e.target.id === 'recurringModalOverlay') closeRecurringModal();
@@ -5123,6 +5201,12 @@ document.querySelectorAll('.topbar-menu-item').forEach(item=>{
 // let .navtab's icon-on-top layout override the menu's row layout.
 document.querySelectorAll('#topbarMenu [data-view]').forEach(item=>{
   item.addEventListener('click', ()=> switchView(item.dataset.view));
+});
+// Category Detail needs openDetail() (populates selectors + renders)
+// rather than a plain switchView — reopens whichever category/
+// subcategory was last viewed there (or the default, on first use).
+document.getElementById('menuCategoryDetailBtn').addEventListener('click', ()=>{
+  openDetail(detailCategory, detailSubcategory);
 });
 
 // The mobile topbar's search button was replaced by page-navigation
@@ -6419,11 +6503,12 @@ function attachSwipeActions(row){
       const id = Number(row.dataset.id);
       const entry = entries.find(en=>en.id === id);
       if(!entry) return;
+      if(entry.status === 'Closed'){ closeSwipedRow(row, content); return; }
+      const previousStatus = entry.status;
       entry.status = 'Closed';
       saveState();
       renderCurrentView(getActiveViewName());
-      showToast('Marked as Closed');
-      if(syncUrl) autoSyncEntry(entry);
+      scheduleUndoableStatusChange(entry, id, previousStatus);
     });
   }
 }
