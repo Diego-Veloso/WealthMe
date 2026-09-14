@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v89 -->
+<!-- WEALTH.ME — v90 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1324,6 +1324,13 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
       Debts
     </button>
+    <!-- Category Detail needs openDetail() (populates selectors + renders)
+         rather than a plain switchView, so it uses a dedicated id instead
+         of data-view — wired separately below. -->
+    <button class="navtab" id="sidebarCategoryDetailBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+      Category Detail
+    </button>
     <button class="navtab" data-view="money">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
       Money
@@ -1340,10 +1347,6 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
          desktop they're duplicated here (with their own IDs, wired
          alongside the originals below) so the sidebar is self-contained. -->
     <div class="sidebar-footer">
-      <button class="sidebar-footer-btn" id="sidebarCmdPaletteBtn" title="Search (Ctrl/Cmd+K)">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        Search
-      </button>
       <button class="sidebar-footer-btn" id="sidebarHelpBtn" title="Instructions">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
         Help
@@ -1922,7 +1925,7 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 89;
+const APP_VERSION = 90;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -5238,11 +5241,14 @@ document.querySelectorAll('#topbarMenu [data-view]').forEach(item=>{
 document.getElementById('menuCategoryDetailBtn').addEventListener('click', ()=>{
   openDetail(detailCategory, detailSubcategory);
 });
+document.getElementById('sidebarCategoryDetailBtn').addEventListener('click', ()=>{
+  openDetail(detailCategory, detailSubcategory);
+});
 
 // The mobile topbar's search button was replaced by page-navigation
-// items in the overflow menu; the command palette is still reachable
-// via the desktop sidebar's Search button and the Cmd/Ctrl+K shortcut.
-document.getElementById('sidebarCmdPaletteBtn').addEventListener('click', openCommandPalette);
+// items in the overflow menu, and the desktop sidebar's Search button
+// was removed too — the command palette is still reachable via the
+// Cmd/Ctrl+K shortcut.
 document.addEventListener('keydown', (e)=>{
   if((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k'){
     e.preventDefault();
