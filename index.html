@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v86 -->
+<!-- WEALTH.ME — v89 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1017,6 +1017,10 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
           Settings
         </button>
+        <button class="topbar-menu-item" id="dataManagementBtn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+          Data Management
+        </button>
       </div>
     </div>
   </div>
@@ -1348,6 +1352,10 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
         Settings
       </button>
+      <button class="sidebar-footer-btn" id="sidebarDataManagementBtn" title="Data Management">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+        Data Management
+      </button>
     </div>
   </nav>
 
@@ -1444,33 +1452,6 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
       <p class="muted">Add specific accounts under each debt type (e.g. card names) so you can tag entries with them.</p>
       <div id="debtAccountsManager"></div>
 
-      <div class="section-title">☁️ Cloud Sync (Google Sheets)</div>
-      <p class="muted">Paste your Google Apps Script Web App URL below to sync your data across devices automatically.</p>
-      <div class="field">
-        <label>Script URL</label>
-        <input type="url" id="syncUrlInput" placeholder="https://script.google.com/macros/s/...">
-      </div>
-      <div class="csv-row">
-        <button class="btn btn-secondary" id="syncTestBtn" style="flex:1;">Test Connection</button>
-        <button class="btn btn-primary" id="syncSaveBtn" style="flex:1;">Save URL</button>
-      </div>
-      <div class="csv-row" style="margin-top:6px;">
-        <button class="btn btn-secondary" id="syncPushBtn" style="flex:1;">↑ Push to Sheet</button>
-        <button class="btn btn-secondary" id="syncPullBtn" style="flex:1;">↓ Pull from Sheet</button>
-      </div>
-      <div id="syncStatus" class="muted" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-
-      <div class="section-title">Data</div>
-      <p class="muted">Import a CSV of entries, export your current data, or download a blank template to fill in.</p>
-      <div class="csv-row">
-        <button class="btn btn-secondary" id="downloadTemplateBtn">Download Template</button>
-        <button class="btn btn-secondary" id="exportCsvBtn">Export CSV</button>
-      </div>
-      <div class="csv-row">
-        <button class="btn btn-primary" id="importCsvBtn" style="flex:1;">Import CSV</button>
-      </div>
-      <input type="file" id="csvFileInput" class="hidden-input" accept=".csv">
-
       <div class="section-title">Password</div>
       <div class="toggle-row" style="margin-bottom:13px;">
         <span class="toggle-label">Require Password</span>
@@ -1498,13 +1479,57 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
           <span id="darkModeToggleKnob" style="position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:var(--card);box-shadow:0 1px 3px rgba(0,0,0,0.3);transition:transform .2s ease;"></span>
         </button>
       </div>
+    </div>
+  </div>
+
+  <!-- ===== Data Management Modal (Cloud Sync, Data import/export, Reset) ===== -->
+  <div class="modal-overlay" id="dataManagementModalOverlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Data Management</h3>
+        <button class="icon-btn" id="dataManagementModalClose">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+
+      <div class="section-title">Local Data</div>
+      <p class="muted">Import a CSV of entries, export your current data, or download a blank template to fill in.</p>
+      <div class="csv-row">
+        <button class="btn btn-secondary" id="downloadTemplateBtn">Download Template</button>
+        <button class="btn btn-secondary" id="exportCsvBtn">Export CSV</button>
+      </div>
+      <div class="csv-row">
+        <button class="btn btn-primary" id="importCsvBtn" style="flex:1;">Import CSV</button>
+      </div>
+      <input type="file" id="csvFileInput" class="hidden-input" accept=".csv">
+
+      <div class="section-title">☁️ Cloud Sync (Google Sheets)</div>
+      <p class="muted">Paste your Google Apps Script Web App URL below to sync your data across devices automatically.</p>
+      <div class="field">
+        <label>Script URL</label>
+        <input type="url" id="syncUrlInput" placeholder="https://script.google.com/macros/s/...">
+      </div>
+      <div class="csv-row">
+        <button class="btn btn-secondary" id="syncTestBtn" style="flex:1;">Test Connection</button>
+        <button class="btn btn-primary" id="syncSaveBtn" style="flex:1;">Save URL</button>
+      </div>
+      <div class="csv-row" style="margin-top:6px;">
+        <button class="btn btn-secondary" id="syncPushBtn" style="flex:1;">↑ Push to Sheet</button>
+        <button class="btn btn-secondary" id="syncPullBtn" style="flex:1;">↓ Pull from Sheet</button>
+      </div>
+      <div id="syncStatus" class="muted" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
 
       <div class="section-title">Reset</div>
       <div class="csv-row">
         <button class="btn btn-danger" id="emptyDataBtn" style="flex:1;">Empty All Data</button>
         <button class="btn btn-secondary" id="resetDataBtn" style="flex:1;">Reset to Sample Data</button>
       </div>
-      <button class="btn btn-secondary btn-block" id="refreshAppBtn" style="margin-top:12px;">↻ Refresh App (get latest version)</button>
+      <div style="text-align:center;margin-top:14px;">
+        <button class="pill-btn" id="refreshAppBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+          Refresh App
+        </button>
+      </div>
       <div id="refreshStatus" class="muted" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
       <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 60</p>
     </div>
@@ -1727,7 +1752,7 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
         </div>
         <div class="accordion-body" id="acc-data">
           <p class="muted" style="font-size:13px;line-height:1.7;margin-bottom:8px;">Your data is stored locally in your browser. It persists as long as you always open the app from the <strong>same browser</strong>.</p>
-          <p class="muted" style="font-size:13px;line-height:1.7;margin-bottom:0;"><strong style="color:var(--navy);">Before updating the app:</strong> go to <strong>Settings → Export CSV</strong> to back up your data, then re-import it after opening the new version.</p>
+          <p class="muted" style="font-size:13px;line-height:1.7;margin-bottom:0;"><strong style="color:var(--navy);">Before updating the app:</strong> go to <strong>Data Management → Export CSV</strong> to back up your data, then re-import it after opening the new version.</p>
         </div>
       </div>
 
@@ -1739,9 +1764,9 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
         </div>
         <div class="accordion-body" id="acc-csv">
           <ol>
-            <li>Go to <strong>Settings → Download Template</strong> to get the CSV format</li>
+            <li>Go to <strong>Data Management → Download Template</strong> to get the CSV format</li>
             <li>Fill in the template with your data</li>
-            <li>Go to <strong>Settings → Import CSV</strong> and select your file</li>
+            <li>Go to <strong>Data Management → Import CSV</strong> and select your file</li>
           </ol>
           <p class="muted" style="font-size:12px;margin-top:10px;margin-bottom:0;">Columns: <code>id, date, category, subcategory, amount, status, notes, type, account</code></p>
         </div>
@@ -1824,9 +1849,8 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
         </div>
         <div class="accordion-body" id="acc-gs4">
           <ol>
-            <li>Open Wealth.Me → tap the <strong>⚙️ Settings</strong> icon</li>
-            <li>Scroll to <strong>☁️ Cloud Sync</strong></li>
-            <li>Paste your Web App URL into the <strong>Script URL</strong> field</li>
+            <li>Open Wealth.Me → tap <strong>Data Management</strong> in the menu</li>
+            <li>Under <strong>☁️ Cloud Sync</strong>, paste your Web App URL into the <strong>Script URL</strong> field</li>
             <li>Tap <strong>Save URL</strong></li>
             <li>Tap <strong>Test Connection</strong> — you should see "Connected! ✓"</li>
             <li>On other devices, repeat steps 1–5 of this section, then tap <strong>↓ Pull from Sheet</strong> to download your data</li>
@@ -1898,7 +1922,7 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 86;
+const APP_VERSION = 89;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -5056,8 +5080,6 @@ document.getElementById('syncPullBtn').addEventListener('click', syncPull);
 
 
 function openSettingsModal(){
-  document.getElementById('syncUrlInput').value = syncUrl || '';
-  setSyncStatus('');
   renderDebtAccountsManager();
   renderSubcategoryManager();
   const pwEnabled = isPasswordEnabled();
@@ -5068,6 +5090,14 @@ function openSettingsModal(){
 }
 function closeSettingsModal(){
   document.getElementById('settingsModalOverlay').classList.remove('active');
+}
+function openDataManagementModal(){
+  document.getElementById('syncUrlInput').value = syncUrl || '';
+  setSyncStatus('');
+  document.getElementById('dataManagementModalOverlay').classList.add('active');
+}
+function closeDataManagementModal(){
+  document.getElementById('dataManagementModalOverlay').classList.remove('active');
 }
 
 /* Help / Instructions modal */
@@ -5524,9 +5554,15 @@ document.getElementById('copyScriptBtn').addEventListener('click', async ()=>{
 
 document.getElementById('settingsBtn').addEventListener('click', openSettingsModal);
 document.getElementById('sidebarSettingsBtn')?.addEventListener('click', openSettingsModal);
+document.getElementById('dataManagementBtn').addEventListener('click', openDataManagementModal);
+document.getElementById('sidebarDataManagementBtn')?.addEventListener('click', openDataManagementModal);
 document.getElementById('settingsModalClose').addEventListener('click', closeSettingsModal);
 document.getElementById('settingsModalOverlay').addEventListener('click', (e)=>{
   if(e.target.id === 'settingsModalOverlay') closeSettingsModal();
+});
+document.getElementById('dataManagementModalClose').addEventListener('click', closeDataManagementModal);
+document.getElementById('dataManagementModalOverlay').addEventListener('click', (e)=>{
+  if(e.target.id === 'dataManagementModalOverlay') closeDataManagementModal();
 });
 
 /* =========================================================
