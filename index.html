@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v95 -->
+<!-- WEALTH.ME — v96 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -41,6 +41,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%;}
      branded regardless of the app's light/dark setting. */
   --brand-navy:#002448;
   --accent-blue:#0EA5E9;
+  --accent-blue-light:#BAE6FD;
 }
 [data-theme="dark"]{
   --navy:#E9E7E2;
@@ -455,9 +456,19 @@ main{
 .navtab.active svg polygon{
   fill:currentColor;
 }
-.navtab.active svg path.coin-detail{
+.navtab.active svg .icon-detail{
   fill:none;
   stroke:var(--card);
+}
+.navtab.active svg .icon-detail-fill{
+  fill:var(--card);
+  stroke:none;
+}
+.navtab.active svg .icon-detail-stroke{
+  stroke:var(--card);
+}
+.navtab.active svg rect.icon-detail-light{
+  fill:var(--accent-blue-light);
 }
 .navtab svg{width:21px;height:21px;}
 
@@ -995,15 +1006,15 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
       </button>
       <div class="topbar-menu" id="topbarMenu">
         <button class="topbar-menu-item" data-view="home">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10.5L12 4l8 6.5V19a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1z"/></svg>
           Home
         </button>
         <button class="topbar-menu-item" data-view="transactions">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 2h16v18l-2-1.5-2 1.5-2-1.5-2 1.5-2-1.5-2 1.5-2-1.5-2 1.5z"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="11" x2="16" y2="11"/><line x1="8" y1="15" x2="13" y2="15"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 8l1.5 1.5L13 6"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="14" y2="17"/></svg>
           Transactions
         </button>
         <button class="topbar-menu-item" data-view="debts">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="15" height="10" rx="2"/><rect x="6" y="10" width="15" height="10" rx="2"/></svg>
           Debts
         </button>
         <button class="topbar-menu-item" id="menuCategoryDetailBtn">
@@ -1011,7 +1022,7 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
           Category Detail
         </button>
         <button class="topbar-menu-item" data-view="money">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path class="coin-detail" d="M12 7v10M9.3 9.5c0-1.1 1.2-2 2.7-2s2.7.9 2.7 2c0 2.4-5.4 1.4-5.4 3.8 0 1.1 1.2 2 2.7 2s2.7-.9 2.7-2"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path class="icon-detail" d="M12 7v10M9.3 9.5c0-1.1 1.2-2 2.7-2s2.7.9 2.7 2c0 2.4-5.4 1.4-5.4 3.8 0 1.1 1.2 2 2.7 2s2.7-.9 2.7-2"/></svg>
           Money
         </button>
         <button class="topbar-menu-item" data-view="insights">
@@ -1325,15 +1336,15 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
       <div id="syncBadgeSidebar" class="sync-badge" title="Cloud Sync Active" style="display:none;width:8px;height:8px;border-radius:50%;background:var(--sage);flex-shrink:0;"></div>
     </div>
     <button class="navtab active" data-view="home">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10.5L12 4l8 6.5V19a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1z"/><rect x="10" y="14" width="4" height="6" class="icon-detail-fill"/></svg>
       Home
     </button>
     <button class="navtab" data-view="transactions">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 2h16v18l-2-1.5-2 1.5-2-1.5-2 1.5-2-1.5-2 1.5-2-1.5-2 1.5z"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="11" x2="16" y2="11"/><line x1="8" y1="15" x2="13" y2="15"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 8l1.5 1.5L13 6" class="icon-detail"/><line x1="8" y1="13" x2="16" y2="13" class="icon-detail"/><line x1="8" y1="17" x2="14" y2="17" class="icon-detail"/></svg>
       Transactions
     </button>
     <button class="navtab" data-view="debts">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="15" height="10" rx="2" class="icon-detail-light"/><rect x="6" y="10" width="15" height="10" rx="2" class="icon-detail-stroke"/></svg>
       Debts
     </button>
     <!-- Category Detail needs openDetail() (populates selectors + renders)
@@ -1346,7 +1357,7 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
       Category Detail
     </button>
     <button class="navtab" data-view="money">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path class="coin-detail" d="M12 7v10M9.3 9.5c0-1.1 1.2-2 2.7-2s2.7.9 2.7 2c0 2.4-5.4 1.4-5.4 3.8 0 1.1 1.2 2 2.7 2s2.7-.9 2.7-2"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path class="icon-detail" d="M12 7v10M9.3 9.5c0-1.1 1.2-2 2.7-2s2.7.9 2.7 2c0 2.4-5.4 1.4-5.4 3.8 0 1.1 1.2 2 2.7 2s2.7-.9 2.7-2"/></svg>
       Money
     </button>
     <!-- Desktop-only: Insights isn't in the mobile bottom tab bar (it's
@@ -1939,7 +1950,7 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 95;
+const APP_VERSION = 96;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
