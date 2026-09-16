@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v99 -->
+<!-- WEALTH.ME — v101 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -130,8 +130,8 @@ body{
 .icon-btn:hover{background:var(--slate-light);}
 .icon-btn:active{transform:scale(0.96);}
 
-/* More page — full-page list rows (Category Detail, Help, Settings,
-   Data Management), reached via the bottom bar's More tab on mobile */
+/* More page — full-page list rows (Help, Settings, Data Management),
+   reached via the bottom bar's More tab on mobile */
 .more-row{
   display:flex;align-items:center;gap:14px;
   padding:14px 2px;
@@ -1052,7 +1052,7 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
             <button data-cat="Investment">Investment</button>
           </div>
         </div>
-        <div class="donut-wrap"><canvas id="donutChart"></canvas></div>
+        <div class="donut-wrap" id="donutWrap"><canvas id="donutChart"></canvas></div>
         <div id="donutBreakdownList"></div>
       </div>
     </section>
@@ -1268,8 +1268,10 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
 
     <!-- Mobile-only page (reached from the bottom bar's More tab; desktop
          has no way to navigate here since Help/Settings/Data Management
-         already live in the sidebar footer there, and Category Detail
-         has its own bottom bar tab on mobile). -->
+         already live in the sidebar footer there). Category Detail is
+         not listed here — on mobile it's reached by double-tapping the
+         Home page's donut chart instead (see the dblclick handler on
+         #donutWrap). -->
     <section class="view" id="view-more">
       <h2 class="card-title" style="margin:10px 0 14px;">More</h2>
       <div class="card">
@@ -1322,16 +1324,9 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
     <!-- Category Detail needs openDetail() (populates selectors + renders)
          rather than a plain switchView, so it uses a dedicated id instead
          of data-view — wired separately below. sidebar-only-tab keeps it
-         out of the mobile bottom tab bar (it stays reachable there via
-         the bottom bar's More menu instead). -->
+         out of the mobile bottom tab bar entirely; on mobile it's reached
+         instead by double-tapping the Home page's donut chart. -->
     <button class="navtab sidebar-only-tab" id="sidebarCategoryDetailBtn">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
-      Category Detail
-    </button>
-    <!-- Mobile-only counterpart of the button above — same openDetail()
-         action, just a separate element since the desktop one is hidden
-         on mobile via sidebar-only-tab. -->
-    <button class="navtab mobile-only-tab" id="bottomCategoryDetailBtn">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
       Category Detail
     </button>
@@ -1937,7 +1932,7 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 99;
+const APP_VERSION = 101;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -3777,11 +3772,11 @@ function switchView(viewName){
 
   if(viewName === 'detail'){
     document.getElementById('view-detail').classList.add('active');
-    // Highlight the Category Detail tab — it now has its own dedicated
-    // entry point (mobile bottom bar / desktop sidebar) rather than only
-    // being reached from Home, so that's what should show as active.
-    document.getElementById('bottomCategoryDetailBtn')?.classList.add('active');
+    // Desktop has its own dedicated Category Detail sidebar tab; on
+    // mobile it's reached via the More page, so highlight that tab
+    // instead of leaving nothing active in the bottom bar.
     document.getElementById('sidebarCategoryDetailBtn')?.classList.add('active');
+    document.querySelector('.navtab[data-view="more"]')?.classList.add('active');
     return;
   }
 
@@ -5231,10 +5226,12 @@ document.getElementById('cmdPaletteOverlay').addEventListener('click', (e)=>{
 // Category Detail needs openDetail() (populates selectors + renders)
 // rather than a plain switchView — reopens whichever category/
 // subcategory was last viewed there (or the default, on first use).
-document.getElementById('bottomCategoryDetailBtn').addEventListener('click', ()=>{
+document.getElementById('sidebarCategoryDetailBtn').addEventListener('click', ()=>{
   openDetail(detailCategory, detailSubcategory);
 });
-document.getElementById('sidebarCategoryDetailBtn').addEventListener('click', ()=>{
+// Mobile has no nav entry for Category Detail — it's reached by
+// double-tapping the Home page's donut chart instead.
+document.getElementById('donutWrap').addEventListener('dblclick', ()=>{
   openDetail(detailCategory, detailSubcategory);
 });
 
