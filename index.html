@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v102 -->
+<!-- WEALTH.ME — v103 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1301,6 +1301,7 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
         </button>
       </div>
 
+      <div class="card">
       <div class="section-title">Subcategories</div>
       <p class="muted">Add, rename, or remove subcategories for each category. Renaming or removing updates existing entries.</p>
       <div class="segmented" id="subcatCategorySeg">
@@ -1342,6 +1343,7 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
           <span id="darkModeToggleKnob" style="position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:var(--card);box-shadow:0 1px 3px rgba(0,0,0,0.3);transition:transform .2s ease;"></span>
         </button>
       </div>
+      </div>
     </section>
 
     <!-- ===== Data Management Page (Local Data, Cloud Sync, Reset) ===== -->
@@ -1353,6 +1355,7 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
         </button>
       </div>
 
+      <div class="card">
       <div class="section-title">Local Data</div>
       <p class="muted">Import a CSV of entries, export your current data, or download a blank template to fill in.</p>
       <div class="csv-row">
@@ -1393,6 +1396,7 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
       </div>
       <div id="refreshStatus" class="muted" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
       <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 60</p>
+      </div>
     </section>
 
     <!-- ===== Help / Instructions Page ===== -->
@@ -1404,6 +1408,7 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
         </button>
       </div>
 
+      <div class="card">
       <div class="section-title">📱 Install as a Home Screen App</div>
 
       <!-- iPhone accordion -->
@@ -1565,6 +1570,7 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
         </div>
       </div>
 
+      </div>
     </section>
 
   </main>
@@ -1928,7 +1934,7 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 102;
+const APP_VERSION = 103;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
