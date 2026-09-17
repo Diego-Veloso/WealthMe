@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v103 -->
+<!-- WEALTH.ME — v105 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1288,11 +1288,27 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
             <span>Data Management</span>
           </li>
+          <li class="more-row" id="privacyBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <span>Privacy</span>
+          </li>
+          <li class="more-row" id="appearanceBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+            <span>Appearance</span>
+          </li>
         </ul>
       </div>
+      <div style="text-align:center;margin-top:14px;">
+        <button class="pill-btn" id="refreshAppBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+          Refresh App
+        </button>
+      </div>
+      <div id="refreshStatus" class="muted" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 60</p>
     </section>
 
-    <!-- ===== Settings Page (Subcategories, Debt Accounts, Password, Appearance) ===== -->
+    <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
     <section class="view" id="view-settings">
       <div class="modal-header">
         <h3>Settings</h3>
@@ -1315,7 +1331,19 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
       <div class="section-title">Debt Accounts</div>
       <p class="muted">Add specific accounts under each debt type (e.g. card names) so you can tag entries with them.</p>
       <div id="debtAccountsManager"></div>
+      </div>
+    </section>
 
+    <!-- ===== Privacy Page (Password) ===== -->
+    <section class="view" id="view-privacy">
+      <div class="modal-header">
+        <h3>Privacy</h3>
+        <button class="icon-btn" id="privacyModalClose">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+
+      <div class="card">
       <div class="section-title">Password</div>
       <div class="toggle-row" style="margin-bottom:13px;">
         <span class="toggle-label">Require Password</span>
@@ -1335,7 +1363,19 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
         </div>
         <button class="btn btn-secondary btn-block" id="changePasswordBtn">Change Password</button>
       </div>
+      </div>
+    </section>
 
+    <!-- ===== Appearance Page ===== -->
+    <section class="view" id="view-appearance">
+      <div class="modal-header">
+        <h3>Appearance</h3>
+        <button class="icon-btn" id="appearanceModalClose">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+
+      <div class="card">
       <div class="section-title">Appearance</div>
       <div class="csv-row" style="align-items:center;margin-bottom:16px;">
         <span style="flex:1;font-size:13.5px;">Dark Mode</span>
@@ -1388,14 +1428,6 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
         <button class="btn btn-danger" id="emptyDataBtn" style="flex:1;">Empty All Data</button>
         <button class="btn btn-secondary" id="resetDataBtn" style="flex:1;">Reset to Sample Data</button>
       </div>
-      <div style="text-align:center;margin-top:14px;">
-        <button class="pill-btn" id="refreshAppBtn">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
-          Refresh App
-        </button>
-      </div>
-      <div id="refreshStatus" class="muted" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 60</p>
       </div>
     </section>
 
@@ -1646,6 +1678,14 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
       <button class="sidebar-footer-btn" id="sidebarDataManagementBtn" title="Data Management">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
         Data Management
+      </button>
+      <button class="sidebar-footer-btn" id="sidebarPrivacyBtn" title="Privacy">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        Privacy
+      </button>
+      <button class="sidebar-footer-btn" id="sidebarAppearanceBtn" title="Appearance">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        Appearance
       </button>
     </div>
   </nav>
@@ -1934,7 +1974,7 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 103;
+const APP_VERSION = 105;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -3783,7 +3823,7 @@ function switchView(viewName){
     return;
   }
 
-  if(viewName === 'help' || viewName === 'settings' || viewName === 'dataManagement'){
+  if(viewName === 'help' || viewName === 'settings' || viewName === 'dataManagement' || viewName === 'privacy' || viewName === 'appearance'){
     document.getElementById('view-'+viewName).classList.add('active');
     // These are full pages now (not popups), reached from the More page
     // on mobile and the sidebar footer on desktop — neither has its own
@@ -5108,16 +5148,29 @@ document.getElementById('syncPullBtn').addEventListener('click', syncPull);
 function openSettingsModal(){
   renderDebtAccountsManager();
   renderSubcategoryManager();
+  switchView('settings');
+}
+// Settings/Data Management/Help/Privacy/Appearance are real pages now
+// (not popups) — their X button always returns to the More page, same
+// as Category Detail's back button always returns to Home regardless
+// of how it was opened.
+function closeSettingsModal(){
+  switchView('more');
+}
+function openPrivacyModal(){
   const pwEnabled = isPasswordEnabled();
   document.getElementById('passwordEnabledToggle').checked = pwEnabled;
   document.getElementById('passwordFieldsWrap').style.display = pwEnabled ? 'block' : 'none';
-  updateDarkModeToggleUI();
-  switchView('settings');
+  switchView('privacy');
 }
-// Settings/Data Management/Help are real pages now (not popups) — their
-// X button always returns to the More page, same as Category Detail's
-// back button always returns to Home regardless of how it was opened.
-function closeSettingsModal(){
+function closePrivacyModal(){
+  switchView('more');
+}
+function openAppearanceModal(){
+  updateDarkModeToggleUI();
+  switchView('appearance');
+}
+function closeAppearanceModal(){
   switchView('more');
 }
 function openDataManagementModal(){
@@ -5568,8 +5621,14 @@ document.getElementById('settingsBtn').addEventListener('click', openSettingsMod
 document.getElementById('sidebarSettingsBtn')?.addEventListener('click', openSettingsModal);
 document.getElementById('dataManagementBtn').addEventListener('click', openDataManagementModal);
 document.getElementById('sidebarDataManagementBtn')?.addEventListener('click', openDataManagementModal);
+document.getElementById('privacyBtn').addEventListener('click', openPrivacyModal);
+document.getElementById('sidebarPrivacyBtn')?.addEventListener('click', openPrivacyModal);
+document.getElementById('appearanceBtn').addEventListener('click', openAppearanceModal);
+document.getElementById('sidebarAppearanceBtn')?.addEventListener('click', openAppearanceModal);
 document.getElementById('settingsModalClose').addEventListener('click', closeSettingsModal);
 document.getElementById('dataManagementModalClose').addEventListener('click', closeDataManagementModal);
+document.getElementById('privacyModalClose').addEventListener('click', closePrivacyModal);
+document.getElementById('appearanceModalClose').addEventListener('click', closeAppearanceModal);
 
 /* =========================================================
    DEBT ACCOUNTS MANAGER (Settings)
@@ -5950,7 +6009,7 @@ document.getElementById('changePasswordBtn').addEventListener('click', ()=>{
   document.getElementById('newPasswordInput').value = '';
   document.getElementById('confirmPasswordInput').value = '';
   showToast('Password updated');
-  closeSettingsModal();
+  closePrivacyModal();
 });
 
 document.getElementById('passwordEnabledToggle').addEventListener('change', (e)=>{
