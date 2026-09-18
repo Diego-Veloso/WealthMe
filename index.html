@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v105 -->
+<!-- WEALTH.ME — v106 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -466,6 +466,10 @@ main{
 .sidebar-brand,
 .sidebar-footer,
 .sidebar-only-tab{display:none;}
+/* Insights now reaches desktop via the floating button below (like
+   mobile), not a sidebar entry — id beats the .sidebar-only-tab class's
+   desktop display:flex, so this stays hidden at every width. */
+#sidebarInsightsBtn{display:none;}
 
 /* ===== Buttons ===== */
 .btn{
@@ -884,10 +888,12 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
      of tracking the (no-longer-centered) content column */
   .fab{right:32px;}
 
-  /* Logo/Help/Settings now live in the sidebar; Insights is a sidebar
-     nav item instead of a floating button, so hide their mobile forms. */
+  /* Logo/Help/Settings now live in the sidebar, so hide their mobile
+     forms. Insights keeps its floating button — like mobile, it just
+     docks to the bottom-right corner now instead of the centered
+     content column, sitting beside the primary Add fab. */
   .topbar{display:none;}
-  .fab-secondary{display:none;}
+  .fab-secondary{left:auto;right:100px;}
 
   /* Home and Money are both single-column stacked reports now — every
      direct child fills the full content width, with a consistent gap
@@ -1654,11 +1660,11 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
       More
     </button>
-    <!-- Desktop-only: Insights isn't in the mobile bottom tab bar (it's
-         reached via the floating sparkle FAB there); on desktop it gets
-         a proper sidebar entry. Reuses the existing generic .navtab
-         click-wiring and switchView() logic below — no new JS needed. -->
-    <button class="navtab sidebar-only-tab" data-view="insights">
+    <!-- Desktop-only nav tab for Insights, kept in the DOM (reused by
+         switchView()'s generic .navtab highlighting) but hidden via
+         #sidebarInsightsBtn below — desktop now reaches Insights via the
+         floating button instead, same as mobile does. -->
+    <button class="navtab sidebar-only-tab" id="sidebarInsightsBtn" data-view="insights">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="21" height="21"><path d="M12 3l1.6 4.8L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.2L12 3z"/><path d="M19 13l0.8 2.2L22 16l-2.2 0.8L19 19l-0.8-2.2L16 16l2.2-0.8L19 13z"/><path d="M5 14l0.6 1.6L7 16l-1.4 0.6L5 18l-0.6-1.4L3 16l1.4-0.4L5 14z"/></svg>
       Insights
     </button>
@@ -1974,7 +1980,7 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 105;
+const APP_VERSION = 106;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
