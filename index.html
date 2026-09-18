@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v106 -->
+<!-- WEALTH.ME — v108 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -129,6 +129,22 @@ body{
 }
 .icon-btn:hover{background:var(--slate-light);}
 .icon-btn:active{transform:scale(0.96);}
+.notif-btn{position:relative;}
+.notif-badge{
+  position:absolute;
+  top:-4px;right:-4px;
+  min-width:16px;height:16px;
+  padding:0 3px;
+  border-radius:999px;
+  background:var(--terracotta);
+  color:#fff;
+  font-size:10px;
+  font-weight:800;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  line-height:1;
+}
 
 /* More page — full-page list rows (Help, Settings, Data Management),
    reached via the bottom bar's More tab on mobile */
@@ -466,6 +482,10 @@ main{
 .sidebar-brand,
 .sidebar-footer,
 .sidebar-only-tab{display:none;}
+/* Generic desktop-only content block (not a nav tab) — e.g. the Settings
+   page's Refresh App/version footer, which mobile keeps on the More
+   page exclusively. */
+.desktop-only-block{display:none;}
 /* Insights now reaches desktop via the floating button below (like
    mobile), not a sidebar entry — id beats the .sidebar-only-tab class's
    desktop display:flex, so this stays hidden at every width. */
@@ -841,6 +861,7 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
   .navtab svg{width:20px;height:20px;}
   .sidebar-only-tab{display:flex;}
   .mobile-only-tab{display:none;}
+  .desktop-only-block{display:block;}
 
   /* Sidebar branding header */
   .sidebar-brand{
@@ -854,7 +875,6 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
   .sidebar-brand .logo-mark{width:32px;height:32px;}
   .sidebar-brand .logo-text{font-size:17px;color:#fff;}
   .sidebar-brand .logo-text span{color:var(--accent-blue);}
-  .sidebar-brand .sync-badge{margin-left:auto;}
 
   /* Settings/Help footer, pinned to the bottom of the sidebar column */
   .sidebar-footer{
@@ -881,6 +901,22 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
   }
   .sidebar-footer-btn:hover{background:rgba(255,255,255,0.08);color:#fff;}
   .sidebar-footer-btn svg{width:18px;height:18px;flex-shrink:0;}
+
+  /* Bell button in the sidebar-brand header — desktop's equivalent of
+     the mobile topbar's notifications button. No display toggle needed
+     here: it's hidden on mobile simply because #sidebarBrand itself is. */
+  .sidebar-notif-btn{
+    width:32px;height:32px;
+    border:none;
+    background:transparent;
+    border-radius:8px;
+    display:flex;align-items:center;justify-content:center;
+    color:rgba(255,255,255,0.85);
+    cursor:pointer;
+    flex-shrink:0;
+  }
+  .sidebar-notif-btn:hover{background:rgba(255,255,255,0.08);}
+  .sidebar-notif-btn svg{width:19px;height:19px;}
 
   main{padding-bottom:32px;}
 
@@ -997,6 +1033,10 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
     </div>
     <div style="display:flex;gap:8px;align-items:center;position:relative;">
       <div id="syncBadge" class="sync-badge" title="Cloud Sync Active" style="display:none;width:8px;height:8px;border-radius:50%;background:var(--sage);flex-shrink:0;"></div>
+      <button class="icon-btn notif-btn" id="notificationsBtn" title="Notifications">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <span class="notif-badge" id="notificationsBadge">0</span>
+      </button>
     </div>
   </div>
 
@@ -1112,6 +1152,23 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
       </div>
 
       <div id="detailLists"></div>
+    </section>
+
+    <!-- ============ NOTIFICATIONS VIEW ============ -->
+    <!-- Reached from the bell button (topbar on mobile, sidebar-brand on
+         desktop) rather than a nav tab, so — like Category Detail — its
+         close button always returns to Home regardless of how it was
+         opened. Uses the same renderEntryRow()/attachEntryRowHandlers()
+         helpers as Transactions/Debts, so tapping a row opens the same
+         edit modal and swipe-to-delete/mark-closed work identically. -->
+    <section class="view" id="view-notifications">
+      <div class="modal-header">
+        <h3>Notifications</h3>
+        <button class="icon-btn" id="notificationsModalClose">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div id="notificationsContent"></div>
     </section>
 
     <!-- ============ TRANSACTIONS VIEW ============ -->
@@ -1338,6 +1395,21 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
       <p class="muted">Add specific accounts under each debt type (e.g. card names) so you can tag entries with them.</p>
       <div id="debtAccountsManager"></div>
       </div>
+
+      <!-- Desktop only — mobile keeps the Refresh App button and version
+           footer on the More page exclusively. Unique ids (Desktop
+           suffix) since versionFooterText/refreshAppBtn/refreshStatus
+           already exist there; checkForAppUpdate() takes whichever
+           status element belongs to the button clicked, and init()
+           updates both version-text copies by id. -->
+      <div class="desktop-only-block" style="text-align:center;margin-top:14px;">
+        <button class="pill-btn" id="refreshAppBtnDesktop">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+          Refresh App
+        </button>
+      </div>
+      <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 60</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -1626,7 +1698,13 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
          instead of duplicating the base64 image in the markup. -->
     <div class="sidebar-brand" id="sidebarBrand">
       <div class="logo-text">Wealth<span>.</span>Me</div>
-      <div id="syncBadgeSidebar" class="sync-badge" title="Cloud Sync Active" style="display:none;width:8px;height:8px;border-radius:50%;background:var(--sage);flex-shrink:0;"></div>
+      <div style="display:flex;gap:10px;align-items:center;margin-left:auto;">
+        <div id="syncBadgeSidebar" class="sync-badge" title="Cloud Sync Active" style="display:none;width:8px;height:8px;border-radius:50%;background:var(--sage);flex-shrink:0;"></div>
+        <button class="sidebar-notif-btn notif-btn" id="sidebarNotificationsBtn" title="Notifications">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <span class="notif-badge" id="notificationsBadgeSidebar">0</span>
+        </button>
+      </div>
     </div>
     <button class="navtab active" data-view="home">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10.5L12 4l8 6.5V19a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1z"/><rect x="10" y="14" width="4" height="6" class="icon-detail-fill"/></svg>
@@ -1980,7 +2058,7 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 106;
+const APP_VERSION = 108;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -2184,6 +2262,7 @@ function isBeforeOrInYear(dateStr, refDate){
 function saveState(){
   invalidateFinancialsCache();
   invalidateInsightsCache();
+  updateNotificationsBadge();
   try{
     localStorage.setItem('wealthme_entries', JSON.stringify(entries));
     localStorage.setItem('wealthme_nextid', String(nextId));
@@ -3853,6 +3932,7 @@ function renderCurrentView(viewName){
   else if(viewName === 'debts') renderDebts();
   else if(viewName === 'money') renderMoney();
   else if(viewName === 'insights') renderInsightsView();
+  else if(viewName === 'notifications') renderNotificationsView();
 }
 
 document.querySelectorAll('.navtab[data-view]').forEach(tab=>{
@@ -3860,6 +3940,13 @@ document.querySelectorAll('.navtab[data-view]').forEach(tab=>{
 });
 
 document.getElementById('detailBack').addEventListener('click', ()=> switchView('home'));
+
+// Bell button — mobile topbar and desktop sidebar-brand both wire to the
+// same handler; closing always returns to Home, same fixed-destination
+// convention as Category Detail's back button.
+document.getElementById('notificationsBtn').addEventListener('click', ()=> switchView('notifications'));
+document.getElementById('sidebarNotificationsBtn')?.addEventListener('click', ()=> switchView('notifications'));
+document.getElementById('notificationsModalClose').addEventListener('click', ()=> switchView('home'));
 
 /* Home month navigation */
 document.getElementById('homePrev').addEventListener('click', ()=>{
@@ -5907,12 +5994,14 @@ document.getElementById('darkModeToggle').addEventListener('click', ()=>{
   updateDarkModeToggleUI();
 });
 
-document.getElementById('refreshAppBtn').addEventListener('click', async ()=>{
+// Shared by both Refresh App buttons — the mobile one on the More page
+// and the desktop one at the bottom of Settings — each passes its own
+// status element so only the visible copy shows the result.
+async function checkForAppUpdate(statusEl){
   // Fetch the live file from GitHub with cache disabled, so this always
   // sees whatever is actually deployed — never a cached copy. Parse out
   // its version comment and compare to APP_VERSION (the version currently
   // running) before deciding whether a reload is actually needed.
-  const statusEl = document.getElementById('refreshStatus');
   if(statusEl) statusEl.textContent = 'Checking for updates…';
   try{
     const res = await fetch(location.pathname + '?v=' + Date.now(), { cache: 'no-store' });
@@ -5934,7 +6023,9 @@ document.getElementById('refreshAppBtn').addEventListener('click', async ()=>{
   }catch(err){
     if(statusEl) statusEl.textContent = 'Update check failed: ' + err.message;
   }
-});
+}
+document.getElementById('refreshAppBtn').addEventListener('click', ()=> checkForAppUpdate(document.getElementById('refreshStatus')));
+document.getElementById('refreshAppBtnDesktop').addEventListener('click', ()=> checkForAppUpdate(document.getElementById('refreshStatusDesktop')));
 
 /* =========================================================
    APP INITIALIZATION
@@ -5953,6 +6044,7 @@ function init(){
   populateEntryCategorySelectors('Income', CATEGORY_MAP.Income[0]);
   populateDetailSelectors();
   switchView('home');
+  updateNotificationsBadge();
   updateSyncBadge();
   // Reset badge to neutral on every open — green only means a live successful sync
   if(syncUrl){
@@ -5960,6 +6052,8 @@ function init(){
   }
   const versionEl = document.getElementById('versionFooterText');
   if(versionEl) versionEl.textContent = 'Wealth.Me · version ' + APP_VERSION;
+  const versionElDesktop = document.getElementById('versionFooterTextDesktop');
+  if(versionElDesktop) versionElDesktop.textContent = 'Wealth.Me · version ' + APP_VERSION;
 }
 
 /* =========================================================
@@ -6530,6 +6624,52 @@ function attachEntryRowHandlers(container){
     });
     attachSwipeActions(row);
   });
+}
+
+/* =========================================================
+   NOTIFICATIONS — Open entries due today or past due, grouped
+   the same way for both the badge count and the list page.
+   ========================================================= */
+function getDueEntries(){
+  const todayStr = formatLocalDate(new Date());
+  const pastDue = entries.filter(e => e.status === 'Open' && e.date < todayStr)
+    .sort((a,b)=> a.date.localeCompare(b.date));
+  const dueToday = entries.filter(e => e.status === 'Open' && e.date === todayStr)
+    .sort((a,b)=> a.date.localeCompare(b.date));
+  return {pastDue, dueToday};
+}
+function updateNotificationsBadge(){
+  const {pastDue, dueToday} = getDueEntries();
+  const count = pastDue.length + dueToday.length;
+  document.querySelectorAll('.notif-badge').forEach(badge=>{
+    if(count > 0){
+      badge.textContent = count > 99 ? '99+' : String(count);
+      badge.style.display = 'flex';
+    } else {
+      badge.style.display = 'none';
+    }
+  });
+}
+function renderNotificationsView(){
+  const {pastDue, dueToday} = getDueEntries();
+  const container = document.getElementById('notificationsContent');
+  if(pastDue.length === 0 && dueToday.length === 0){
+    container.innerHTML = `
+      <div class="card" style="text-align:center;padding:32px 16px;">
+        <p class="muted" style="margin:0;">You're all caught up — no past due or due-today entries.</p>
+      </div>
+    `;
+    return;
+  }
+  let html = '';
+  if(pastDue.length > 0){
+    html += `<div class="group-header">Past Due</div><div class="card"><ul class="entry-list">${pastDue.map(e=>renderEntryRow(e)).join('')}</ul></div>`;
+  }
+  if(dueToday.length > 0){
+    html += `<div class="group-header">Due Today</div><div class="card"><ul class="entry-list">${dueToday.map(e=>renderEntryRow(e)).join('')}</ul></div>`;
+  }
+  container.innerHTML = html;
+  attachEntryRowHandlers(container);
 }
 
 // Swipe on mobile transaction rows: right reveals Delete (left-side
