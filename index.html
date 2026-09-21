@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v126 -->
+<!-- WEALTH.ME — v131 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1119,26 +1119,6 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
       <!-- At-a-glance strip: net worth (always), budgets and open debt
            only when there's actually data for them, so it never shows
            empty/meaningless chips. -->
-      <div class="card" style="padding:12px 14px;">
-        <div style="display:flex;gap:10px;overflow-x:auto;">
-          <div class="glance-chip">
-            <div class="glance-label">Net Worth</div>
-            <div class="glance-value" id="glanceNetWorth">$0</div>
-            <div class="glance-trend" id="glanceNetWorthTrend"></div>
-          </div>
-          <div class="glance-chip" id="glanceBudgetChip" style="display:none;">
-            <div class="glance-label">Budgets</div>
-            <div class="glance-value" id="glanceBudgetStatus">0/0 on track</div>
-          </div>
-          <div class="glance-chip" id="glanceDebtChip" style="display:none;">
-            <div class="glance-label">Open Debt</div>
-            <div class="glance-value" id="glanceDebtTotal">$0</div>
-          </div>
-        </div>
-        <div style="text-align:center;margin-top:10px;">
-          <button class="pill-btn" id="viewRecapBtn">📊 View Month in Review</button>
-        </div>
-      </div>
 
       <div class="summary-grid">
         <div class="summary-card">
@@ -1170,6 +1150,23 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
       <div class="card">
         <div class="card-title">Daily Cashflow</div>
         <div class="chart-wrap"><canvas id="lineChart" role="img" aria-label="Daily cashflow chart for the selected month"></canvas></div>
+      </div>
+
+      <div class="card" style="padding:12px 14px;">
+        <div style="display:flex;gap:10px;overflow-x:auto;">
+          <div class="glance-chip">
+            <div class="glance-label">Net Worth</div>
+            <div class="glance-value" id="glanceNetWorth">$0</div>
+            <div class="glance-trend" id="glanceNetWorthTrend"></div>
+          </div>
+          <div class="glance-chip" id="glanceDebtChip" style="display:none;">
+            <div class="glance-label">Open Debt</div>
+            <div class="glance-value" id="glanceDebtTotal">$0</div>
+          </div>
+        </div>
+        <div style="text-align:center;margin-top:10px;">
+          <button class="pill-btn" id="viewRecapBtn">View Month in Review</button>
+        </div>
       </div>
 
       <div class="card">
@@ -1987,13 +1984,16 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
   <div class="modal-overlay" id="recapModalOverlay">
     <div class="modal">
       <div class="modal-header">
-        <h3 id="recapMonthLabel">Monthly Recap</h3>
-        <button class="icon-btn" id="recapModalClose" aria-label="Close Monthly Recap">
+        <div>
+          <h3 id="recapMonthLabel" style="margin-bottom:2px;">June 2026</h3>
+          <div class="muted" style="font-size:12px;font-weight:600;">Month to Date</div>
+        </div>
+        <button class="icon-btn" id="recapModalClose" aria-label="Close Month to Date">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
       </div>
       <div id="recapContent"></div>
-      <button class="btn btn-secondary btn-block" id="recapShareBtn" style="margin-top:14px;">Share Recap</button>
+      <button class="btn btn-secondary btn-block" id="recapShareBtn" style="margin-top:14px;">Share Month to Date</button>
     </div>
   </div>
 
@@ -2280,7 +2280,7 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 126;
+const APP_VERSION = 131;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -7588,19 +7588,10 @@ function computeGlanceStats(refDate){
   const netWorthNow = netWorthAt(cutoff);
   const netWorthPrev = netWorthAt(prevCutoff);
 
-  const inMonth = (dateStr) => isSameMonth(dateStr, refDate);
-  const budgetedSubs = Object.keys(BUDGETS).filter(sub => Number(BUDGETS[sub]) > 0 && CATEGORY_MAP.Expense.includes(sub));
-  let overCount = 0;
-  budgetedSubs.forEach(sub=>{
-    const spent = entries.filter(e=>e.category==='Expense' && e.subcategory===sub && inMonth(e.date)).reduce((a,e)=>a+Number(e.amount),0);
-    if(spent > Number(BUDGETS[sub])) overCount++;
-  });
-
   const openDebtTotal = entries.filter(e=>isDebtEntry(e) && e.status==='Open' && parseLocalDate(e.date)<=cutoff).reduce((a,e)=>a+Number(e.amount),0);
 
   return {
     netWorthNow, netWorthPrev,
-    hasBudgets: budgetedSubs.length > 0, budgetedCount: budgetedSubs.length, overCount,
     hasDebt: openDebtTotal > 0.005, openDebtTotal
   };
 }
@@ -7616,15 +7607,6 @@ function renderGlanceStrip(){
   } else {
     trendEl.textContent = (diff > 0 ? '▲ ' : '▼ ') + fmtMoney(Math.abs(diff));
     trendEl.className = 'glance-trend ' + (diff > 0 ? 'pos' : 'neg');
-  }
-
-  const budgetChip = document.getElementById('glanceBudgetChip');
-  if(stats.hasBudgets){
-    budgetChip.style.display = '';
-    const onTrack = stats.budgetedCount - stats.overCount;
-    document.getElementById('glanceBudgetStatus').textContent = `${onTrack}/${stats.budgetedCount} on track`;
-  } else {
-    budgetChip.style.display = 'none';
   }
 
   const debtChip = document.getElementById('glanceDebtChip');
@@ -7707,7 +7689,7 @@ function computeMonthlyRecap(refDate){
 }
 function openRecapModal(){
   const recap = computeMonthlyRecap(homeDate);
-  document.getElementById('recapMonthLabel').textContent = fmtMonthYear(homeDate) + ' Recap';
+  document.getElementById('recapMonthLabel').textContent = fmtMonthYear(homeDate);
 
   const rows = [];
   rows.push(`<p style="font-size:15px;font-weight:700;text-align:center;margin:0 0 14px;">${recap.headline}</p>`);
@@ -7741,7 +7723,7 @@ function closeRecapModal(){
 async function shareRecap(){
   const recap = computeMonthlyRecap(homeDate);
   const lines = [
-    `${fmtMonthYear(homeDate)} Recap — Wealth.Me`,
+    `${fmtMonthYear(homeDate)} Month to Date — Wealth.Me`,
     recap.headline,
     `Income: ${fmtMoney(recap.grossIncome)}`,
     `Expenses: ${fmtMoney(recap.expenses)}`,
@@ -7756,9 +7738,9 @@ async function shareRecap(){
   } else if(navigator.clipboard){
     try{
       await navigator.clipboard.writeText(text);
-      showToast('Recap copied to clipboard');
+      showToast('Copied to clipboard');
     }catch(err){
-      showToast('Could not copy recap');
+      showToast('Could not copy');
     }
   }
 }
