@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v125 -->
+<!-- WEALTH.ME — v126 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1573,7 +1573,7 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
         <button id="budgetsNext">&#8250;</button>
       </div>
       <div class="card">
-        <p class="muted" style="margin-top:0;">Set a monthly $ target per category — leave at 0 for none. Spent amounts are Closed entries for the month shown.</p>
+        <p class="muted" style="margin-top:0;">Set a monthly $ target per category — leave at 0 for none. Spent amounts include both Open and Closed entries for the month shown.</p>
         <div id="budgetsList"></div>
       </div>
     </section>
@@ -2280,7 +2280,7 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 125;
+const APP_VERSION = 126;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -5786,7 +5786,7 @@ function maybeCelebrateBudgets(){
   const inMonth = (dateStr) => isSameMonth(dateStr, now);
   let anySpending = false;
   const allOnTrack = budgetedSubs.every(sub=>{
-    const spent = entries.filter(e=>e.category==='Expense' && e.subcategory===sub && e.status==='Closed' && inMonth(e.date)).reduce((a,e)=>a+Number(e.amount),0);
+    const spent = entries.filter(e=>e.category==='Expense' && e.subcategory===sub && inMonth(e.date)).reduce((a,e)=>a+Number(e.amount),0);
     if(spent > 0) anySpending = true;
     return spent <= Number(BUDGETS[sub]);
   });
@@ -5807,19 +5807,22 @@ function renderBudgetsView(){
   const container = document.getElementById('budgetsList');
 
   container.innerHTML = CATEGORY_MAP.Expense.map(sub=>{
+    // Both Open and Closed count here — a planned/pending expense still
+    // counts against the budget, not just money already actually spent.
     const spent = entries
-      .filter(e => e.category === 'Expense' && e.subcategory === sub && e.status === 'Closed' && inMonth(e.date))
+      .filter(e => e.category === 'Expense' && e.subcategory === sub && inMonth(e.date))
       .reduce((a,e)=>a+Number(e.amount),0);
     const budget = Number(BUDGETS[sub]) || 0;
 
     let progressHtml = '';
     if(budget > 0){
-      const pct = Math.min(100, (spent/budget)*100);
+      const rawPct = (spent/budget)*100;
+      const pct = Math.min(100, rawPct);
       const overBudget = spent > budget;
       const color = overBudget ? 'var(--terracotta)' : (pct >= 80 ? 'var(--gold)' : 'var(--sage)');
       progressHtml = `
         <div class="progress-track" style="margin:6px 0 4px;"><div class="progress-fill" style="width:${pct.toFixed(1)}%;background:${color};"></div></div>
-        <div class="muted" style="font-size:11px;">${fmtMoney(spent)} / ${fmtMoney(budget)} spent this month${overBudget ? ' · over budget' : ''}</div>
+        <div class="muted" style="font-size:11px;">${fmtMoney(spent)} / ${fmtMoney(budget)} spent this month · ${rawPct.toFixed(0)}% used${overBudget ? ' · over budget' : ''}</div>
       `;
     }
 
@@ -7589,7 +7592,7 @@ function computeGlanceStats(refDate){
   const budgetedSubs = Object.keys(BUDGETS).filter(sub => Number(BUDGETS[sub]) > 0 && CATEGORY_MAP.Expense.includes(sub));
   let overCount = 0;
   budgetedSubs.forEach(sub=>{
-    const spent = entries.filter(e=>e.category==='Expense' && e.subcategory===sub && e.status==='Closed' && inMonth(e.date)).reduce((a,e)=>a+Number(e.amount),0);
+    const spent = entries.filter(e=>e.category==='Expense' && e.subcategory===sub && inMonth(e.date)).reduce((a,e)=>a+Number(e.amount),0);
     if(spent > Number(BUDGETS[sub])) overCount++;
   });
 
@@ -7672,7 +7675,13 @@ function computeMonthlyRecap(refDate){
   const budgetedSubs = Object.keys(BUDGETS).filter(sub => Number(BUDGETS[sub]) > 0 && CATEGORY_MAP.Expense.includes(sub));
   let overCount = 0;
   budgetedSubs.forEach(sub=>{
-    if((bySubcat[sub] || 0) > Number(BUDGETS[sub])) overCount++;
+    // Matches the Budgets page itself, which counts Open entries too —
+    // bySubcat above is Closed-only (it feeds the "actuals" recap
+    // figures like top category), so this is computed separately here.
+    const spentIncludingOpen = entries
+      .filter(e => e.category === 'Expense' && e.subcategory === sub && inMonth(e.date))
+      .reduce((a,e)=>a+Number(e.amount),0);
+    if(spentIncludingOpen > Number(BUDGETS[sub])) overCount++;
   });
 
   let headline;
