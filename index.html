@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v131 -->
+<!-- WEALTH.ME — v132 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -2280,7 +2280,7 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 131;
+const APP_VERSION = 132;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -6864,8 +6864,8 @@ function renderDebts(){
           <div class="muted" style="font-size:11px;margin-bottom:8px;">${goal.progressPct.toFixed(0)}% paid off${goal.projectionText ? ' · ' + goal.projectionText : ''}</div>
         ` : '';
         return `
-          <div class="group-header" style="margin-top:12px;font-size:14px;display:flex;justify-content:space-between;">
-            <span>${key}</span>
+          <div class="group-header" style="margin-top:12px;font-size:14px;display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:17px;font-weight:700;">${key}</span>
             <span class="muted" style="font-family:'Inter',sans-serif;font-weight:600;">${fmtMoney(acctTotal)}</span>
           </div>
           ${goalHtml}
