@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v135 -->
+<!-- WEALTH.ME — v136 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -718,14 +718,6 @@ main{
 }
 .toggle-switch input:checked + .toggle-thumb{background:var(--sage);}
 .toggle-switch input:checked + .toggle-thumb::before{transform:translateX(18px);}
-.cat-tag{
-  font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;
-  padding:3px 8px;border-radius:7px;
-}
-.cat-tag.Income{background:var(--sage-light);color:var(--sage);}
-.cat-tag.Expense{background:var(--terracotta-light);color:var(--terracotta);}
-.cat-tag.Investment{background:var(--gold-light);color:var(--gold);}
-.cat-tag.Capital{background:var(--slate-light);color:var(--slate);}
 .toast{
   position:fixed;bottom:90px;left:50%;transform:translateX(-50%);
   background:var(--navy);color:var(--cream);
@@ -791,10 +783,6 @@ main{
   background:var(--slate-light);border-radius:8px;padding:8px 10px;margin:8px 0 4px;
 }
 .insights-explain.show{display:block;}
-.percent-note{font-size:12px;color:var(--slate);margin-top:-4px;margin-bottom:10px;}
-.year-progress-card .pct-label{
-  display:flex;justify-content:space-between;font-size:13px;font-weight:600;margin-bottom:2px;
-}
 /* ===== Debt accounts manager ===== */
 .debt-type-group{
   margin-bottom:14px;
@@ -841,14 +829,6 @@ main{
   width:120px;
 }
 .account-chip .rename-input:focus{outline:2px solid var(--navy);outline-offset:1px;}
-table.breakdown-table{width:100%;border-collapse:collapse;font-size:13px;}
-table.breakdown-table th{
-  text-align:right;font-size:10px;text-transform:uppercase;color:var(--slate);
-  padding:6px 4px;border-bottom:1px solid var(--line);letter-spacing:.5px;
-}
-table.breakdown-table th:first-child,table.breakdown-table td:first-child{text-align:left;}
-table.breakdown-table td{padding:8px 4px;border-bottom:1px solid var(--line);text-align:right;font-weight:600;}
-table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
 /* ===== Accordion ===== */
 .accordion{border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:10px;}
 .accordion-header{
@@ -1464,7 +1444,7 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
         </button>
       </div>
       <div id="refreshStatus" class="muted" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 135</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 136</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -1505,7 +1485,7 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 135</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 136</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -2302,7 +2282,7 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 135;
+const APP_VERSION = 136;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -2504,19 +2484,6 @@ function normalizeDateStr(val){
 function isSameMonth(dateStr, refDate){
   const d = parseLocalDate(dateStr);
   return d.getFullYear() === refDate.getFullYear() && d.getMonth() === refDate.getMonth();
-}
-function isSameYear(dateStr, refDate){
-  const d = parseLocalDate(dateStr);
-  return d.getFullYear() === refDate.getFullYear();
-}
-function isBeforeOrInMonth(dateStr, refDate){
-  const d = parseLocalDate(dateStr);
-  const ref = new Date(refDate.getFullYear(), refDate.getMonth()+1, 0); // end of ref month
-  return d <= ref;
-}
-function isBeforeOrInYear(dateStr, refDate){
-  const d = parseLocalDate(dateStr);
-  return d.getFullYear() <= refDate.getFullYear();
 }
 
 /* ---------- PERSISTENCE ---------- */
