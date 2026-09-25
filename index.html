@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v136 -->
+<!-- WEALTH.ME — v137 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1444,7 +1444,7 @@ main{
         </button>
       </div>
       <div id="refreshStatus" class="muted" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 136</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 137</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -1485,7 +1485,7 @@ main{
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 136</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 137</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -2282,7 +2282,7 @@ main{
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 136;
+const APP_VERSION = 137;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -5878,7 +5878,7 @@ function renderCreditLimitsView(){
     if(stats.limit > 0){
       const pct = Math.min(100, Math.max(0, stats.usagePct));
       const overLimit = stats.openUsage > stats.limit;
-      const color = overLimit ? 'var(--terracotta)' : (pct >= 80 ? 'var(--gold)' : 'var(--sage)');
+      const color = overLimit ? 'var(--terracotta)' : (pct >= 80 ? 'var(--gold)' : 'var(--accent-blue)');
       progressHtml = `
         <div class="progress-track" style="margin:6px 0 4px;"><div class="progress-fill" style="width:${pct.toFixed(1)}%;background:${color};"></div></div>
         <div class="muted" style="font-size:11px;">Available: ${fmtMoney(stats.available)} · ${stats.usagePct.toFixed(0)}% used${overLimit ? ' · over limit' : ''}</div>
@@ -6960,7 +6960,7 @@ function renderDebts(){
           if(limitStats.limit > 0){
             const limitPct = Math.min(100, Math.max(0, limitStats.usagePct));
             const overLimit = limitStats.openUsage > limitStats.limit;
-            const limitColor = overLimit ? 'var(--terracotta)' : (limitPct >= 80 ? 'var(--gold)' : 'var(--sage)');
+            const limitColor = overLimit ? 'var(--terracotta)' : (limitPct >= 80 ? 'var(--gold)' : 'var(--accent-blue)');
             limitHtml = `
               <div class="progress-track" style="margin:6px 0 4px;"><div class="progress-fill" style="width:${limitPct.toFixed(1)}%;background:${limitColor};"></div></div>
               <div class="muted" style="font-size:11px;margin-bottom:8px;">Available: ${fmtMoney(limitStats.available)} · ${limitStats.usagePct.toFixed(0)}% used${overLimit ? ' · over limit' : ''}</div>
