@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v133 -->
+<!-- WEALTH.ME — v135 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1439,6 +1439,10 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
             <span>Budgets</span>
           </li>
+          <li class="more-row" id="creditLimitsBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+            <span>Credit Limits</span>
+          </li>
           <li class="more-row" id="dataManagementBtn">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
             <span>Data Management</span>
@@ -1460,7 +1464,7 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
         </button>
       </div>
       <div id="refreshStatus" class="muted" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 60</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 135</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -1501,7 +1505,7 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 60</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 135</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -1572,6 +1576,20 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
       <div class="card">
         <p class="muted" style="margin-top:0;">Set a monthly $ target per category — leave at 0 for none. Spent amounts include both Open and Closed entries for the month shown.</p>
         <div id="budgetsList"></div>
+      </div>
+    </section>
+
+    <!-- ===== Credit Limits Page ===== -->
+    <section class="view" id="view-creditLimits">
+      <div class="modal-header">
+        <h3>Credit Limits</h3>
+        <button class="icon-btn" id="creditLimitsModalClose" aria-label="Close Credit Limits">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="card">
+        <p class="muted" style="margin-top:0;">Set the total limit for each credit card — leave at 0 for none. Usage is based on that card's current Open expense entries.</p>
+        <div id="creditLimitsList"></div>
       </div>
     </section>
 
@@ -1938,6 +1956,10 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
         Budgets
       </button>
+      <button class="sidebar-footer-btn" id="sidebarCreditLimitsBtn" title="Credit Limits">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+        Credit Limits
+      </button>
       <button class="sidebar-footer-btn" id="sidebarDataManagementBtn" title="Data Management">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
         Data Management
@@ -2280,7 +2302,7 @@ table.breakdown-table tr:last-child td{border-bottom:none;font-weight:700;}
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 133;
+const APP_VERSION = 135;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -2316,6 +2338,12 @@ let DEBT_ACCOUNTS = {
    uniformly to whichever month is being viewed, so there's no month
    rollover data to maintain. Absent or 0 means "no budget set". */
 let BUDGETS = {};
+
+/* ---------- CREDIT_LIMITS (total limit per Credit Card account) ----------
+   Flat, keyed by account name under the "Credit Card" debt type — a
+   standing limit, not tied to any month. Absent or 0 means "no limit
+   set" (usage/available aren't shown for that card). */
+let CREDIT_LIMITS = {};
 
 /* ---------- Saved Transactions filter presets ---------- */
 let FILTER_PRESETS = []; // [{id, name, txFilter, txPeriod, txDateFrom, txDateTo, txSearchQuery, txSortAsc}]
@@ -2510,6 +2538,7 @@ function saveState(){
     localStorage.setItem('wealthme_debtaccounts', JSON.stringify(DEBT_ACCOUNTS));
     localStorage.setItem('wealthme_categorymap', JSON.stringify(CATEGORY_MAP));
     localStorage.setItem('wealthme_budgets', JSON.stringify(BUDGETS));
+    localStorage.setItem('wealthme_creditlimits', JSON.stringify(CREDIT_LIMITS));
     localStorage.setItem('wealthme_filterpresets', JSON.stringify(FILTER_PRESETS));
   }catch(e){ /* ignore */ }
 }
@@ -2521,6 +2550,7 @@ function loadState(){
     const da = localStorage.getItem('wealthme_debtaccounts');
     const cm = localStorage.getItem('wealthme_categorymap');
     const bg = localStorage.getItem('wealthme_budgets');
+    const cl = localStorage.getItem('wealthme_creditlimits');
     const fp = localStorage.getItem('wealthme_filterpresets');
     if(e){ entries = JSON.parse(e); }
     if(n){ nextId = parseInt(n,10); }
@@ -2536,6 +2566,7 @@ function loadState(){
       });
     }
     if(bg){ BUDGETS = JSON.parse(bg); }
+    if(cl){ CREDIT_LIMITS = JSON.parse(cl); }
     if(fp){ FILTER_PRESETS = JSON.parse(fp); }
     return !!e;
   }catch(err){ return false; }
@@ -4272,7 +4303,7 @@ function switchView(viewName){
     return;
   }
 
-  if(viewName === 'help' || viewName === 'settings' || viewName === 'dataManagement' || viewName === 'privacy' || viewName === 'appearance' || viewName === 'budgets'){
+  if(viewName === 'help' || viewName === 'settings' || viewName === 'dataManagement' || viewName === 'privacy' || viewName === 'appearance' || viewName === 'budgets' || viewName === 'creditLimits'){
     document.getElementById('view-'+viewName).classList.add('active');
     // These are full pages now (not popups), reached from the More page
     // on mobile and the sidebar footer on desktop — neither has its own
@@ -5164,7 +5195,7 @@ function getActiveViewName(){
    9-column format as regular entries — no separate file or backend
    changes needed.
    ========================================================= */
-const SETTINGS_ROW_IDS = { categoryMap: -1, debtAccounts: -2, budgets: -3, filterPresets: -4 };
+const SETTINGS_ROW_IDS = { categoryMap: -1, debtAccounts: -2, budgets: -3, filterPresets: -4, creditLimits: -5 };
 
 function buildSettingsRows(){
   return [
@@ -5183,6 +5214,10 @@ function buildSettingsRows(){
     {
       id: SETTINGS_ROW_IDS.filterPresets, date: '', category: '__SETTINGS__', subcategory: 'FILTER_PRESETS',
       amount: 0, status: 'Open', notes: JSON.stringify(FILTER_PRESETS), type: '', account: ''
+    },
+    {
+      id: SETTINGS_ROW_IDS.creditLimits, date: '', category: '__SETTINGS__', subcategory: 'CREDIT_LIMITS',
+      amount: 0, status: 'Open', notes: JSON.stringify(CREDIT_LIMITS), type: '', account: ''
     }
   ];
 }
@@ -5213,6 +5248,10 @@ function applySettingsRow(e){
     }
     if(e.subcategory === 'FILTER_PRESETS'){
       if(Array.isArray(parsed)){ FILTER_PRESETS = parsed; }
+      return true;
+    }
+    if(e.subcategory === 'CREDIT_LIMITS'){
+      if(parsed && typeof parsed === 'object'){ CREDIT_LIMITS = parsed; }
       return true;
     }
   }catch(err){ /* malformed settings row — ignore */ }
@@ -5846,10 +5885,75 @@ function renderBudgetsView(){
       const val = Number(e.target.value) || 0;
       if(val > 0){ BUDGETS[sub] = val; } else { delete BUDGETS[sub]; }
       saveState();
+      syncSettingsNow();
       renderBudgetsView();
     });
   });
 }
+
+// Credit Limits are a flat standing $ limit per Credit Card account (not
+// per-month) — usage is always based on that card's CURRENT Open expense
+// balance, so there's no month nav here (unlike Budgets, which tracks
+// month-by-month spend against a recurring target).
+function renderCreditLimitsView(){
+  const container = document.getElementById('creditLimitsList');
+  const accounts = DEBT_ACCOUNTS['Credit Card'] || [];
+
+  if(accounts.length === 0){
+    container.innerHTML = `<div class="empty-state" style="padding:20px;"><span class="muted">No credit card accounts yet — add one in Settings → Debt Accounts.</span></div>`;
+    return;
+  }
+
+  container.innerHTML = accounts.map(account=>{
+    const stats = creditLimitStatsFor(account);
+
+    let progressHtml = '';
+    if(stats.limit > 0){
+      const pct = Math.min(100, Math.max(0, stats.usagePct));
+      const overLimit = stats.openUsage > stats.limit;
+      const color = overLimit ? 'var(--terracotta)' : (pct >= 80 ? 'var(--gold)' : 'var(--sage)');
+      progressHtml = `
+        <div class="progress-track" style="margin:6px 0 4px;"><div class="progress-fill" style="width:${pct.toFixed(1)}%;background:${color};"></div></div>
+        <div class="muted" style="font-size:11px;">Available: ${fmtMoney(stats.available)} · ${stats.usagePct.toFixed(0)}% used${overLimit ? ' · over limit' : ''}</div>
+      `;
+    }
+
+    return `
+      <div class="budget-row" style="padding:10px 0;border-bottom:1px solid var(--line);">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
+          <span style="font-size:14px;">${account}</span>
+          <div style="display:flex;align-items:center;gap:4px;">
+            <span class="muted" style="font-size:13px;">$</span>
+            <input type="number" class="credit-limit-input" data-account="${account}" value="${stats.limit || ''}" placeholder="0" min="0" step="1" inputmode="decimal" aria-label="Credit limit for ${account}" style="width:80px;text-align:right;border:1px solid var(--line);border-radius:6px;padding:4px 6px;font-size:13px;">
+          </div>
+        </div>
+        ${progressHtml}
+      </div>
+    `;
+  }).join('');
+
+  container.querySelectorAll('.credit-limit-input').forEach(input=>{
+    input.addEventListener('change', (e)=>{
+      const account = e.target.dataset.account;
+      const val = Number(e.target.value) || 0;
+      if(val > 0){ CREDIT_LIMITS[account] = val; } else { delete CREDIT_LIMITS[account]; }
+      saveState();
+      syncSettingsNow();
+      renderCreditLimitsView();
+      // Debts page shows the same available/usage figures underneath each
+      // card's progress bar — keep it in sync if it's the active view.
+      if(getActiveViewName() === 'debts'){ renderDebts(); }
+    });
+  });
+}
+function openCreditLimitsModal(){
+  renderCreditLimitsView();
+  switchView('creditLimits');
+}
+function closeCreditLimitsModal(){
+  switchView('more');
+}
+
 function openDataManagementModal(){
   document.getElementById('syncUrlInput').value = syncUrl || '';
   setSyncStatus('');
@@ -6298,6 +6402,8 @@ document.getElementById('settingsBtn').addEventListener('click', openSettingsMod
 document.getElementById('sidebarSettingsBtn')?.addEventListener('click', openSettingsModal);
 document.getElementById('budgetsBtn').addEventListener('click', openBudgetsModal);
 document.getElementById('sidebarBudgetsBtn')?.addEventListener('click', openBudgetsModal);
+document.getElementById('creditLimitsBtn').addEventListener('click', openCreditLimitsModal);
+document.getElementById('sidebarCreditLimitsBtn')?.addEventListener('click', openCreditLimitsModal);
 document.getElementById('dataManagementBtn').addEventListener('click', openDataManagementModal);
 document.getElementById('sidebarDataManagementBtn')?.addEventListener('click', openDataManagementModal);
 document.getElementById('privacyBtn').addEventListener('click', openPrivacyModal);
@@ -6306,6 +6412,7 @@ document.getElementById('appearanceBtn').addEventListener('click', openAppearanc
 document.getElementById('sidebarAppearanceBtn')?.addEventListener('click', openAppearanceModal);
 document.getElementById('settingsModalClose').addEventListener('click', closeSettingsModal);
 document.getElementById('budgetsModalClose').addEventListener('click', closeBudgetsModal);
+document.getElementById('creditLimitsModalClose').addEventListener('click', closeCreditLimitsModal);
 document.getElementById('dataManagementModalClose').addEventListener('click', closeDataManagementModal);
 document.getElementById('privacyModalClose').addEventListener('click', closePrivacyModal);
 document.getElementById('appearanceModalClose').addEventListener('click', closeAppearanceModal);
@@ -6758,6 +6865,19 @@ function goalStatsFor(type, account){
 
   return { openBalance, closedTotal, everCharged, progressPct, projectionText };
 }
+// Credit limit stats for one Credit Card account: total limit vs. that
+// card's current Open expense balance. "Usage" only counts Open entries
+// (Closed ones are already paid off and no longer occupy the limit).
+// limit === 0 means no limit was set for this card.
+function creditLimitStatsFor(account){
+  const limit = Number(CREDIT_LIMITS[account]) || 0;
+  const openUsage = entries
+    .filter(e => e.category === 'Expense' && (e.type || 'Other') === 'Credit Card' && (e.account || 'Unassigned') === account && e.status === 'Open')
+    .reduce((a,e)=>a+Number(e.amount), 0);
+  const available = limit > 0 ? (limit - openUsage) : null;
+  const usagePct = limit > 0 ? (openUsage/limit*100) : null;
+  return { limit, openUsage, available, usagePct };
+}
 // Lightweight confetti burst — no external library, just a handful of
 // absolutely-positioned pieces animated via CSS (see the confettiFall
 // keyframes) and removed after they finish falling.
@@ -6863,12 +6983,31 @@ function renderDebts(){
           <div class="progress-track" style="margin:6px 0 4px;"><div class="progress-fill" style="width:${goal.progressPct.toFixed(1)}%;background:var(--sage);"></div></div>
           <div class="muted" style="font-size:11px;margin-bottom:8px;">${goal.progressPct.toFixed(0)}% paid off${goal.projectionText ? ' · ' + goal.projectionText : ''}</div>
         ` : '';
+
+        // Credit limit usage — only for Credit Card accounts with a limit
+        // set (in More → Credit Limits). Shows available headroom and
+        // utilization % underneath its own progress bar.
+        let limitHtml = '';
+        if(type === 'Credit Card'){
+          const limitStats = creditLimitStatsFor(key);
+          if(limitStats.limit > 0){
+            const limitPct = Math.min(100, Math.max(0, limitStats.usagePct));
+            const overLimit = limitStats.openUsage > limitStats.limit;
+            const limitColor = overLimit ? 'var(--terracotta)' : (limitPct >= 80 ? 'var(--gold)' : 'var(--sage)');
+            limitHtml = `
+              <div class="progress-track" style="margin:6px 0 4px;"><div class="progress-fill" style="width:${limitPct.toFixed(1)}%;background:${limitColor};"></div></div>
+              <div class="muted" style="font-size:11px;margin-bottom:8px;">Available: ${fmtMoney(limitStats.available)} · ${limitStats.usagePct.toFixed(0)}% used${overLimit ? ' · over limit' : ''}</div>
+            `;
+          }
+        }
+
         return `
           <div class="group-header" style="margin-top:12px;font-size:14px;display:flex;justify-content:space-between;align-items:center;">
             <span style="font-size:17px;font-weight:700;">${key}</span>
             <span class="muted" style="font-family:'Inter',sans-serif;font-weight:600;">${fmtMoney(acctTotal)}</span>
           </div>
           ${goalHtml}
+          ${limitHtml}
           <ul class="entry-list">${acctRows.map(e=>renderEntryRow(e)).join('')}</ul>
         `;
       }).join('');
