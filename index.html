@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v140 -->
+<!-- WEALTH.ME — v142 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -23,7 +23,7 @@
 html{-webkit-text-size-adjust:100%;text-size-adjust:100%;}
 :root{
   --navy:#002448;
-  --cream:#C2ECFB;
+  --cream:#DBF4FD;
   --card:#FFFFFF;
   --sage:#3E7C59;
   --sage-light:#E7F0EA;
@@ -44,6 +44,10 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%;}
   --brand-navy:#002448;
   --accent-blue:#0EA5E9;
   --accent-blue-light:#BAE6FD;
+  /* Insights page gets its own background tint (a light-blue "Splash"
+     sampled from the logo), separate from --sky-light (still used for
+     pill/chip backgrounds everywhere else). */
+  --insights-bg:#B2E7FA;
 }
 [data-theme="dark"]{
   --navy:#E9E7E2;
@@ -60,6 +64,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%;}
   --sky:#7CA3D1;
   --sky-light:#1B2530;
   --line:#2B323B;
+  --insights-bg:#1B2530;
 }
 *{box-sizing:border-box;}
 html,body{margin:0;padding:0;}
@@ -93,7 +98,7 @@ body{
   z-index:50;
   transition:background .2s ease;
 }
-.topbar.insights-active{background:var(--sky-light);}
+.topbar.insights-active{background:var(--insights-bg);}
 .logo{
   display:flex;
   align-items:center;
@@ -176,7 +181,7 @@ main{
 .view{display:none;}
 .view.active{display:block;animation:fadeIn .25s ease;}
 #view-insights.active{
-  background:var(--sky-light);
+  background:var(--insights-bg);
   margin:0 -16px;
   padding:12px 16px 0;
 }
@@ -1444,7 +1449,7 @@ main{
         </button>
       </div>
       <div id="refreshStatus" class="muted" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 140</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 142</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -1485,7 +1490,7 @@ main{
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 140</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 142</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -2282,7 +2287,7 @@ main{
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 140;
+const APP_VERSION = 142;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -2378,6 +2383,16 @@ function chartColors(){
   return currentTheme === 'dark'
     ? { tooltipBg:'#E9E7E2', tooltipText:'#161A1F', grid:'#2B323B', tick:'#93A0AD', lineColor:'#E9E7E2', pageBg:'#161A1F', slateLight:'#262C34' }
     : { tooltipBg:'#0F1B2D', tooltipText:'#F7F4EF', grid:'#E3DFD6', tick:'#5C6B7A', lineColor:'#0F1B2D', pageBg:'#F5F7F3', slateLight:'#E7EAED' };
+}
+// Converts a "#RRGGBB" hex string to an "rgba(r,g,b,alpha)" string — used to
+// derive a theme-matched, low-opacity chart fill from chartColors().lineColor
+// (which flips between a dark and a light hex depending on currentTheme).
+function hexToRgba(hex, alpha){
+  const h = hex.replace('#','');
+  const r = parseInt(h.substring(0,2),16);
+  const g = parseInt(h.substring(2,4),16);
+  const b = parseInt(h.substring(4,6),16);
+  return `rgba(${r},${g},${b},${alpha})`;
 }
 
 const _now = new Date();
@@ -4075,13 +4090,13 @@ function renderNetWorthChart(){
       datasets: [{
         label: 'Net Worth',
         data: netWorthData,
-        borderColor: '#002448',
-        backgroundColor: 'rgba(0,36,72,0.10)',
+        borderColor: chartColors().lineColor,
+        backgroundColor: hexToRgba(chartColors().lineColor, 0.12),
         fill: true,
         tension: 0.35,
         pointRadius: 0,
         pointHoverRadius: 5,
-        pointHoverBackgroundColor: '#002448',
+        pointHoverBackgroundColor: chartColors().lineColor,
         borderWidth: 2.5
       }]
     },
