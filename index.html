@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v146 -->
+<!-- WEALTH.ME — v147 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1112,6 +1112,10 @@ main{
           <div class="value pos" id="sumGross">$0</div>
         </div>
         <div class="summary-card">
+          <div class="label">Taxes</div>
+          <div class="value" id="sumTaxes">$0</div>
+        </div>
+        <div class="summary-card">
           <div class="label">Net Income</div>
           <div class="value" id="sumNet">$0</div>
         </div>
@@ -1122,10 +1126,6 @@ main{
         <div class="summary-card">
           <div class="label">Investment</div>
           <div class="value gold" id="sumInvestment">$0</div>
-        </div>
-        <div class="summary-card">
-          <div class="label">Taxes</div>
-          <div class="value" id="sumTaxes">$0</div>
         </div>
         <div class="summary-card">
           <div class="label">Projected Balance</div>
@@ -1450,7 +1450,7 @@ main{
         </button>
       </div>
       <div id="refreshStatus" class="muted" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 146</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 147</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -1491,7 +1491,7 @@ main{
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 146</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 147</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -2287,7 +2287,7 @@ main{
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 146;
+const APP_VERSION = 147;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
