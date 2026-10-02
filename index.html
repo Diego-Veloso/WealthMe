@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v147 -->
+<!-- WEALTH.ME — v148 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1450,7 +1450,7 @@ main{
         </button>
       </div>
       <div id="refreshStatus" class="muted" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 147</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 148</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -1491,7 +1491,7 @@ main{
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 147</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 148</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -2287,7 +2287,7 @@ main{
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 147;
+const APP_VERSION = 148;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -2396,11 +2396,11 @@ function hexToRgba(hex, alpha){
 }
 
 const _now = new Date();
-let homeDate = new Date(_now.getFullYear(), _now.getMonth(), 1); // always current month
-let moneyMonthDate = new Date(_now.getFullYear(), _now.getMonth(), 1);
-let budgetsMonthDate = new Date(_now.getFullYear(), _now.getMonth(), 1);
-let detailRefDate = new Date(_now.getFullYear(), _now.getMonth(), 1);
-let insightsRefDate = new Date(_now.getFullYear(), _now.getMonth(), 1);
+// Single shared month selector for the whole app — Home, Money, Budgets,
+// Insights, and the subcategory Detail view all read/write this same
+// variable, so changing the month on any one of them changes it
+// everywhere else too.
+let homeDate = new Date(_now.getFullYear(), _now.getMonth(), 1); // always current month by default
 
 let donutCategory = "Expense";
 let txFilter = "Open";
@@ -3205,9 +3205,9 @@ function pctColor(pct, invertGood){
 function renderInsightsView(){
   const container = document.getElementById('insightsContainer');
   if(!container) return;
-  document.getElementById('insightsMonthLabel').textContent = fmtMonthYear(insightsRefDate);
+  document.getElementById('insightsMonthLabel').textContent = fmtMonthYear(homeDate);
 
-  const data = generateFinancialInsights(insightsRefDate, insightsDirection);
+  const data = generateFinancialInsights(homeDate, insightsDirection);
 
   const periodFromLabel = fmtMonthYear(data.period[0].date);
   const periodToLabel = fmtMonthYear(data.period[data.period.length - 1].date);
@@ -3805,9 +3805,9 @@ function isDebtEntry(e){
 }
 
 function renderMoney(){
-  document.getElementById('moneyLabel').textContent = fmtMonthYear(moneyMonthDate);
+  document.getElementById('moneyLabel').textContent = fmtMonthYear(homeDate);
 
-  const inMonth = (dateStr) => isSameMonth(dateStr, moneyMonthDate);
+  const inMonth = (dateStr) => isSameMonth(dateStr, homeDate);
 
   // Invested = sum of Closed Investment entries for the month
   const invested = entries
@@ -3820,7 +3820,7 @@ function renderMoney(){
     .reduce((a, e) => a + Number(e.amount), 0);
 
   // Cumulative: all Closed Investment entries up to and including selected month
-  const cutoff = new Date(moneyMonthDate.getFullYear(), moneyMonthDate.getMonth() + 1, 0);
+  const cutoff = new Date(homeDate.getFullYear(), homeDate.getMonth() + 1, 0);
   const cumulative = entries
     .filter(e => e.category === 'Investment' && e.status === 'Closed' && parseLocalDate(e.date) <= cutoff)
     .reduce((a, e) => a + Number(e.amount), 0);
@@ -3929,7 +3929,7 @@ function renderMoneyLineChart(){
   const netData      = [];   // cumulative (Closed Investment + Capital) month over month
 
   // Prior cumulative base: everything before the selected month
-  const startCutoff = new Date(moneyMonthDate.getFullYear(), moneyMonthDate.getMonth(), 0);
+  const startCutoff = new Date(homeDate.getFullYear(), homeDate.getMonth(), 0);
   let cumulativeInvested = entries
     .filter(e => e.category === 'Investment' && e.status === 'Closed' && parseLocalDate(e.date) <= startCutoff)
     .reduce((a, e) => a + Number(e.amount), 0);
@@ -3942,7 +3942,7 @@ function renderMoneyLineChart(){
   let cumulativeNet = cumulativeInvested + cumulativeCapital;
 
   for(let i = 0; i < 12; i++){
-    const d = new Date(moneyMonthDate.getFullYear(), moneyMonthDate.getMonth() + i, 1);
+    const d = new Date(homeDate.getFullYear(), homeDate.getMonth() + i, 1);
     const inM = (dateStr) => isSameMonth(dateStr, d);
 
     const monthInvested = entries.filter(e => e.category === 'Investment' && e.status === 'Closed' && inM(e.date)).reduce((a, e) => a + Number(e.amount), 0);
@@ -4050,7 +4050,7 @@ function renderNetWorthChart(){
     .filter(e => e.category === 'Capital')
     .reduce((a, e) => a + Number(e.amount), 0);
 
-  const startCutoff = new Date(moneyMonthDate.getFullYear(), moneyMonthDate.getMonth(), 0);
+  const startCutoff = new Date(homeDate.getFullYear(), homeDate.getMonth(), 0);
   let cumulativeInvested = entries
     .filter(e => e.category === 'Investment' && e.status === 'Closed' && parseLocalDate(e.date) <= startCutoff)
     .reduce((a, e) => a + Number(e.amount), 0);
@@ -4062,7 +4062,7 @@ function renderNetWorthChart(){
     .reduce((a, e) => a + Number(e.amount), 0);
 
   for(let i = 0; i < 12; i++){
-    const d = new Date(moneyMonthDate.getFullYear(), moneyMonthDate.getMonth() + i, 1);
+    const d = new Date(homeDate.getFullYear(), homeDate.getMonth() + i, 1);
     const inM = (dateStr) => isSameMonth(dateStr, d);
 
     const monthInvested = entries
@@ -4360,24 +4360,24 @@ function setDetailPeriodToThisMonth(){
   document.getElementById('detailDateRangeRow').style.display = 'none';
 }
 document.getElementById('detailPrev').addEventListener('click', ()=>{
-  detailRefDate = new Date(detailRefDate.getFullYear(), detailRefDate.getMonth()-1, 1);
+  homeDate = new Date(homeDate.getFullYear(), homeDate.getMonth()-1, 1);
   setDetailPeriodToThisMonth();
   renderDetail();
 });
 document.getElementById('detailNext').addEventListener('click', ()=>{
-  detailRefDate = new Date(detailRefDate.getFullYear(), detailRefDate.getMonth()+1, 1);
+  homeDate = new Date(homeDate.getFullYear(), homeDate.getMonth()+1, 1);
   setDetailPeriodToThisMonth();
   renderDetail();
 });
 
 /* Insights month navigation */
 document.getElementById('insightsPrev').addEventListener('click', ()=>{
-  insightsRefDate = new Date(insightsRefDate.getFullYear(), insightsRefDate.getMonth()-1, 1);
+  homeDate = new Date(homeDate.getFullYear(), homeDate.getMonth()-1, 1);
   insightsDrillPath = [];
   renderInsightsView();
 });
 document.getElementById('insightsNext').addEventListener('click', ()=>{
-  insightsRefDate = new Date(insightsRefDate.getFullYear(), insightsRefDate.getMonth()+1, 1);
+  homeDate = new Date(homeDate.getFullYear(), homeDate.getMonth()+1, 1);
   insightsDrillPath = [];
   renderInsightsView();
 });
@@ -4770,11 +4770,11 @@ document.getElementById('debtTypeFilterSeg').querySelectorAll('button').forEach(
 
 /* Money month navigation */
 document.getElementById('moneyPrev').addEventListener('click', ()=>{
-  moneyMonthDate = new Date(moneyMonthDate.getFullYear(), moneyMonthDate.getMonth()-1, 1);
+  homeDate = new Date(homeDate.getFullYear(), homeDate.getMonth()-1, 1);
   renderMoney();
 });
 document.getElementById('moneyNext').addEventListener('click', ()=>{
-  moneyMonthDate = new Date(moneyMonthDate.getFullYear(), moneyMonthDate.getMonth()+1, 1);
+  homeDate = new Date(homeDate.getFullYear(), homeDate.getMonth()+1, 1);
   renderMoney();
 });
 
@@ -5828,11 +5828,11 @@ function maybeCelebrateBudgets(){
 }
 // Budgets are a flat monthly $ target per Expense subcategory (not
 // per-month), so the same BUDGETS map applies to whichever month is
-// being viewed — only "spent this month" changes as budgetsMonthDate
+// being viewed — only "spent this month" changes as homeDate
 // changes, not the targets themselves.
 function renderBudgetsView(){
-  document.getElementById('budgetsMonthLabel').textContent = fmtMonthYear(budgetsMonthDate);
-  const inMonth = (dateStr) => isSameMonth(dateStr, budgetsMonthDate);
+  document.getElementById('budgetsMonthLabel').textContent = fmtMonthYear(homeDate);
+  const inMonth = (dateStr) => isSameMonth(dateStr, homeDate);
   const container = document.getElementById('budgetsList');
 
   container.innerHTML = CATEGORY_MAP.Expense.slice().sort((a,b)=>a.localeCompare(b)).map(sub=>{
@@ -6407,11 +6407,11 @@ document.getElementById('dataManagementModalClose').addEventListener('click', cl
 document.getElementById('privacyModalClose').addEventListener('click', closePrivacyModal);
 document.getElementById('appearanceModalClose').addEventListener('click', closeAppearanceModal);
 document.getElementById('budgetsPrev').addEventListener('click', ()=>{
-  budgetsMonthDate = new Date(budgetsMonthDate.getFullYear(), budgetsMonthDate.getMonth()-1, 1);
+  homeDate = new Date(homeDate.getFullYear(), homeDate.getMonth()-1, 1);
   renderBudgetsView();
 });
 document.getElementById('budgetsNext').addEventListener('click', ()=>{
-  budgetsMonthDate = new Date(budgetsMonthDate.getFullYear(), budgetsMonthDate.getMonth()+1, 1);
+  homeDate = new Date(homeDate.getFullYear(), homeDate.getMonth()+1, 1);
   renderBudgetsView();
 });
 
@@ -7124,20 +7124,19 @@ function populateDetailSelectors(){
 function openDetail(category, subcategory){
   detailCategory = category;
   detailSubcategory = subcategory;
-  detailRefDate = new Date(homeDate.getFullYear(), homeDate.getMonth(), 1);
   populateDetailSelectors();
   renderDetail();
   switchView('detail');
 }
 
 function renderDetail(){
-  document.getElementById('detailMonthLabel').textContent = fmtMonthYear(detailRefDate);
+  document.getElementById('detailMonthLabel').textContent = fmtMonthYear(homeDate);
 
   let matching = entries.filter(e=>e.category===detailCategory && e.subcategory===detailSubcategory);
 
   // Period filter
   if(detailPeriod !== 'all'){
-    const ref = detailRefDate;
+    const ref = homeDate;
     let from, to;
     if(detailPeriod === 'thismonth'){
       from = new Date(ref.getFullYear(), ref.getMonth(), 1);
@@ -7233,7 +7232,7 @@ function renderDetailTrendChart(){
     `${detailSubcategory} as % of Gross Income`;
 
   // Determine the months to display
-  const now = detailRefDate;
+  const now = homeDate;
   let monthPoints = [];
 
   if(detailPeriod === 'all' || detailPeriod === 'thismonth' || detailPeriod === 'nextmonth'){
