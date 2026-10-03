@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v148 -->
+<!-- WEALTH.ME — v150 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -138,6 +138,13 @@ body{
 .icon-btn:active{transform:scale(0.96);}
 .notif-btn{position:relative;}
 .notif-btn.notif-empty{opacity:0.4;}
+/* Sun/moon theme-toggle button beside the bell: the moon shows in light
+   mode (tap to switch to dark), the sun shows in dark mode (tap to
+   switch to light). Purely CSS-driven off the <html data-theme> attribute
+   that applyTheme() already sets, so it never needs separate JS syncing. */
+.theme-toggle-btn .icon-sun{display:none;}
+[data-theme="dark"] .theme-toggle-btn .icon-sun{display:inline-flex;}
+[data-theme="dark"] .theme-toggle-btn .icon-moon{display:none;}
 .notif-badge{
   position:absolute;
   top:-4px;right:-4px;
@@ -1078,6 +1085,10 @@ main{
     </div>
     <div style="display:flex;gap:8px;align-items:center;position:relative;">
       <div id="syncBadge" class="sync-badge" title="Cloud Sync Active" style="display:none;width:8px;height:8px;border-radius:50%;background:var(--sage);flex-shrink:0;"></div>
+      <button class="icon-btn theme-toggle-btn" id="themeToggleBtn" title="Toggle dark mode" aria-label="Toggle dark mode">
+        <span class="icon-sun"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="6.34" y2="17.66"/><line x1="17.66" y1="6.34" x2="19.07" y2="4.93"/></svg></span>
+        <span class="icon-moon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></span>
+      </button>
       <button class="icon-btn notif-btn" id="notificationsBtn" title="Notifications" aria-label="Notifications">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
         <span class="notif-badge" id="notificationsBadge">0</span>
@@ -1450,7 +1461,7 @@ main{
         </button>
       </div>
       <div id="refreshStatus" class="muted" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 148</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 150</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -1491,7 +1502,7 @@ main{
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 148</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 150</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -1878,6 +1889,10 @@ main{
       <div class="logo-text">Wealth<span>.</span>Me</div>
       <div style="display:flex;gap:10px;align-items:center;margin-left:auto;">
         <div id="syncBadgeSidebar" class="sync-badge" title="Cloud Sync Active" style="display:none;width:8px;height:8px;border-radius:50%;background:var(--sage);flex-shrink:0;"></div>
+        <button class="sidebar-notif-btn theme-toggle-btn" id="sidebarThemeToggleBtn" title="Toggle dark mode" aria-label="Toggle dark mode">
+          <span class="icon-sun"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="6.34" y2="17.66"/><line x1="17.66" y1="6.34" x2="19.07" y2="4.93"/></svg></span>
+          <span class="icon-moon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></span>
+        </button>
         <button class="sidebar-notif-btn notif-btn" id="sidebarNotificationsBtn" title="Notifications" aria-label="Notifications">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
           <span class="notif-badge" id="notificationsBadgeSidebar">0</span>
@@ -2287,7 +2302,7 @@ main{
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 148;
+const APP_VERSION = 150;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -4329,6 +4344,13 @@ function closeNotificationsModal(){
 }
 document.getElementById('notificationsBtn').addEventListener('click', openNotificationsModal);
 document.getElementById('sidebarNotificationsBtn')?.addEventListener('click', openNotificationsModal);
+
+function toggleTheme(){
+  setTheme(currentTheme === 'dark' ? 'light' : 'dark');
+  updateDarkModeToggleUI(); // keeps the Appearance page's switch in sync if it's open
+}
+document.getElementById('themeToggleBtn').addEventListener('click', toggleTheme);
+document.getElementById('sidebarThemeToggleBtn')?.addEventListener('click', toggleTheme);
 document.getElementById('notificationsModalClose').addEventListener('click', closeNotificationsModal);
 document.getElementById('notificationsModalOverlay').addEventListener('click', (e)=>{
   if(e.target.id === 'notificationsModalOverlay') closeNotificationsModal();
