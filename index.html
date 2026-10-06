@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v150 -->
+<!-- WEALTH.ME — v151 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1461,7 +1461,7 @@ main{
         </button>
       </div>
       <div id="refreshStatus" class="muted" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 150</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 151</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -1502,7 +1502,7 @@ main{
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 150</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 151</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -1514,7 +1514,8 @@ main{
         </button>
       </div>
 
-      <div class="card">
+      <p class="muted" style="margin-top:0;">Password protection is currently inactive.</p>
+      <div class="card" style="display:none;">
       <div class="section-title">Password</div>
       <div class="toggle-row" style="margin-bottom:13px;">
         <span class="toggle-label" id="passwordRequiredLabel">Require Password</span>
@@ -2302,7 +2303,7 @@ main{
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 150;
+const APP_VERSION = 151;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -6833,14 +6834,13 @@ document.getElementById('passwordEnabledToggle').addEventListener('change', (e)=
   showToast(e.target.checked ? 'Password protection enabled' : 'Password protection disabled');
 });
 
-// Show lock screen only if password protection is enabled and not already unlocked this session
-if(!isPasswordEnabled() || isUnlocked()){
-  document.getElementById('lockScreen').style.display = 'none';
-  init();
-} else {
-  // Don't call init() yet — called after successful unlock
-  document.getElementById('lockInput').focus();
-}
+// Password feature is currently inactivated app-wide: the lock screen
+// never engages here, even if a prior session had it enabled in
+// localStorage. The Password section on the Privacy page is hidden to
+// match (see view-privacy), and its toggle/fields are left in the DOM,
+// inert, so this can be turned back on later without re-wiring anything.
+document.getElementById('lockScreen').style.display = 'none';
+init();
 
 
 // Payoff-goal stats for one debt type+account, computed from that
