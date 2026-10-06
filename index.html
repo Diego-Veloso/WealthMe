@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v151 -->
+<!-- WEALTH.ME — v153 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1053,25 +1053,53 @@ main{
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   z-index:999;padding:32px;
 ">
-  <div style="width:60px;height:60px;border-radius:16px;background:#1a2d45;display:flex;align-items:center;justify-content:center;margin-bottom:20px;">
-    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#F7F4EF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+  <div id="lockMainPanel" style="display:flex;flex-direction:column;align-items:center;width:100%;">
+    <div style="width:60px;height:60px;border-radius:16px;background:#1a2d45;display:flex;align-items:center;justify-content:center;margin-bottom:20px;">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#F7F4EF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+    </div>
+    <div style="font-family:'Inter',sans-serif;font-size:24px;font-weight:600;color:#F7F4EF;margin-bottom:6px;">Wealth.Me</div>
+    <div style="font-size:13px;color:#8fa3b0;margin-bottom:32px;">Enter your password to continue</div>
+    <input type="password" id="lockInput" placeholder="Password"
+      style="width:100%;max-width:320px;padding:14px 16px;border-radius:12px;border:1px solid #2a3d54;
+      background:#1a2d45;color:#F7F4EF;font-size:16px;font-family:'Inter',sans-serif;
+      outline:none;text-align:center;margin-bottom:12px;box-sizing:border-box;"
+      autofocus>
+    <div id="lockError" style="color:#C1583F;font-size:13px;min-height:20px;margin-bottom:12px;"></div>
+    <button id="lockBtn" style="
+      width:100%;max-width:320px;padding:14px;border-radius:12px;border:none;
+      background:#F7F4EF;color:#0F1B2D;font-size:15px;font-weight:700;
+      font-family:'Inter',sans-serif;cursor:pointer;">
+      Unlock
+    </button>
+    <button type="button" id="forgotPasswordLink" style="background:none;border:none;color:#8fa3b0;font-size:12.5px;text-decoration:underline;cursor:pointer;margin-top:16px;padding:4px;">Forgot password?</button>
+    <div style="margin-top:16px;font-size:11px;color:#5C6B7A;text-align:center;">
+      To change the password, open the app's<br>Privacy page after unlocking.
+    </div>
   </div>
-  <div style="font-family:'Inter',sans-serif;font-size:24px;font-weight:600;color:#F7F4EF;margin-bottom:6px;">Wealth.Me</div>
-  <div style="font-size:13px;color:#8fa3b0;margin-bottom:32px;">Enter your password to continue</div>
-  <input type="password" id="lockInput" placeholder="Password"
-    style="width:100%;max-width:320px;padding:14px 16px;border-radius:12px;border:1px solid #2a3d54;
-    background:#1a2d45;color:#F7F4EF;font-size:16px;font-family:'Inter',sans-serif;
-    outline:none;text-align:center;margin-bottom:12px;"
-    autofocus>
-  <div id="lockError" style="color:#C1583F;font-size:13px;min-height:20px;margin-bottom:12px;"></div>
-  <button id="lockBtn" style="
-    width:100%;max-width:320px;padding:14px;border-radius:12px;border:none;
-    background:#F7F4EF;color:#0F1B2D;font-size:15px;font-weight:700;
-    font-family:'Inter',sans-serif;cursor:pointer;">
-    Unlock
-  </button>
-  <div style="margin-top:24px;font-size:11px;color:#5C6B7A;text-align:center;">
-    To change the password, open the app's<br>Settings page after unlocking.
+
+  <!-- Forgot-password recovery flow: verify the security answer, then set
+       a new password — never reveals the old one. -->
+  <div id="lockRecoveryPanel" style="display:none;width:100%;max-width:320px;flex-direction:column;align-items:center;">
+    <div style="width:60px;height:60px;border-radius:16px;background:#1a2d45;display:flex;align-items:center;justify-content:center;margin-bottom:20px;">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#F7F4EF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    </div>
+    <div id="lockRecoveryQuestion" style="font-size:14px;color:#F7F4EF;margin-bottom:16px;text-align:center;line-height:1.5;"></div>
+    <input type="text" id="lockRecoveryAnswerInput" placeholder="Your answer"
+      style="width:100%;padding:14px 16px;border-radius:12px;border:1px solid #2a3d54;background:#1a2d45;color:#F7F4EF;font-size:16px;font-family:'Inter',sans-serif;outline:none;text-align:center;margin-bottom:12px;box-sizing:border-box;">
+    <div id="lockRecoveryResetFields" style="display:none;width:100%;">
+      <input type="password" id="lockRecoveryNewPw" placeholder="New password"
+        style="width:100%;padding:14px 16px;border-radius:12px;border:1px solid #2a3d54;background:#1a2d45;color:#F7F4EF;font-size:16px;font-family:'Inter',sans-serif;outline:none;text-align:center;margin-bottom:12px;box-sizing:border-box;">
+      <input type="password" id="lockRecoveryConfirmPw" placeholder="Confirm new password"
+        style="width:100%;padding:14px 16px;border-radius:12px;border:1px solid #2a3d54;background:#1a2d45;color:#F7F4EF;font-size:16px;font-family:'Inter',sans-serif;outline:none;text-align:center;margin-bottom:12px;box-sizing:border-box;">
+    </div>
+    <div id="lockRecoveryError" style="color:#C1583F;font-size:13px;min-height:20px;margin-bottom:8px;text-align:center;"></div>
+    <button id="lockRecoverySubmitBtn" style="
+      width:100%;padding:14px;border-radius:12px;border:none;
+      background:#F7F4EF;color:#0F1B2D;font-size:15px;font-weight:700;
+      font-family:'Inter',sans-serif;cursor:pointer;margin-bottom:12px;">
+      Verify Answer
+    </button>
+    <button type="button" id="lockRecoveryBackBtn" style="background:none;border:none;color:#8fa3b0;font-size:12.5px;text-decoration:underline;cursor:pointer;padding:4px;">Back to password</button>
   </div>
 </div>
 
@@ -1461,7 +1489,7 @@ main{
         </button>
       </div>
       <div id="refreshStatus" class="muted" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 151</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 153</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -1502,7 +1530,7 @@ main{
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 151</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 153</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -1514,8 +1542,7 @@ main{
         </button>
       </div>
 
-      <p class="muted" style="margin-top:0;">Password protection is currently inactive.</p>
-      <div class="card" style="display:none;">
+      <div class="card">
       <div class="section-title">Password</div>
       <div class="toggle-row" style="margin-bottom:13px;">
         <span class="toggle-label" id="passwordRequiredLabel">Require Password</span>
@@ -1532,6 +1559,15 @@ main{
         <div class="field">
           <label>Confirm Password</label>
           <input type="password" id="confirmPasswordInput" placeholder="Confirm new password">
+        </div>
+        <p class="muted" style="font-size:12px;margin:0 0 10px;">Required so you can recover access if you forget your password.</p>
+        <div class="field">
+          <label>Security Question</label>
+          <input type="text" id="securityQuestionInput" placeholder="e.g. What's your pet's name?">
+        </div>
+        <div class="field">
+          <label>Security Answer</label>
+          <input type="text" id="securityAnswerInput" placeholder="Answer (not case-sensitive)">
         </div>
         <button class="btn btn-secondary btn-block" id="changePasswordBtn">Change Password</button>
       </div>
@@ -2303,7 +2339,7 @@ main{
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 151;
+const APP_VERSION = 153;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -5800,6 +5836,10 @@ function openPrivacyModal(){
   const pwEnabled = isPasswordEnabled();
   document.getElementById('passwordEnabledToggle').checked = pwEnabled;
   document.getElementById('passwordFieldsWrap').style.display = pwEnabled ? 'block' : 'none';
+  // Prefill the question (not the answer) so it's easy to see/update what's
+  // currently set without exposing the stored answer in the DOM.
+  document.getElementById('securityQuestionInput').value = getSecurityQuestion();
+  document.getElementById('securityAnswerInput').value = '';
   switchView('privacy');
 }
 function closePrivacyModal(){
@@ -6789,6 +6829,30 @@ function getStoredPassword(){
 function savePassword(pw){
   try{ localStorage.setItem('wealthme_password', pw); }catch(e){}
 }
+// Security question/answer — the only recovery path for a forgotten
+// password in this app (no backend/email to send a reset link through).
+// The answer is stored trimmed+lowercased so comparisons are always
+// case-insensitive, matching what the lock screen's recovery flow checks.
+function getSecurityQuestion(){
+  try{ return localStorage.getItem('wealthme_security_question') || ''; }catch(e){ return ''; }
+}
+function setSecurityQuestion(q){
+  try{ localStorage.setItem('wealthme_security_question', q); }catch(e){}
+}
+function getSecurityAnswer(){
+  try{ return localStorage.getItem('wealthme_security_answer') || ''; }catch(e){ return ''; }
+}
+function setSecurityAnswer(a){
+  try{ localStorage.setItem('wealthme_security_answer', a.trim().toLowerCase()); }catch(e){}
+}
+function hasSecurityQuestion(){
+  return !!(getSecurityQuestion() && getSecurityAnswer());
+}
+function checkSecurityAnswer(input){
+  const stored = getSecurityAnswer();
+  if(!stored) return false;
+  return String(input).trim().toLowerCase() === stored;
+}
 function isUnlocked(){
   try{ return sessionStorage.getItem('wealthme_unlocked') === '1'; }catch(e){ return false; }
 }
@@ -6816,31 +6880,120 @@ document.getElementById('lockInput').addEventListener('keydown', e=>{
   document.getElementById('lockError').textContent = '';
 });
 
+// Forgot-password recovery: verify the security answer, then let the
+// person set a brand new password — the old one is never shown back.
+let lockRecoveryAnswerVerified = false;
+function showLockRecovery(){
+  lockRecoveryAnswerVerified = false;
+  document.getElementById('lockMainPanel').style.display = 'none';
+  document.getElementById('lockRecoveryPanel').style.display = 'flex';
+  document.getElementById('lockRecoveryResetFields').style.display = 'none';
+  document.getElementById('lockRecoveryAnswerInput').value = '';
+  document.getElementById('lockRecoveryNewPw').value = '';
+  document.getElementById('lockRecoveryConfirmPw').value = '';
+  document.getElementById('lockRecoveryError').textContent = '';
+  document.getElementById('lockRecoverySubmitBtn').textContent = 'Verify Answer';
+  if(hasSecurityQuestion()){
+    document.getElementById('lockRecoveryQuestion').textContent = getSecurityQuestion();
+    document.getElementById('lockRecoveryAnswerInput').style.display = '';
+    document.getElementById('lockRecoverySubmitBtn').style.display = '';
+    document.getElementById('lockRecoveryAnswerInput').focus();
+  } else {
+    document.getElementById('lockRecoveryQuestion').textContent =
+      'No recovery question was set for this password. If you never changed it from the app\u2019s original default, try that. Otherwise the only way back in is Settings \u2192 Empty All Data, which erases every entry.';
+    document.getElementById('lockRecoveryAnswerInput').style.display = 'none';
+    document.getElementById('lockRecoverySubmitBtn').style.display = 'none';
+  }
+}
+function backToLockMain(){
+  document.getElementById('lockRecoveryPanel').style.display = 'none';
+  document.getElementById('lockMainPanel').style.display = 'flex';
+  document.getElementById('lockInput').value = '';
+  document.getElementById('lockInput').focus();
+}
+function handleLockRecoverySubmit(){
+  const errorEl = document.getElementById('lockRecoveryError');
+  if(!lockRecoveryAnswerVerified){
+    const answer = document.getElementById('lockRecoveryAnswerInput').value;
+    if(checkSecurityAnswer(answer)){
+      lockRecoveryAnswerVerified = true;
+      errorEl.textContent = '';
+      document.getElementById('lockRecoveryAnswerInput').style.display = 'none';
+      document.getElementById('lockRecoveryResetFields').style.display = 'block';
+      document.getElementById('lockRecoveryQuestion').textContent = 'Answer verified. Set a new password:';
+      document.getElementById('lockRecoverySubmitBtn').textContent = 'Reset Password & Unlock';
+      document.getElementById('lockRecoveryNewPw').focus();
+    } else {
+      errorEl.textContent = 'That answer doesn\u2019t match. Try again.';
+    }
+  } else {
+    const pw  = document.getElementById('lockRecoveryNewPw').value.trim();
+    const cpw = document.getElementById('lockRecoveryConfirmPw').value.trim();
+    if(!pw){ errorEl.textContent = 'Enter a new password.'; return; }
+    if(pw !== cpw){ errorEl.textContent = 'Passwords do not match.'; return; }
+    savePassword(pw);
+    setUnlocked();
+    document.getElementById('lockScreen').style.display = 'none';
+    init();
+  }
+}
+document.getElementById('forgotPasswordLink').addEventListener('click', showLockRecovery);
+document.getElementById('lockRecoveryBackBtn').addEventListener('click', backToLockMain);
+document.getElementById('lockRecoverySubmitBtn').addEventListener('click', handleLockRecoverySubmit);
+document.getElementById('lockRecoveryAnswerInput').addEventListener('keydown', e=>{
+  if(e.key === 'Enter') handleLockRecoverySubmit();
+  document.getElementById('lockRecoveryError').textContent = '';
+});
+document.getElementById('lockRecoveryConfirmPw').addEventListener('keydown', e=>{
+  if(e.key === 'Enter') handleLockRecoverySubmit();
+});
+
 document.getElementById('changePasswordBtn').addEventListener('click', ()=>{
   const newPw  = document.getElementById('newPasswordInput').value.trim();
   const confPw = document.getElementById('confirmPasswordInput').value.trim();
-  if(!newPw){ showToast('Please enter a new password'); return; }
+  const secQ   = document.getElementById('securityQuestionInput').value.trim();
+  const secA   = document.getElementById('securityAnswerInput').value.trim();
+  if(!newPw){ showToast('Please enter a password'); return; }
   if(newPw !== confPw){ showToast('Passwords do not match'); return; }
+  if(!secQ || !secA){ showToast('A security question and answer are required, for recovery'); return; }
+  // This is the one place protection actually turns on — the toggle
+  // alone never does it (see passwordEnabledToggle above).
   savePassword(newPw);
+  setSecurityQuestion(secQ);
+  setSecurityAnswer(secA);
+  setPasswordEnabled(true);
+  document.getElementById('passwordEnabledToggle').checked = true;
   document.getElementById('newPasswordInput').value = '';
   document.getElementById('confirmPasswordInput').value = '';
-  showToast('Password updated');
+  document.getElementById('securityAnswerInput').value = '';
+  showToast('Password protection enabled');
   closePrivacyModal();
 });
 
 document.getElementById('passwordEnabledToggle').addEventListener('change', (e)=>{
-  setPasswordEnabled(e.target.checked);
-  document.getElementById('passwordFieldsWrap').style.display = e.target.checked ? 'block' : 'none';
-  showToast(e.target.checked ? 'Password protection enabled' : 'Password protection disabled');
+  if(e.target.checked){
+    // Don't actually turn protection on yet — just reveal the form.
+    // isPasswordEnabled() only flips to true once Change Password below
+    // succeeds (password set + confirmed + security question answered),
+    // so the toggle can never end up "on" with nothing actually set.
+    document.getElementById('passwordFieldsWrap').style.display = 'block';
+    showToast('Set a password below to finish enabling protection');
+  } else {
+    // Turning off never needs validation — always safe to disable.
+    setPasswordEnabled(false);
+    document.getElementById('passwordFieldsWrap').style.display = 'none';
+    showToast('Password protection disabled');
+  }
 });
 
-// Password feature is currently inactivated app-wide: the lock screen
-// never engages here, even if a prior session had it enabled in
-// localStorage. The Password section on the Privacy page is hidden to
-// match (see view-privacy), and its toggle/fields are left in the DOM,
-// inert, so this can be turned back on later without re-wiring anything.
-document.getElementById('lockScreen').style.display = 'none';
-init();
+// Show lock screen only if password protection is enabled and not already unlocked this session
+if(!isPasswordEnabled() || isUnlocked()){
+  document.getElementById('lockScreen').style.display = 'none';
+  init();
+} else {
+  // Don't call init() yet — called after successful unlock
+  document.getElementById('lockInput').focus();
+}
 
 
 // Payoff-goal stats for one debt type+account, computed from that
