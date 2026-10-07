@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v155 -->
+<!-- WEALTH.ME — v156 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -138,6 +138,22 @@ body{
 .icon-btn:active{transform:scale(0.96);}
 .notif-btn{position:relative;}
 .notif-btn.notif-empty{opacity:0.4;}
+/* Show/hide toggle for password-type inputs, used on the lock screen,
+   the Privacy page's password fields, and the forgot-password reset
+   fields. A single reusable wiring function (wirePasswordToggles) swaps
+   the input's type and the icon on click. */
+.pw-field-wrap{position:relative;}
+.pw-field-wrap input{padding-right:42px !important;box-sizing:border-box;}
+.pw-toggle-btn{
+  position:absolute;right:4px;top:50%;transform:translateY(-50%);
+  width:32px;height:32px;border:none;background:transparent;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;color:var(--slate);padding:0;
+}
+.pw-toggle-btn.pw-toggle-btn-dark{color:#8fa3b0;}
+.pw-toggle-btn .icon-eye-off{display:none;}
+.pw-toggle-btn.pw-visible .icon-eye{display:none;}
+.pw-toggle-btn.pw-visible .icon-eye-off{display:inline-flex;}
 /* Sun/moon theme-toggle button beside the bell: the moon shows in light
    mode (tap to switch to dark), the sun shows in dark mode (tap to
    switch to light). Purely CSS-driven off the <html data-theme> attribute
@@ -1059,11 +1075,17 @@ main{
     </div>
     <div style="font-family:'Inter',sans-serif;font-size:24px;font-weight:600;color:#F7F4EF;margin-bottom:6px;">Wealth.Me</div>
     <div style="font-size:13px;color:#8fa3b0;margin-bottom:32px;">Enter your password to continue</div>
-    <input type="password" id="lockInput" placeholder="Password"
-      style="width:100%;max-width:320px;padding:14px 16px;border-radius:12px;border:1px solid #2a3d54;
-      background:#1a2d45;color:#F7F4EF;font-size:16px;font-family:'Inter',sans-serif;
-      outline:none;text-align:center;margin-bottom:12px;box-sizing:border-box;"
-      autofocus>
+    <div class="pw-field-wrap" style="width:100%;max-width:320px;margin-bottom:12px;">
+      <input type="password" id="lockInput" placeholder="Password"
+        style="width:100%;padding:14px 16px;border-radius:12px;border:1px solid #2a3d54;
+        background:#1a2d45;color:#F7F4EF;font-size:16px;font-family:'Inter',sans-serif;
+        outline:none;text-align:center;box-sizing:border-box;"
+        autofocus>
+      <button type="button" class="pw-toggle-btn pw-toggle-btn-dark" data-target="lockInput" title="Show password" aria-label="Show password">
+        <span class="icon-eye"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></span>
+        <span class="icon-eye-off"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a18.49 18.49 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg></span>
+      </button>
+    </div>
     <div id="lockError" style="color:#C1583F;font-size:13px;min-height:20px;margin-bottom:12px;"></div>
     <button id="lockBtn" style="
       width:100%;max-width:320px;padding:14px;border-radius:12px;border:none;
@@ -1087,10 +1109,23 @@ main{
     <input type="text" id="lockRecoveryAnswerInput" placeholder="Your answer"
       style="width:100%;padding:14px 16px;border-radius:12px;border:1px solid #2a3d54;background:#1a2d45;color:#F7F4EF;font-size:16px;font-family:'Inter',sans-serif;outline:none;text-align:center;margin-bottom:12px;box-sizing:border-box;">
     <div id="lockRecoveryResetFields" style="display:none;width:100%;">
-      <input type="password" id="lockRecoveryNewPw" placeholder="New password"
-        style="width:100%;padding:14px 16px;border-radius:12px;border:1px solid #2a3d54;background:#1a2d45;color:#F7F4EF;font-size:16px;font-family:'Inter',sans-serif;outline:none;text-align:center;margin-bottom:12px;box-sizing:border-box;">
-      <input type="password" id="lockRecoveryConfirmPw" placeholder="Confirm new password"
-        style="width:100%;padding:14px 16px;border-radius:12px;border:1px solid #2a3d54;background:#1a2d45;color:#F7F4EF;font-size:16px;font-family:'Inter',sans-serif;outline:none;text-align:center;margin-bottom:12px;box-sizing:border-box;">
+      <div class="pw-field-wrap" style="margin-bottom:12px;">
+        <input type="password" id="lockRecoveryNewPw" placeholder="New password"
+          style="width:100%;padding:14px 16px;border-radius:12px;border:1px solid #2a3d54;background:#1a2d45;color:#F7F4EF;font-size:16px;font-family:'Inter',sans-serif;outline:none;text-align:center;box-sizing:border-box;">
+        <button type="button" class="pw-toggle-btn pw-toggle-btn-dark" data-target="lockRecoveryNewPw" title="Show password" aria-label="Show password">
+          <span class="icon-eye"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></span>
+          <span class="icon-eye-off"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a18.49 18.49 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg></span>
+        </button>
+      </div>
+      <div class="pw-field-wrap" style="margin-bottom:6px;">
+        <input type="password" id="lockRecoveryConfirmPw" placeholder="Confirm new password"
+          style="width:100%;padding:14px 16px;border-radius:12px;border:1px solid #2a3d54;background:#1a2d45;color:#F7F4EF;font-size:16px;font-family:'Inter',sans-serif;outline:none;text-align:center;box-sizing:border-box;">
+        <button type="button" class="pw-toggle-btn pw-toggle-btn-dark" data-target="lockRecoveryConfirmPw" title="Show password" aria-label="Show password">
+          <span class="icon-eye"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></span>
+          <span class="icon-eye-off"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a18.49 18.49 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg></span>
+        </button>
+      </div>
+      <div id="lockRecoveryMatchHint" style="font-size:12px;min-height:16px;text-align:center;margin-bottom:6px;"></div>
     </div>
     <div id="lockRecoveryError" style="color:#C1583F;font-size:13px;min-height:20px;margin-bottom:8px;text-align:center;"></div>
     <button id="lockRecoverySubmitBtn" style="
@@ -1489,7 +1524,7 @@ main{
         </button>
       </div>
       <div id="refreshStatus" class="muted" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 155</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 156</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -1530,7 +1565,7 @@ main{
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 155</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 156</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -1552,13 +1587,27 @@ main{
         </label>
       </div>
       <div id="passwordFieldsWrap" style="display:none;">
+        <p class="muted" id="passwordDefaultNote" style="font-size:12px;margin:0 0 10px;display:none;"></p>
         <div class="field">
           <label>New Password</label>
-          <input type="password" id="newPasswordInput" placeholder="Enter new password">
+          <div class="pw-field-wrap">
+            <input type="password" id="newPasswordInput" placeholder="Enter new password">
+            <button type="button" class="pw-toggle-btn" data-target="newPasswordInput" title="Show password" aria-label="Show password">
+              <span class="icon-eye"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></span>
+              <span class="icon-eye-off"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a18.49 18.49 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg></span>
+            </button>
+          </div>
         </div>
         <div class="field">
           <label>Confirm Password</label>
-          <input type="password" id="confirmPasswordInput" placeholder="Confirm new password">
+          <div class="pw-field-wrap">
+            <input type="password" id="confirmPasswordInput" placeholder="Confirm new password">
+            <button type="button" class="pw-toggle-btn" data-target="confirmPasswordInput" title="Show password" aria-label="Show password">
+              <span class="icon-eye"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></span>
+              <span class="icon-eye-off"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a18.49 18.49 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg></span>
+            </button>
+          </div>
+          <div id="passwordMatchHint" style="font-size:12px;min-height:16px;margin-top:4px;"></div>
         </div>
         <p class="muted" style="font-size:12px;margin:0 0 10px;">Required so you can recover access if you forget your password.</p>
         <div class="field">
@@ -2339,7 +2388,7 @@ main{
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 155;
+const APP_VERSION = 156;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -5840,6 +5889,20 @@ function openPrivacyModal(){
   // currently set without exposing the stored answer in the DOM.
   document.getElementById('securityQuestionInput').value = getSecurityQuestion();
   document.getElementById('securityAnswerInput').value = '';
+  document.getElementById('newPasswordInput').value = '';
+  document.getElementById('confirmPasswordInput').value = '';
+  document.getElementById('passwordMatchHint').textContent = '';
+  // Make it obvious when protection is still running on the untouched
+  // default password, rather than leaving that implicit.
+  const noteEl = document.getElementById('passwordDefaultNote');
+  let customPwSet = false;
+  try{ customPwSet = !!localStorage.getItem('wealthme_password'); }catch(e){}
+  if(pwEnabled && !customPwSet){
+    noteEl.textContent = `Currently using the default password ("${DEFAULT_PASSWORD}"). Set your own below, or leave it as is.`;
+    noteEl.style.display = 'block';
+  } else {
+    noteEl.style.display = 'none';
+  }
   switchView('privacy');
 }
 function closePrivacyModal(){
@@ -6950,6 +7013,40 @@ document.getElementById('lockRecoveryAnswerInput').addEventListener('keydown', e
 document.getElementById('lockRecoveryConfirmPw').addEventListener('keydown', e=>{
   if(e.key === 'Enter') handleLockRecoverySubmit();
 });
+
+// Show/hide toggle, shared by every password-type input in the app (lock
+// screen, Privacy page, forgot-password reset). One wiring pass handles
+// all of them since they all share the .pw-toggle-btn / data-target markup.
+document.querySelectorAll('.pw-toggle-btn').forEach(btn=>{
+  const input = document.getElementById(btn.dataset.target);
+  if(!input) return;
+  btn.addEventListener('click', ()=>{
+    const show = input.type === 'password';
+    input.type = show ? 'text' : 'password';
+    btn.classList.toggle('pw-visible', show);
+    const label = show ? 'Hide password' : 'Show password';
+    btn.title = label;
+    btn.setAttribute('aria-label', label);
+  });
+});
+
+// Live "do these two match" check, so typos are obvious before submitting
+// rather than only after a rejected submit.
+function wireMatchHint(pwId, confirmId, hintId){
+  const pwEl = document.getElementById(pwId);
+  const confirmEl = document.getElementById(confirmId);
+  const hintEl = document.getElementById(hintId);
+  function update(){
+    const pw = pwEl.value, cpw = confirmEl.value;
+    if(!cpw){ hintEl.textContent = ''; return; }
+    if(pw === cpw){ hintEl.textContent = '\u2713 Passwords match'; hintEl.style.color = 'var(--sage)'; }
+    else{ hintEl.textContent = '\u2717 Passwords don\u2019t match yet'; hintEl.style.color = 'var(--terracotta)'; }
+  }
+  pwEl.addEventListener('input', update);
+  confirmEl.addEventListener('input', update);
+}
+wireMatchHint('newPasswordInput', 'confirmPasswordInput', 'passwordMatchHint');
+wireMatchHint('lockRecoveryNewPw', 'lockRecoveryConfirmPw', 'lockRecoveryMatchHint');
 
 document.getElementById('changePasswordBtn').addEventListener('click', ()=>{
   const newPw  = document.getElementById('newPasswordInput').value.trim();
