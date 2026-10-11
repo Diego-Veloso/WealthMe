@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v159 -->
+<!-- WEALTH.ME — v167 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -175,6 +175,16 @@ body{
 #tourTooltip .tour-btn-row{display:flex;gap:8px;align-items:center;justify-content:space-between;}
 #tourTooltip .tour-skip{background:none;border:none;color:var(--slate);font-size:12.5px;text-decoration:underline;cursor:pointer;padding:4px;flex-shrink:0;}
 #tourTooltip .tour-nav-btns{display:flex;gap:8px;}
+
+/* ===== Budget Planner +/- controls ===== */
+.budget-pct-btn{
+  width:28px;height:28px;border-radius:50%;flex-shrink:0;
+  border:1px solid var(--line);background:var(--card);color:var(--navy);
+  font-size:16px;font-weight:700;line-height:1;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+}
+.budget-pct-btn:active{transform:scale(0.94);background:var(--slate-light);}
+.budget-row.over-suggested .budget-pct-value{color:var(--terracotta);}
 /* Sun/moon theme-toggle button beside the bell: the moon shows in light
    mode (tap to switch to dark), the sun shows in dark mode (tap to
    switch to light). Purely CSS-driven off the <html data-theme> attribute
@@ -1559,7 +1569,7 @@ main{
         </button>
       </div>
       <div id="refreshStatus" class="muted" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 159</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 167</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -1600,7 +1610,7 @@ main{
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 159</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 167</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -1691,9 +1701,45 @@ main{
         <button id="budgetsNext">&#8250;</button>
       </div>
       <div class="card">
-        <p class="muted" style="margin-top:0;">Set a monthly $ target per category — leave at 0 for none. Spent amounts include both Open and Closed entries for the month shown.</p>
-        <div id="budgetsList"></div>
+        <div class="section-title" style="margin-top:0;">Budget Planning</div>
+        <div style="font-size:13px;font-weight:600;margin-bottom:8px;">What is your monthly Income?</div>
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:16px;">
+          <span class="muted" style="font-size:16px;">$</span>
+          <input type="number" id="budgetPlannerIncome" placeholder="0" min="0" step="1" inputmode="decimal" aria-label="Monthly income" style="flex:1;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:16px;font-family:'Fraunces',serif;font-weight:600;color:var(--navy);background:var(--card);">
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding-top:14px;border-top:1px solid var(--line);">
+          <div style="font-size:13px;font-weight:600;">How much do you want to set as a limit for your expenses?</div>
+          <div style="display:flex;align-items:center;gap:4px;flex-shrink:0;">
+            <input type="number" id="budgetPlannerMaxPct" min="1" max="100" step="1" value="90" aria-label="Maximum expected expenses, percent of income" style="width:56px;text-align:right;border:1px solid var(--line);border-radius:8px;padding:6px;font-size:14px;font-family:'Fraunces',serif;font-weight:600;color:var(--navy);background:var(--card);">
+            <span class="muted" style="font-size:14px;">%</span>
+          </div>
+        </div>
+        <div class="progress-track" style="margin-top:14px;"><div class="progress-fill" id="budgetPlannerTotalFill" style="width:0%;"></div></div>
       </div>
+
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;">
+          <span style="font-weight:700;font-size:14px;">Total planned</span>
+          <span id="budgetPlannerTotalPct" style="font-family:'Fraunces',serif;font-weight:700;font-size:18px;">0%</span>
+        </div>
+        <div class="muted" id="budgetPlannerTotalAmt" style="font-size:12px;margin-top:4px;">$0 of your income allocated</div>
+        <div class="muted" id="budgetPlannerSpentTotal" style="font-size:12px;margin-top:10px;padding-top:10px;border-top:1px solid var(--line);"></div>
+      </div>
+
+      <div class="card" id="budgetPlannerInsightsCard" style="display:none;">
+        <div class="card-title" style="margin-bottom:8px;">💡 Suggestions</div>
+        <div id="budgetPlannerInsightsList" class="muted" style="font-size:13px;line-height:1.7;"></div>
+      </div>
+
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div class="section-title" style="margin:0;">By Category</div>
+          <button type="button" class="pill-btn" id="budgetPlannerResetBtn" style="font-size:11.5px;">Reset to Suggested</button>
+        </div>
+        <div id="budgetPlannerList" style="margin-top:8px;"></div>
+      </div>
+
+      <button class="btn btn-primary btn-block" id="budgetPlannerSaveBtn" style="margin-bottom:24px;">Save as My Budgets</button>
     </section>
 
     <!-- ===== Credit Limits Page ===== -->
@@ -1799,7 +1845,7 @@ main{
         </div>
         <div class="accordion-body" id="acc-budgets-goals">
           <ul style="font-size:13px;line-height:1.8;margin:0;padding-left:18px;">
-            <li><strong>Budgets</strong> (More → Budgets): set a monthly $ target per category — leave at 0 for none. Green/amber/red progress bars show Closed spend vs. target for whichever month you're viewing.</li>
+            <li><strong>Budgets</strong> (More → Budgets): enter your monthly income and get a suggested % split across your expense categories, adjustable with +/- per category. Set a maximum expected expenses % (90% by default) and categories automatically scale down proportionally to fit within it. Going over that maximum highlights a warning and suggests which categories to trim. Each category also shows a progress bar tracking actual spend against that plan for whichever month you've selected. "Save as My Budgets" turns the result into $ targets the rest of the app (like the Monthly Recap's over-budget count) uses.</li>
             <li><strong>Debt payoff goals</strong> (Debts page): each account shows a progress bar (% ever charged that's now paid off) and a projected payoff date based on your trailing 3-month average payment pace — no manual goal to set up.</li>
             <li><strong>Net Worth</strong> (Money page): a summary card and 12-month trend chart, calculated as your investments and capital minus whatever debt is currently Open (unpaid).</li>
             <li>Paying off a debt account or staying on budget for every category in a month triggers a little celebration 🎉.</li>
@@ -2430,7 +2476,7 @@ main{
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 159;
+const APP_VERSION = 167;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -2472,6 +2518,34 @@ let BUDGETS = {};
    standing limit, not tied to any month. Absent or 0 means "no limit
    set" (usage/available aren't shown for that card). */
 let CREDIT_LIMITS = {};
+
+/* ---------- Budget Planner (beginner income-% tool, feeds BUDGETS) ----------
+   SUGGESTED_BUDGET_PCT is a fixed starting-point baseline, roughly a
+   needs/wants split that lands around 84% of income total (leaving
+   headroom under the 90% warning line for savings/investment) — not
+   user-editable itself, just the reference each row resets to and
+   compares against for the "consider reducing" suggestions. Any
+   subcategory not listed (e.g. a custom one the person added, or
+   Taxes, which the app already handles separately via SETTINGS.taxRate)
+   falls back to BUDGET_PLANNER_DEFAULT_PCT. */
+const SUGGESTED_BUDGET_PCT = {
+  'Home': 22, 'Groceries': 10, 'Transportation': 8, 'Health': 5,
+  'Communication': 3, 'Life Insurance': 3, 'Education': 4, 'Children': 4,
+  'Family': 3, 'Meal & Drinks': 5, 'Entertainment': 4, 'Shopping': 4,
+  'Beauty': 2, 'Travel': 3, 'Work': 2, 'Other': 2
+};
+const BUDGET_PLANNER_DEFAULT_PCT = 2;
+const BUDGET_PLANNER_WARN_PCT = 90; // default/starting value for BUDGET_PLANNER_MAX_PCT below
+// BUDGET_PLANNER_PCT holds the person's current (possibly adjusted) %
+// per subcategory; BUDGET_PLANNER_INCOME is their entered monthly
+// income; BUDGET_PLANNER_MAX_PCT is the user-adjustable ceiling (Total
+// planned card) that categories get scaled down to fit within whenever
+// it's lowered below the current total. All three are standing values,
+// not tied to any month — "Save as My Budgets" is what writes the
+// resulting $ amounts into BUDGETS.
+let BUDGET_PLANNER_PCT = {};
+let BUDGET_PLANNER_INCOME = 0;
+let BUDGET_PLANNER_MAX_PCT = BUDGET_PLANNER_WARN_PCT;
 
 /* ---------- Saved Transactions filter presets ---------- */
 let FILTER_PRESETS = []; // [{id, name, txFilter, txPeriod, txDateFrom, txDateTo, txSearchQuery, txSortAsc}]
@@ -2664,6 +2738,7 @@ function saveState(){
     localStorage.setItem('wealthme_categorymap', JSON.stringify(CATEGORY_MAP));
     localStorage.setItem('wealthme_budgets', JSON.stringify(BUDGETS));
     localStorage.setItem('wealthme_creditlimits', JSON.stringify(CREDIT_LIMITS));
+    localStorage.setItem('wealthme_budgetplanner', JSON.stringify({income: BUDGET_PLANNER_INCOME, pct: BUDGET_PLANNER_PCT, maxPct: BUDGET_PLANNER_MAX_PCT}));
     localStorage.setItem('wealthme_filterpresets', JSON.stringify(FILTER_PRESETS));
   }catch(e){ /* ignore */ }
 }
@@ -2676,6 +2751,7 @@ function loadState(){
     const cm = localStorage.getItem('wealthme_categorymap');
     const bg = localStorage.getItem('wealthme_budgets');
     const cl = localStorage.getItem('wealthme_creditlimits');
+    const bp = localStorage.getItem('wealthme_budgetplanner');
     const fp = localStorage.getItem('wealthme_filterpresets');
     if(e){ entries = JSON.parse(e); }
     if(n){ nextId = parseInt(n,10); }
@@ -2692,6 +2768,12 @@ function loadState(){
     }
     if(bg){ BUDGETS = JSON.parse(bg); }
     if(cl){ CREDIT_LIMITS = JSON.parse(cl); }
+    if(bp){
+      const parsed = JSON.parse(bp);
+      BUDGET_PLANNER_INCOME = Number(parsed.income) || 0;
+      BUDGET_PLANNER_PCT = (parsed.pct && typeof parsed.pct === 'object') ? parsed.pct : {};
+      BUDGET_PLANNER_MAX_PCT = Number(parsed.maxPct) || BUDGET_PLANNER_WARN_PCT;
+    }
     if(fp){ FILTER_PRESETS = JSON.parse(fp); }
     return !!e;
   }catch(err){ return false; }
@@ -5327,7 +5409,7 @@ function getActiveViewName(){
    9-column format as regular entries — no separate file or backend
    changes needed.
    ========================================================= */
-const SETTINGS_ROW_IDS = { categoryMap: -1, debtAccounts: -2, budgets: -3, filterPresets: -4, creditLimits: -5 };
+const SETTINGS_ROW_IDS = { categoryMap: -1, debtAccounts: -2, budgets: -3, filterPresets: -4, creditLimits: -5, budgetPlanner: -6 };
 
 function buildSettingsRows(){
   return [
@@ -5350,6 +5432,10 @@ function buildSettingsRows(){
     {
       id: SETTINGS_ROW_IDS.creditLimits, date: '', category: '__SETTINGS__', subcategory: 'CREDIT_LIMITS',
       amount: 0, status: 'Open', notes: JSON.stringify(CREDIT_LIMITS), type: '', account: ''
+    },
+    {
+      id: SETTINGS_ROW_IDS.budgetPlanner, date: '', category: '__SETTINGS__', subcategory: 'BUDGET_PLANNER',
+      amount: 0, status: 'Open', notes: JSON.stringify({income: BUDGET_PLANNER_INCOME, pct: BUDGET_PLANNER_PCT, maxPct: BUDGET_PLANNER_MAX_PCT}), type: '', account: ''
     }
   ];
 }
@@ -5384,6 +5470,14 @@ function applySettingsRow(e){
     }
     if(e.subcategory === 'CREDIT_LIMITS'){
       if(parsed && typeof parsed === 'object'){ CREDIT_LIMITS = parsed; }
+      return true;
+    }
+    if(e.subcategory === 'BUDGET_PLANNER'){
+      if(parsed && typeof parsed === 'object'){
+        BUDGET_PLANNER_INCOME = Number(parsed.income) || 0;
+        BUDGET_PLANNER_PCT = (parsed.pct && typeof parsed.pct === 'object') ? parsed.pct : {};
+        BUDGET_PLANNER_MAX_PCT = Number(parsed.maxPct) || BUDGET_PLANNER_WARN_PCT;
+      }
       return true;
     }
   }catch(err){ /* malformed settings row — ignore */ }
@@ -5995,55 +6089,183 @@ function maybeCelebrateBudgets(){
   }
 }
 // Budgets are a flat monthly $ target per Expense subcategory (not
-// per-month), so the same BUDGETS map applies to whichever month is
-// being viewed — only "spent this month" changes as homeDate
-// changes, not the targets themselves.
+// per-month). "Save as My Budgets" below writes the computed $ amounts
+// into BUDGETS, the same flat map the rest of the app already reads
+// (e.g. the Monthly Recap's "categories over budget" count) — so this
+// planner is just a friendlier way to arrive at those numbers, not a
+// separate system.
+function budgetPlannerSubcats(){
+  // Taxes is excluded: the app already handles it separately via
+  // SETTINGS.taxRate, so it isn't a "spending choice" like the rest.
+  return CATEGORY_MAP.Expense.filter(s => s !== 'Taxes').slice().sort((a,b)=>a.localeCompare(b));
+}
+function budgetPlannerSuggested(sub){
+  return SUGGESTED_BUDGET_PCT[sub] !== undefined ? SUGGESTED_BUDGET_PCT[sub] : BUDGET_PLANNER_DEFAULT_PCT;
+}
+function budgetPlannerPct(sub){
+  return BUDGET_PLANNER_PCT[sub] !== undefined ? Number(BUDGET_PLANNER_PCT[sub]) : budgetPlannerSuggested(sub);
+}
+function budgetPlannerTotalPct(){
+  return budgetPlannerSubcats().reduce((a,sub)=>a + budgetPlannerPct(sub), 0);
+}
+// Proportionally scales every category's current % down so the total
+// lands at (not above) maxPct, preserving each category's relative share
+// — e.g. a category at double another's % stays roughly double after
+// scaling. No-ops if the total is already within maxPct (never scales
+// up just because there's headroom). Writes explicit values into
+// BUDGET_PLANNER_PCT for every category, including ones left at their
+// suggested default, so "the calculated amount is also visible" for all
+// of them afterward, not just the ones already overridden.
+function budgetPlannerScaleToFit(maxPct){
+  const subs = budgetPlannerSubcats();
+  const current = {};
+  let total = 0;
+  subs.forEach(sub=>{ const p = budgetPlannerPct(sub); current[sub] = p; total += p; });
+  if(total <= maxPct || total === 0) return false;
+
+  const factor = maxPct / total;
+  const scaled = {};
+  let newTotal = 0;
+  subs.forEach(sub=>{
+    const v = Math.max(0, Math.round(current[sub] * factor));
+    scaled[sub] = v;
+    newTotal += v;
+  });
+  // Rounding every category to a whole % can leave the sum a point or two
+  // off maxPct — nudge the single largest category by the remainder so
+  // the total lands exactly on the limit.
+  const diff = Math.round(maxPct) - newTotal;
+  if(diff !== 0 && subs.length > 0){
+    const biggest = subs.reduce((a,b)=> scaled[b] > scaled[a] ? b : a, subs[0]);
+    scaled[biggest] = Math.max(0, scaled[biggest] + diff);
+  }
+  subs.forEach(sub=>{ BUDGET_PLANNER_PCT[sub] = scaled[sub]; });
+  return true;
+}
+
 function renderBudgetsView(){
   document.getElementById('budgetsMonthLabel').textContent = fmtMonthYear(homeDate);
   const inMonth = (dateStr) => isSameMonth(dateStr, homeDate);
-  const container = document.getElementById('budgetsList');
 
-  container.innerHTML = CATEGORY_MAP.Expense.slice().sort((a,b)=>a.localeCompare(b)).map(sub=>{
-    // Both Open and Closed count here — a planned/pending expense still
-    // counts against the budget, not just money already actually spent.
+  const income = BUDGET_PLANNER_INCOME;
+  document.getElementById('budgetPlannerIncome').value = income || '';
+  document.getElementById('budgetPlannerMaxPct').value = BUDGET_PLANNER_MAX_PCT;
+
+  const subs = budgetPlannerSubcats();
+  const totalPct = budgetPlannerTotalPct();
+  const totalAmt = income * totalPct / 100;
+  const overLimit = totalPct > BUDGET_PLANNER_MAX_PCT;
+
+  // Actual spend tracking for the selected month — both Open and Closed
+  // entries count, same as the rest of the app's budget-adjacent checks
+  // (a planned-but-not-yet-paid expense still counts against the plan).
+  const spentBySub = {};
+  let totalSpent = 0;
+  subs.forEach(sub=>{
     const spent = entries
       .filter(e => e.category === 'Expense' && e.subcategory === sub && inMonth(e.date))
-      .reduce((a,e)=>a+Number(e.amount),0);
-    const budget = Number(BUDGETS[sub]) || 0;
+      .reduce((a,e)=>a+Number(e.amount), 0);
+    spentBySub[sub] = spent;
+    totalSpent += spent;
+  });
+  // One combined line instead of two stacked ones: the over-the-maximum
+  // warning and the actual-spend status share the same line whenever
+  // both apply, rather than each getting their own row.
+  const totalSpentPct = totalAmt > 0 ? (totalSpent/totalAmt*100) : null;
+  const spentLine = totalAmt > 0
+    ? `Spent so far this month: ${fmtMoney(totalSpent)} of ${fmtMoney(totalAmt)} planned (${totalSpentPct.toFixed(0)}%)`
+    : `Spent so far this month: ${fmtMoney(totalSpent)} \u2014 set an income above to compare against your plan`;
+  const spentTotalEl = document.getElementById('budgetPlannerSpentTotal');
+  if(overLimit){
+    spentTotalEl.textContent = `\u26a0\ufe0f Planning ${totalPct.toFixed(0)}% of income (over your ${BUDGET_PLANNER_MAX_PCT}% maximum) \u2014 ${spentLine.charAt(0).toLowerCase() + spentLine.slice(1)}.`;
+    spentTotalEl.style.color = 'var(--terracotta)';
+    spentTotalEl.style.fontWeight = '600';
+  } else {
+    spentTotalEl.textContent = spentLine;
+    spentTotalEl.style.color = '';
+    spentTotalEl.style.fontWeight = '';
+  }
 
-    let progressHtml = '';
-    if(budget > 0){
-      const rawPct = (spent/budget)*100;
-      const pct = Math.min(100, rawPct);
-      const overBudget = spent > budget;
-      const color = overBudget ? 'var(--terracotta)' : (pct >= 80 ? 'var(--gold)' : 'var(--sage)');
-      progressHtml = `
-        <div class="progress-track" style="margin:6px 0 4px;"><div class="progress-fill" style="width:${pct.toFixed(1)}%;background:${color};"></div></div>
-        <div class="muted" style="font-size:11px;">${fmtMoney(spent)} / ${fmtMoney(budget)} spent this month · ${rawPct.toFixed(0)}% used${overBudget ? ' · over budget' : ''}</div>
-      `;
+  const totalPctEl = document.getElementById('budgetPlannerTotalPct');
+  totalPctEl.textContent = totalPct.toFixed(0) + '%';
+  totalPctEl.style.color = overLimit ? 'var(--terracotta)' : 'var(--navy)';
+  const fill = document.getElementById('budgetPlannerTotalFill');
+  fill.style.width = Math.min(100, totalPct) + '%';
+  fill.style.background = overLimit ? 'var(--terracotta)' : (totalPct >= BUDGET_PLANNER_MAX_PCT*0.85 ? 'var(--gold)' : 'var(--sage)');
+  document.getElementById('budgetPlannerTotalAmt').textContent = `${fmtMoney(totalAmt)} of your income allocated`;
+
+  // Insights: once over the configured max, point at whichever categories
+  // are already planned above their own suggested baseline — those are
+  // the most reasonable first place to trim.
+  const insightsCard = document.getElementById('budgetPlannerInsightsCard');
+  if(overLimit){
+    const overSuggested = subs
+      .map(sub => ({sub, pct: budgetPlannerPct(sub), suggested: budgetPlannerSuggested(sub)}))
+      .filter(r => r.pct > r.suggested)
+      .sort((a,b) => (b.pct-b.suggested) - (a.pct-a.suggested));
+    insightsCard.style.display = 'block';
+    if(overSuggested.length > 0){
+      document.getElementById('budgetPlannerInsightsList').innerHTML =
+        `You're over your ${BUDGET_PLANNER_MAX_PCT}% maximum. These are already above their suggested share, so they're the most reasonable place to trim first:<br><br>` +
+        overSuggested.slice(0,5).map(r => `&bull; <strong>${r.sub}</strong> \u2014 ${r.pct}% (suggested ${r.suggested}%)`).join('<br>');
+    } else {
+      document.getElementById('budgetPlannerInsightsList').textContent =
+        `You're over your ${BUDGET_PLANNER_MAX_PCT}% maximum, but no single category is above its suggested share \u2014 the overage is spread evenly, so look for anything you can live with a little less of.`;
+    }
+  } else {
+    insightsCard.style.display = 'none';
+  }
+
+  const container = document.getElementById('budgetPlannerList');
+  container.innerHTML = subs.map(sub=>{
+    const pct = budgetPlannerPct(sub);
+    const suggested = budgetPlannerSuggested(sub);
+    const amount = income * pct / 100;
+    const spent = spentBySub[sub];
+
+    // Spend-tracking vs. this row's plan — same comparison as before
+    // (live plan amount, falling back to the last-saved BUDGETS target
+    // when no income has been entered yet), but now the bar itself lives
+    // in the same row as the % and +/- controls, sized proportionally:
+    // the bar flexes to fill the space, the % and buttons stay fixed-width.
+    const trackingBudget = amount > 0 ? amount : (Number(BUDGETS[sub]) || 0);
+    let trackPct = 0, barColor = 'var(--slate-light)', captionText = '';
+    if(trackingBudget > 0){
+      const rawPct = (spent/trackingBudget)*100;
+      trackPct = Math.min(100, rawPct);
+      const overBudget = spent > trackingBudget;
+      barColor = overBudget ? 'var(--terracotta)' : (rawPct >= 80 ? 'var(--gold)' : 'var(--sage)');
+      captionText = `${fmtMoney(spent)} / ${fmtMoney(trackingBudget)} spent this month \u00b7 ${rawPct.toFixed(0)}% used${overBudget ? ' \u00b7 over budget' : ''}`;
+    } else if(spent > 0){
+      captionText = `${fmtMoney(spent)} spent this month \u2014 no plan amount set (enter an income above, or Save as My Budgets once you have)`;
     }
 
     return `
-      <div class="budget-row" style="padding:10px 0;border-bottom:1px solid var(--line);">
-        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
-          <span style="font-size:14px;">${sub}</span>
-          <div style="display:flex;align-items:center;gap:4px;">
-            <span class="muted" style="font-size:13px;">$</span>
-            <input type="number" class="budget-input" data-subcat="${sub}" value="${budget || ''}" placeholder="0" min="0" step="1" inputmode="decimal" aria-label="Monthly budget for ${sub}" style="width:70px;text-align:right;border:1px solid var(--line);border-radius:6px;padding:4px 6px;font-size:13px;">
+      <div class="budget-row${pct > suggested ? ' over-suggested' : ''}" style="padding:9px 0;border-bottom:1px solid var(--line);">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px;">
+          <div style="display:flex;align-items:center;gap:6px;min-width:0;">
+            <span style="font-size:14px;font-weight:600;">${sub}</span>
+            <span class="muted" style="font-size:10.5px;background:var(--slate-light);padding:2px 6px;border-radius:6px;white-space:nowrap;flex-shrink:0;">Suggested ${suggested}%</span>
           </div>
+          <div style="font-family:'Fraunces',serif;font-weight:700;font-size:15px;white-space:nowrap;flex-shrink:0;">${fmtMoney(amount)}</div>
         </div>
-        ${progressHtml}
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="progress-track" style="flex:1;margin:0;"><div class="progress-fill" style="width:${trackPct.toFixed(1)}%;background:${barColor};"></div></div>
+          <button type="button" class="budget-pct-btn" data-sub="${sub}" data-dir="-1" aria-label="Decrease ${sub} percentage">\u2212</button>
+          <div class="budget-pct-value" style="min-width:36px;text-align:center;font-weight:700;font-size:13px;flex-shrink:0;">${pct}%</div>
+          <button type="button" class="budget-pct-btn" data-sub="${sub}" data-dir="1" aria-label="Increase ${sub} percentage">+</button>
+        </div>
+        ${captionText ? `<div class="muted" style="font-size:11px;margin-top:6px;">${captionText}</div>` : ''}
       </div>
     `;
   }).join('');
 
-  container.querySelectorAll('.budget-input').forEach(input=>{
-    input.addEventListener('change', (e)=>{
-      const sub = e.target.dataset.subcat;
-      const val = Number(e.target.value) || 0;
-      if(val > 0){ BUDGETS[sub] = val; } else { delete BUDGETS[sub]; }
+  container.querySelectorAll('.budget-pct-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const sub = btn.dataset.sub;
+      const dir = Number(btn.dataset.dir);
+      BUDGET_PLANNER_PCT[sub] = Math.max(0, budgetPlannerPct(sub) + dir);
       saveState();
-      syncSettingsNow();
       renderBudgetsView();
     });
   });
@@ -6570,10 +6792,49 @@ document.getElementById('appearanceBtn').addEventListener('click', openAppearanc
 document.getElementById('sidebarAppearanceBtn')?.addEventListener('click', openAppearanceModal);
 document.getElementById('settingsModalClose').addEventListener('click', closeSettingsModal);
 document.getElementById('budgetsModalClose').addEventListener('click', closeBudgetsModal);
+document.getElementById('budgetPlannerIncome').addEventListener('change', (e)=>{
+  BUDGET_PLANNER_INCOME = Number(e.target.value) || 0;
+  saveState();
+  syncSettingsNow();
+  renderBudgetsView();
+});
+document.getElementById('budgetPlannerMaxPct').addEventListener('change', (e)=>{
+  const val = Math.max(1, Math.min(100, Number(e.target.value) || BUDGET_PLANNER_WARN_PCT));
+  BUDGET_PLANNER_MAX_PCT = val;
+  const scaled = budgetPlannerScaleToFit(val);
+  saveState();
+  syncSettingsNow();
+  renderBudgetsView();
+  showToast(scaled ? `Categories scaled to fit within ${val}%` : `Maximum set to ${val}%`);
+});
+document.getElementById('budgetPlannerResetBtn').addEventListener('click', ()=>{
+  showConfirm('Reset to suggested?', 'This resets every category back to its suggested percentage (scaled to fit your maximum, if needed). Your income stays as entered.', ()=>{
+    BUDGET_PLANNER_PCT = {};
+    budgetPlannerScaleToFit(BUDGET_PLANNER_MAX_PCT);
+    saveState();
+    syncSettingsNow();
+    renderBudgetsView();
+    showToast('Reset to the suggested split');
+  });
+});
+document.getElementById('budgetPlannerSaveBtn').addEventListener('click', ()=>{
+  if(!BUDGET_PLANNER_INCOME){ showToast('Enter your monthly income first'); return; }
+  budgetPlannerSubcats().forEach(sub=>{
+    const amount = Math.round(BUDGET_PLANNER_INCOME * budgetPlannerPct(sub) / 100);
+    if(amount > 0){ BUDGETS[sub] = amount; } else { delete BUDGETS[sub]; }
+  });
+  saveState();
+  syncSettingsNow();
+  showToast('Saved as your Budgets');
+});
 document.getElementById('creditLimitsModalClose').addEventListener('click', closeCreditLimitsModal);
 document.getElementById('dataManagementModalClose').addEventListener('click', closeDataManagementModal);
 document.getElementById('privacyModalClose').addEventListener('click', closePrivacyModal);
 document.getElementById('appearanceModalClose').addEventListener('click', closeAppearanceModal);
+// Budgets page's month nav shares homeDate with Home/Money/Insights/Detail
+// (see the mirrored-month note where homeDate is declared) — it only
+// affects which month's actual spend the planner tracks against; the
+// income/% plan itself isn't month-specific.
 document.getElementById('budgetsPrev').addEventListener('click', ()=>{
   homeDate = new Date(homeDate.getFullYear(), homeDate.getMonth()-1, 1);
   renderBudgetsView();
@@ -8366,6 +8627,29 @@ function renderDonutChart(){
     return;
   }
 
+  // Total for the selected category this month, drawn in the donut's
+  // center hole — same number the summary cards above already imply,
+  // just shown right where the eye naturally lands on a donut chart.
+  const donutTotal = rows.reduce((a,r)=>a+r.amount, 0);
+  const donutCenterTextPlugin = {
+    id: 'donutCenterText',
+    afterDraw(chart){
+      const {ctx, chartArea} = chart;
+      const cx = (chartArea.left + chartArea.right) / 2;
+      const cy = (chartArea.top + chartArea.bottom) / 2;
+      ctx.save();
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.font = "700 17px 'Fraunces', serif";
+      ctx.fillStyle = chartColors().lineColor;
+      ctx.fillText(fmtMoney(donutTotal), cx, cy - 8);
+      ctx.font = "700 10px 'Inter', sans-serif";
+      ctx.fillStyle = chartColors().tick;
+      ctx.fillText(donutCategory.toUpperCase(), cx, cy + 12);
+      ctx.restore();
+    }
+  };
+
   donutChartInstance = new Chart(ctx, {
     type: 'doughnut',
     data: {
@@ -8401,7 +8685,8 @@ function renderDonutChart(){
           openDetail(donutCategory, row.subcategory);
         }
       }
-    }
+    },
+    plugins: [donutCenterTextPlugin]
   });
 
   // breakdown list
@@ -8450,7 +8735,7 @@ const TOUR_STEPS = [
   { view:'money', target:'#view-money .summary-grid', title:'Money, at a glance', text:'What you\u2019ve invested, what\u2019s planned, your cumulative total, capital gains/losses, and your overall net position.' },
   { view:'money', target:'#moneyProgressFill', title:'Plan progress', text:'How much of this month\u2019s planned investing is actually done (Closed) versus still Open.' },
   { view:'money', target:'#netWorthChart', title:'Net worth over time', text:'Your invested balance plus capital gains/losses, tracked month by month.' },
-  { view:'more', target:'#budgetsBtn', title:'Budgets', text:'Set a monthly spending target per category and track how close you are as the month goes.' },
+  { view:'more', target:'#budgetsBtn', title:'Budgets', text:'A beginner-friendly planner: enter your income, get a suggested % split per category, adjust with +/- until it fits, and track actual spend against the plan each month.' },
   { view:'more', target:'#creditLimitsBtn', title:'Credit Limits', text:'Set the total limit on each credit card to see available credit and usage \u2014 shown here and on the Debts page.' },
   { view:'more', target:'#settingsBtn', title:'Settings', text:'Manage your categories and subcategories, and the specific accounts under each debt type.' },
   { view:'more', target:'#dataManagementBtn', title:'Data & Cloud Sync', text:'Import or export a CSV, back up or restore your data, and optionally sync across devices with your own Google Sheet.' },
