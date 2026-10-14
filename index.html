@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v171 -->
+<!-- WEALTH.ME — v172 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1578,7 +1578,7 @@ main{
         </button>
       </div>
       <div id="refreshStatus" class="muted" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 171</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 172</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -1619,7 +1619,7 @@ main{
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 171</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 172</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -1839,6 +1839,7 @@ main{
         <div class="accordion-body" id="acc-gestures">
           <ul style="font-size:13px;line-height:1.8;margin:0;padding-left:18px;">
             <li><strong>Double-tap the donut chart</strong> on Home to jump straight into Category Detail for whatever's currently selected there.</li>
+            <li><strong>Press and hold a slice</strong> of the donut chart to open Category Detail for that specific subcategory — a quick tap on a slice does nothing on purpose, so brushing the chart by accident never navigates away.</li>
             <li><strong>Press and hold a Transaction row</strong> to enter bulk-select mode — checkboxes appear on every row, and the held one gets checked. Tap any row to toggle it while in this mode; deselecting everything exits it automatically.</li>
             <li><strong>Swipe a row left or right</strong> to mark it Closed or delete it, with a 5-second Undo.</li>
             <li><strong>Ctrl/Cmd+K</strong> opens the command palette to search pages and transactions from anywhere.</li>
@@ -2485,7 +2486,7 @@ main{
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 171;
+const APP_VERSION = 172;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -2652,6 +2653,7 @@ let detailDateTo = "";
 
 let lineChartInstance = null;
 let donutChartInstance = null;
+let donutChartRows = []; // kept in sync with the donut's current slices, for the long-press handler below
 let detailTrendChartInstance = null;
 
 /* ---------- UTILITIES ---------- */
@@ -8675,6 +8677,7 @@ function renderLineChart(){
 
 function renderDonutChart(){
   const rows = computeDonutBreakdown(homeDate, donutCategory);
+  donutChartRows = rows;
   const ctx = document.getElementById('donutChart');
   if(donutChartInstance){ donutChartInstance.destroy(); }
 
@@ -8739,13 +8742,10 @@ function renderDonutChart(){
             }
           }
         }
-      },
-      onClick: (evt, elements)=>{
-        if(elements.length){
-          const row = rows[elements[0].index];
-          openDetail(donutCategory, row.subcategory);
-        }
       }
+      // No onClick here on purpose — a plain tap/click no longer opens
+      // Detail (too easy to trigger by accident); see the long-press
+      // handler wired once, below, which is what opens it now.
     },
     plugins: [donutCenterTextPlugin]
   });
@@ -8769,6 +8769,72 @@ function renderDonutChart(){
   });
 }
 
+// Press-and-hold on a donut slice (not a plain tap) opens Detail — a
+// chart arc is an easy thing to brush by accident while scrolling, so a
+// quick tap is deliberately a no-op; only a sustained hold counts. Wired
+// once onto the canvas (not inside renderDonutChart, which re-creates
+// the Chart.js instance — but never the canvas element — on every
+// render), reading donutChartInstance/donutChartRows live so it always
+// reflects whatever is currently drawn.
+function setupDonutLongPress(){
+  const canvas = document.getElementById('donutChart');
+  if(!canvas) return;
+  const HOLD_MS = 500;
+  const MOVE_TOLERANCE = 10;
+  let holdTimer = null;
+  let startXY = null;
+
+  function elementIndexAt(clientX, clientY){
+    if(!donutChartInstance) return null;
+    const rect = canvas.getBoundingClientRect();
+    const points = donutChartInstance.getElementsAtEventForMode(
+      {x: clientX - rect.left, y: clientY - rect.top},
+      'nearest', {intersect:true}, false
+    );
+    return points.length ? points[0].index : null;
+  }
+  function cancelHold(){
+    if(holdTimer){ clearTimeout(holdTimer); holdTimer = null; }
+    startXY = null;
+  }
+  function startHold(clientX, clientY){
+    const idx = elementIndexAt(clientX, clientY);
+    if(idx === null) return;
+    startXY = {x: clientX, y: clientY};
+    holdTimer = setTimeout(()=>{
+      holdTimer = null;
+      if(navigator.vibrate) navigator.vibrate(15);
+      const row = donutChartRows[idx];
+      if(row) openDetail(donutCategory, row.subcategory);
+    }, HOLD_MS);
+  }
+  function moveCheck(clientX, clientY){
+    if(!startXY) return;
+    const dx = clientX - startXY.x, dy = clientY - startXY.y;
+    if(Math.sqrt(dx*dx + dy*dy) > MOVE_TOLERANCE) cancelHold();
+  }
+
+  canvas.addEventListener('touchstart', e=>{
+    const t = e.touches[0];
+    if(t) startHold(t.clientX, t.clientY);
+  }, {passive:true});
+  canvas.addEventListener('touchmove', e=>{
+    const t = e.touches[0];
+    if(t) moveCheck(t.clientX, t.clientY);
+  }, {passive:true});
+  canvas.addEventListener('touchend', cancelHold);
+  canvas.addEventListener('touchcancel', cancelHold);
+
+  canvas.addEventListener('mousedown', e=> startHold(e.clientX, e.clientY));
+  canvas.addEventListener('mousemove', e=>{ if(holdTimer) moveCheck(e.clientX, e.clientY); });
+  canvas.addEventListener('mouseup', cancelHold);
+  canvas.addEventListener('mouseleave', cancelHold);
+  // Holding on a canvas can otherwise pop a "save image"/text-selection
+  // context menu on some browsers, cancelling the gesture mid-hold.
+  canvas.addEventListener('contextmenu', e=> e.preventDefault());
+}
+setupDonutLongPress();
+
 /* =========================================================
    GUIDED TOUR — a simple step-by-step walkthrough of the app.
    Each step names a page (view) and, optionally, a CSS selector to
@@ -8783,7 +8849,7 @@ const TOUR_STEPS = [
   { view:'home', target:'#homeBalanceFig', title:'Your balance', text:'Your cash balance for the month: money in minus money out, counting only entries marked "Closed" (already happened).' },
   { view:'home', target:'#view-home .summary-grid', title:'The month at a glance', text:'Gross Income, Taxes, Net Income, Expenses, Investments, and Projected Balance \u2014 which also counts "Open" entries (planned but not done yet).' },
   { view:'home', target:'#lineChart', title:'Daily cashflow', text:'Your running balance day by day through the month, so you can see when money is tight or flush.' },
-  { view:'home', target:'#donutWrap', title:'Breakdown', text:'See where your Income, Expenses, or Investments are going by category. Use the tabs above the chart to switch, and tap a slice or row to drill into that category.' },
+  { view:'home', target:'#donutWrap', title:'Breakdown', text:'See where your Income, Expenses, or Investments are going by category. Use the tabs above the chart to switch. Tap a row below the chart to drill in \u2014 on the chart itself, press and hold a slice (a quick tap won\u2019t open anything, so you can\u2019t trigger it by accident).' },
   { view:'home', target:'#addFab', title:'Add an entry', text:'Tap + any time to add Income, an Expense, an Investment, or a Capital gain/loss. You\u2019ll set a date, category, amount, and whether it\u2019s Open (planned) or Closed (done).' },
   { view:'home', target:'#notificationsBtn', title:'Notifications', text:'The bell shows anything Past Due or Due Today among your Open entries. It greys out when there\u2019s nothing waiting on you.' },
   { view:'home', target:'#themeToggleBtn', title:'Light / dark mode', text:'Tap to switch the whole app between light and dark instantly.' },
