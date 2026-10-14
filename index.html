@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v167 -->
+<!-- WEALTH.ME — v171 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1274,6 +1274,15 @@ main{
         </div>
       </div>
 
+      <div class="card" id="homeExpenseBudgetBar" style="display:none;">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px;">
+          <span class="muted" style="font-size:11px;text-transform:uppercase;letter-spacing:.5px;font-weight:700;">Expenses vs Budget</span>
+          <span class="muted" id="homeExpenseBudgetPct" style="font-size:11px;font-weight:700;"></span>
+        </div>
+        <div class="progress-track"><div class="progress-fill" id="homeExpenseBudgetFill" style="width:0%;"></div></div>
+        <div class="muted" id="homeExpenseBudgetText" style="font-size:11px;margin-top:4px;"></div>
+      </div>
+
       <div class="card">
         <div class="card-title">
           <span>Breakdown</span>
@@ -1569,7 +1578,7 @@ main{
         </button>
       </div>
       <div id="refreshStatus" class="muted" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 167</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 171</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -1610,7 +1619,7 @@ main{
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 167</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 171</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -1702,11 +1711,14 @@ main{
       </div>
       <div class="card">
         <div class="section-title" style="margin-top:0;">Budget Planning</div>
-        <div style="font-size:13px;font-weight:600;margin-bottom:8px;">What is your monthly Income?</div>
-        <div style="display:flex;align-items:center;gap:6px;margin-bottom:16px;">
-          <span class="muted" style="font-size:16px;">$</span>
-          <input type="number" id="budgetPlannerIncome" placeholder="0" min="0" step="1" inputmode="decimal" aria-label="Monthly income" style="flex:1;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:16px;font-family:'Fraunces',serif;font-weight:600;color:var(--navy);background:var(--card);">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:16px;">
+          <div style="font-size:13px;font-weight:600;">What is your monthly Income?</div>
+          <div style="display:flex;align-items:center;gap:4px;flex-shrink:0;">
+            <span class="muted" style="font-size:14px;">$</span>
+            <input type="number" id="budgetPlannerIncome" placeholder="0" min="0" step="1" inputmode="decimal" aria-label="Monthly income" style="width:92px;text-align:right;border:1px solid var(--line);border-radius:8px;padding:6px;font-size:14px;font-family:'Fraunces',serif;font-weight:600;color:var(--navy);background:var(--card);">
+          </div>
         </div>
+        <div class="muted" id="budgetPlannerIncomeHint" style="display:none;font-size:11px;margin-top:-10px;margin-bottom:16px;"></div>
         <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding-top:14px;border-top:1px solid var(--line);">
           <div style="font-size:13px;font-weight:600;">How much do you want to set as a limit for your expenses?</div>
           <div style="display:flex;align-items:center;gap:4px;flex-shrink:0;">
@@ -1715,10 +1727,7 @@ main{
           </div>
         </div>
         <div class="progress-track" style="margin-top:14px;"><div class="progress-fill" id="budgetPlannerTotalFill" style="width:0%;"></div></div>
-      </div>
-
-      <div class="card">
-        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:8px;">
           <span style="font-weight:700;font-size:14px;">Total planned</span>
           <span id="budgetPlannerTotalPct" style="font-family:'Fraunces',serif;font-weight:700;font-size:18px;">0%</span>
         </div>
@@ -2476,7 +2485,7 @@ main{
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 167;
+const APP_VERSION = 171;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -2546,6 +2555,11 @@ const BUDGET_PLANNER_WARN_PCT = 90; // default/starting value for BUDGET_PLANNER
 let BUDGET_PLANNER_PCT = {};
 let BUDGET_PLANNER_INCOME = 0;
 let BUDGET_PLANNER_MAX_PCT = BUDGET_PLANNER_WARN_PCT;
+// Until the person edits the income field themselves, it auto-fills with
+// the selected month's Net Income (recomputed live, not persisted) —
+// once they type their own value, this flips permanently so their entry
+// is never silently overwritten again.
+let BUDGET_PLANNER_INCOME_CUSTOM = false;
 
 /* ---------- Saved Transactions filter presets ---------- */
 let FILTER_PRESETS = []; // [{id, name, txFilter, txPeriod, txDateFrom, txDateTo, txSearchQuery, txSortAsc}]
@@ -2738,7 +2752,7 @@ function saveState(){
     localStorage.setItem('wealthme_categorymap', JSON.stringify(CATEGORY_MAP));
     localStorage.setItem('wealthme_budgets', JSON.stringify(BUDGETS));
     localStorage.setItem('wealthme_creditlimits', JSON.stringify(CREDIT_LIMITS));
-    localStorage.setItem('wealthme_budgetplanner', JSON.stringify({income: BUDGET_PLANNER_INCOME, pct: BUDGET_PLANNER_PCT, maxPct: BUDGET_PLANNER_MAX_PCT}));
+    localStorage.setItem('wealthme_budgetplanner', JSON.stringify({income: BUDGET_PLANNER_INCOME, pct: BUDGET_PLANNER_PCT, maxPct: BUDGET_PLANNER_MAX_PCT, incomeCustom: BUDGET_PLANNER_INCOME_CUSTOM}));
     localStorage.setItem('wealthme_filterpresets', JSON.stringify(FILTER_PRESETS));
   }catch(e){ /* ignore */ }
 }
@@ -2773,6 +2787,7 @@ function loadState(){
       BUDGET_PLANNER_INCOME = Number(parsed.income) || 0;
       BUDGET_PLANNER_PCT = (parsed.pct && typeof parsed.pct === 'object') ? parsed.pct : {};
       BUDGET_PLANNER_MAX_PCT = Number(parsed.maxPct) || BUDGET_PLANNER_WARN_PCT;
+      BUDGET_PLANNER_INCOME_CUSTOM = !!parsed.incomeCustom;
     }
     if(fp){ FILTER_PRESETS = JSON.parse(fp); }
     return !!e;
@@ -5435,7 +5450,7 @@ function buildSettingsRows(){
     },
     {
       id: SETTINGS_ROW_IDS.budgetPlanner, date: '', category: '__SETTINGS__', subcategory: 'BUDGET_PLANNER',
-      amount: 0, status: 'Open', notes: JSON.stringify({income: BUDGET_PLANNER_INCOME, pct: BUDGET_PLANNER_PCT, maxPct: BUDGET_PLANNER_MAX_PCT}), type: '', account: ''
+      amount: 0, status: 'Open', notes: JSON.stringify({income: BUDGET_PLANNER_INCOME, pct: BUDGET_PLANNER_PCT, maxPct: BUDGET_PLANNER_MAX_PCT, incomeCustom: BUDGET_PLANNER_INCOME_CUSTOM}), type: '', account: ''
     }
   ];
 }
@@ -5477,6 +5492,7 @@ function applySettingsRow(e){
         BUDGET_PLANNER_INCOME = Number(parsed.income) || 0;
         BUDGET_PLANNER_PCT = (parsed.pct && typeof parsed.pct === 'object') ? parsed.pct : {};
         BUDGET_PLANNER_MAX_PCT = Number(parsed.maxPct) || BUDGET_PLANNER_WARN_PCT;
+        BUDGET_PLANNER_INCOME_CUSTOM = !!parsed.incomeCustom;
       }
       return true;
     }
@@ -6147,7 +6163,20 @@ function renderBudgetsView(){
   document.getElementById('budgetsMonthLabel').textContent = fmtMonthYear(homeDate);
   const inMonth = (dateStr) => isSameMonth(dateStr, homeDate);
 
-  const income = BUDGET_PLANNER_INCOME;
+  // Until the person edits the income field themselves, auto-fill it with
+  // the selected month's Net Income (recomputed fresh each render, so it
+  // tracks month navigation) \u2014 purely a live display default, never
+  // written to BUDGET_PLANNER_INCOME/saved, so editing it is always a
+  // clean start and switching months never clobbers a manual entry.
+  const incomeHint = document.getElementById('budgetPlannerIncomeHint');
+  let income = BUDGET_PLANNER_INCOME;
+  if(!BUDGET_PLANNER_INCOME_CUSTOM){
+    income = Math.max(0, Math.round(computeMonthFinancials(homeDate, false).netIncome));
+    incomeHint.textContent = `Auto-filled from ${fmtMonthYear(homeDate)}'s Net Income \u2014 edit to set your own.`;
+    incomeHint.style.display = 'block';
+  } else {
+    incomeHint.style.display = 'none';
+  }
   document.getElementById('budgetPlannerIncome').value = income || '';
   document.getElementById('budgetPlannerMaxPct').value = BUDGET_PLANNER_MAX_PCT;
 
@@ -6794,6 +6823,7 @@ document.getElementById('settingsModalClose').addEventListener('click', closeSet
 document.getElementById('budgetsModalClose').addEventListener('click', closeBudgetsModal);
 document.getElementById('budgetPlannerIncome').addEventListener('change', (e)=>{
   BUDGET_PLANNER_INCOME = Number(e.target.value) || 0;
+  BUDGET_PLANNER_INCOME_CUSTOM = true; // from here on, never auto-overwritten
   saveState();
   syncSettingsNow();
   renderBudgetsView();
@@ -8506,8 +8536,39 @@ function renderHome(){
   balEl.classList.add(proj.balance >= 0 ? 'pos' : 'neg');
 
   renderLineChart();
+  renderHomeExpenseBudgetBar();
   renderDonutChart();
   renderGlanceStrip();
+}
+
+// Total Expense entries this month (Open+Closed, Taxes excluded — same
+// basis the Budget Planner itself uses) against the sum of every saved
+// BUDGETS target. Hidden entirely until at least one budget is saved
+// (More \u2192 Budgets \u2192 Save as My Budgets), since a 0-budget bar has
+// nothing meaningful to show.
+function renderHomeExpenseBudgetBar(){
+  const container = document.getElementById('homeExpenseBudgetBar');
+  const totalBudget = Object.values(BUDGETS).reduce((a,v)=>a+(Number(v)||0), 0);
+  if(totalBudget <= 0){
+    container.style.display = 'none';
+    return;
+  }
+  const inMonth = (dateStr) => isSameMonth(dateStr, homeDate);
+  const totalSpent = entries
+    .filter(e => e.category === 'Expense' && e.subcategory !== 'Taxes' && inMonth(e.date))
+    .reduce((a,e)=>a+Number(e.amount), 0);
+  const rawPct = (totalSpent/totalBudget) * 100;
+  const pct = Math.min(100, rawPct);
+  const overBudget = totalSpent > totalBudget;
+  const color = overBudget ? 'var(--terracotta)' : (rawPct >= 80 ? 'var(--gold)' : 'var(--sage)');
+
+  container.style.display = 'block';
+  document.getElementById('homeExpenseBudgetPct').textContent = rawPct.toFixed(0) + '%';
+  const fill = document.getElementById('homeExpenseBudgetFill');
+  fill.style.width = pct.toFixed(1) + '%';
+  fill.style.background = color;
+  document.getElementById('homeExpenseBudgetText').textContent =
+    `${fmtMoney(totalSpent)} spent of ${fmtMoney(totalBudget)} budgeted${overBudget ? ' \u00b7 over budget' : ''}`;
 }
 
 function renderLineChart(){
