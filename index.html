@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v181 -->
+<!-- WEALTH.ME — v182 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -192,6 +192,9 @@ body{
   font-size:12.5px;font-weight:600;cursor:pointer;text-align:center;
 }
 .budget-more-btn:active{transform:scale(0.99);}
+/* Home stat-card badges ("22% gross" / "10% net"): when a card is too
+   narrow for the word, drop it and keep just the number. */
+@container (max-width:124px){ .bdg-w{ display:none; } }
 /* Sun/moon theme-toggle button beside the bell: the moon shows in light
    mode (tap to switch to dark), the sun shows in dark mode (tap to
    switch to light). Purely CSS-driven off the <html data-theme> attribute
@@ -1043,6 +1046,17 @@ main{
   .summary-grid.four-cards{
     grid-template-columns:repeat(4, minmax(90px, 1fr));
   }
+  /* Home's 6 cards get cramped (~100-130px) between 900px and ~1250px,
+     too narrow for a title plus its % badge on one line, so there they
+     sit 3 per row; the full 6-across layout returns at wider widths. */
+  #homeSummaryGrid:not(.four-cards){
+    grid-template-columns:repeat(3, minmax(90px, 1fr));
+  }
+  @media (min-width:1250px){
+    #homeSummaryGrid:not(.four-cards){
+      grid-template-columns:repeat(6, minmax(90px, 1fr));
+    }
+  }
 
   /* Insights: same idea, applied to its content container since
      everything renders inside a single wrapper div */
@@ -1213,9 +1227,9 @@ main{
           <div class="value pos" id="sumGross">$0</div>
         </div>
         <div class="summary-card" id="sumTaxesCard">
-          <div class="label" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:2px 4px;">
+          <div class="label" style="display:flex;justify-content:space-between;align-items:center;container-type:inline-size;flex-wrap:wrap;gap:2px 4px;">
             <span>Taxes</span>
-            <span id="sumTaxesPct" style="display:none;font-size:9.5px;font-weight:700;text-transform:none;letter-spacing:0;background:var(--slate-light);color:var(--slate);padding:1px 6px;border-radius:999px;white-space:nowrap;"></span>
+            <span id="sumTaxesPct" style="display:none;font-size:9.5px;font-weight:700;text-transform:none;letter-spacing:0;background:var(--slate-light);color:var(--slate);padding:1px 6px;border-radius:999px;white-space:nowrap;flex-shrink:0;"></span>
           </div>
           <div class="value" id="sumTaxes">$0</div>
         </div>
@@ -1224,9 +1238,9 @@ main{
           <div class="value" id="sumNet">$0</div>
         </div>
         <div class="summary-card">
-          <div class="label" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:2px 4px;">
+          <div class="label" style="display:flex;justify-content:space-between;align-items:center;container-type:inline-size;flex-wrap:wrap;gap:2px 4px;">
             <span>Expenses</span>
-            <span id="sumExpensesPct" style="display:none;font-size:9.5px;font-weight:700;text-transform:none;letter-spacing:0;background:var(--slate-light);color:var(--slate);padding:1px 6px;border-radius:999px;white-space:nowrap;"></span>
+            <span id="sumExpensesPct" style="display:none;font-size:9.5px;font-weight:700;text-transform:none;letter-spacing:0;background:var(--slate-light);color:var(--slate);padding:1px 6px;border-radius:999px;white-space:nowrap;flex-shrink:0;"></span>
           </div>
           <div class="value neg" id="sumExpenses">$0</div>
         </div>
@@ -1557,7 +1571,7 @@ main{
         </button>
       </div>
       <div id="refreshStatus" class="muted" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 181</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 182</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -1598,7 +1612,7 @@ main{
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 181</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 182</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -2466,7 +2480,7 @@ main{
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 181;
+const APP_VERSION = 182;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -8643,7 +8657,9 @@ function renderHome(){
   // to divide by).
   const expPctBadge = document.getElementById('sumExpensesPct');
   if(proj.netIncome > 0){
-    expPctBadge.textContent = fmtPlanPct(proj.expensesNoTaxes / proj.netIncome * 100) + ' of net';
+    const expPctVal = Math.round(proj.expensesNoTaxes / proj.netIncome * 100);
+    expPctBadge.innerHTML = expPctVal + '%<span class="bdg-w"> net</span>';
+    expPctBadge.title = expPctVal + '% of Net Income';
     expPctBadge.style.display = 'inline-block';
   } else {
     expPctBadge.style.display = 'none';
@@ -8657,7 +8673,9 @@ function renderHome(){
   // % in the app is against Net Income).
   const taxPctBadge = document.getElementById('sumTaxesPct');
   if(!noTaxes && proj.grossIncome > 0){
-    taxPctBadge.textContent = fmtPlanPct(proj.taxes / proj.grossIncome * 100) + ' of gross';
+    const taxPctVal = Math.round(proj.taxes / proj.grossIncome * 100);
+    taxPctBadge.innerHTML = taxPctVal + '%<span class="bdg-w"> gross</span>';
+    taxPctBadge.title = taxPctVal + '% of Gross Income';
     taxPctBadge.style.display = 'inline-block';
   } else {
     taxPctBadge.style.display = 'none';
