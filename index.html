@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v182 -->
+<!-- WEALTH.ME — v183 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1571,7 +1571,7 @@ main{
         </button>
       </div>
       <div id="refreshStatus" class="muted" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 182</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 183</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -1612,7 +1612,7 @@ main{
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 182</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 183</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -2480,7 +2480,7 @@ main{
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 182;
+const APP_VERSION = 183;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -3101,8 +3101,12 @@ function generateFinancialInsights(selectedDate, direction){
   const highestMonth = monthlyTotals.reduce((max,m)=> m.expense > max.expense ? m : max, monthlyTotals[0]);
   const lowestMonth = monthlyTotals.reduce((min,m)=> m.expense < min.expense ? m : min, monthlyTotals[0]);
 
+  // Taxes broken out of the expense total for display in the Financial
+  // Overview card only; totalExpenses12mo (taxes included) is untouched.
+  const totalTaxes12mo = expenseEntries.filter(e=>e.subcategory === 'Taxes').reduce((a,e)=>a+Number(e.amount),0);
   const overview = {
-    totalExpenses12mo, avgMonthlyExpense, selExpense, prevExpense,
+    totalExpenses12mo, totalTaxes12mo, totalExpensesNoTaxes12mo: totalExpenses12mo - totalTaxes12mo,
+    avgMonthlyExpense, selExpense, prevExpense,
     highestMonth, lowestMonth,
     vsPrevMonth: safePctChange(selExpenseAllStatus, prevExpense),
     vs12moAvg: safePctChange(selExpenseAllStatus, avgMonthlyExpenseAllStatus),
@@ -3608,13 +3612,14 @@ function renderOverviewCard(data){
   return `
     <div class="card">
       <div class="card-title">Financial Overview <span class="muted" style="font-weight:400;font-size:11px;">${data.direction==='future'?'12-month projected total':'12-month total'}</span></div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px 10px;">
         <div><div class="muted" style="font-size:10px;text-transform:uppercase;">Income</div><div class="breakdown-amt" style="color:var(--sage);font-size:15px;">${fmtMoney(o.totalIncome12mo)}</div></div>
-        <div><div class="muted" style="font-size:10px;text-transform:uppercase;">Expenses</div><div class="breakdown-amt" style="color:var(--terracotta);font-size:15px;">${fmtMoney(o.totalExpenses12mo)}</div></div>
+        <div><div class="muted" style="font-size:10px;text-transform:uppercase;">Taxes</div><div class="breakdown-amt" style="color:var(--slate);font-size:15px;">${fmtMoney(o.totalTaxes12mo)}</div></div>
+        <div><div class="muted" style="font-size:10px;text-transform:uppercase;">Expenses</div><div class="breakdown-amt" style="color:var(--terracotta);font-size:15px;">${fmtMoney(o.totalExpensesNoTaxes12mo)}</div></div>
         <div><div class="muted" style="font-size:10px;text-transform:uppercase;">Investments</div><div class="breakdown-amt" style="color:var(--gold);font-size:15px;">${fmtMoney(o.totalInvestment12mo)}</div></div>
       </div>
       <div style="margin-top:14px;border-top:1px solid var(--slate-light);padding-top:10px;">
-        <div style="display:flex;justify-content:space-between;font-size:12.5px;padding:4px 0;"><span class="muted">Avg monthly expenses</span><span>${fmtMoney(o.avgMonthlyExpense)}</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:12.5px;padding:4px 0;"><span class="muted">Avg monthly expenses + taxes</span><span>${fmtMoney(o.avgMonthlyExpense)}</span></div>
         ${data.direction === 'future' ? `
         <div style="display:flex;justify-content:space-between;font-size:12.5px;padding:4px 0;"><span class="muted">Next month vs selected month</span><span style="color:${pctColor(o.vsNextMonth.pct,true)}">${o.vsNextMonth.label}</span></div>
         <div style="display:flex;justify-content:space-between;font-size:12.5px;padding:4px 0;"><span class="muted">Selected month vs 12-mo average</span><span style="color:${pctColor(o.vs12moAvg.pct,true)}">${o.vs12moAvg.label}</span></div>
