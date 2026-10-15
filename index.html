@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v183 -->
+<!-- WEALTH.ME — v184 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -195,6 +195,8 @@ body{
 /* Home stat-card badges ("22% gross" / "10% net"): when a card is too
    narrow for the word, drop it and keep just the number. */
 @container (max-width:124px){ .bdg-w{ display:none; } }
+/* Expenses badge turns red once expenses exceed 100% of Net Income. */
+.stat-badge-over{ background:rgba(193,88,63,0.18) !important; color:var(--terracotta) !important; }
 /* Sun/moon theme-toggle button beside the bell: the moon shows in light
    mode (tap to switch to dark), the sun shows in dark mode (tap to
    switch to light). Purely CSS-driven off the <html data-theme> attribute
@@ -1571,7 +1573,7 @@ main{
         </button>
       </div>
       <div id="refreshStatus" class="muted" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 183</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 184</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -1612,7 +1614,7 @@ main{
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 183</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 184</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -2480,7 +2482,7 @@ main{
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 183;
+const APP_VERSION = 184;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -8665,9 +8667,11 @@ function renderHome(){
     const expPctVal = Math.round(proj.expensesNoTaxes / proj.netIncome * 100);
     expPctBadge.innerHTML = expPctVal + '%<span class="bdg-w"> net</span>';
     expPctBadge.title = expPctVal + '% of Net Income';
+    expPctBadge.classList.toggle('stat-badge-over', expPctVal > 100);
     expPctBadge.style.display = 'inline-block';
   } else {
     expPctBadge.style.display = 'none';
+    expPctBadge.classList.remove('stat-badge-over');
   }
   document.getElementById('sumInvestment').textContent = fmtMoney(proj.investment);
   document.getElementById('sumTaxes').textContent = fmtMoney(proj.taxes);
