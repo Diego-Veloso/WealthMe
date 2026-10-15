@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v178 -->
+<!-- WEALTH.ME — v180 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1213,7 +1213,10 @@ main{
           <div class="value pos" id="sumGross">$0</div>
         </div>
         <div class="summary-card" id="sumTaxesCard">
-          <div class="label">Taxes</div>
+          <div class="label" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:2px 6px;">
+            <span>Taxes</span>
+            <span id="sumTaxesPct" style="display:none;font-size:10px;font-weight:700;text-transform:none;letter-spacing:0;background:var(--slate-light);color:var(--slate);padding:1px 7px;border-radius:999px;white-space:nowrap;"></span>
+          </div>
           <div class="value" id="sumTaxes">$0</div>
         </div>
         <div class="summary-card">
@@ -1310,7 +1313,7 @@ main{
           <input type="date" id="detailDateTo">
         </div>
       </div>
-      <!-- Expense/Gross Income trendline chart -->
+      <!-- Category trendline chart (% of Net Income; Taxes % of Gross Income) -->
       <div class="card" id="detailTrendCard">
         <div class="card-title">
           <span id="detailTrendTitle">Trend</span>
@@ -1551,7 +1554,7 @@ main{
         </button>
       </div>
       <div id="refreshStatus" class="muted" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 178</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 180</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -1592,7 +1595,7 @@ main{
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 178</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 180</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -2460,7 +2463,7 @@ main{
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 178;
+const APP_VERSION = 180;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -4005,14 +4008,17 @@ function computeDailyCashflow(refDate){
 /* Donut breakdown: group entries by subcategory for a given top-level category & month */
 function computeDonutBreakdown(refDate, category){
   const inMonth = (dateStr)=> isSameMonth(dateStr, refDate);
-  const grossIncome = computeMonthFinancials(refDate, false).grossIncome;
+  // Percentages are against Net Income (income after Taxes). Taxes are
+  // kept out of the Expense donut entirely - they have their own card on
+  // Home, with their % shown against Gross Income.
+  const netIncome = computeMonthFinancials(refDate, false).netIncome;
 
-  const subcats = CATEGORY_MAP[category];
+  const subcats = CATEGORY_MAP[category].filter(sub => !(category === 'Expense' && sub === 'Taxes'));
   const rows = subcats.map(sub=>{
     const amount = entries
       .filter(e=>e.category===category && e.subcategory===sub && inMonth(e.date))
       .reduce((a,e)=>a+Number(e.amount),0);
-    return {subcategory: sub, amount, pct: grossIncome !== 0 ? (amount/grossIncome*100) : 0};
+    return {subcategory: sub, amount, pct: netIncome !== 0 ? (amount/netIncome*100) : 0};
   }).filter(r=>r.amount !== 0);
 
   rows.sort((a,b)=>b.amount-a.amount);
@@ -7996,8 +8002,12 @@ function renderDetailTrendChart(){
   const ctx = document.getElementById('detailTrendChart');
 
   trendCard.style.display = 'block';
+  // Net Income is the base for everything except Taxes, which stays
+  // against Gross Income.
+  const baseIsGross = (detailCategory === 'Expense' && detailSubcategory === 'Taxes');
+  const baseLabel = baseIsGross ? 'Gross Income' : 'Net Income';
   document.getElementById('detailTrendTitle').textContent =
-    `${detailSubcategory} as % of Gross Income`;
+    `${detailSubcategory} as % of ${baseLabel}`;
 
   // Determine the months to display
   const now = homeDate;
@@ -8028,7 +8038,7 @@ function renderDetailTrendChart(){
   const labels  = [];
   const values  = [];
   const rawExp  = [];
-  const rawGross= [];
+  const rawBase = [];
 
   monthPoints.forEach(d => {
     const inM = (dateStr) => isSameMonth(dateStr, d);
@@ -8039,13 +8049,13 @@ function renderDetailTrendChart(){
       .reduce((a, e) => a + Number(e.amount), 0);
 
     const fin   = computeMonthFinancials(d, false);
-    const gross = fin.grossIncome;
-    const pct   = gross !== 0 ? (subAmt / Math.abs(gross) * 100) : 0;
+    const base  = baseIsGross ? fin.grossIncome : fin.netIncome;
+    const pct   = base !== 0 ? (subAmt / Math.abs(base) * 100) : 0;
 
     labels.push(d.toLocaleString(undefined, {month:'short', year:'2-digit'}));
     values.push(Math.abs(pct));
     rawExp.push(subAmt);
-    rawGross.push(gross);
+    rawBase.push(base);
   });
 
   if(detailTrendChartInstance){ detailTrendChartInstance.destroy(); }
@@ -8062,7 +8072,7 @@ function renderDetailTrendChart(){
     data: {
       labels,
       datasets: [{
-        label: '% of Gross Income',
+        label: `% of ${baseLabel}`,
         data: values,
         borderColor: catColor,
         backgroundColor: bgColor,
@@ -8102,9 +8112,9 @@ function renderDetailTrendChart(){
             label: (ctx2) => {
               const i = ctx2.dataIndex;
               return [
-                `${ctx2.parsed.y.toFixed(1)}% of gross`,
+                `${ctx2.parsed.y.toFixed(1)}% of ${baseIsGross ? 'gross' : 'net'}`,
                 `Amount: ${fmtMoney(rawExp[i])}`,
-                `Gross: ${fmtMoney(rawGross[i])}`
+                `${baseIsGross ? 'Gross' : 'Net'}: ${fmtMoney(rawBase[i])}`
               ];
             }
           }
@@ -8631,6 +8641,15 @@ function renderHome(){
   // No taxes this month: Gross Income and Taxes add nothing beyond Net
   // Income, so hide both cards (remaining 4 re-flow on desktop too).
   const noTaxes = Math.abs(proj.taxes) < 0.005;
+  // Taxes are the one figure expressed against Gross Income (every other
+  // % in the app is against Net Income).
+  const taxPctBadge = document.getElementById('sumTaxesPct');
+  if(!noTaxes && proj.grossIncome > 0){
+    taxPctBadge.textContent = fmtPlanPct(proj.taxes / proj.grossIncome * 100) + ' of gross';
+    taxPctBadge.style.display = 'inline-block';
+  } else {
+    taxPctBadge.style.display = 'none';
+  }
   document.getElementById('sumGrossCard').style.display = noTaxes ? 'none' : '';
   document.getElementById('sumTaxesCard').style.display = noTaxes ? 'none' : '';
   document.getElementById('homeSummaryGrid').classList.toggle('four-cards', noTaxes);
@@ -8853,7 +8872,7 @@ function renderDonutChart(){
           callbacks:{
             label: (ctx)=>{
               const row = rows[ctx.dataIndex];
-              return `${row.subcategory}: ${fmtMoney(row.amount)} (${row.pct.toFixed(1)}% of gross)`;
+              return `${row.subcategory}: ${fmtMoney(row.amount)} (${row.pct.toFixed(1)}% of net)`;
             }
           }
         }
@@ -8874,7 +8893,7 @@ function renderDonutChart(){
       </div>
       <div class="breakdown-right">
         <div class="breakdown-amt">${fmtMoney(r.amount)}</div>
-        <div class="breakdown-pct">${r.pct.toFixed(1)}% of gross</div>
+        <div class="breakdown-pct">${r.pct.toFixed(1)}% of net</div>
       </div>
     </div>
   `).join('');
