@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v194 -->
+<!-- WEALTH.ME — v195 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1576,7 +1576,7 @@ main{
         </button>
       </div>
       <div id="refreshStatus" class="muted" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 194</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 195</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -1617,7 +1617,7 @@ main{
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 194</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 195</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -2484,7 +2484,7 @@ main{
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 194;
+const APP_VERSION = 195;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -3683,7 +3683,7 @@ function renderCostReductionCard(data){
     .filter(c => !NEEDS_SUBCATEGORIES.has(c.subcategory))
     .sort((a,b)=> b.total - a.total);
   if(discretionaryCats.length === 0 || n.discTotal === 0){
-    return `<div class="card"><div class="card-title" style="margin-bottom:2px;"><span style="white-space:nowrap;">Cost-Cutting Opportunities</span><button type="button" class="insights-info-btn" data-explain-toggle="cost-cut" title="What is this?">i</button></div><div class="muted" style="font-size:11px;margin-bottom:12px;">Non-essential spending</div><div class="insights-explain" id="explain-cost-cut">Non-essential spending is any subcategory not on your Needs list (set in Settings). No non-essential spending detected in this period.</div><div class="muted" style="font-size:12px;">No non-essential spending detected in this period.</div></div>`;
+    return `<div class="card"><div class="card-title" style="margin-bottom:2px;"><span style="white-space:nowrap;">Cost-Cutting Opportunities</span><button type="button" class="insights-info-btn" data-explain-toggle="cost-cut" title="What is this?">i</button></div><div class="muted" style="font-size:11px;margin-bottom:12px;">Non-essential spending</div><div class="insights-explain" id="explain-cost-cut">Anything not on your Needs list (set in Settings).</div><div class="muted" style="font-size:12px;">Nothing detected in this period.</div></div>`;
   }
   const monthlyDisc = n.discTotal / 12;
   const save10 = monthlyDisc * 0.10, save20 = monthlyDisc * 0.20;
@@ -3696,7 +3696,7 @@ function renderCostReductionCard(data){
     <div class="breakdown-row insights-cat-row" data-sub="${c.subcategory}" style="cursor:pointer;">
       <div style="flex:1;min-width:0;">
         <div class="breakdown-name">${c.subcategory}</div>
-        <div class="muted" style="font-size:10.5px;">avg ${fmtMoney(c.monthlyAvg)}/mo · ${((c.total/n.discTotal)*100).toFixed(0)}% of non-essential spend</div>
+        <div class="muted" style="font-size:10.5px;">avg ${fmtMoney(c.monthlyAvg)}/mo · ${((c.total/n.discTotal)*100).toFixed(0)}% of this total</div>
       </div>
       <div class="breakdown-amt" style="font-size:13px;color:var(--gold);">${fmtMoney(c.total)}</div>
     </div>`).join('');
@@ -3705,16 +3705,16 @@ function renderCostReductionCard(data){
     <div class="card">
       <div class="card-title" style="margin-bottom:2px;"><span style="white-space:nowrap;">Cost-Cutting Opportunities</span><button type="button" class="insights-info-btn" data-explain-toggle="cost-cut" title="What is this?">i</button></div>
       <div class="muted" style="font-size:11px;margin-bottom:12px;">Non-essential spending</div>
-      <div class="insights-explain" id="explain-cost-cut">Non-essential spending is any subcategory not on your Needs list (set in Settings). The 10%/20% projections apply that cut to your average monthly non-essential spend.</div>
-      <div class="muted" style="font-size:11.5px;margin-bottom:10px;">Non-essential spending: ${fmtMoney(n.discTotal)} over 12 months (${n.discPct.toFixed(0)}% of total) — avg ${fmtMoney(monthlyDisc)}/month</div>
+      <div class="insights-explain" id="explain-cost-cut">Anything not on your Needs list (set in Settings). The 10%/20% projections apply that cut to your monthly average.</div>
+      <div class="muted" style="font-size:11.5px;margin-bottom:10px;">${fmtMoney(n.discTotal)} over 12 months (${n.discPct.toFixed(0)}% of total) — avg ${fmtMoney(monthlyDisc)}/month</div>
       <div style="background:var(--sky-light);border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:12.5px;line-height:1.5;">
-        Cutting non-essential spending by <strong>10%</strong> saves ~${fmtMoney(save10)}/mo (${fmtMoney(save10*12)}/yr).<br>
-        Cutting by <strong>20%</strong> saves ~${fmtMoney(save20)}/mo (${fmtMoney(save20*12)}/yr).
+        Cutting <strong>10%</strong> saves ~${fmtMoney(save10)}/mo (${fmtMoney(save10*12)}/yr).<br>
+        Cutting <strong>20%</strong> saves ~${fmtMoney(save20)}/mo (${fmtMoney(save20*12)}/yr).
       </div>
-      <div class="muted" style="font-size:10.5px;text-transform:uppercase;margin-bottom:4px;">Biggest non-essential categories — tap to explore</div>
+      <div class="muted" style="font-size:10.5px;text-transform:uppercase;margin-bottom:4px;">Biggest categories — tap to explore</div>
       ${rows}
       ${recurDisc.length ? `
-        <div class="muted" style="font-size:10.5px;text-transform:uppercase;margin:14px 0 4px;">Recurring non-essential costs worth reviewing</div>
+        <div class="muted" style="font-size:10.5px;text-transform:uppercase;margin:14px 0 4px;">Recurring costs worth reviewing</div>
         ${recurDisc.slice(0,5).map(r=>`
           <div style="display:flex;justify-content:space-between;font-size:12px;padding:4px 0;">
             <span>${r.label}</span><span>${fmtMoney(r.monthlyAmount)}/mo</span>
