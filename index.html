@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v184 -->
+<!-- WEALTH.ME — v193 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -514,6 +514,9 @@ main{
 .breakdown-right{text-align:right;}
 .breakdown-amt{font-weight:700;font-size:14px;font-family:'Inter',sans-serif;}
 .breakdown-pct{font-size:11px;color:var(--slate);}
+/* Over/Under budget badge beside a subcategory name in Home's Breakdown */
+.bdg-budget{font-size:9.5px;font-weight:700;padding:1px 6px;border-radius:999px;white-space:nowrap;}
+.bdg-budget.over{color:var(--terracotta);background:color-mix(in srgb, var(--terracotta) 18%, transparent);}
 
 /* ===== Bottom nav ===== */
 .bottomnav{
@@ -1070,8 +1073,8 @@ main{
   }
   .insights-fullspan{grid-column:1 / -1;}
   /* The Financial Overview card was explicitly tagged full-span, but the
-     other 9 report sections (Key Insights, Month Comparison, Category
-     Ranking, Cost Reduction, Monthly Trend chart, Biggest Changes,
+     other 9 report sections (Key Insights, Category
+     Monthly Trend chart, Ranking, Cost Reduction, Biggest Changes,
      Unusual Spending, Recurring, Financial Health) were left as plain
      .card divs — same oversight as Money's — so they fell into the
      auto-fit grid unmarked and got scattered across columns despite
@@ -1573,7 +1576,7 @@ main{
         </button>
       </div>
       <div id="refreshStatus" class="muted" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 184</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 193</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -1614,7 +1617,7 @@ main{
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 184</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 193</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -1728,7 +1731,7 @@ main{
           <span id="budgetPlannerTotalPct" style="font-family:'Fraunces',serif;font-weight:700;font-size:18px;">0%</span>
         </div>
         <div class="muted" id="budgetPlannerTotalAmt" style="font-size:12px;margin-top:4px;">$0 of your income allocated</div>
-        <div class="muted" id="budgetPlannerSpentTotal" style="font-size:12px;margin-top:10px;padding-top:10px;border-top:1px solid var(--line);"></div>
+        <div id="budgetPlannerLimitWarning" style="display:none;font-size:12px;font-weight:600;color:var(--terracotta);margin-top:10px;padding-top:10px;border-top:1px solid var(--line);"></div>
       </div>
 
       <div class="card" id="budgetPlannerInsightsCard" style="display:none;">
@@ -2482,7 +2485,7 @@ main{
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 184;
+const APP_VERSION = 193;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -3509,16 +3512,14 @@ function renderInsightsView(){
   }
 
   // ---------- Top level ----------
-  // Selected Month Comparison and Biggest Changes are both backward-looking
-  // (vs last month / vs last year), which doesn't make sense for a forward
-  // 12-month projection — shown only for Past 12 Months.
+  // Biggest Changes is backward-looking (vs last year), which doesn't make
+  // sense for a forward 12-month projection — shown only for Past 12 Months.
   container.innerHTML = toggleHtml + `
     ${renderOverviewCard(data)}
+    ${renderMonthlyTrendCard(data)}
     ${renderKeyInsightsCard(data)}
-    ${insightsDirection === 'past' ? renderMonthComparisonCard(data) : ''}
     ${renderCategoryRankingCard(data)}
     ${renderCostReductionCard(data)}
-    ${renderMonthlyTrendCard(data)}
     ${insightsDirection === 'past' ? renderBiggestChangesCard(data) : ''}
     ${renderUnusualSpendingCard(data)}
     ${renderRecurringCard(data)}
@@ -3651,26 +3652,6 @@ function renderKeyInsightsCard(data){
     </div>`;
 }
 
-function renderMonthComparisonCard(data){
-  const c = data.monthComparison;
-  const row = (label, key, invertGood) => `
-    <div style="padding:8px 0;border-bottom:1px solid var(--slate-light);">
-      <div style="display:flex;justify-content:space-between;font-size:12.5px;font-weight:600;margin-bottom:4px;"><span>${label}</span><span>${fmtMoney(c[key].selected)}</span></div>
-      <div style="display:flex;justify-content:space-between;font-size:11px;" class="muted">
-        <span>vs prev: <span style="color:${pctColor(c[key].vsPrev.pct,invertGood)}">${pctArrow(c[key].vsPrev.pct)} ${c[key].vsPrev.label}</span></span>
-        <span>vs avg: <span style="color:${pctColor(c[key].vsAvg.pct,invertGood)}">${pctArrow(c[key].vsAvg.pct)} ${c[key].vsAvg.label}</span></span>
-        <span>vs LY: <span style="color:${pctColor(c[key].vsLastYear.pct,invertGood)}">${pctArrow(c[key].vsLastYear.pct)} ${c[key].vsLastYear.label}</span></span>
-      </div>
-    </div>`;
-  return `
-    <div class="card">
-      <div class="card-title">Selected Month Comparison</div>
-      ${row('Income','income',false)}
-      ${row('Expenses','expense',true)}
-      ${row('Investments','investment',false)}
-    </div>`;
-}
-
 function renderCategoryRankingCard(data){
   const maxTotal = data.categoryTotals.length ? data.categoryTotals[0].total : 1;
   const rows = data.categoryTotals.map((c,i)=>`
@@ -3682,7 +3663,6 @@ function renderCategoryRankingCard(data){
         </div>
         <div style="text-align:right;">
           <div class="breakdown-amt" style="font-size:13px;">${fmtMoney(c.total)}</div>
-          <div class="muted" style="font-size:10.5px;color:${pctColor(c.momChange.pct,true)}">${data.direction === 'future' ? 'Next mo' : 'MoM'} ${c.momChange.label}</div>
         </div>
       </div>
       <div style="height:6px;background:var(--slate-light);border-radius:4px;overflow:hidden;">
@@ -3704,7 +3684,7 @@ function renderCostReductionCard(data){
     .filter(c => !NEEDS_SUBCATEGORIES.has(c.subcategory))
     .sort((a,b)=> b.total - a.total);
   if(discretionaryCats.length === 0 || n.discTotal === 0){
-    return `<div class="card"><div class="card-title">Cost-Cutting Opportunities<button type="button" class="insights-info-btn" data-explain-toggle="cost-cut" title="What is this?">i</button></div><div class="insights-explain" id="explain-cost-cut">Non-essential spending is any subcategory not on your Needs list (set in Settings). No non-essential spending detected in this period.</div><div class="muted" style="font-size:12px;">No non-essential spending detected in this period.</div></div>`;
+    return `<div class="card"><div class="card-title" style="margin-bottom:2px;"><span style="white-space:nowrap;">Cost-Cutting Opportunities</span><button type="button" class="insights-info-btn" data-explain-toggle="cost-cut" title="What is this?">i</button></div><div class="muted" style="font-size:11px;margin-bottom:12px;">Non-essential spending</div><div class="insights-explain" id="explain-cost-cut">Non-essential spending is any subcategory not on your Needs list (set in Settings). No non-essential spending detected in this period.</div><div class="muted" style="font-size:12px;">No non-essential spending detected in this period.</div></div>`;
   }
   const monthlyDisc = n.discTotal / 12;
   const save10 = monthlyDisc * 0.10, save20 = monthlyDisc * 0.20;
@@ -3724,7 +3704,8 @@ function renderCostReductionCard(data){
 
   return `
     <div class="card">
-      <div class="card-title">Cost-Cutting Opportunities <span class="muted" style="font-weight:400;font-size:10.5px;">(non-essential spending)</span><button type="button" class="insights-info-btn" data-explain-toggle="cost-cut" title="What is this?">i</button></div>
+      <div class="card-title" style="margin-bottom:2px;"><span style="white-space:nowrap;">Cost-Cutting Opportunities</span><button type="button" class="insights-info-btn" data-explain-toggle="cost-cut" title="What is this?">i</button></div>
+      <div class="muted" style="font-size:11px;margin-bottom:12px;">Non-essential spending</div>
       <div class="insights-explain" id="explain-cost-cut">Non-essential spending is any subcategory not on your Needs list (set in Settings). The 10%/20% projections apply that cut to your average monthly non-essential spend.</div>
       <div class="muted" style="font-size:11.5px;margin-bottom:10px;">Non-essential spending: ${fmtMoney(n.discTotal)} over 12 months (${n.discPct.toFixed(0)}% of total) — avg ${fmtMoney(monthlyDisc)}/month</div>
       <div style="background:var(--sky-light);border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:12.5px;line-height:1.5;">
@@ -3858,11 +3839,9 @@ function renderBiggestChangesCard(data){
   return `
     <div class="card">
       <div class="card-title">Biggest Changes</div>
-      ${sectionOrEmpty('Increases vs last month', data.biggestIncreasesMoM)}
-      ${sectionOrEmpty('Decreases vs last month', data.biggestDecreasesMoM)}
       ${sectionOrEmpty('Increases vs last year', data.biggestIncreasesYoY)}
       ${sectionOrEmpty('Decreases vs last year', data.biggestDecreasesYoY)}
-      ${(!data.biggestIncreasesMoM.length && !data.biggestDecreasesMoM.length && !data.biggestIncreasesYoY.length && !data.biggestDecreasesYoY.length) ? '<div class="muted" style="font-size:12px;">No notable changes.</div>' : ''}
+      ${(!data.biggestIncreasesYoY.length && !data.biggestDecreasesYoY.length) ? '<div class="muted" style="font-size:12px;">No notable changes.</div>' : ''}
     </div>`;
 }
 
@@ -3906,7 +3885,7 @@ function renderRecurringCard(data){
         <div class="breakdown-row">
           <div style="flex:1;min-width:0;">
             <div class="breakdown-name">${r.label}</div>
-            <div class="muted" style="font-size:10.5px;">${r.frequency} · ${r.occurrences}× · confidence: ${r.confidence} · ${data.direction === 'future' ? 'next ~' + r.nextDate : 'last ' + r.lastDate}</div>
+            <div class="muted" style="font-size:10.5px;">Frequency: ${r.frequency} · ${r.occurrences}×</div>
           </div>
           <div class="breakdown-amt" style="font-size:13px;">${fmtMoney(r.monthlyAmount)}/mo</div>
         </div>`).join('')}
@@ -6179,6 +6158,22 @@ function budgetPlannerIncomeFor(refDate){
 }
 // The Budget page's "Total planned" $ amount (income x total %). Home's
 // Expenses vs Budget card reads this same number so they always agree.
+// The budget a subcategory is held to on Home's Breakdown: the same amount
+// the Budgets page shows for it (the plan, or the saved target if the plan
+// has nothing for it). 0 until a budget has been saved, matching the
+// Expenses vs Budget card.
+function homeBudgetTarget(sub){
+  if(!Object.values(BUDGETS).some(v => Number(v) > 0)) return 0;
+  const planned = budgetPlannerAmount(sub, budgetPlannerIncomeFor(homeDate));
+  return planned > 0 ? planned : (Number(BUDGETS[sub]) || 0);
+}
+// "Over Budget" badge beside a subcategory name in the Breakdown list.
+// Categories within budget get no badge.
+function homeBudgetBadge(sub, spent){
+  const target = homeBudgetTarget(sub);
+  if(target <= 0 || spent <= target + 0.005) return '';
+  return `<span class="bdg-budget over" title="${fmtMoney(spent)} spent of ${fmtMoney(target)} budgeted">Over Budget</span>`;
+}
 function budgetPlannerTotalAmount(refDate){
   return budgetPlannerSumAmounts(budgetPlannerIncomeFor(refDate));
 }
@@ -6285,30 +6280,20 @@ function renderBudgetsView(){
   // entries count, same as the rest of the app's budget-adjacent checks
   // (a planned-but-not-yet-paid expense still counts against the plan).
   const spentBySub = {};
-  let totalSpent = 0;
   subs.forEach(sub=>{
-    const spent = entries
+    spentBySub[sub] = entries
       .filter(e => e.category === 'Expense' && e.subcategory === sub && inMonth(e.date))
       .reduce((a,e)=>a+Number(e.amount), 0);
-    spentBySub[sub] = spent;
-    totalSpent += spent;
   });
-  // One combined line instead of two stacked ones: the over-the-maximum
-  // warning and the actual-spend status share the same line whenever
-  // both apply, rather than each getting their own row.
-  const totalSpentPct = totalAmt > 0 ? (totalSpent/totalAmt*100) : null;
-  const spentLine = totalAmt > 0
-    ? `Spent so far this month: ${fmtMoney(totalSpent)} of ${fmtMoney(totalAmt)} planned (${totalSpentPct.toFixed(0)}%)`
-    : `Spent so far this month: ${fmtMoney(totalSpent)} \u2014 set an income above to compare against your plan`;
-  const spentTotalEl = document.getElementById('budgetPlannerSpentTotal');
+  // The planning card is about the plan only (spending is tracked in each
+  // row below and on Home), so the only thing it says here is a warning
+  // when the plan goes over the maximum.
+  const limitWarningEl = document.getElementById('budgetPlannerLimitWarning');
   if(overLimit){
-    spentTotalEl.textContent = `\u26a0\ufe0f Planning ${fmtPlanPct(totalPct)} of income (over your ${BUDGET_PLANNER_MAX_PCT}% maximum) \u2014 ${spentLine.charAt(0).toLowerCase() + spentLine.slice(1)}.`;
-    spentTotalEl.style.color = 'var(--terracotta)';
-    spentTotalEl.style.fontWeight = '600';
+    limitWarningEl.textContent = `\u26a0\ufe0f Planning ${fmtPlanPct(totalPct)} of income \u2014 over your ${BUDGET_PLANNER_MAX_PCT}% maximum.`;
+    limitWarningEl.style.display = '';
   } else {
-    spentTotalEl.textContent = spentLine;
-    spentTotalEl.style.color = '';
-    spentTotalEl.style.fontWeight = '';
+    limitWarningEl.style.display = 'none';
   }
 
   const totalPctEl = document.getElementById('budgetPlannerTotalPct');
@@ -8911,7 +8896,14 @@ function renderDonutChart(){
           callbacks:{
             label: (ctx)=>{
               const row = rows[ctx.dataIndex];
-              return `${row.subcategory}: ${fmtMoney(row.amount)} (${row.pct.toFixed(1)}% of net)`;
+              const lines = [`${row.subcategory}: ${fmtMoney(row.amount)} (${row.pct.toFixed(1)}% of net)`];
+              if(donutCategory === 'Expense'){
+                const target = homeBudgetTarget(row.subcategory);
+                if(target > 0){
+                  lines.push(`Budget: ${fmtMoney(target)} \u00b7 ${(row.amount / target * 100).toFixed(0)}% used`);
+                }
+              }
+              return lines;
             }
           }
         }
@@ -8928,7 +8920,7 @@ function renderDonutChart(){
     <div class="breakdown-row" data-sub="${r.subcategory}">
       <div class="breakdown-left">
         <div class="breakdown-swatch" style="background:${PALETTE[i % PALETTE.length]}"></div>
-        <div class="breakdown-name">${r.subcategory}</div>
+        <div class="breakdown-name" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">${r.subcategory}${donutCategory === 'Expense' ? homeBudgetBadge(r.subcategory, r.amount) : ''}</div>
       </div>
       <div class="breakdown-right">
         <div class="breakdown-amt">${fmtMoney(r.amount)}</div>
