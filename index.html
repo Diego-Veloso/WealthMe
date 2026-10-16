@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v197 -->
+<!-- WEALTH.ME — v198 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -192,6 +192,9 @@ body{
   font-size:12.5px;font-weight:600;cursor:pointer;text-align:center;
 }
 .budget-more-btn:active{transform:scale(0.99);}
+.budget-view-toggle{display:flex;background:var(--slate-light);border-radius:10px;padding:3px;margin-top:10px;}
+.budget-view-btn{flex:1;border:none;background:transparent;padding:6px 8px;border-radius:8px;font-size:12.5px;font-weight:600;color:var(--slate);cursor:pointer;}
+.budget-view-btn.active{background:var(--card);color:var(--navy);box-shadow:0 1px 3px rgba(0,0,0,0.12);}
 /* Home stat-card badges ("22% gross" / "10% net"): when a card is too
    narrow for the word, drop it and keep just the number. */
 @container (max-width:124px){ .bdg-w{ display:none; } }
@@ -1576,7 +1579,7 @@ main{
         </button>
       </div>
       <div id="refreshStatus" class="muted" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 197</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 198</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -1617,7 +1620,7 @@ main{
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 197</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 198</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -1743,6 +1746,10 @@ main{
         <div style="display:flex;justify-content:space-between;align-items:center;">
           <div class="section-title" style="margin:0;">By Category</div>
           <button type="button" class="pill-btn" id="budgetPlannerResetBtn" style="font-size:11.5px;">Reset to Suggested</button>
+        </div>
+        <div class="budget-view-toggle" id="budgetViewToggle" role="tablist" aria-label="By Category view">
+          <button type="button" class="budget-view-btn" data-view="plan" role="tab">Plan</button>
+          <button type="button" class="budget-view-btn" data-view="track" role="tab">Track</button>
         </div>
         <div id="budgetPlannerList" style="margin-top:8px;"></div>
       </div>
@@ -2484,7 +2491,7 @@ main{
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 197;
+const APP_VERSION = 198;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -2563,6 +2570,10 @@ const BUDGET_AMOUNT_STEP = 10; // $ per tap of a row's +/- buttons
 // month. The set is captured when the page opens / the month changes /
 // the plan is reset, NOT on every edit, so rows never jump around or
 // vanish while someone is typing.
+// Which face of the By Category card is showing: 'plan' (amounts + +/-)
+// or 'track' (progress bars + spend). Remembered between visits.
+let BUDGET_PLANNER_VIEW = 'plan';
+try{ if(localStorage.getItem('wealthme_budget_view') === 'track') BUDGET_PLANNER_VIEW = 'track'; }catch(e){}
 let BUDGET_PLANNER_SHOWN = null;
 let BUDGET_PLANNER_EXPANDED = false;
 function budgetPlannerResetVisibility(collapseAgain){
@@ -6365,39 +6376,62 @@ function renderBudgetsView(){
       trackPct = Math.min(100, rawPct);
       const overBudget = spent > trackingBudget;
       barColor = overBudget ? 'var(--terracotta)' : (rawPct >= 80 ? 'var(--gold)' : 'var(--sage)');
-      // The planned amount is already in the field beside the bar, so only
-      // repeat it when that field is empty (falling back to a saved target).
-      captionText = `${fmtMoney(spent)}${amount > 0 ? '' : ' / ' + fmtMoney(trackingBudget)} spent this month \u00b7 ${rawPct.toFixed(0)}% used${overBudget ? ' \u00b7 over budget' : ''}`;
+      // The budgeted amount is shown on the row itself (in Track view), so
+      // the caption only carries the spend and % used.
+      captionText = `${fmtMoney(spent)} spent this month \u00b7 ${rawPct.toFixed(0)}% used${overBudget ? ' \u00b7 over budget' : ''}`;
     } else if(spent > 0){
       captionText = `${fmtMoney(spent)} spent this month \u00b7 no budget set`;
     }
 
     const amtValue = amount > 0 ? Math.round(amount * 100) / 100 : '';
-    const suggestedLabel = income > 0 ? `Suggested ${fmtMoney(suggestedAmt)} \u00b7 ${fmtPlanPct(suggested)}` : `Suggested ${fmtPlanPct(suggested)}`;
     const pctLabel = income > 0 ? fmtPlanPct(pct) : '\u2014';
+    const overSuggested = pct > suggested + 0.005;
+    const rowCls = `budget-row${overSuggested ? ' over-suggested' : ''}`;
+    const rowStyle = 'padding:10px 0;border-bottom:1px solid var(--line);';
 
-    return `
-      <div class="budget-row${pct > suggested + 0.005 ? ' over-suggested' : ''}" style="padding:9px 0;border-bottom:1px solid var(--line);">
-        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px;">
-          <div style="display:flex;align-items:center;flex-wrap:wrap;gap:4px 6px;min-width:0;">
-            <span style="font-size:14px;font-weight:600;">${sub}</span>
-            <span class="muted" style="font-size:10.5px;white-space:nowrap;">${suggestedLabel}</span>
-          </div>
-          <div class="budget-pct-value" style="font-family:'Fraunces',serif;font-weight:700;font-size:15px;white-space:nowrap;flex-shrink:0;">${pctLabel}</div>
+    // TRACK face: name, the budgeted amount, the progress bar, and spend.
+    if(BUDGET_PLANNER_VIEW === 'track'){
+      const budgetLabel = trackingBudget > 0 ? fmtMoney(trackingBudget) : 'No budget';
+      return `
+      <div class="${rowCls}" style="${rowStyle}">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:8px;">
+          <span style="font-size:14px;font-weight:600;">${sub}</span>
+          <span class="muted" style="font-size:12.5px;white-space:nowrap;">${budgetLabel}</span>
         </div>
-        <div style="display:flex;align-items:center;gap:8px;">
-          <div class="progress-track" style="flex:1;margin:0;"><div class="progress-fill" style="width:${trackPct.toFixed(1)}%;background:${barColor};"></div></div>
-          <button type="button" class="budget-pct-btn" data-sub="${sub}" data-dir="-1" aria-label="Decrease ${sub} amount by ${BUDGET_AMOUNT_STEP} dollars">\u2212</button>
-          <div style="display:flex;align-items:center;gap:2px;flex-shrink:0;">
-            <span class="muted" style="font-size:13px;">$</span>
-            <input type="number" class="budget-amt-input" data-sub="${sub}" value="${amtValue}" placeholder="0" min="0" step="0.01" inputmode="decimal" aria-label="${sub} budget amount" style="width:78px;text-align:right;border:1px solid var(--line);border-radius:8px;padding:4px 6px;font-size:13px;font-family:'Fraunces',serif;font-weight:700;color:var(--navy);background:var(--card);">
-          </div>
-          <button type="button" class="budget-pct-btn" data-sub="${sub}" data-dir="1" aria-label="Increase ${sub} amount by ${BUDGET_AMOUNT_STEP} dollars">+</button>
-        </div>
+        <div class="progress-track" style="margin:0;"><div class="progress-fill" style="width:${trackPct.toFixed(1)}%;background:${barColor};"></div></div>
         ${captionText ? `<div class="muted" style="font-size:11px;margin-top:6px;${trackingBudget > 0 && spent > trackingBudget ? 'color:var(--terracotta);' : ''}">${captionText}</div>` : ''}
-      </div>
-    `;
+      </div>`;
+    }
+
+    // PLAN face: name, % of income (plus the suggestion only when the
+    // amount has moved away from it), and the amount controls.
+    const differs = income > 0 ? Math.abs(amount - suggestedAmt) > 0.5 : Math.abs(pct - suggested) > 0.05;
+    const suggestedLabel = income > 0 ? `Suggested ${fmtMoney(suggestedAmt)}` : `Suggested ${fmtPlanPct(suggested)}`;
+    const subLine = [income > 0 ? `<span class="budget-pct-value" style="font-weight:700;">${pctLabel}</span> of income` : '', differs ? suggestedLabel : ''].filter(Boolean).join(' \u00b7 ');
+    return `
+      <div class="${rowCls}" style="${rowStyle}">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
+          <div style="min-width:0;">
+            <div style="font-size:14px;font-weight:600;">${sub}</div>
+            ${subLine ? `<div class="muted" style="font-size:11px;margin-top:2px;">${subLine}</div>` : ''}
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+            <button type="button" class="budget-pct-btn" data-sub="${sub}" data-dir="-1" aria-label="Decrease ${sub} amount by ${BUDGET_AMOUNT_STEP} dollars">\u2212</button>
+            <div style="display:flex;align-items:center;gap:2px;">
+              <span class="muted" style="font-size:13px;">$</span>
+              <input type="number" class="budget-amt-input" data-sub="${sub}" value="${amtValue}" placeholder="0" min="0" step="0.01" inputmode="decimal" aria-label="${sub} budget amount" style="width:78px;text-align:right;border:1px solid var(--line);border-radius:8px;padding:4px 6px;font-size:13px;font-family:'Fraunces',serif;font-weight:700;color:var(--navy);background:var(--card);">
+            </div>
+            <button type="button" class="budget-pct-btn" data-sub="${sub}" data-dir="1" aria-label="Increase ${sub} amount by ${BUDGET_AMOUNT_STEP} dollars">+</button>
+          </div>
+        </div>
+      </div>`;
   }).join('') + moreHtml;
+
+  document.querySelectorAll('#budgetViewToggle .budget-view-btn').forEach(btn=>{
+    const on = btn.dataset.view === BUDGET_PLANNER_VIEW;
+    btn.classList.toggle('active', on);
+    btn.setAttribute('aria-selected', on ? 'true' : 'false');
+  });
 
   const moreBtn = document.getElementById('budgetPlannerMoreBtn');
   if(moreBtn){
@@ -6970,6 +7004,13 @@ document.getElementById('budgetPlannerIncome').addEventListener('change', (e)=>{
   saveState();
   syncSettingsNow();
   renderBudgetsView();
+});
+document.querySelectorAll('#budgetViewToggle .budget-view-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    BUDGET_PLANNER_VIEW = btn.dataset.view === 'track' ? 'track' : 'plan';
+    try{ localStorage.setItem('wealthme_budget_view', BUDGET_PLANNER_VIEW); }catch(e){}
+    renderBudgetsView();
+  });
 });
 document.getElementById('budgetPlannerIncomeAutoBtn').addEventListener('click', ()=>{
   if(!BUDGET_PLANNER_INCOME_CUSTOM){
