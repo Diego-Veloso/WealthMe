@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v193 -->
+<!-- WEALTH.ME — v194 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1576,7 +1576,7 @@ main{
         </button>
       </div>
       <div id="refreshStatus" class="muted" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 193</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 194</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -1617,7 +1617,7 @@ main{
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 193</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 194</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -2183,8 +2183,8 @@ main{
   <!-- ===== Monthly Recap Popup ===== -->
   <!-- A glanceable, dismiss-when-done summary (Spotify-Wrapped style) —
        a popup like the entry modal below it, not a page, since there's
-       nothing to navigate or edit here, just a read-only recap to view
-       and optionally share. Reuses computeMonthFinancials() and the
+       nothing to navigate or edit here, just a read-only recap to view.
+       Reuses computeMonthFinancials() and the
        same net-worth-change math as the Money page. -->
   <div class="modal-overlay" id="recapModalOverlay">
     <div class="modal">
@@ -2198,7 +2198,6 @@ main{
         </button>
       </div>
       <div id="recapContent"></div>
-      <button class="btn btn-secondary btn-block" id="recapShareBtn" style="margin-top:14px;">Share Month to Date</button>
     </div>
   </div>
 
@@ -2485,7 +2484,7 @@ main{
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 193;
+const APP_VERSION = 194;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -4590,7 +4589,6 @@ document.getElementById('recapModalClose').addEventListener('click', closeRecapM
 document.getElementById('recapModalOverlay').addEventListener('click', (e)=>{
   if(e.target.id === 'recapModalOverlay') closeRecapModal();
 });
-document.getElementById('recapShareBtn').addEventListener('click', shareRecap);
 
 /* Home month navigation */
 document.getElementById('homePrev').addEventListener('click', ()=>{
@@ -8571,15 +8569,7 @@ function openRecapModal(){
       <div class="summary-card" style="grid-column:span 2;"><div class="label">Net Savings</div><div class="value ${recap.netSavings>=0?'pos':'neg'}">${fmtMoney(recap.netSavings)}</div></div>
     </div>
   `);
-  if(recap.topCategory){
-    rows.push(`<p style="margin:6px 0;font-size:13.5px;"><strong>Top category:</strong> ${recap.topCategory} — ${fmtMoney(recap.topCategoryAmount)}</p>`);
-  }
-  if(recap.biggestEntry){
-    const label = recap.biggestEntry.notes || recap.biggestEntry.subcategory;
-    rows.push(`<p style="margin:6px 0;font-size:13.5px;"><strong>Biggest transaction:</strong> ${label} — ${fmtMoney(recap.biggestEntry.amount)}</p>`);
-  }
   rows.push(`<p style="margin:6px 0;font-size:13.5px;"><strong>Entries logged:</strong> ${recap.entryCount}</p>`);
-  rows.push(`<p style="margin:6px 0;font-size:13.5px;"><strong>Net Worth:</strong> ${recap.netWorthChange >= 0 ? '▲' : '▼'} ${fmtMoney(Math.abs(recap.netWorthChange))} vs last month</p>`);
   if(recap.hasBudgets){
     const onTrack = recap.budgetedCount - recap.overCount;
     rows.push(`<p style="margin:6px 0;font-size:13.5px;"><strong>Budgets:</strong> ${onTrack}/${recap.budgetedCount} on track</p>`);
@@ -8591,31 +8581,6 @@ function openRecapModal(){
 function closeRecapModal(){
   document.getElementById('recapModalOverlay').classList.remove('active');
 }
-async function shareRecap(){
-  const recap = computeMonthlyRecap(homeDate);
-  const lines = [
-    `${fmtMonthYear(homeDate)} Month to Date — Wealth.Me`,
-    recap.headline,
-    `Income: ${fmtMoney(recap.grossIncome)}`,
-    `Expenses: ${fmtMoney(recap.expenses)}`,
-    `Net Savings: ${fmtMoney(recap.netSavings)}`,
-  ];
-  if(recap.topCategory) lines.push(`Top category: ${recap.topCategory} — ${fmtMoney(recap.topCategoryAmount)}`);
-  lines.push(`Net Worth: ${recap.netWorthChange >= 0 ? '+' : '-'}${fmtMoney(Math.abs(recap.netWorthChange))} vs last month`);
-  const text = lines.join('\n');
-
-  if(navigator.share){
-    try{ await navigator.share({ text }); }catch(err){ /* user cancelled — no-op */ }
-  } else if(navigator.clipboard){
-    try{
-      await navigator.clipboard.writeText(text);
-      showToast('Copied to clipboard');
-    }catch(err){
-      showToast('Could not copy');
-    }
-  }
-}
-
 function renderHome(){
   document.getElementById('homeMonthLabel').textContent = fmtMonthYear(homeDate);
 
