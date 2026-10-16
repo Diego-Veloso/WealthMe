@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v196 -->
+<!-- WEALTH.ME — v197 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1576,7 +1576,7 @@ main{
         </button>
       </div>
       <div id="refreshStatus" class="muted" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 196</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 197</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -1617,7 +1617,7 @@ main{
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 196</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 197</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -2484,7 +2484,7 @@ main{
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 196;
+const APP_VERSION = 197;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -3828,18 +3828,19 @@ function renderMonthlyTrendCard(data){
 function renderChangeRow(c){
   return `
     <div style="display:flex;justify-content:space-between;font-size:12.5px;padding:5px 0;">
-      <span>${c.dollarChange>=0?'↑':'↓'} ${c.subcategory}</span>
-      <span style="color:${c.dollarChange>=0?'var(--terracotta)':'var(--sage)'}">${fmtSigned(c.dollarChange)} (${c.pctChange.label})</span>
+      <span>${c.subcategory}</span>
+      <span style="color:${c.dollarChange>=0?'var(--terracotta)':'var(--sage)'}">${fmtSigned(c.dollarChange)}</span>
     </div>`;
 }
 
 function renderBiggestChangesCard(data){
-  const sectionOrEmpty = (title, list) => list.length ? `<div class="muted" style="font-size:10.5px;text-transform:uppercase;margin:10px 0 2px;">${title}</div>${list.map(renderChangeRow).join('')}` : '';
+  // The direction arrow lives on the section title, not on each item.
+  const sectionOrEmpty = (title, list, arrow, color) => list.length ? `<div class="muted" style="font-size:10.5px;text-transform:uppercase;margin:10px 0 2px;"><span style="color:${color};font-weight:700;">${arrow}</span> ${title}</div>${list.map(renderChangeRow).join('')}` : '';
   return `
     <div class="card">
       <div class="card-title">Biggest Changes</div>
-      ${sectionOrEmpty('Increases vs last year', data.biggestIncreasesYoY)}
-      ${sectionOrEmpty('Decreases vs last year', data.biggestDecreasesYoY)}
+      ${sectionOrEmpty('Increases vs last year', data.biggestIncreasesYoY, '↑', 'var(--terracotta)')}
+      ${sectionOrEmpty('Decreases vs last year', data.biggestDecreasesYoY, '↓', 'var(--sage)')}
       ${(!data.biggestIncreasesYoY.length && !data.biggestDecreasesYoY.length) ? '<div class="muted" style="font-size:12px;">No notable changes.</div>' : ''}
     </div>`;
 }
