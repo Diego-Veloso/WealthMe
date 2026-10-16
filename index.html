@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v199 -->
+<!-- WEALTH.ME — v201 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1583,7 +1583,7 @@ main{
         </button>
       </div>
       <div id="refreshStatus" class="muted" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 199</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 201</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -1624,7 +1624,7 @@ main{
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 199</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 201</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -2511,7 +2511,7 @@ main{
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 199;
+const APP_VERSION = 201;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -7104,9 +7104,12 @@ function renderDebtAccountsManager(){
   let html = '';
   DEBT_TYPES.forEach(type=>{
     const accounts = DEBT_ACCOUNTS[type] || [];
-    const chips = accounts.map(acc=>`
+    const chips = accounts.map((acc, idx)=>`
       <div class="account-chip">
-        <span>${acc}</span>
+        <span class="chip-label">${acc}</span>
+        <button type="button" class="edit-btn" data-action="edit-account" data-type="${type}" data-index="${idx}" title="Rename">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </button>
         <button type="button" data-type="${type}" data-account="${acc}" class="remove-account-btn" title="Remove">&times;</button>
       </div>
     `).join('');
@@ -7148,16 +7151,106 @@ function renderDebtAccountsManager(){
     });
   });
 
-  container.querySelectorAll('.remove-account-btn').forEach(btn=>{
+  container.querySelectorAll('[data-action="edit-account"]').forEach(btn=>{
     btn.addEventListener('click', ()=>{
-      const type = btn.dataset.type;
-      const account = btn.dataset.account;
-      DEBT_ACCOUNTS[type] = DEBT_ACCOUNTS[type].filter(a=>a!==account);
-      saveState();
-      syncSettingsNow();
-      renderDebtAccountsManager();
+      startDebtAccountRename(btn.closest('.account-chip'), btn.dataset.type, Number(btn.dataset.index));
     });
   });
+
+  container.querySelectorAll('.remove-account-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      deleteDebtAccount(btn.dataset.type, btn.dataset.account);
+    });
+  });
+}
+
+// Removes a debt account - but only once no entry is left under it.
+// Returns true if it was deleted.
+function finishDebtAccountDelete(type, name){
+  if(entries.some(e=>e.type === type && e.account === name)){
+    showToast('Entries still use this account - nothing was deleted');
+    return false;
+  }
+  DEBT_ACCOUNTS[type] = DEBT_ACCOUNTS[type].filter(a=>a !== name);
+  if(type === 'Credit Card'){ delete CREDIT_LIMITS[name]; } // its limit goes with it
+  saveState();
+  syncSettingsNow();
+  renderDebtAccountsManager();
+  renderCurrentView(getActiveViewName());
+  return true;
+}
+
+function deleteDebtAccount(type, name){
+  const inUseCount = entries.filter(e=>e.type === type && e.account === name).length;
+
+  // Nothing is logged against it: a plain confirm is enough.
+  if(inUseCount === 0){
+    showConfirm('Delete account?', `Delete "${name}"? This cannot be undone.`, ()=>{
+      if(finishDebtAccountDelete(type, name)) showToast('Account deleted');
+    });
+    return;
+  }
+
+  // Entries use it: the person must pick where they go before it can be deleted.
+  openReassignAccount(type, name, inUseCount);
+}
+
+// Inline rename of a debt account, same pattern as renaming a subcategory:
+// the chip turns into a text field with save / cancel buttons.
+function startDebtAccountRename(chipEl, type, idx){
+  const oldName = (DEBT_ACCOUNTS[type] || [])[idx];
+  if(oldName === undefined) return;
+  chipEl.innerHTML = `
+    <input type="text" class="rename-input">
+    <button type="button" data-action="confirm-rename" title="Save">&#10003;</button>
+    <button type="button" data-action="cancel-rename" title="Cancel">&times;</button>
+  `;
+  const input = chipEl.querySelector('.rename-input');
+  input.value = oldName;
+  input.focus();
+  input.select();
+
+  function commit(){
+    const newName = input.value.trim();
+    if(!newName || newName === oldName){ renderDebtAccountsManager(); return; }
+    if(DEBT_ACCOUNTS[type].some(a => a.toLowerCase() === newName.toLowerCase() && a.toLowerCase() !== oldName.toLowerCase())){
+      showToast('That account already exists');
+      return;
+    }
+    renameDebtAccount(type, oldName, newName);
+  }
+
+  chipEl.querySelector('[data-action="confirm-rename"]').addEventListener('click', commit);
+  chipEl.querySelector('[data-action="cancel-rename"]').addEventListener('click', ()=> renderDebtAccountsManager());
+  input.addEventListener('keydown', (e)=>{
+    if(e.key === 'Enter'){ e.preventDefault(); commit(); }
+    if(e.key === 'Escape'){ e.preventDefault(); renderDebtAccountsManager(); }
+  });
+}
+
+function renameDebtAccount(type, oldName, newName){
+  const list = DEBT_ACCOUNTS[type];
+  const idx = list.indexOf(oldName);
+  if(idx === -1) return;
+  list[idx] = newName;
+
+  // Every entry logged against the old account name follows the rename.
+  let updated = 0;
+  entries.forEach(e=>{
+    if(e.type === type && e.account === oldName){ e.account = newName; updated++; }
+  });
+
+  // Credit limits are keyed by Credit Card account name.
+  if(type === 'Credit Card' && CREDIT_LIMITS[oldName] !== undefined){
+    CREDIT_LIMITS[newName] = CREDIT_LIMITS[oldName];
+    delete CREDIT_LIMITS[oldName];
+  }
+
+  saveState();
+  syncSettingsNow();
+  showToast(updated > 0 ? `Renamed (${updated} entr${updated === 1 ? 'y' : 'ies'} updated)` : 'Account renamed');
+  renderDebtAccountsManager();
+  renderCurrentView(getActiveViewName());
 }
 
 /* =========================================================
@@ -7327,8 +7420,30 @@ function deleteSubcategory(name){
 }
 
 let reassignCtx = null;
+// Entries logged under a debt account are moved to another account of the
+// same type, or to "Unassigned" (no account), before the account is deleted.
+const REASSIGN_UNASSIGNED = '__unassigned__';
+function openReassignAccount(type, name, count){
+  reassignCtx = { kind: 'account', type, name };
+  document.getElementById('reassignSubcatTitle').textContent = `Delete "${name}"?`;
+  document.getElementById('reassignSubcatMessage').textContent =
+    `"${name}" has ${count} entr${count === 1 ? 'y' : 'ies'} logged against it. Choose where to move ${count === 1 ? 'it' : 'them'} (another account, or Unassigned); "${name}" is only deleted once nothing is left under it.`;
+  const sel = document.getElementById('reassignSubcatSelect');
+  sel.innerHTML = '';
+  const addOpt = (value, label, extra)=>{
+    const o = document.createElement('option');
+    o.value = value; o.textContent = label;
+    if(extra){ o.disabled = true; o.selected = true; }
+    sel.appendChild(o);
+  };
+  addOpt('', 'Choose where to move them\u2026', true);
+  (DEBT_ACCOUNTS[type] || []).filter(a=>a !== name).forEach(a=> addOpt(a, a));
+  addOpt(REASSIGN_UNASSIGNED, 'Unassigned (no account)');
+  document.getElementById('reassignSubcatConfirm').disabled = true;
+  document.getElementById('reassignSubcatOverlay').classList.add('active');
+}
 function openReassignSubcategory(cat, name, count){
-  reassignCtx = { cat, name };
+  reassignCtx = { kind: 'subcat', cat, name };
   document.getElementById('reassignSubcatTitle').textContent = `Delete "${name}"?`;
   document.getElementById('reassignSubcatMessage').textContent =
     `"${name}" is used by ${count} entr${count === 1 ? 'y' : 'ies'}. Choose another subcategory to move ${count === 1 ? 'it' : 'them'} to; "${name}" is only deleted once nothing is left under it.`;
@@ -7351,6 +7466,29 @@ document.getElementById('reassignSubcatOverlay').addEventListener('click', (e)=>
 });
 document.getElementById('reassignSubcatConfirm').addEventListener('click', ()=>{
   if(!reassignCtx) return;
+
+  // ---- debt account ----
+  if(reassignCtx.kind === 'account'){
+    const { type, name } = reassignCtx;
+    const pick = document.getElementById('reassignSubcatSelect').value;
+    const toUnassigned = pick === REASSIGN_UNASSIGNED;
+    if(!pick || (!toUnassigned && (pick === name || !(DEBT_ACCOUNTS[type] || []).includes(pick)))){
+      showToast('Pick where to move the entries first');
+      return;
+    }
+    let movedCount = 0;
+    entries.forEach(e=>{
+      if(e.type === type && e.account === name){ e.account = toUnassigned ? '' : pick; movedCount++; }
+    });
+    // Delete only if nothing is left under it.
+    if(finishDebtAccountDelete(type, name)){
+      showToast(`Moved ${movedCount} entr${movedCount === 1 ? 'y' : 'ies'} to ${toUnassigned ? 'Unassigned' : '"' + pick + '"'} and deleted "${name}"`);
+    }
+    closeReassignSubcategory();
+    return;
+  }
+
+  // ---- subcategory ----
   const { cat, name } = reassignCtx;
   const target = document.getElementById('reassignSubcatSelect').value;
   // A target is mandatory, and it must be a different subcategory of the same category.
