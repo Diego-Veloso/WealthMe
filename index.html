@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v198 -->
+<!-- WEALTH.ME — v199 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -641,6 +641,10 @@ main{
   z-index:100;
 }
 #confirmModalOverlay{
+  z-index:150;
+  align-items:center;
+}
+#reassignSubcatOverlay{
   z-index:150;
   align-items:center;
 }
@@ -1579,7 +1583,7 @@ main{
         </button>
       </div>
       <div id="refreshStatus" class="muted" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 198</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 199</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -1620,7 +1624,7 @@ main{
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 198</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 199</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -2447,6 +2451,22 @@ main{
     </div>
   </div>
 
+  <!-- ===== Move entries before deleting a subcategory ===== -->
+  <div class="modal-overlay" id="reassignSubcatOverlay">
+    <div class="modal" style="max-width:440px;">
+      <div class="modal-header">
+        <h3 id="reassignSubcatTitle">Move entries first</h3>
+      </div>
+      <p class="muted" id="reassignSubcatMessage"></p>
+      <label class="muted" for="reassignSubcatSelect" style="font-size:12px;display:block;margin:12px 0 4px;">Move these entries to</label>
+      <select id="reassignSubcatSelect" style="width:100%;margin-bottom:14px;"></select>
+      <div class="btn-row">
+        <button class="btn btn-secondary btn-block" id="reassignSubcatCancel">Cancel</button>
+        <button class="btn btn-danger btn-block" id="reassignSubcatConfirm" disabled>Move &amp; Delete</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ===== CSV Export / Text Modal (fallback for blocked file downloads) ===== -->
   <div class="modal-overlay" id="csvTextModalOverlay">
     <div class="modal">
@@ -2491,7 +2511,7 @@ main{
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 198;
+const APP_VERSION = 199;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -7261,35 +7281,93 @@ function renameSubcategory(oldName, newName){
   renderCurrentView(getActiveViewName());
 }
 
+// Removes a subcategory - but only once nothing references it any more.
+// Returns true if it was deleted.
+function finishSubcategoryDelete(cat, name){
+  if(entries.some(e=>e.category === cat && e.subcategory === name)){
+    showToast('Entries still use this subcategory - nothing was deleted');
+    return false;
+  }
+  CATEGORY_MAP[cat] = CATEGORY_MAP[cat].filter(s=>s !== name);
+
+  // Expense budgets / planner entries are keyed by subcategory name; drop
+  // the ones that belonged to the deleted subcategory so they can't linger.
+  if(cat === 'Expense'){
+    delete BUDGETS[name];
+    delete BUDGET_PLANNER_PCT[name];
+    delete BUDGET_PLANNER_AMT[name];
+  }
+  if(detailCategory === cat && detailSubcategory === name){ detailSubcategory = CATEGORY_MAP[cat][0]; }
+
+  saveState();
+  syncSettingsNow();
+  renderSubcategoryManager();
+  renderCurrentView(getActiveViewName());
+  return true;
+}
+
 function deleteSubcategory(name){
   const cat = subcatManagerCategory;
   if(CATEGORY_MAP[cat].length <= 1){
     showToast('A category needs at least one subcategory');
     return;
   }
-  const inUseCount = entries.filter(e=>e.category===cat && e.subcategory===name).length;
-  const fallback = CATEGORY_MAP[cat].find(s=>s !== name) || 'Other';
+  const inUseCount = entries.filter(e=>e.category === cat && e.subcategory === name).length;
 
-  const message = inUseCount > 0
-    ? `"${name}" is used by ${inUseCount} entr${inUseCount===1?'y':'ies'}. They will be moved to "${fallback}". This cannot be undone.`
-    : `Delete "${name}"? This cannot be undone.`;
-
-  showConfirm('Delete subcategory?', message, ()=>{
-    // reassign any entries using this subcategory
-    entries.forEach(e=>{
-      if(e.category === cat && e.subcategory === name){ e.subcategory = fallback; }
+  // Nothing uses it: a plain confirm is enough.
+  if(inUseCount === 0){
+    showConfirm('Delete subcategory?', `Delete "${name}"? This cannot be undone.`, ()=>{
+      if(finishSubcategoryDelete(cat, name)) showToast('Subcategory deleted');
     });
-    CATEGORY_MAP[cat] = CATEGORY_MAP[cat].filter(s=>s!==name);
+    return;
+  }
 
-    if(detailCategory === cat && detailSubcategory === name){ detailSubcategory = CATEGORY_MAP[cat][0]; }
-
-    saveState();
-    syncSettingsNow();
-    showToast('Subcategory deleted');
-    renderSubcategoryManager();
-    renderCurrentView(getActiveViewName());
-  });
+  // Entries use it: the person must pick where they go before it can be deleted.
+  openReassignSubcategory(cat, name, inUseCount);
 }
+
+let reassignCtx = null;
+function openReassignSubcategory(cat, name, count){
+  reassignCtx = { cat, name };
+  document.getElementById('reassignSubcatTitle').textContent = `Delete "${name}"?`;
+  document.getElementById('reassignSubcatMessage').textContent =
+    `"${name}" is used by ${count} entr${count === 1 ? 'y' : 'ies'}. Choose another subcategory to move ${count === 1 ? 'it' : 'them'} to; "${name}" is only deleted once nothing is left under it.`;
+  const sel = document.getElementById('reassignSubcatSelect');
+  sel.innerHTML = '<option value="" selected disabled>Choose a subcategory\u2026</option>' +
+    CATEGORY_MAP[cat].filter(s=>s !== name).map(s=>`<option value="${s}">${s}</option>`).join('');
+  document.getElementById('reassignSubcatConfirm').disabled = true;
+  document.getElementById('reassignSubcatOverlay').classList.add('active');
+}
+function closeReassignSubcategory(){
+  reassignCtx = null;
+  document.getElementById('reassignSubcatOverlay').classList.remove('active');
+}
+document.getElementById('reassignSubcatSelect').addEventListener('change', (e)=>{
+  document.getElementById('reassignSubcatConfirm').disabled = !e.target.value;
+});
+document.getElementById('reassignSubcatCancel').addEventListener('click', closeReassignSubcategory);
+document.getElementById('reassignSubcatOverlay').addEventListener('click', (e)=>{
+  if(e.target.id === 'reassignSubcatOverlay') closeReassignSubcategory();
+});
+document.getElementById('reassignSubcatConfirm').addEventListener('click', ()=>{
+  if(!reassignCtx) return;
+  const { cat, name } = reassignCtx;
+  const target = document.getElementById('reassignSubcatSelect').value;
+  // A target is mandatory, and it must be a different subcategory of the same category.
+  if(!target || target === name || !CATEGORY_MAP[cat].includes(target)){
+    showToast('Pick a subcategory to move the entries to');
+    return;
+  }
+  let moved = 0;
+  entries.forEach(e=>{
+    if(e.category === cat && e.subcategory === name){ e.subcategory = target; moved++; }
+  });
+  // Delete only if nothing is left under it.
+  if(finishSubcategoryDelete(cat, name)){
+    showToast(`Moved ${moved} entr${moved === 1 ? 'y' : 'ies'} to "${target}" and deleted "${name}"`);
+  }
+  closeReassignSubcategory();
+});
 
 
 /* =========================================================
