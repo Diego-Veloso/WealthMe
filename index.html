@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v195 -->
+<!-- WEALTH.ME — v196 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1576,7 +1576,7 @@ main{
         </button>
       </div>
       <div id="refreshStatus" class="muted" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 195</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 196</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -1617,7 +1617,7 @@ main{
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 195</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 196</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -2484,7 +2484,7 @@ main{
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 195;
+const APP_VERSION = 196;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -3683,7 +3683,7 @@ function renderCostReductionCard(data){
     .filter(c => !NEEDS_SUBCATEGORIES.has(c.subcategory))
     .sort((a,b)=> b.total - a.total);
   if(discretionaryCats.length === 0 || n.discTotal === 0){
-    return `<div class="card"><div class="card-title" style="margin-bottom:2px;"><span style="white-space:nowrap;">Cost-Cutting Opportunities</span><button type="button" class="insights-info-btn" data-explain-toggle="cost-cut" title="What is this?">i</button></div><div class="muted" style="font-size:11px;margin-bottom:12px;">Non-essential spending</div><div class="insights-explain" id="explain-cost-cut">Anything not on your Needs list (set in Settings).</div><div class="muted" style="font-size:12px;">Nothing detected in this period.</div></div>`;
+    return `<div class="card"><div class="card-title" style="margin-bottom:2px;"><span style="white-space:nowrap;">Cost-Cutting Opportunities</span><button type="button" class="insights-info-btn" data-explain-toggle="cost-cut" title="What is this?">i</button></div><div class="muted" style="font-size:13px;margin-bottom:12px;">Non-essential spending</div><div class="insights-explain" id="explain-cost-cut">Anything not on your Needs list (set in Settings).</div><div class="muted" style="font-size:12px;">Nothing detected in this period.</div></div>`;
   }
   const monthlyDisc = n.discTotal / 12;
   const save10 = monthlyDisc * 0.10, save20 = monthlyDisc * 0.20;
@@ -3704,7 +3704,7 @@ function renderCostReductionCard(data){
   return `
     <div class="card">
       <div class="card-title" style="margin-bottom:2px;"><span style="white-space:nowrap;">Cost-Cutting Opportunities</span><button type="button" class="insights-info-btn" data-explain-toggle="cost-cut" title="What is this?">i</button></div>
-      <div class="muted" style="font-size:11px;margin-bottom:12px;">Non-essential spending</div>
+      <div class="muted" style="font-size:13px;margin-bottom:12px;">Non-essential spending</div>
       <div class="insights-explain" id="explain-cost-cut">Anything not on your Needs list (set in Settings). The 10%/20% projections apply that cut to your monthly average.</div>
       <div class="muted" style="font-size:11.5px;margin-bottom:10px;">${fmtMoney(n.discTotal)} over 12 months (${n.discPct.toFixed(0)}% of total) — avg ${fmtMoney(monthlyDisc)}/month</div>
       <div style="background:var(--sky-light);border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:12.5px;line-height:1.5;">
