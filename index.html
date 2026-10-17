@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v206 -->
+<!-- WEALTH.ME — v209 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -405,6 +405,7 @@ main{
 .debt-type-arrow{font-size:24px;line-height:1;color:var(--slate);transition:opacity .2s;}
 .debt-type-arrow.off{opacity:0.18;}
 .debt-type-dots{display:flex;justify-content:center;gap:7px;margin-top:8px;}
+.debt-type-title .debt-type-dots{margin-top:0;}
 .debt-type-dot{
   width:7px;height:7px;border-radius:999px;border:none;padding:0;
   background:color-mix(in srgb, var(--slate) 35%, transparent);cursor:pointer;
@@ -413,6 +414,13 @@ main{
 .debt-type-dot.active{width:22px;background:var(--navy);}
 /* The list area takes horizontal swipes itself; vertical scrolling still works. */
 .debt-swipe-area{touch-action:pan-y;overflow-x:hidden;min-height:55vh;}
+/* Money: one section at a time on phones (swipe to change); on desktop
+   (>=900px) everything shows stacked, as before, and the pager is hidden. */
+.money-swipe-area{touch-action:pan-y;overflow-x:hidden;overscroll-behavior-x:none;min-height:55vh;}
+#view-money{overscroll-behavior-x:none;}
+#moneyPages{will-change:transform;}
+.money-page{display:none;}
+.money-page.active{display:block;}
 #debtList{will-change:transform;}
 .segmented{
   display:flex;
@@ -1080,6 +1088,11 @@ main{
     grid-template-columns:1fr;
     gap:18px;
   }
+  .money-pager{display:none !important;}
+  .money-swipe-area{min-height:0;}
+  .money-page,
+  .money-page.active{display:grid;grid-template-columns:1fr;gap:18px;}
+  .money-swipe-area #moneyPages{display:grid;grid-template-columns:1fr;gap:18px;}
 
   /* The 6 summary stat cards (Gross Income, Net Income, etc. on Home;
      Invested, Planned, Cumulative Invested [double-width], Capital,
@@ -1474,14 +1487,13 @@ main{
         <button class="active" data-filter="Open">Open</button>
         <button data-filter="Closed">Closed</button>
       </div>
-      <!-- Debt type: swipe the list left / right to change it (dots show where you are) -->
-      <div class="debt-type-pager" id="debtTypePager">
+      <!-- Debt type: swipe the list (or this bar) left / right to change it; the dots show where you are -->
+      <div class="debt-type-pager" id="debtTypePager" style="touch-action:pan-y;padding:6px 0;">
         <div class="debt-type-title">
           <span class="debt-type-arrow" id="debtTypeArrowPrev" aria-hidden="true">&#8249;</span>
-          <span id="debtTypeTitle">Credit Card</span>
+          <div class="debt-type-dots" id="debtTypeDots" role="tablist" aria-label="Debt type"></div>
           <span class="debt-type-arrow" id="debtTypeArrowNext" aria-hidden="true">&#8250;</span>
         </div>
-        <div class="debt-type-dots" id="debtTypeDots" role="tablist" aria-label="Debt type"></div>
       </div>
       <div id="debtSwipeArea" class="debt-swipe-area">
         <div id="debtList" style="margin-top:14px;"></div>
@@ -1491,12 +1503,26 @@ main{
     <!-- ============ MONEY VIEW ============ -->
     <section class="view" id="view-money">
       <h2 class="card-title" style="margin:10px 0 14px;">Money</h2>
-      <div class="month-nav">
+      <!-- Swipe this bar left / right to change month -->
+      <div class="month-nav" id="moneyMonthNav" style="touch-action:pan-y;margin-bottom:6px;">
         <button id="moneyPrev">&#8249;</button>
         <div class="label" id="moneyLabel">June 2026</div>
         <button id="moneyNext">&#8250;</button>
       </div>
 
+      <!-- Swipe the content left / right to change section (dots show where you are) -->
+      <div class="debt-type-pager money-pager" id="moneyPager" style="margin-top:0;margin-bottom:12px;">
+        <div class="debt-type-title">
+          <span class="debt-type-arrow" id="moneyArrowPrev" aria-hidden="true">&#8249;</span>
+          <span id="moneyPageTitle">Overview</span>
+          <span class="debt-type-arrow" id="moneyArrowNext" aria-hidden="true">&#8250;</span>
+        </div>
+        <div class="debt-type-dots" id="moneyDots" role="tablist" aria-label="Money section"></div>
+      </div>
+
+      <div id="moneySwipeArea" class="money-swipe-area">
+      <div id="moneyPages">
+      <div class="money-page active" data-page="overview">
       <!-- Summary cards -->
       <div class="summary-grid">
         <div class="summary-card">
@@ -1538,13 +1564,23 @@ main{
         </div>
         <div class="progress-track"><div class="progress-fill" id="moneyProgressFill" style="width:0%"></div></div>
       </div>
+      </div><!-- /overview -->
 
+      <div class="money-page" data-page="accounts">
       <!-- Subcategory breakdown -->
       <div class="card">
         <div class="card-title">By Account</div>
         <div id="moneyBreakdown"></div>
       </div>
 
+      <!-- All-time breakdown by subcategory -->
+      <div class="card">
+        <div class="card-title">Investment Accounts</div>
+        <div id="moneyAllTimeBreakdown"></div>
+      </div>
+      </div><!-- /accounts -->
+
+      <div class="money-page" data-page="trends">
       <!-- Net worth trend -->
       <div class="card">
         <div class="card-title">
@@ -1562,12 +1598,9 @@ main{
         </div>
         <div class="chart-wrap" style="height:220px;"><canvas id="moneyLineChart" role="img" aria-label="12-month cumulative investment projection chart"></canvas></div>
       </div>
-
-      <!-- All-time breakdown by subcategory -->
-      <div class="card">
-        <div class="card-title">Investment Accounts</div>
-        <div id="moneyAllTimeBreakdown"></div>
-      </div>
+      </div><!-- /trends -->
+      </div><!-- /moneyPages -->
+      </div><!-- /moneySwipeArea -->
     </section>
 
     <!-- ============ INSIGHTS VIEW ============ -->
@@ -1628,7 +1661,7 @@ main{
         </button>
       </div>
       <div id="refreshStatus" class="muted" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 206</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 209</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -1669,7 +1702,7 @@ main{
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 206</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 209</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -2566,7 +2599,7 @@ main{
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 206;
+const APP_VERSION = 209;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -5106,7 +5139,6 @@ function debtTypePages(){ return DEBT_TYPES.slice(); }
 function renderDebtTypePager(){
   const pages = debtTypePages();
   const idx = Math.max(0, pages.indexOf(debtTypeFilter));
-  document.getElementById('debtTypeTitle').textContent = debtTypeFilter;
   document.getElementById('debtTypeArrowPrev').classList.toggle('off', idx === 0);
   document.getElementById('debtTypeArrowNext').classList.toggle('off', idx === pages.length - 1);
   const dots = document.getElementById('debtTypeDots');
@@ -5120,33 +5152,70 @@ function renderDebtTypePager(){
     });
   });
 }
-const debtReduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 // dir: 1 = moving to a later type (the new list slides in from the right), -1 = earlier.
 function switchDebtType(type, dir){
-  const list = document.getElementById('debtList');
-  const apply = ()=>{ debtTypeFilter = type; renderDebts(); };
-  if(debtReduceMotion){ apply(); return; }
-  list.style.transition = 'transform .16s ease, opacity .16s ease';
-  list.style.transform = `translateX(${-dir * 40}%)`;
-  list.style.opacity = '0';
-  setTimeout(()=>{
-    apply();
-    list.style.transition = 'none';
-    list.style.transform = `translateX(${dir * 40}%)`;
-    void list.offsetWidth; // let the browser register the start position
-    list.style.transition = 'transform .2s ease, opacity .2s ease';
-    list.style.transform = 'translateX(0)';
-    list.style.opacity = '1';
-  }, 160);
+  slideSwap(document.getElementById('debtList'), dir, ()=>{ debtTypeFilter = type; renderDebts(); }, 100, 60);
 }
-(function setupDebtSwipe(){
-  const area = document.getElementById('debtSwipeArea');
-  const list = document.getElementById('debtList');
-  let tracking = false, locked = false, startX = 0, startY = 0, dx = 0, startT = 0, pid = null, swallowClick = false;
+// Swiping an entry row left / right deletes it or marks it closed, so a
+// gesture that starts on a row belongs to the row. The page switch is
+// taken from everywhere else: card headers, account headers, the gaps and
+// empty space, and the dots bar itself.
+function debtSwipeOptions(){
+  return {
+    el: document.getElementById('debtList'),
+    ignore: '.entry-row',
+    canGo: (dir)=>{ const n = debtTypePages().indexOf(debtTypeFilter) + dir; return n >= 0 && n < debtTypePages().length; },
+    onSwipe: (dir)=>{ debtTypeFilter = debtTypePages()[debtTypePages().indexOf(debtTypeFilter) + dir]; renderDebts(); }
+  };
+}
+makeSwipeable(document.getElementById('debtSwipeArea'), debtSwipeOptions());
+makeSwipeable(document.getElementById('debtTypePager'), debtSwipeOptions());
 
+/* Money month navigation */
+function moneyChangeMonth(delta){
+  homeDate = new Date(homeDate.getFullYear(), homeDate.getMonth() + delta, 1);
+  renderMoney();
+}
+document.getElementById('moneyPrev').addEventListener('click', ()=> moneyChangeMonth(-1));
+document.getElementById('moneyNext').addEventListener('click', ()=> moneyChangeMonth(1));
+
+/* ---- Generic horizontal swipe (used by the Money page) ----
+   makeSwipeable(area, { el, canGo(dir), onSwipe(dir) })
+   - area: the element that listens for the gesture
+   - el: the element that follows the finger and slides out / in
+   - dir: +1 = swiped left (go forward), -1 = swiped right (go back)
+   Vertical scrolling is left alone; at an end (canGo false) the content
+   only rubber-bands and springs back. */
+const swipeReduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+function resetSlide(el){
+  el.style.transition = '';
+  el.style.transform = '';
+  el.style.opacity = '';
+}
+function slideSwap(el, dir, apply, outPct, inPct){
+  clearTimeout(el._slideT1); clearTimeout(el._slideT2);
+  if(swipeReduceMotion){ apply(); resetSlide(el); return; }
+  el.style.transition = 'transform .14s ease, opacity .14s ease';
+  el.style.transform = `translateX(${-dir * outPct}%)`;
+  el.style.opacity = '0';
+  el._slideT1 = setTimeout(()=>{
+    apply();
+    el.style.transition = 'none';
+    el.style.transform = `translateX(${dir * inPct}%)`;
+    void el.offsetWidth;
+    el.style.transition = 'transform .22s ease, opacity .22s ease';
+    el.style.transform = 'translateX(0)';
+    el.style.opacity = '1';
+    // once settled, drop the inline styles so nothing is left offset
+    el._slideT2 = setTimeout(()=> resetSlide(el), 260);
+  }, 140);
+}
+function makeSwipeable(area, opts){
+  let tracking = false, locked = false, startX = 0, startY = 0, dx = 0, startT = 0, pid = null, swallowClick = false;
   area.addEventListener('pointerdown', (e)=>{
     if(e.pointerType === 'mouse' && e.button !== 0) return;
     if(e.target.closest('input, select, textarea')) return;
+    if(opts.ignore && e.target.closest(opts.ignore)) return;   // that element handles its own swipe
     tracking = true; locked = false; dx = 0;
     startX = e.clientX; startY = e.clientY; startT = Date.now(); pid = e.pointerId;
   });
@@ -5157,58 +5226,40 @@ function switchDebtType(type, dir){
       if(Math.abs(mx) > 10 && Math.abs(mx) > Math.abs(my) * 1.2){
         locked = true;
         try{ area.setPointerCapture(pid); }catch(err){}
-        list.style.transition = 'none';
+        clearTimeout(opts.el._slideT1); clearTimeout(opts.el._slideT2);
+        opts.el.style.transition = 'none';
       } else if(Math.abs(my) > 10){
-        tracking = false;   // it's a vertical scroll, leave it alone
+        tracking = false;
         return;
       } else {
         return;
       }
     }
     dx = mx;
-    const pages = debtTypePages();
-    const idx = pages.indexOf(debtTypeFilter);
-    const atEdge = (dx > 0 && idx <= 0) || (dx < 0 && idx >= pages.length - 1);
-    const shown = atEdge ? dx * 0.25 : dx;   // rubber-band at the first / last type
-    list.style.transform = `translateX(${shown}px)`;
-    list.style.opacity = String(1 - Math.min(Math.abs(shown) / 450, 0.45));
+    const atEdge = (dx < 0 && !opts.canGo(1)) || (dx > 0 && !opts.canGo(-1));
+    const shown = atEdge ? dx * 0.25 : dx;
+    opts.el.style.transform = `translateX(${shown}px)`;
+    opts.el.style.opacity = String(1 - Math.min(Math.abs(shown) / 450, 0.45));
   });
   function finish(){
     if(!tracking) return;
     tracking = false;
     if(!locked) return;
     locked = false;
-    swallowClick = true;                 // don't let the release count as a tap on a row
+    swallowClick = true;
     setTimeout(()=>{ swallowClick = false; }, 60);
     try{ area.releasePointerCapture(pid); }catch(err){}
-
-    const pages = debtTypePages();
-    const idx = pages.indexOf(debtTypeFilter);
-    const speed = Math.abs(dx) / Math.max(1, Date.now() - startT);   // px per ms
+    const speed = Math.abs(dx) / Math.max(1, Date.now() - startT);
     const commit = Math.abs(dx) > 70 || (Math.abs(dx) > 30 && speed > 0.5);
     const dir = dx < 0 ? 1 : -1;
-    const next = idx + dir;
-
-    if(commit && next >= 0 && next < pages.length){
-      const type = pages[next];
-      if(debtReduceMotion){ debtTypeFilter = type; renderDebts(); list.style.transform = ''; list.style.opacity = ''; return; }
-      list.style.transition = 'transform .14s ease, opacity .14s ease';
-      list.style.transform = `translateX(${-dir * 100}%)`;
-      list.style.opacity = '0';
-      setTimeout(()=>{
-        debtTypeFilter = type;
-        renderDebts();
-        list.style.transition = 'none';
-        list.style.transform = `translateX(${dir * 60}%)`;
-        void list.offsetWidth;
-        list.style.transition = 'transform .22s ease, opacity .22s ease';
-        list.style.transform = 'translateX(0)';
-        list.style.opacity = '1';
-      }, 140);
+    if(commit && opts.canGo(dir)){
+      slideSwap(opts.el, dir, ()=> opts.onSwipe(dir), 100, 60);
     } else {
-      list.style.transition = 'transform .2s ease, opacity .2s ease';   // snap back
-      list.style.transform = 'translateX(0)';
-      list.style.opacity = '1';
+      clearTimeout(opts.el._slideT1); clearTimeout(opts.el._slideT2);
+      opts.el.style.transition = 'transform .2s ease, opacity .2s ease';
+      opts.el.style.transform = 'translateX(0)';
+      opts.el.style.opacity = '1';
+      opts.el._slideT2 = setTimeout(()=> resetSlide(opts.el), 240);   // snapped back: settle to natural position
     }
     dx = 0;
   }
@@ -5217,16 +5268,70 @@ function switchDebtType(type, dir){
   area.addEventListener('click', (e)=>{
     if(swallowClick){ e.stopPropagation(); e.preventDefault(); swallowClick = false; }
   }, true);
-})();
+}
 
-/* Money month navigation */
-document.getElementById('moneyPrev').addEventListener('click', ()=>{
-  homeDate = new Date(homeDate.getFullYear(), homeDate.getMonth()-1, 1);
-  renderMoney();
+/* Money sections: Overview <-> Accounts <-> Trends (swipe the content) */
+const MONEY_PAGES = [
+  { id:'overview', label:'Overview' },
+  { id:'accounts', label:'Accounts' },
+  { id:'trends',   label:'Trends' }
+];
+let moneyPage = 'overview';
+function moneyPageIndex(){ return Math.max(0, MONEY_PAGES.findIndex(p => p.id === moneyPage)); }
+function renderMoneyPager(){
+  const idx = moneyPageIndex();
+  document.getElementById('moneyPageTitle').textContent = MONEY_PAGES[idx].label;
+  document.getElementById('moneyArrowPrev').classList.toggle('off', idx === 0);
+  document.getElementById('moneyArrowNext').classList.toggle('off', idx === MONEY_PAGES.length - 1);
+  const dots = document.getElementById('moneyDots');
+  dots.innerHTML = MONEY_PAGES.map((p, i)=>
+    `<button type="button" class="debt-type-dot${i === idx ? ' active' : ''}" data-page="${p.id}" role="tab" aria-selected="${i === idx}" aria-label="${p.label}"></button>`
+  ).join('');
+  dots.querySelectorAll('.debt-type-dot').forEach(dot=>{
+    dot.addEventListener('click', ()=>{
+      const target = MONEY_PAGES.findIndex(p => p.id === dot.dataset.page);
+      if(target !== moneyPageIndex()) goToMoneyPage(dot.dataset.page, target > moneyPageIndex() ? 1 : -1);
+    });
+  });
+}
+// Shows one section immediately (no animation).
+function setMoneyPage(id){
+  moneyPage = MONEY_PAGES.some(p => p.id === id) ? id : 'overview';
+  document.querySelectorAll('#moneyPages .money-page').forEach(pg=>{
+    pg.classList.toggle('active', pg.dataset.page === moneyPage);
+  });
+  renderMoneyPager();
+  // Charts drawn while their card was hidden were measured at zero width;
+  // redraw them now that the card is showing so they fill it properly.
+  if(moneyPage === 'trends'){
+    renderMoney();
+    try{ if(netWorthChartInstance) netWorthChartInstance.resize(); }catch(e){}
+    try{ if(moneyLineChartInstance) moneyLineChartInstance.resize(); }catch(e){}
+  }
+}
+// Sections have different heights; after switching, make sure the month bar
+// and section name are still on screen instead of leaving the new section
+// scrolled partway down.
+function ensureMoneyHeaderVisible(){
+  const topbar = document.querySelector('.topbar');
+  const limit = topbar ? topbar.getBoundingClientRect().bottom : 0;
+  const r = document.getElementById('moneyMonthNav').getBoundingClientRect();
+  if(r.top < limit + 4){ window.scrollBy({ top: r.top - limit - 8, behavior: 'auto' }); }
+}
+function goToMoneyPage(id, dir){
+  slideSwap(document.getElementById('moneyPages'), dir, ()=>{ setMoneyPage(id); ensureMoneyHeaderVisible(); }, 100, 60);
+}
+makeSwipeable(document.getElementById('moneySwipeArea'), {
+  el: document.getElementById('moneyPages'),
+  canGo: (dir)=>{ const n = moneyPageIndex() + dir; return n >= 0 && n < MONEY_PAGES.length; },
+  onSwipe: (dir)=>{ setMoneyPage(MONEY_PAGES[moneyPageIndex() + dir].id); ensureMoneyHeaderVisible(); }
 });
-document.getElementById('moneyNext').addEventListener('click', ()=>{
-  homeDate = new Date(homeDate.getFullYear(), homeDate.getMonth()+1, 1);
-  renderMoney();
+renderMoneyPager();
+/* Money month: swipe the month bar (left = next month, right = previous) */
+makeSwipeable(document.getElementById('moneyMonthNav'), {
+  el: document.getElementById('moneyLabel'),
+  canGo: ()=> true,
+  onSwipe: (dir)=> moneyChangeMonth(dir)
 });
 
 /* =========================================================
@@ -9488,9 +9593,9 @@ const TOUR_STEPS = [
   { view:'transactions', target:'#txPeriodSeg', title:'Filter by time', text:'Narrow the list to this month, next month, this year, or your own custom date range.' },
   { view:'transactions', target:'#txFilterSeg', title:'Open vs. Closed', text:'Show everything, just what\u2019s still planned (Open), or just what\u2019s already happened (Closed). The sort button beside it flips oldest/newest first.' },
   { view:'debts', target:'#debtTypePager', title:'Track what you owe', text:'Swipe left or right to switch between Credit Cards, Financing, and Other debts, grouped by account \u2014 each shows a payoff-progress bar, and Credit Cards also show their credit limit usage if you\u2019ve set one (More \u2192 Credit Limits).' },
-  { view:'money', target:'#view-money .summary-grid', title:'Money, at a glance', text:'What you\u2019ve invested, what\u2019s planned, your cumulative total, capital gains/losses, and your overall net position.' },
-  { view:'money', target:'#moneyProgressFill', title:'Plan progress', text:'How much of this month\u2019s planned investing is actually done (Closed) versus still Open.' },
-  { view:'money', target:'#netWorthChart', title:'Net worth over time', text:'Your invested balance plus capital gains/losses, tracked month by month.' },
+  { view:'money', moneyPage:'overview', target:'#view-money .summary-grid', title:'Money, at a glance', text:'Swipe the page left or right for Accounts and Trends, and swipe the month bar to change month. What you\u2019ve invested, what\u2019s planned, your cumulative total, capital gains/losses, and your overall net position.' },
+  { view:'money', moneyPage:'overview', target:'#moneyProgressFill', title:'Plan progress', text:'How much of this month\u2019s planned investing is actually done (Closed) versus still Open.' },
+  { view:'money', moneyPage:'trends', target:'#netWorthChart', title:'Net worth over time', text:'Your invested balance plus capital gains/losses, tracked month by month.' },
   { view:'more', target:'#budgetsBtn', title:'Budgets', text:'A beginner-friendly planner: enter your income, get a split per category suggested from your 12-month average, type or nudge the % for each category until it fits, and track actual spend against the plan each month.' },
   { view:'more', target:'#creditLimitsBtn', title:'Credit Limits', text:'Set the total limit on each credit card to see available credit and usage \u2014 shown here and on the Debts page.' },
   { view:'more', target:'#settingsBtn', title:'Settings', text:'Manage your categories and subcategories, and the specific accounts under each debt type.' },
@@ -9590,6 +9695,7 @@ function tourGoToStep(i){
   if(getActiveViewName() !== step.view){
     switchView(step.view);
   }
+  if(step.moneyPage){ setMoneyPage(step.moneyPage); }
   tourRenderStep();
 }
 function tourNext(){
