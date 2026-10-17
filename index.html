@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v203 -->
+<!-- WEALTH.ME — v206 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -397,6 +397,23 @@ main{
   flex-shrink:0;
 }
 
+.debt-type-pager{margin-top:12px;text-align:center;user-select:none;-webkit-user-select:none;}
+.debt-type-title{
+  display:flex;align-items:center;justify-content:center;gap:16px;
+  font-size:15px;font-weight:700;color:var(--navy);
+}
+.debt-type-arrow{font-size:24px;line-height:1;color:var(--slate);transition:opacity .2s;}
+.debt-type-arrow.off{opacity:0.18;}
+.debt-type-dots{display:flex;justify-content:center;gap:7px;margin-top:8px;}
+.debt-type-dot{
+  width:7px;height:7px;border-radius:999px;border:none;padding:0;
+  background:color-mix(in srgb, var(--slate) 35%, transparent);cursor:pointer;
+  transition:width .2s ease, background .2s ease;
+}
+.debt-type-dot.active{width:22px;background:var(--navy);}
+/* The list area takes horizontal swipes itself; vertical scrolling still works. */
+.debt-swipe-area{touch-action:pan-y;overflow-x:hidden;min-height:55vh;}
+#debtList{will-change:transform;}
 .segmented{
   display:flex;
   background:var(--slate-light);
@@ -648,6 +665,29 @@ main{
   z-index:150;
   align-items:center;
 }
+#reassignSubcatOverlay .modal.reassign-modal{
+  width:calc(100% - 32px);
+  max-width:420px;
+  border-radius:20px;
+  padding:22px 20px 20px;
+  box-shadow:0 24px 60px rgba(15,27,45,0.28);
+}
+.reassign-head{display:flex;align-items:center;gap:12px;margin-bottom:12px;}
+.reassign-icon{
+  width:44px;height:44px;border-radius:13px;flex-shrink:0;
+  background:var(--terracotta-light);color:var(--terracotta);
+  display:flex;align-items:center;justify-content:center;
+}
+.reassign-head h3{font-family:'Inter',sans-serif;font-size:18px;font-weight:700;line-height:1.25;margin:0;word-break:break-word;}
+.reassign-count{
+  display:inline-block;margin-top:4px;
+  font-size:11.5px;font-weight:700;letter-spacing:0.2px;
+  color:var(--terracotta);background:var(--terracotta-light);
+  padding:2px 9px;border-radius:999px;
+}
+.reassign-msg{font-size:13.5px;line-height:1.5;margin:0 0 16px;}
+.reassign-note{font-size:11.5px;line-height:1.45;color:var(--slate);margin:0 2px;}
+#reassignSubcatConfirm:disabled{opacity:0.45;}
 #csvTextModalOverlay{
   z-index:140;
 }
@@ -1434,13 +1474,18 @@ main{
         <button class="active" data-filter="Open">Open</button>
         <button data-filter="Closed">Closed</button>
       </div>
-      <div class="segmented" id="debtTypeFilterSeg" style="margin-top:8px;flex-wrap:wrap;">
-        <button data-type="All" style="font-size:11px;min-width:64px;">All Types</button>
-        <button class="active" data-type="Credit Card" style="font-size:11px;min-width:64px;">Credit Card</button>
-        <button data-type="Financing" style="font-size:11px;min-width:64px;">Financing</button>
-        <button data-type="Other" style="font-size:11px;min-width:64px;">Other</button>
+      <!-- Debt type: swipe the list left / right to change it (dots show where you are) -->
+      <div class="debt-type-pager" id="debtTypePager">
+        <div class="debt-type-title">
+          <span class="debt-type-arrow" id="debtTypeArrowPrev" aria-hidden="true">&#8249;</span>
+          <span id="debtTypeTitle">Credit Card</span>
+          <span class="debt-type-arrow" id="debtTypeArrowNext" aria-hidden="true">&#8250;</span>
+        </div>
+        <div class="debt-type-dots" id="debtTypeDots" role="tablist" aria-label="Debt type"></div>
       </div>
-      <div id="debtList" style="margin-top:14px;"></div>
+      <div id="debtSwipeArea" class="debt-swipe-area">
+        <div id="debtList" style="margin-top:14px;"></div>
+      </div>
     </section>
 
     <!-- ============ MONEY VIEW ============ -->
@@ -1583,7 +1628,7 @@ main{
         </button>
       </div>
       <div id="refreshStatus" class="muted" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 203</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 206</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -1624,7 +1669,7 @@ main{
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 203</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 206</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -2454,13 +2499,22 @@ main{
 
   <!-- ===== Move entries before deleting a subcategory ===== -->
   <div class="modal-overlay" id="reassignSubcatOverlay">
-    <div class="modal" style="max-width:440px;">
-      <div class="modal-header">
-        <h3 id="reassignSubcatTitle">Move entries first</h3>
+    <div class="modal reassign-modal" role="dialog" aria-modal="true" aria-labelledby="reassignSubcatTitle">
+      <div class="reassign-head">
+        <div class="reassign-icon" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3 4 7l4 4"/><path d="M4 7h16"/><path d="m16 21 4-4-4-4"/><path d="M20 17H4"/></svg>
+        </div>
+        <div style="min-width:0;">
+          <h3 id="reassignSubcatTitle">Move entries first</h3>
+          <span class="reassign-count" id="reassignSubcatCount"></span>
+        </div>
       </div>
-      <p class="muted" id="reassignSubcatMessage"></p>
-      <label class="muted" for="reassignSubcatSelect" style="font-size:12px;display:block;margin:12px 0 4px;">Move these entries to</label>
-      <select id="reassignSubcatSelect" style="width:100%;margin-bottom:14px;"></select>
+      <p class="muted reassign-msg" id="reassignSubcatMessage"></p>
+      <div class="field" style="margin-bottom:8px;">
+        <label for="reassignSubcatSelect">Move entries to</label>
+        <select id="reassignSubcatSelect"></select>
+      </div>
+      <div class="reassign-note" id="reassignSubcatNote"></div>
       <div class="btn-row">
         <button class="btn btn-secondary btn-block" id="reassignSubcatCancel">Cancel</button>
         <button class="btn btn-danger btn-block" id="reassignSubcatConfirm" disabled>Move &amp; Delete</button>
@@ -2512,7 +2566,7 @@ main{
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 203;
+const APP_VERSION = 206;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -5046,15 +5100,124 @@ document.getElementById('debtFilterSeg').querySelectorAll('button').forEach(btn=
   });
 });
 
-/* Debts type filter */
-document.getElementById('debtTypeFilterSeg').querySelectorAll('button').forEach(btn=>{
-  btn.addEventListener('click', ()=>{
-    document.getElementById('debtTypeFilterSeg').querySelectorAll('button').forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');
-    debtTypeFilter = btn.dataset.type;
-    renderDebts();
+/* Debts type: swipe left / right across the list to change type
+   (Credit Card <-> Financing <-> Other). */
+function debtTypePages(){ return DEBT_TYPES.slice(); }
+function renderDebtTypePager(){
+  const pages = debtTypePages();
+  const idx = Math.max(0, pages.indexOf(debtTypeFilter));
+  document.getElementById('debtTypeTitle').textContent = debtTypeFilter;
+  document.getElementById('debtTypeArrowPrev').classList.toggle('off', idx === 0);
+  document.getElementById('debtTypeArrowNext').classList.toggle('off', idx === pages.length - 1);
+  const dots = document.getElementById('debtTypeDots');
+  dots.innerHTML = pages.map((t, i)=>
+    `<button type="button" class="debt-type-dot${i === idx ? ' active' : ''}" data-type="${t}" role="tab" aria-selected="${i === idx}" aria-label="${t}"></button>`
+  ).join('');
+  dots.querySelectorAll('.debt-type-dot').forEach(dot=>{
+    dot.addEventListener('click', ()=>{
+      const target = pages.indexOf(dot.dataset.type);
+      if(target !== idx) switchDebtType(dot.dataset.type, target > idx ? 1 : -1);
+    });
   });
-});
+}
+const debtReduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+// dir: 1 = moving to a later type (the new list slides in from the right), -1 = earlier.
+function switchDebtType(type, dir){
+  const list = document.getElementById('debtList');
+  const apply = ()=>{ debtTypeFilter = type; renderDebts(); };
+  if(debtReduceMotion){ apply(); return; }
+  list.style.transition = 'transform .16s ease, opacity .16s ease';
+  list.style.transform = `translateX(${-dir * 40}%)`;
+  list.style.opacity = '0';
+  setTimeout(()=>{
+    apply();
+    list.style.transition = 'none';
+    list.style.transform = `translateX(${dir * 40}%)`;
+    void list.offsetWidth; // let the browser register the start position
+    list.style.transition = 'transform .2s ease, opacity .2s ease';
+    list.style.transform = 'translateX(0)';
+    list.style.opacity = '1';
+  }, 160);
+}
+(function setupDebtSwipe(){
+  const area = document.getElementById('debtSwipeArea');
+  const list = document.getElementById('debtList');
+  let tracking = false, locked = false, startX = 0, startY = 0, dx = 0, startT = 0, pid = null, swallowClick = false;
+
+  area.addEventListener('pointerdown', (e)=>{
+    if(e.pointerType === 'mouse' && e.button !== 0) return;
+    if(e.target.closest('input, select, textarea')) return;
+    tracking = true; locked = false; dx = 0;
+    startX = e.clientX; startY = e.clientY; startT = Date.now(); pid = e.pointerId;
+  });
+  area.addEventListener('pointermove', (e)=>{
+    if(!tracking || e.pointerId !== pid) return;
+    const mx = e.clientX - startX, my = e.clientY - startY;
+    if(!locked){
+      if(Math.abs(mx) > 10 && Math.abs(mx) > Math.abs(my) * 1.2){
+        locked = true;
+        try{ area.setPointerCapture(pid); }catch(err){}
+        list.style.transition = 'none';
+      } else if(Math.abs(my) > 10){
+        tracking = false;   // it's a vertical scroll, leave it alone
+        return;
+      } else {
+        return;
+      }
+    }
+    dx = mx;
+    const pages = debtTypePages();
+    const idx = pages.indexOf(debtTypeFilter);
+    const atEdge = (dx > 0 && idx <= 0) || (dx < 0 && idx >= pages.length - 1);
+    const shown = atEdge ? dx * 0.25 : dx;   // rubber-band at the first / last type
+    list.style.transform = `translateX(${shown}px)`;
+    list.style.opacity = String(1 - Math.min(Math.abs(shown) / 450, 0.45));
+  });
+  function finish(){
+    if(!tracking) return;
+    tracking = false;
+    if(!locked) return;
+    locked = false;
+    swallowClick = true;                 // don't let the release count as a tap on a row
+    setTimeout(()=>{ swallowClick = false; }, 60);
+    try{ area.releasePointerCapture(pid); }catch(err){}
+
+    const pages = debtTypePages();
+    const idx = pages.indexOf(debtTypeFilter);
+    const speed = Math.abs(dx) / Math.max(1, Date.now() - startT);   // px per ms
+    const commit = Math.abs(dx) > 70 || (Math.abs(dx) > 30 && speed > 0.5);
+    const dir = dx < 0 ? 1 : -1;
+    const next = idx + dir;
+
+    if(commit && next >= 0 && next < pages.length){
+      const type = pages[next];
+      if(debtReduceMotion){ debtTypeFilter = type; renderDebts(); list.style.transform = ''; list.style.opacity = ''; return; }
+      list.style.transition = 'transform .14s ease, opacity .14s ease';
+      list.style.transform = `translateX(${-dir * 100}%)`;
+      list.style.opacity = '0';
+      setTimeout(()=>{
+        debtTypeFilter = type;
+        renderDebts();
+        list.style.transition = 'none';
+        list.style.transform = `translateX(${dir * 60}%)`;
+        void list.offsetWidth;
+        list.style.transition = 'transform .22s ease, opacity .22s ease';
+        list.style.transform = 'translateX(0)';
+        list.style.opacity = '1';
+      }, 140);
+    } else {
+      list.style.transition = 'transform .2s ease, opacity .2s ease';   // snap back
+      list.style.transform = 'translateX(0)';
+      list.style.opacity = '1';
+    }
+    dx = 0;
+  }
+  area.addEventListener('pointerup', finish);
+  area.addEventListener('pointercancel', finish);
+  area.addEventListener('click', (e)=>{
+    if(swallowClick){ e.stopPropagation(); e.preventDefault(); swallowClick = false; }
+  }, true);
+})();
 
 /* Money month navigation */
 document.getElementById('moneyPrev').addEventListener('click', ()=>{
@@ -7492,35 +7655,44 @@ let reassignCtx = null;
 // Entries logged under a debt account are moved to another account of the
 // same type, or to "Unassigned" (no account), before the account is deleted.
 const REASSIGN_UNASSIGNED = '__unassigned__';
-function openReassignAccount(type, name, count){
-  reassignCtx = { kind: 'account', type, name };
-  document.getElementById('reassignSubcatTitle').textContent = `Delete "${name}"?`;
-  document.getElementById('reassignSubcatMessage').textContent =
-    `"${name}" has ${count} entr${count === 1 ? 'y' : 'ies'} logged against it. Choose where to move ${count === 1 ? 'it' : 'them'} (another account, or Unassigned); "${name}" is only deleted once nothing is left under it.`;
+
+// Fills the dialog's heading, entry-count pill, message and note.
+function setReassignDialogText(name, count, message){
+  document.getElementById('reassignSubcatTitle').textContent = `Delete \u201c${name}\u201d?`;
+  document.getElementById('reassignSubcatCount').textContent = `${count} ${count === 1 ? 'entry' : 'entries'}`;
+  document.getElementById('reassignSubcatMessage').textContent = message;
+  document.getElementById('reassignSubcatNote').textContent = `\u201c${name}\u201d is deleted only once nothing is left under it.`;
+}
+// Rebuilds the dropdown: a disabled placeholder first, then the choices.
+function fillReassignSelect(placeholder, choices){
   const sel = document.getElementById('reassignSubcatSelect');
   sel.innerHTML = '';
-  const addOpt = (value, label, extra)=>{
+  const addOpt = (value, label, isPlaceholder)=>{
     const o = document.createElement('option');
     o.value = value; o.textContent = label;
-    if(extra){ o.disabled = true; o.selected = true; }
+    if(isPlaceholder){ o.disabled = true; o.selected = true; }
     sel.appendChild(o);
   };
-  addOpt('', 'Choose where to move them\u2026', true);
-  (DEBT_ACCOUNTS[type] || []).filter(a=>a !== name).forEach(a=> addOpt(a, a));
-  addOpt(REASSIGN_UNASSIGNED, 'Unassigned (no account)');
+  addOpt('', placeholder, true);
+  choices.forEach(c=> addOpt(c.value, c.label, false));
   document.getElementById('reassignSubcatConfirm').disabled = true;
   document.getElementById('reassignSubcatOverlay').classList.add('active');
 }
+
+function openReassignAccount(type, name, count){
+  reassignCtx = { kind: 'account', type, name };
+  setReassignDialogText(name, count,
+    `${count === 1 ? 'It is' : 'They are'} logged against \u201c${name}\u201d. Choose another account, or Unassigned, to move ${count === 1 ? 'it' : 'them'} to.`);
+  const choices = (DEBT_ACCOUNTS[type] || []).filter(a=>a !== name).map(a=>({value:a, label:a}));
+  choices.push({ value: REASSIGN_UNASSIGNED, label: 'Unassigned (no account)' });
+  fillReassignSelect('Choose where to move them\u2026', choices);
+}
 function openReassignSubcategory(cat, name, count){
   reassignCtx = { kind: 'subcat', cat, name };
-  document.getElementById('reassignSubcatTitle').textContent = `Delete "${name}"?`;
-  document.getElementById('reassignSubcatMessage').textContent =
-    `"${name}" is used by ${count} entr${count === 1 ? 'y' : 'ies'}. Choose another subcategory to move ${count === 1 ? 'it' : 'them'} to; "${name}" is only deleted once nothing is left under it.`;
-  const sel = document.getElementById('reassignSubcatSelect');
-  sel.innerHTML = '<option value="" selected disabled>Choose a subcategory\u2026</option>' +
-    CATEGORY_MAP[cat].filter(s=>s !== name).map(s=>`<option value="${s}">${s}</option>`).join('');
-  document.getElementById('reassignSubcatConfirm').disabled = true;
-  document.getElementById('reassignSubcatOverlay').classList.add('active');
+  setReassignDialogText(name, count,
+    `${count === 1 ? 'It is' : 'They are'} filed under \u201c${name}\u201d. Choose another subcategory to move ${count === 1 ? 'it' : 'them'} to.`);
+  fillReassignSelect('Choose a subcategory\u2026',
+    CATEGORY_MAP[cat].filter(s=>s !== name).map(s=>({value:s, label:s})));
 }
 function closeReassignSubcategory(){
   reassignCtx = null;
@@ -8020,16 +8192,16 @@ function checkDebtPaidOff(entry){
   }
 }
 function renderDebts(){
-  const types = debtTypeFilter === 'All' ? DEBT_TYPES : [debtTypeFilter];
+  if(!DEBT_TYPES.includes(debtTypeFilter)) debtTypeFilter = DEBT_TYPES[0];
+  renderDebtTypePager();
+  const types = [debtTypeFilter];
   let list = entries.filter(e=>e.category==='Expense');
 
   if(debtFilter !== 'Both'){
     list = list.filter(e=>e.status === debtFilter);
   }
 
-  if(debtTypeFilter !== 'All'){
-    list = list.filter(e=> (e.type || 'Other') === debtTypeFilter);
-  }
+  list = list.filter(e=> (e.type || 'Other') === debtTypeFilter);
 
   // Hide entries that are type "Other" with no account assigned (empty/None)
   list = list.filter(e=> !((e.type || 'Other') === 'Other' && !e.account));
@@ -9315,7 +9487,7 @@ const TOUR_STEPS = [
   { view:'transactions', target:'#txSearchInput', title:'Find any transaction', text:'Search by category, subcategory, notes, or account \u2014 this list covers every entry you\u2019ve ever made.' },
   { view:'transactions', target:'#txPeriodSeg', title:'Filter by time', text:'Narrow the list to this month, next month, this year, or your own custom date range.' },
   { view:'transactions', target:'#txFilterSeg', title:'Open vs. Closed', text:'Show everything, just what\u2019s still planned (Open), or just what\u2019s already happened (Closed). The sort button beside it flips oldest/newest first.' },
-  { view:'debts', target:'#debtTypeFilterSeg', title:'Track what you owe', text:'Credit Cards, Financing, and Other debts, grouped by account \u2014 each shows a payoff-progress bar, and Credit Cards also show their credit limit usage if you\u2019ve set one (More \u2192 Credit Limits).' },
+  { view:'debts', target:'#debtTypePager', title:'Track what you owe', text:'Swipe left or right to switch between Credit Cards, Financing, and Other debts, grouped by account \u2014 each shows a payoff-progress bar, and Credit Cards also show their credit limit usage if you\u2019ve set one (More \u2192 Credit Limits).' },
   { view:'money', target:'#view-money .summary-grid', title:'Money, at a glance', text:'What you\u2019ve invested, what\u2019s planned, your cumulative total, capital gains/losses, and your overall net position.' },
   { view:'money', target:'#moneyProgressFill', title:'Plan progress', text:'How much of this month\u2019s planned investing is actually done (Closed) versus still Open.' },
   { view:'money', target:'#netWorthChart', title:'Net worth over time', text:'Your invested balance plus capital gains/losses, tracked month by month.' },
