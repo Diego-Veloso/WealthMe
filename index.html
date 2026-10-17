@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v209 -->
+<!-- WEALTH.ME — v213 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -247,7 +247,14 @@ body{
 main{
   flex:1;
   padding:4px 16px 100px;
+  overflow-x:hidden;
+  overflow-x:clip;
 }
+#view-home,
+#view-detail,
+#view-insights,
+#view-budgets{touch-action:pan-y pinch-zoom;}
+.insights-swipe-area{touch-action:pan-y;overflow-x:hidden;overscroll-behavior-x:none;min-height:55vh;}
 .view{display:none;}
 .view.active{display:block;animation:fadeIn .25s ease;}
 #view-insights.active{
@@ -1089,6 +1096,8 @@ main{
     gap:18px;
   }
   .money-pager{display:none !important;}
+  .insights-pager{display:none !important;}
+  .insights-swipe-area{min-height:0;}
   .money-swipe-area{min-height:0;}
   .money-page,
   .money-page.active{display:grid;grid-template-columns:1fr;gap:18px;}
@@ -1606,12 +1615,24 @@ main{
     <!-- ============ INSIGHTS VIEW ============ -->
     <section class="view" id="view-insights">
       <h2 class="card-title" style="margin:10px 0 14px;">Insights</h2>
-      <div class="month-nav">
+      <!-- Swipe this bar left / right to change month -->
+      <div class="month-nav" id="insightsMonthNav" style="touch-action:pan-y;margin-bottom:6px;">
         <button id="insightsPrev">&#8249;</button>
         <div class="label" id="insightsMonthLabel">June 2026</div>
         <button id="insightsNext">&#8250;</button>
       </div>
-      <div id="insightsContainer"></div>
+      <!-- Swipe the report left / right to change section (dots show where you are) -->
+      <div class="debt-type-pager insights-pager" id="insightsPager" style="margin-top:0;margin-bottom:12px;display:none;">
+        <div class="debt-type-title">
+          <span class="debt-type-arrow" id="insightsArrowPrev" aria-hidden="true">&#8249;</span>
+          <span id="insightsPageTitle">Summary</span>
+          <span class="debt-type-arrow" id="insightsArrowNext" aria-hidden="true">&#8250;</span>
+        </div>
+        <div class="debt-type-dots" id="insightsDots" role="tablist" aria-label="Insights section"></div>
+      </div>
+      <div id="insightsSwipeArea" class="insights-swipe-area">
+        <div id="insightsContainer"></div>
+      </div>
     </section>
 
     <!-- Mobile-only page (reached from the bottom bar's More tab; desktop
@@ -1661,7 +1682,7 @@ main{
         </button>
       </div>
       <div id="refreshStatus" class="muted" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 209</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 213</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -1702,7 +1723,7 @@ main{
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 209</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 213</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -1931,6 +1952,7 @@ main{
             <li><strong>Press and hold a slice</strong> of the donut chart to open Category Detail for that specific subcategory — a quick tap on a slice does nothing on purpose, so brushing the chart by accident never navigates away.</li>
             <li><strong>Press and hold a Transaction row</strong> to enter bulk-select mode — checkboxes appear on every row, and the held one gets checked. Tap any row to toggle it while in this mode; deselecting everything exits it automatically.</li>
             <li><strong>Swipe a row left or right</strong> to mark it Closed or delete it, with a 5-second Undo.</li>
+            <li><strong>Swipe a page left or right</strong> to move to the next or previous month on Home, Budgets and Category Detail (touch screens). On Money and Insights, swipe the month bar to change month, and swipe the page to switch sections.</li>
             <li><strong>Ctrl/Cmd+K</strong> opens the command palette to search pages and transactions from anywhere.</li>
           </ul>
         </div>
@@ -2599,7 +2621,7 @@ main{
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 209;
+const APP_VERSION = 213;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -3609,6 +3631,8 @@ function renderInsightsView(){
     </div>`;
 
   const hasAnyExpense = data.overview.totalExpenses12mo > 0;
+  insightsPagerActive = false;
+  document.getElementById('insightsPager').style.display = 'none';
   if(!hasAnyExpense){
     container.innerHTML = toggleHtml + `<div class="card"><div class="muted" style="padding:8px 2px;">No ${insightsDirection==='future'?'scheduled':'expense'} data in this 12-month period ${insightsDirection==='future'?'yet — add recurring or future entries':'— add some entries'} to see insights.</div></div>`;
     wireDirectionToggle();
@@ -3638,17 +3662,33 @@ function renderInsightsView(){
   // ---------- Top level ----------
   // Biggest Changes is backward-looking (vs last year), which doesn't make
   // sense for a forward 12-month projection — shown only for Past 12 Months.
-  container.innerHTML = toggleHtml + `
-    ${renderOverviewCard(data)}
-    ${renderMonthlyTrendCard(data)}
-    ${renderKeyInsightsCard(data)}
-    ${renderCategoryRankingCard(data)}
-    ${renderCostReductionCard(data)}
-    ${insightsDirection === 'past' ? renderBiggestChangesCard(data) : ''}
-    ${renderUnusualSpendingCard(data)}
-    ${renderRecurringCard(data)}
-    ${renderFinancialHealthCard(data)}
-  `;
+  const card = {
+    overview:  ()=> renderOverviewCard(data),
+    trend:     ()=> renderMonthlyTrendCard(data),
+    key:       ()=> renderKeyInsightsCard(data),
+    ranking:   ()=> renderCategoryRankingCard(data),
+    cost:      ()=> renderCostReductionCard(data),
+    biggest:   ()=> insightsDirection === 'past' ? renderBiggestChangesCard(data) : '',
+    unusual:   ()=> renderUnusualSpendingCard(data),
+    recurring: ()=> renderRecurringCard(data),
+    health:    ()=> renderFinancialHealthCard(data)
+  };
+  let cardsHtml;
+  if(insightsWide.matches){
+    // Desktop: the whole report, stacked, as before.
+    cardsHtml = ['overview','trend','key','ranking','cost','biggest','unusual','recurring','health'].map(k=>card[k]()).join('');
+  } else {
+    // Phones: one section at a time, swipe to change.
+    const sections = {
+      summary:  ['overview','trend','key','health'],
+      spending: ['ranking','biggest','unusual'],
+      savings:  ['cost','recurring']
+    };
+    cardsHtml = (sections[insightsPage] || sections.summary).map(k=>card[k]()).join('');
+    insightsPagerActive = true;
+    renderInsightsPager();
+  }
+  container.innerHTML = toggleHtml + cardsHtml;
 
   wireCategoryRankingDrill();
   wireMonthlyTrendToggle(data);
@@ -4717,13 +4757,22 @@ document.getElementById('recapModalOverlay').addEventListener('click', (e)=>{
 });
 
 /* Home month navigation */
-document.getElementById('homePrev').addEventListener('click', ()=>{
-  homeDate = new Date(homeDate.getFullYear(), homeDate.getMonth()-1, 1);
+function homeChangeMonth(delta){
+  homeDate = new Date(homeDate.getFullYear(), homeDate.getMonth() + delta, 1);
   renderHome();
-});
-document.getElementById('homeNext').addEventListener('click', ()=>{
-  homeDate = new Date(homeDate.getFullYear(), homeDate.getMonth()+1, 1);
-  renderHome();
+}
+document.getElementById('homePrev').addEventListener('click', ()=> homeChangeMonth(-1));
+document.getElementById('homeNext').addEventListener('click', ()=> homeChangeMonth(1));
+// Swipe the Home page left (next month) or right (previous month). The two
+// charts are left alone - touching them shows tooltips and the donut has
+// its own press-and-hold / double-tap gestures. Touch only: on a desktop
+// the arrow buttons do the job and dragging with a mouse just selects text.
+makeSwipeable(document.getElementById('view-home'), {
+  el: document.getElementById('view-home'),
+  ignore: 'canvas',
+  touchOnly: true,
+  canGo: ()=> true,
+  onSwipe: (dir)=> homeChangeMonth(dir)
 });
 
 /* Detail month navigation */
@@ -4734,27 +4783,100 @@ function setDetailPeriodToThisMonth(){
   });
   document.getElementById('detailDateRangeRow').style.display = 'none';
 }
-document.getElementById('detailPrev').addEventListener('click', ()=>{
-  homeDate = new Date(homeDate.getFullYear(), homeDate.getMonth()-1, 1);
+function detailChangeMonth(delta){
+  homeDate = new Date(homeDate.getFullYear(), homeDate.getMonth() + delta, 1);
   setDetailPeriodToThisMonth();
   renderDetail();
-});
-document.getElementById('detailNext').addEventListener('click', ()=>{
-  homeDate = new Date(homeDate.getFullYear(), homeDate.getMonth()+1, 1);
-  setDetailPeriodToThisMonth();
-  renderDetail();
+}
+document.getElementById('detailPrev').addEventListener('click', ()=> detailChangeMonth(-1));
+document.getElementById('detailNext').addEventListener('click', ()=> detailChangeMonth(1));
+// Swipe left / right for next / previous month. Entry rows keep their own
+// swipe (close / delete) and the chart is left alone.
+makeSwipeable(document.getElementById('view-detail'), {
+  el: document.getElementById('view-detail'),
+  ignore: 'canvas, .entry-row',
+  touchOnly: true,
+  canGo: ()=> true,
+  onSwipe: (dir)=> detailChangeMonth(dir)
 });
 
 /* Insights month navigation */
-document.getElementById('insightsPrev').addEventListener('click', ()=>{
-  homeDate = new Date(homeDate.getFullYear(), homeDate.getMonth()-1, 1);
+function insightsChangeMonth(delta){
+  homeDate = new Date(homeDate.getFullYear(), homeDate.getMonth() + delta, 1);
   insightsDrillPath = [];
   renderInsightsView();
+}
+document.getElementById('insightsPrev').addEventListener('click', ()=> insightsChangeMonth(-1));
+document.getElementById('insightsNext').addEventListener('click', ()=> insightsChangeMonth(1));
+
+/* Insights sections: Summary <-> Spending <-> Savings (swipe the report) */
+const INSIGHTS_PAGES = [
+  { id:'summary',  label:'Summary'  },
+  { id:'spending', label:'Spending' },
+  { id:'savings',  label:'Savings'  }
+];
+let insightsPage = 'summary';
+let insightsPagerActive = false;   // true while a section (not a drill-down / empty state) is showing on a phone
+const insightsWide = window.matchMedia('(min-width:900px)');
+function insightsPageIndex(){ return Math.max(0, INSIGHTS_PAGES.findIndex(p => p.id === insightsPage)); }
+function renderInsightsPager(){
+  const pager = document.getElementById('insightsPager');
+  pager.style.display = insightsPagerActive ? '' : 'none';
+  const idx = insightsPageIndex();
+  document.getElementById('insightsPageTitle').textContent = INSIGHTS_PAGES[idx].label;
+  document.getElementById('insightsArrowPrev').classList.toggle('off', idx === 0);
+  document.getElementById('insightsArrowNext').classList.toggle('off', idx === INSIGHTS_PAGES.length - 1);
+  const dots = document.getElementById('insightsDots');
+  dots.innerHTML = INSIGHTS_PAGES.map((p, i)=>
+    `<button type="button" class="debt-type-dot${i === idx ? ' active' : ''}" data-page="${p.id}" role="tab" aria-selected="${i === idx}" aria-label="${p.label}"></button>`
+  ).join('');
+  dots.querySelectorAll('.debt-type-dot').forEach(dot=>{
+    dot.addEventListener('click', ()=>{
+      const target = INSIGHTS_PAGES.findIndex(p => p.id === dot.dataset.page);
+      if(target !== insightsPageIndex()) goToInsightsPage(dot.dataset.page, target > insightsPageIndex() ? 1 : -1);
+    });
+  });
+}
+function setInsightsPage(id){
+  insightsPage = INSIGHTS_PAGES.some(p => p.id === id) ? id : 'summary';
+  renderInsightsView();
+}
+// Keeps the month bar on screen after a section change (sections differ in height).
+function ensureHeaderVisible(el){
+  const topbar = document.querySelector('.topbar');
+  const limit = topbar ? topbar.getBoundingClientRect().bottom : 0;
+  const r = el.getBoundingClientRect();
+  if(r.top < limit + 4){ window.scrollBy({ top: r.top - limit - 8, behavior: 'auto' }); }
+}
+function goToInsightsPage(id, dir){
+  slideSwap(document.getElementById('insightsContainer'), dir, ()=>{
+    setInsightsPage(id);
+    ensureHeaderVisible(document.getElementById('insightsMonthNav'));
+  }, 100, 60);
+}
+makeSwipeable(document.getElementById('insightsSwipeArea'), {
+  el: document.getElementById('insightsContainer'),
+  ignore: 'canvas, .entry-row',
+  touchOnly: true,
+  canGo: (dir)=>{
+    if(!insightsPagerActive || insightsWide.matches) return false;   // drill-downs and desktop don't page
+    const n = insightsPageIndex() + dir;
+    return n >= 0 && n < INSIGHTS_PAGES.length;
+  },
+  onSwipe: (dir)=>{
+    setInsightsPage(INSIGHTS_PAGES[insightsPageIndex() + dir].id);
+    ensureHeaderVisible(document.getElementById('insightsMonthNav'));
+  }
 });
-document.getElementById('insightsNext').addEventListener('click', ()=>{
-  homeDate = new Date(homeDate.getFullYear(), homeDate.getMonth()+1, 1);
-  insightsDrillPath = [];
-  renderInsightsView();
+// Month: swipe the month bar (left = next month, right = previous)
+makeSwipeable(document.getElementById('insightsMonthNav'), {
+  el: document.getElementById('insightsMonthLabel'),
+  canGo: ()=> true,
+  onSwipe: (dir)=> insightsChangeMonth(dir)
+});
+// Crossing the desktop breakpoint switches between "all cards" and "one section".
+insightsWide.addEventListener('change', ()=>{
+  if(getActiveViewName() === 'insights') renderInsightsView();
 });
 
 /* Donut category segmented control */
@@ -5213,7 +5335,7 @@ function slideSwap(el, dir, apply, outPct, inPct){
 function makeSwipeable(area, opts){
   let tracking = false, locked = false, startX = 0, startY = 0, dx = 0, startT = 0, pid = null, swallowClick = false;
   area.addEventListener('pointerdown', (e)=>{
-    if(e.pointerType === 'mouse' && e.button !== 0) return;
+    if(e.pointerType === 'mouse' && (opts.touchOnly || e.button !== 0)) return;
     if(e.target.closest('input, select, textarea')) return;
     if(opts.ignore && e.target.closest(opts.ignore)) return;   // that element handles its own swipe
     tracking = true; locked = false; dx = 0;
@@ -7421,15 +7543,20 @@ document.getElementById('appearanceModalClose').addEventListener('click', closeA
 // (see the mirrored-month note where homeDate is declared) — it only
 // affects which month's actual spend the planner tracks against; the
 // income/% plan itself isn't month-specific.
-document.getElementById('budgetsPrev').addEventListener('click', ()=>{
-  homeDate = new Date(homeDate.getFullYear(), homeDate.getMonth()-1, 1);
+function budgetsChangeMonth(delta){
+  homeDate = new Date(homeDate.getFullYear(), homeDate.getMonth() + delta, 1);
   budgetPlannerResetVisibility(false);
   renderBudgetsView();
-});
-document.getElementById('budgetsNext').addEventListener('click', ()=>{
-  homeDate = new Date(homeDate.getFullYear(), homeDate.getMonth()+1, 1);
-  budgetPlannerResetVisibility(false);
-  renderBudgetsView();
+}
+document.getElementById('budgetsPrev').addEventListener('click', ()=> budgetsChangeMonth(-1));
+document.getElementById('budgetsNext').addEventListener('click', ()=> budgetsChangeMonth(1));
+// Swipe left / right for next / previous month.
+makeSwipeable(document.getElementById('view-budgets'), {
+  el: document.getElementById('view-budgets'),
+  ignore: 'canvas',
+  touchOnly: true,
+  canGo: ()=> true,
+  onSwipe: (dir)=> budgetsChangeMonth(dir)
 });
 
 /* =========================================================
@@ -8392,7 +8519,7 @@ function renderDebts(){
 
     html += `
       <div class="card">
-        <div class="card-title">
+        <div class="card-title" style="padding-bottom:10px;margin-bottom:10px;border-bottom:1px solid var(--line);">
           <span>${type}</span>
           <span class="muted" style="font-family:'Inter',sans-serif;font-size:13px;font-weight:600;">${fmtMoney(total)} total</span>
         </div>
@@ -9579,7 +9706,7 @@ setupDonutLongPress();
    ========================================================= */
 const TOUR_STEPS = [
   { view:'home', title:'Welcome to Wealth.Me \ud83d\udc4b', text:'This quick tour walks through every page and the main things you can do. Tap "Skip tour" any time to stop.' },
-  { view:'home', target:'#homeMonthLabel', title:'Pick a month', text:'Tap the arrows on either side to move to the previous or next month. Most pages share this same selected month \u2014 change it here and it changes everywhere.' },
+  { view:'home', target:'#homeMonthLabel', title:'Pick a month', text:'Tap the arrows on either side, or swipe the page left or right, to move to the previous or next month. Most pages share this same selected month \u2014 change it here and it changes everywhere.' },
   { view:'home', target:'#homeBalanceFig', title:'Your balance', text:'Your cash balance for the month: money in minus money out, counting only entries marked "Closed" (already happened).' },
   { view:'home', target:'#view-home .summary-grid', title:'The month at a glance', text:'Gross Income and Taxes (shown only when you have taxes), Net Income, Expenses, Investments, and Projected Balance \u2014 which also counts "Open" entries (planned but not done yet).' },
   { view:'home', target:'#lineChart', title:'Daily cashflow', text:'Your running balance day by day through the month, so you can see when money is tight or flush.' },
@@ -9588,7 +9715,7 @@ const TOUR_STEPS = [
   { view:'home', target:'#notificationsBtn', title:'Notifications', text:'The bell shows anything Past Due or Due Today among your Open entries. It greys out when there\u2019s nothing waiting on you.' },
   { view:'home', target:'#themeToggleBtn', title:'Light / dark mode', text:'Tap to switch the whole app between light and dark instantly.' },
   { view:'home', target:'#insightsFab', title:'Insights', text:'A deeper look at your spending \u2014 trends, cost-cutting ideas, and more, generated automatically from your entries.' },
-  { view:'insights', title:'Insights, in full', text:'Browse automatic observations about your spending habits here. Tap any category to drill in further.' },
+  { view:'insights', insightsPage:'summary', title:'Insights, in full', text:'Browse automatic observations about your spending habits here. Swipe the page left or right to move between Summary, Spending and Savings, and swipe the month bar to change month. Tap any category to drill in further.' },
   { view:'transactions', target:'#txSearchInput', title:'Find any transaction', text:'Search by category, subcategory, notes, or account \u2014 this list covers every entry you\u2019ve ever made.' },
   { view:'transactions', target:'#txPeriodSeg', title:'Filter by time', text:'Narrow the list to this month, next month, this year, or your own custom date range.' },
   { view:'transactions', target:'#txFilterSeg', title:'Open vs. Closed', text:'Show everything, just what\u2019s still planned (Open), or just what\u2019s already happened (Closed). The sort button beside it flips oldest/newest first.' },
@@ -9696,6 +9823,7 @@ function tourGoToStep(i){
     switchView(step.view);
   }
   if(step.moneyPage){ setMoneyPage(step.moneyPage); }
+  if(step.insightsPage){ setInsightsPage(step.insightsPage); }
   tourRenderStep();
 }
 function tourNext(){
