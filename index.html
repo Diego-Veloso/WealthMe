@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v202 -->
+<!-- WEALTH.ME — v203 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1583,7 +1583,7 @@ main{
         </button>
       </div>
       <div id="refreshStatus" class="muted" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 202</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 203</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -1624,7 +1624,7 @@ main{
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 202</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 203</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -1755,6 +1755,7 @@ main{
           <button type="button" class="budget-view-btn" data-view="plan" role="tab">Plan</button>
           <button type="button" class="budget-view-btn" data-view="track" role="tab">Track</button>
         </div>
+        <div class="muted" id="budgetSuggestionNote" style="display:none;font-size:11px;margin-top:8px;"></div>
         <div id="budgetPlannerList" style="margin-top:8px;"></div>
       </div>
 
@@ -1865,7 +1866,7 @@ main{
         </div>
         <div class="accordion-body" id="acc-budgets-goals">
           <ul style="font-size:13px;line-height:1.8;margin:0;padding-left:18px;">
-            <li><strong>Budgets</strong> (More → Budgets): enter your monthly income (or tap Autofill to use the selected month's Net Income) and get a suggested split across your expense categories. Type a % of income for any category, or nudge it with +/-, and its $ amount updates alongside. Set a maximum expected expenses % (90% by default) and amounts automatically scale down proportionally to fit within it. Going over that maximum highlights a warning and suggests which categories to trim. Each category also shows a progress bar tracking actual spend against that plan for whichever month you've selected. "Save as My Budgets" turns the result into $ targets the rest of the app (like the Monthly Recap's over-budget count) uses.</li>
+            <li><strong>Budgets</strong> (More → Budgets): enter your monthly income (or tap Autofill to use the selected month's Net Income) and get a suggested split across your expense categories, based on your average spending over the last 12 months (or a standard split where there is no history). Type a % of income for any category, or nudge it with +/-, and its $ amount updates alongside. Set a maximum expected expenses % (90% by default) and amounts automatically scale down proportionally to fit within it. Going over that maximum highlights a warning and suggests which categories to trim. Each category also shows a progress bar tracking actual spend against that plan for whichever month you've selected. "Save as My Budgets" turns the result into $ targets the rest of the app (like the Monthly Recap's over-budget count) uses.</li>
             <li><strong>Debt payoff goals</strong> (Debts page): each account shows a progress bar (% ever charged that's now paid off) and a projected payoff date based on your trailing 3-month average payment pace — no manual goal to set up.</li>
             <li><strong>Net Worth</strong> (Money page): a summary card and 12-month trend chart, calculated as your investments and capital minus whatever debt is currently Open (unpaid).</li>
             <li>Paying off a debt account or staying on budget for every category in a month triggers a little celebration 🎉.</li>
@@ -2511,7 +2512,7 @@ main{
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 202;
+const APP_VERSION = 203;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -2908,7 +2909,8 @@ function sumEntries(predicate, category, statusFilter){
 
 // Memoization cache for computeMonthFinancials - cleared whenever entries/settings change
 let _financialsCache = {};
-function invalidateFinancialsCache(){ _financialsCache = {}; }
+function invalidateFinancialsCache(){ _financialsCache = {}; _budgetHistoryCache = null; }
+let _budgetHistoryCache = null;
 
 // Compute the "Balance" for a given month, optionally restricted to Closed-only (Cashflow)
 // Returns full breakdown object.
@@ -6157,7 +6159,51 @@ function budgetPlannerSubcats(){
   // SETTINGS.taxRate, so it isn't a "spending choice" like the rest.
   return CATEGORY_MAP.Expense.filter(s => s !== 'Taxes').slice().sort((a,b)=>a.localeCompare(b));
 }
+// Average monthly spend per Expense subcategory (Taxes excluded) over up to
+// the 12 months before the viewed month. If the person has fewer than 12
+// months of data, it averages over the months they do have, so a short
+// history isn't diluted by empty months. A subcategory with no spend in
+// that window has no entry (-> the standard suggestion is used instead).
+function budgetHistory(){
+  const key = homeDate.getFullYear() + '-' + homeDate.getMonth();
+  if(_budgetHistoryCache && _budgetHistoryCache.key === key) return _budgetHistoryCache;
+  const result = { key, months: 0, avg: {} };
+  const viewStart = new Date(homeDate.getFullYear(), homeDate.getMonth(), 1);
+  let earliest = null;
+  entries.forEach(e=>{
+    const d = parseLocalDate(e.date);
+    if(!isNaN(d) && (earliest === null || d < earliest)) earliest = d;
+  });
+  if(earliest){
+    const windowStart = new Date(viewStart.getFullYear(), viewStart.getMonth() - 12, 1);
+    const histStart = earliest > windowStart ? new Date(earliest.getFullYear(), earliest.getMonth(), 1) : windowStart;
+    const months = (viewStart.getFullYear() - histStart.getFullYear()) * 12 + (viewStart.getMonth() - histStart.getMonth());
+    if(months > 0){
+      result.months = months;
+      const sums = {};
+      entries.forEach(e=>{
+        if(e.category !== 'Expense' || e.subcategory === 'Taxes') return;
+        const d = parseLocalDate(e.date);
+        if(d >= histStart && d < viewStart){ sums[e.subcategory] = (sums[e.subcategory] || 0) + Number(e.amount); }
+      });
+      Object.keys(sums).forEach(sub=>{
+        const avg = Math.round(sums[sub] / months);
+        if(avg > 0) result.avg[sub] = avg;
+      });
+    }
+  }
+  _budgetHistoryCache = result;
+  return result;
+}
+// The suggested % for a subcategory: its historical monthly average as a
+// share of the planner's income, or the standard baseline when there is no
+// history (or no income to divide by).
 function budgetPlannerSuggested(sub){
+  const hist = budgetHistory().avg[sub];
+  if(hist !== undefined){
+    const income = budgetPlannerIncomeFor(homeDate);
+    if(income > 0) return hist / income * 100;
+  }
   return SUGGESTED_BUDGET_PCT[sub] !== undefined ? SUGGESTED_BUDGET_PCT[sub] : BUDGET_PLANNER_DEFAULT_PCT;
 }
 function budgetPlannerPct(sub){
@@ -6460,6 +6506,15 @@ function renderBudgetsView(){
     btn.classList.toggle('active', on);
     btn.setAttribute('aria-selected', on ? 'true' : 'false');
   });
+
+  const noteEl = document.getElementById('budgetSuggestionNote');
+  const hist = budgetHistory();
+  if(BUDGET_PLANNER_VIEW === 'plan' && income > 0 && Object.keys(hist.avg).length > 0){
+    noteEl.textContent = `Suggestions use your average spending over the last ${hist.months === 1 ? 'month' : hist.months + ' months'} where there is history.`;
+    noteEl.style.display = '';
+  } else {
+    noteEl.style.display = 'none';
+  }
 
   const moreBtn = document.getElementById('budgetPlannerMoreBtn');
   if(moreBtn){
@@ -9264,7 +9319,7 @@ const TOUR_STEPS = [
   { view:'money', target:'#view-money .summary-grid', title:'Money, at a glance', text:'What you\u2019ve invested, what\u2019s planned, your cumulative total, capital gains/losses, and your overall net position.' },
   { view:'money', target:'#moneyProgressFill', title:'Plan progress', text:'How much of this month\u2019s planned investing is actually done (Closed) versus still Open.' },
   { view:'money', target:'#netWorthChart', title:'Net worth over time', text:'Your invested balance plus capital gains/losses, tracked month by month.' },
-  { view:'more', target:'#budgetsBtn', title:'Budgets', text:'A beginner-friendly planner: enter your income, get a suggested split per category, type or nudge the % for each category until it fits, and track actual spend against the plan each month.' },
+  { view:'more', target:'#budgetsBtn', title:'Budgets', text:'A beginner-friendly planner: enter your income, get a split per category suggested from your 12-month average, type or nudge the % for each category until it fits, and track actual spend against the plan each month.' },
   { view:'more', target:'#creditLimitsBtn', title:'Credit Limits', text:'Set the total limit on each credit card to see available credit and usage \u2014 shown here and on the Debts page.' },
   { view:'more', target:'#settingsBtn', title:'Settings', text:'Manage your categories and subcategories, and the specific accounts under each debt type.' },
   { view:'more', target:'#dataManagementBtn', title:'Data & Cloud Sync', text:'Import or export a CSV, back up or restore your data, and optionally sync across devices with your own Google Sheet.' },
