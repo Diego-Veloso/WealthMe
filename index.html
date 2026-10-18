@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v217 -->
+<!-- WEALTH.ME — v218 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -23,7 +23,8 @@
 html{-webkit-text-size-adjust:100%;text-size-adjust:100%;}
 :root{
   --navy:#002448;
-  --cream:#E6F7FE;
+  --cream:#EDF0F3;
+  --segmented-bg:#DFE4E9;
   --card:#FFFFFF;
   --sage:#3E7C59;
   --sage-light:#E7F0EA;
@@ -53,6 +54,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%;}
 [data-theme="dark"]{
   --navy:#E9E7E2;
   --cream:#161A1F;
+  --segmented-bg:var(--slate-light);
   --card:#20262E;
   --sage:#6BB088;
   --sage-light:#1C2B22;
@@ -460,7 +462,7 @@ main{
 #debtList{will-change:transform;}
 .segmented{
   display:flex;
-  background:var(--slate-light);
+  background:var(--segmented-bg);   /* a touch deeper than slate-light so it stands out on the page background */
   border-radius:10px;
   padding:3px;
   gap:2px;
@@ -1693,7 +1695,7 @@ main{
         </button>
       </div>
       <div id="refreshStatus" class="muted" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 217</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 218</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -1734,7 +1736,7 @@ main{
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 217</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 218</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -2662,7 +2664,7 @@ main{
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 217;
+const APP_VERSION = 218;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
