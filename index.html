@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v216 -->
+<!-- WEALTH.ME — v217 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -100,9 +100,7 @@ body{
   z-index:50;
   transition:background .2s ease;
 }
-.topbar.insights-active{background:var(--insights-page-bg);}
-.topbar.insights-active .logo-text{color:#fff;}
-.topbar.insights-active .logo-text span{color:#BFE3FF;}
+
 .logo{
   display:flex;
   align-items:center;
@@ -256,10 +254,9 @@ main{
 }
 #view-home,
 #view-detail,
-#view-insights,
 #view-budgets{touch-action:pan-y pinch-zoom;}
 .insights-swipe-area{touch-action:pan-y;overflow-x:hidden;overscroll-behavior-x:none;min-height:55vh;}
-#view-insights > h2.card-title,
+#view-insights .insights-sheet-head h2,
 #view-insights .month-nav .label,
 #view-insights .debt-type-title,
 #view-insights .debt-type-arrow{color:#fff;}
@@ -272,10 +269,27 @@ main{
 #insightsContainer.with-headings .card > .insights-sub{padding-bottom:10px;margin-bottom:10px;border-bottom:1px solid var(--line);}
 .view{display:none;}
 .view.active{display:block;animation:fadeIn .25s ease;}
-#view-insights.active{
+/* Insights opens as a popup sheet over the current page */
+.insights-popup{
+  position:fixed;inset:0;z-index:90;
+  display:none;align-items:flex-end;justify-content:center;
+  background:rgba(15,27,45,0.5);
+}
+.insights-popup.open{display:flex;}
+.insights-sheet{
+  width:100%;max-width:760px;
+  height:94vh;height:94dvh;
+  overflow-y:auto;overscroll-behavior:contain;
   background:var(--insights-page-bg);
-  margin:-4px -16px 0;      /* reach up over main's 4px top padding so no light strip shows under the top bar */
-  padding:16px 16px 0;
+  border-radius:20px 20px 0 0;
+  padding:0 16px calc(env(safe-area-inset-bottom,0px) + 24px);
+  animation:slideUp .25s ease;
+}
+.insights-sheet-head{
+  position:sticky;top:0;z-index:3;
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--insights-page-bg);
+  padding:16px 0 10px;
 }
 @keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
 @keyframes confettiFall{
@@ -1112,6 +1126,8 @@ main{
   }
   .money-pager{display:none !important;}
   .insights-pager{display:none !important;}
+  .insights-popup{align-items:center;}
+  .insights-sheet{max-width:1100px;height:90vh;border-radius:20px;}
   .insights-swipe-area{min-height:0;}
   .money-swipe-area{min-height:0;}
   .money-page,
@@ -1628,27 +1644,7 @@ main{
     </section>
 
     <!-- ============ INSIGHTS VIEW ============ -->
-    <section class="view" id="view-insights">
-      <h2 class="card-title" style="margin:10px 0 14px;">Insights</h2>
-      <!-- Swipe this bar left / right to change month -->
-      <div class="month-nav" id="insightsMonthNav" style="touch-action:pan-y;margin-bottom:6px;">
-        <button id="insightsPrev">&#8249;</button>
-        <div class="label" id="insightsMonthLabel">June 2026</div>
-        <button id="insightsNext">&#8250;</button>
-      </div>
-      <!-- Swipe the report left / right to change section (dots show where you are) -->
-      <div class="debt-type-pager insights-pager" id="insightsPager" style="margin-top:0;margin-bottom:12px;display:none;">
-        <div class="debt-type-title">
-          <span class="debt-type-arrow" id="insightsArrowPrev" aria-hidden="true">&#8249;</span>
-          <span id="insightsPageTitle">Summary</span>
-          <span class="debt-type-arrow" id="insightsArrowNext" aria-hidden="true">&#8250;</span>
-        </div>
-        <div class="debt-type-dots" id="insightsDots" role="tablist" aria-label="Insights section"></div>
-      </div>
-      <div id="insightsSwipeArea" class="insights-swipe-area">
-        <div id="insightsContainer"></div>
-      </div>
-    </section>
+    
 
     <!-- Mobile-only page (reached from the bottom bar's More tab; desktop
          has no way to navigate here since Help/Settings/Data Management
@@ -1697,7 +1693,7 @@ main{
         </button>
       </div>
       <div id="refreshStatus" class="muted" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 216</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 217</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -1738,7 +1734,7 @@ main{
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 216</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 217</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -2567,6 +2563,36 @@ main{
     </div>
   </div>
 
+  <!-- ===== Insights popup (opens over whichever page you are on) ===== -->
+  <div class="insights-popup" id="view-insights" role="dialog" aria-modal="true" aria-label="Insights">
+    <div class="insights-sheet" id="insightsSheet">
+      <div class="insights-sheet-head">
+        <h2 class="card-title" style="margin:0;">Insights</h2>
+        <button class="icon-btn" id="insightsClose" aria-label="Close Insights">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <!-- Swipe this bar left / right to change month -->
+      <div class="month-nav" id="insightsMonthNav" style="touch-action:pan-y;margin:4px 0 6px;">
+        <button id="insightsPrev">&#8249;</button>
+        <div class="label" id="insightsMonthLabel">June 2026</div>
+        <button id="insightsNext">&#8250;</button>
+      </div>
+      <!-- Swipe the report left / right to change section (dots show where you are) -->
+      <div class="debt-type-pager insights-pager" id="insightsPager" style="margin-top:0;margin-bottom:12px;display:none;">
+        <div class="debt-type-title">
+          <span class="debt-type-arrow" id="insightsArrowPrev" aria-hidden="true">&#8249;</span>
+          <span id="insightsPageTitle">Summary</span>
+          <span class="debt-type-arrow" id="insightsArrowNext" aria-hidden="true">&#8250;</span>
+        </div>
+        <div class="debt-type-dots" id="insightsDots" role="tablist" aria-label="Insights section"></div>
+      </div>
+      <div id="insightsSwipeArea" class="insights-swipe-area">
+        <div id="insightsContainer"></div>
+      </div>
+    </div>
+  </div>
+
   <!-- ===== Move entries before deleting a subcategory ===== -->
   <div class="modal-overlay" id="reassignSubcatOverlay">
     <div class="modal reassign-modal" role="dialog" aria-modal="true" aria-labelledby="reassignSubcatTitle">
@@ -2636,7 +2662,7 @@ main{
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 216;
+const APP_VERSION = 217;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -4692,12 +4718,28 @@ document.getElementById('accountDetailModalOverlay').addEventListener('click', (
   if(e.target.id === 'accountDetailModalOverlay') closeAccountDetail();
 });
 
+/* Insights is a popup over the current page rather than a page of its own. */
+function insightsPopupOpen(){ return document.getElementById('view-insights').classList.contains('open'); }
+function openInsightsPopup(){
+  document.getElementById('view-insights').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  renderInsightsView();
+  document.getElementById('insightsSheet').scrollTop = 0;
+}
+function closeInsightsPopup(){
+  const el = document.getElementById('view-insights');
+  if(!el.classList.contains('open')) return;
+  el.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
 function switchView(viewName){
+  if(viewName === 'insights'){ openInsightsPopup(); return; }   // overlay: the page underneath stays put
+  closeInsightsPopup();
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   document.querySelectorAll('.navtab').forEach(t=>t.classList.remove('active'));
 
   const topbar = document.querySelector('.topbar');
-  if(topbar) topbar.classList.toggle('insights-active', viewName === 'insights');
 
   if(viewName === 'detail'){
     document.getElementById('view-detail').classList.add('active');
@@ -4728,6 +4770,7 @@ function switchView(viewName){
 }
 
 function renderCurrentView(viewName){
+  if(insightsPopupOpen()) renderInsightsView();   // data changed while the popup is open
   if(viewName === 'home') renderHome();
   else if(viewName === 'detail') renderDetail();
   else if(viewName === 'transactions') renderTransactions();
@@ -4868,7 +4911,7 @@ function ensureHeaderVisible(el){
 function goToInsightsPage(id, dir){
   slideSwap(document.getElementById('insightsContainer'), dir, ()=>{
     setInsightsPage(id);
-    ensureHeaderVisible(document.getElementById('insightsMonthNav'));
+    document.getElementById('insightsSheet').scrollTop = 0;
   }, 100, 60);
 }
 makeSwipeable(document.getElementById('insightsSwipeArea'), {
@@ -4882,7 +4925,7 @@ makeSwipeable(document.getElementById('insightsSwipeArea'), {
   },
   onSwipe: (dir)=>{
     setInsightsPage(INSIGHTS_PAGES[insightsPageIndex() + dir].id);
-    ensureHeaderVisible(document.getElementById('insightsMonthNav'));
+    document.getElementById('insightsSheet').scrollTop = 0;
   }
 });
 // Month: swipe the month bar (left = next month, right = previous)
@@ -4893,7 +4936,7 @@ makeSwipeable(document.getElementById('insightsMonthNav'), {
 });
 // Crossing the desktop breakpoint switches between "all cards" and "one section".
 insightsWide.addEventListener('change', ()=>{
-  if(getActiveViewName() === 'insights') renderInsightsView();
+  if(insightsPopupOpen()) renderInsightsView();
 });
 
 /* Donut category segmented control */
@@ -5702,6 +5745,15 @@ function scheduleUndoableStatusChange(entry, id, previousStatus){
 
 document.getElementById('addFab').addEventListener('click', ()=> openEntryModal(null));
 document.getElementById('insightsFab').addEventListener('click', ()=> switchView('insights'));
+document.getElementById('insightsClose').addEventListener('click', closeInsightsPopup);
+// tapping the dimmed area above the sheet closes it
+document.getElementById('view-insights').addEventListener('click', (e)=>{
+  if(e.target.id === 'view-insights') closeInsightsPopup();
+});
+// Escape closes it, unless another dialog is open on top
+document.addEventListener('keydown', (e)=>{
+  if(e.key === 'Escape' && insightsPopupOpen() && !document.querySelector('.modal-overlay.active')) closeInsightsPopup();
+});
 
 /* =========================================================
    RECURRING ENTRY — fill fields once, pick a frequency, and
