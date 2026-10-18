@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v215 -->
+<!-- WEALTH.ME — v216 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -48,6 +48,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%;}
      sampled from the logo), separate from --sky-light (still used for
      pill/chip backgrounds everywhere else). */
   --insights-bg:#B2E7FA;
+  --insights-page-bg:#3E6FA8;
 }
 [data-theme="dark"]{
   --navy:#E9E7E2;
@@ -65,6 +66,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%;}
   --sky-light:#1B2530;
   --line:#2B323B;
   --insights-bg:#1B2530;
+  --insights-page-bg:#2A4468;
 }
 *{box-sizing:border-box;}
 html,body{margin:0;padding:0;}
@@ -98,7 +100,9 @@ body{
   z-index:50;
   transition:background .2s ease;
 }
-.topbar.insights-active{background:var(--insights-bg);}
+.topbar.insights-active{background:var(--insights-page-bg);}
+.topbar.insights-active .logo-text{color:#fff;}
+.topbar.insights-active .logo-text span{color:#BFE3FF;}
 .logo{
   display:flex;
   align-items:center;
@@ -255,6 +259,13 @@ main{
 #view-insights,
 #view-budgets{touch-action:pan-y pinch-zoom;}
 .insights-swipe-area{touch-action:pan-y;overflow-x:hidden;overscroll-behavior-x:none;min-height:55vh;}
+#view-insights > h2.card-title,
+#view-insights .month-nav .label,
+#view-insights .debt-type-title,
+#view-insights .debt-type-arrow{color:#fff;}
+#view-insights .debt-type-dot{background:rgba(255,255,255,0.4);}
+#view-insights .debt-type-dot.active{background:#fff;}
+#insightsContainer .insights-fullspan:not(.card) > .muted{color:rgba(255,255,255,0.9);}
 /* Insights report cards: a rule under the title (and subtitle, where a card has one) makes it read as a heading. */
 #insightsContainer.with-headings .card > .card-title{padding-bottom:10px;margin-bottom:10px;border-bottom:1px solid var(--line);}
 #insightsContainer.with-headings .card > .card-title.has-sub{padding-bottom:0;margin-bottom:2px;border-bottom:none;}
@@ -262,9 +273,9 @@ main{
 .view{display:none;}
 .view.active{display:block;animation:fadeIn .25s ease;}
 #view-insights.active{
-  background:var(--insights-bg);
-  margin:0 -16px;
-  padding:12px 16px 0;
+  background:var(--insights-page-bg);
+  margin:-4px -16px 0;      /* reach up over main's 4px top padding so no light strip shows under the top bar */
+  padding:16px 16px 0;
 }
 @keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
 @keyframes confettiFall{
@@ -1686,7 +1697,7 @@ main{
         </button>
       </div>
       <div id="refreshStatus" class="muted" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 215</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 216</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -1727,7 +1738,7 @@ main{
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 215</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 216</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -2625,7 +2636,7 @@ main{
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 215;
+const APP_VERSION = 216;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
