@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v213 -->
+<!-- WEALTH.ME — v215 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -255,6 +255,10 @@ main{
 #view-insights,
 #view-budgets{touch-action:pan-y pinch-zoom;}
 .insights-swipe-area{touch-action:pan-y;overflow-x:hidden;overscroll-behavior-x:none;min-height:55vh;}
+/* Insights report cards: a rule under the title (and subtitle, where a card has one) makes it read as a heading. */
+#insightsContainer.with-headings .card > .card-title{padding-bottom:10px;margin-bottom:10px;border-bottom:1px solid var(--line);}
+#insightsContainer.with-headings .card > .card-title.has-sub{padding-bottom:0;margin-bottom:2px;border-bottom:none;}
+#insightsContainer.with-headings .card > .insights-sub{padding-bottom:10px;margin-bottom:10px;border-bottom:1px solid var(--line);}
 .view{display:none;}
 .view.active{display:block;animation:fadeIn .25s ease;}
 #view-insights.active{
@@ -1578,13 +1582,13 @@ main{
       <div class="money-page" data-page="accounts">
       <!-- Subcategory breakdown -->
       <div class="card">
-        <div class="card-title">By Account</div>
+        <div class="card-title" style="padding-bottom:10px;margin-bottom:10px;border-bottom:1px solid var(--line);">By Account</div>
         <div id="moneyBreakdown"></div>
       </div>
 
       <!-- All-time breakdown by subcategory -->
       <div class="card">
-        <div class="card-title">Investment Accounts</div>
+        <div class="card-title" style="padding-bottom:10px;margin-bottom:10px;border-bottom:1px solid var(--line);">Investment Accounts</div>
         <div id="moneyAllTimeBreakdown"></div>
       </div>
       </div><!-- /accounts -->
@@ -1682,7 +1686,7 @@ main{
         </button>
       </div>
       <div id="refreshStatus" class="muted" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 213</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 215</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -1723,7 +1727,7 @@ main{
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 213</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 215</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -2621,7 +2625,7 @@ main{
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 213;
+const APP_VERSION = 215;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -3614,6 +3618,7 @@ function pctColor(pct, invertGood){
 function renderInsightsView(){
   const container = document.getElementById('insightsContainer');
   if(!container) return;
+  container.classList.remove('with-headings');
   document.getElementById('insightsMonthLabel').textContent = fmtMonthYear(homeDate);
 
   const data = generateFinancialInsights(homeDate, insightsDirection);
@@ -3688,6 +3693,7 @@ function renderInsightsView(){
     insightsPagerActive = true;
     renderInsightsPager();
   }
+  container.classList.add('with-headings');
   container.innerHTML = toggleHtml + cardsHtml;
 
   wireCategoryRankingDrill();
@@ -3836,8 +3842,8 @@ function renderCategoryRankingCard(data){
   `).join('');
   return `
     <div class="card">
-      <div class="card-title">Where Your Money ${data.direction === 'future' ? 'Go' : 'Went'}</div>
-      <div class="muted" style="font-size:11px;margin-bottom:6px;">Tap a category to drill in</div>
+      <div class="card-title has-sub">Where Your Money ${data.direction === 'future' ? 'Go' : 'Went'}</div>
+      <div class="muted insights-sub" style="font-size:11px;">Tap a category to drill in</div>
       ${rows}
     </div>`;
 }
@@ -3848,7 +3854,7 @@ function renderCostReductionCard(data){
     .filter(c => !NEEDS_SUBCATEGORIES.has(c.subcategory))
     .sort((a,b)=> b.total - a.total);
   if(discretionaryCats.length === 0 || n.discTotal === 0){
-    return `<div class="card"><div class="card-title" style="margin-bottom:2px;"><span style="white-space:nowrap;">Cost-Cutting Opportunities</span><button type="button" class="insights-info-btn" data-explain-toggle="cost-cut" title="What is this?">i</button></div><div class="muted" style="font-size:13px;margin-bottom:12px;">Non-essential spending</div><div class="insights-explain" id="explain-cost-cut">Anything not on your Needs list (set in Settings).</div><div class="muted" style="font-size:12px;">Nothing detected in this period.</div></div>`;
+    return `<div class="card"><div class="card-title has-sub" style="margin-bottom:2px;"><span style="white-space:nowrap;">Cost-Cutting Opportunities</span><button type="button" class="insights-info-btn" data-explain-toggle="cost-cut" title="What is this?">i</button></div><div class="muted insights-sub" style="font-size:13px;">Non-essential spending</div><div class="insights-explain" id="explain-cost-cut">Anything not on your Needs list (set in Settings).</div><div class="muted" style="font-size:12px;">Nothing detected in this period.</div></div>`;
   }
   const monthlyDisc = n.discTotal / 12;
   const save10 = monthlyDisc * 0.10, save20 = monthlyDisc * 0.20;
@@ -3868,8 +3874,8 @@ function renderCostReductionCard(data){
 
   return `
     <div class="card">
-      <div class="card-title" style="margin-bottom:2px;"><span style="white-space:nowrap;">Cost-Cutting Opportunities</span><button type="button" class="insights-info-btn" data-explain-toggle="cost-cut" title="What is this?">i</button></div>
-      <div class="muted" style="font-size:13px;margin-bottom:12px;">Non-essential spending</div>
+      <div class="card-title has-sub" style="margin-bottom:2px;"><span style="white-space:nowrap;">Cost-Cutting Opportunities</span><button type="button" class="insights-info-btn" data-explain-toggle="cost-cut" title="What is this?">i</button></div>
+      <div class="muted insights-sub" style="font-size:13px;">Non-essential spending</div>
       <div class="insights-explain" id="explain-cost-cut">Anything not on your Needs list (set in Settings). The 10%/20% projections apply that cut to your monthly average.</div>
       <div class="muted" style="font-size:11.5px;margin-bottom:10px;">${fmtMoney(n.discTotal)} over 12 months (${n.discPct.toFixed(0)}% of total) — avg ${fmtMoney(monthlyDisc)}/month</div>
       <div style="background:var(--sky-light);border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:12.5px;line-height:1.5;">
