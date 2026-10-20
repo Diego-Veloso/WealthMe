@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v220 -->
+<!-- WEALTH.ME — v221 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -765,7 +765,7 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
 .export-action svg{flex-shrink:0;}
 .export-action:active{transform:scale(0.99);}
 .export-action.primary{background:var(--navy);color:var(--cream);border-color:var(--navy);}
-.export-preview summary{font-size:12.5px;font-weight:600;color:var(--slate);cursor:pointer;padding:4px 0;}
+
 #entryModalOverlay{
   z-index:145;
 }
@@ -1724,7 +1724,7 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
         </button>
       </div>
       <div id="refreshStatus" class="muted" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 220</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 221</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -1765,7 +1765,7 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 220</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 221</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -2674,14 +2674,7 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
         <button type="button" class="export-action" id="csvTextCopyBtn">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg><span><b>Copy text</b><small>Copy the CSV to paste somewhere else</small></span>
         </button>
-        <button type="button" class="export-action" id="csvTextOpenBtn">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h5"/></svg><span><b>Open in new tab</b><small>View it, then use your browser to save</small></span>
-        </button>
       </div>
-      <details class="export-preview">
-        <summary>Preview the text</summary>
-        <textarea id="csvTextArea" readonly style="min-height:140px;font-family:monospace;font-size:12px;margin-top:8px;"></textarea>
-      </details>
     </div>
   </div>
 
@@ -2703,7 +2696,7 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 220;
+const APP_VERSION = 221;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -6105,10 +6098,8 @@ function csvCanShareFile(){
 }
 function openCsvTextModal(title, content){
   document.getElementById('csvTextModalTitle').textContent = title;
-  document.getElementById('csvTextArea').value = content;
   const kb = Math.max(1, Math.round(new Blob([content]).size / 1024));
   document.getElementById('csvFileChip').textContent = `${_pendingCsv.filename || 'wealthme.csv'} \u00b7 ${kb} KB`;
-  document.querySelector('#csvTextModalOverlay details').open = false;
 
   // "Save to device" opens the phone's share / save sheet where the browser
   // supports it; otherwise it falls back to a normal download, and the
@@ -6142,28 +6133,23 @@ document.getElementById('csvTextSaveBtn').addEventListener('click', async ()=>{
 });
 
 document.getElementById('csvTextCopyBtn').addEventListener('click', async ()=>{
-  const textarea = document.getElementById('csvTextArea');
-  textarea.select();
-  textarea.setSelectionRange(0, textarea.value.length);
+  const text = _pendingCsv.content || '';
   try{
     if(navigator.clipboard && navigator.clipboard.writeText){
-      await navigator.clipboard.writeText(textarea.value);
+      await navigator.clipboard.writeText(text);
     } else {
+      // older browsers: copy through a temporary text box
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
       document.execCommand('copy');
+      document.body.removeChild(ta);
     }
     showToast('Copied to clipboard');
   }catch(err){
-    showToast('Copy failed — text is selected, use Ctrl/Cmd+C');
-  }
-});
-
-document.getElementById('csvTextOpenBtn').addEventListener('click', ()=>{
-  try{
-    const encoded = encodeURIComponent(_pendingCsv.content);
-    const win = window.open('data:text/csv;charset=utf-8,' + encoded, '_blank');
-    if(!win){ showToast('Pop-up blocked — copy the text instead'); }
-  }catch(err){
-    showToast('Pop-up blocked — copy the text instead');
+    showToast('Copy failed \u2014 try Save to device instead');
   }
 });
 
