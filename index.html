@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v221 -->
+<!-- WEALTH.ME — v222 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -752,6 +752,27 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
   font-size:12px;font-weight:600;color:var(--slate);
   background:var(--slate-light);border-radius:999px;padding:3px 10px;
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.receipt-scan-btn{
+  display:flex;align-items:center;gap:14px;width:100%;text-align:left;
+  padding:11px 14px;margin-bottom:12px;
+  border:1.5px dashed var(--sky);border-radius:12px;
+  background:var(--sky-light);color:var(--navy);
+  font-family:'Inter',sans-serif;font-size:14px;cursor:pointer;
+}
+.receipt-scan-btn svg{flex-shrink:0;color:var(--sky);}
+.receipt-scan-btn b{display:block;font-weight:600;}
+.receipt-scan-btn small{display:block;font-weight:500;font-size:11.5px;opacity:0.75;margin-top:1px;}
+.receipt-scan-btn:active{transform:scale(0.99);}
+.receipt-note{
+  margin:-4px 0 12px;padding:9px 12px;border-radius:10px;font-size:12.5px;line-height:1.45;
+  background:color-mix(in srgb, var(--sage) 14%, transparent);color:var(--navy);
+}
+.receipt-note.warn{background:color-mix(in srgb, var(--gold) 20%, transparent);}
+#receiptProgressOverlay{z-index:160;align-items:center;}
+#receiptProgressOverlay .modal.receipt-progress-modal{
+  width:calc(100% - 32px);max-width:380px;border-radius:20px;padding:20px;
+  box-shadow:0 24px 60px rgba(15,27,45,0.28);
 }
 .export-actions{display:flex;flex-direction:column;gap:8px;margin:12px 0 12px;}
 .export-action{
@@ -1724,7 +1745,7 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
         </button>
       </div>
       <div id="refreshStatus" class="muted" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 221</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 222</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -1765,7 +1786,7 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 221</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 222</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -1996,6 +2017,7 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
             <li><strong>Press and hold a slice</strong> of the donut chart to open Category Detail for that specific subcategory — a quick tap on a slice does nothing on purpose, so brushing the chart by accident never navigates away.</li>
             <li><strong>Press and hold a Transaction row</strong> to enter bulk-select mode — checkboxes appear on every row, and the held one gets checked. Tap any row to toggle it while in this mode; deselecting everything exits it automatically.</li>
             <li><strong>Swipe a row left or right</strong> to mark it Closed or delete it, with a 5-second Undo.</li>
+            <li><strong>Scan a receipt</strong>: in Add Entry tap Scan receipt and take a photo. The store, total, date and a suggested subcategory are filled in for you to check before saving. The photo is read on your device and never uploaded. The first scan downloads the reader (about 10 MB), so it needs a connection that one time.</li>
             <li><strong>Swipe a page left or right</strong> to move to the next or previous month on Home, Budgets and Category Detail (touch screens). On Money and Insights, swipe the month bar to change month, and swipe the page to switch sections.</li>
             <li><strong>Ctrl/Cmd+K</strong> opens the command palette to search pages and transactions from anywhere.</li>
           </ul>
@@ -2374,6 +2396,15 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
         </button>
       </div>
       <input type="hidden" id="entryId">
+      <!-- Scan a receipt: new entries only -->
+      <div id="receiptScanRow">
+        <button type="button" class="receipt-scan-btn" id="receiptScanBtn">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L8 6H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-3z"/><circle cx="12" cy="13" r="3.5"/></svg>
+          <span><b>Scan receipt</b><small>Take a photo and I fill in the details</small></span>
+        </button>
+        <input type="file" id="receiptFileInput" accept="image/*" hidden>
+        <div class="receipt-note" id="receiptNote" style="display:none;"></div>
+      </div>
       <div class="field">
         <label>Date</label>
         <input type="date" id="entryDate">
@@ -2628,6 +2659,17 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
     </div>
   </div>
 
+  <!-- ===== Receipt scan progress ===== -->
+  <div class="modal-overlay" id="receiptProgressOverlay">
+    <div class="modal receipt-progress-modal" role="dialog" aria-modal="true" aria-labelledby="receiptProgressTitle">
+      <h3 id="receiptProgressTitle" style="margin:0 0 4px;">Reading your receipt</h3>
+      <p class="muted" id="receiptProgressText" style="margin:0 0 14px;font-size:13.5px;">Preparing the photo&hellip;</p>
+      <div class="progress-track"><div class="progress-fill" id="receiptProgressFill" style="width:3%;"></div></div>
+      <p class="muted" style="margin:12px 0 16px;font-size:11.5px;">The photo is read on this device and is never uploaded.</p>
+      <button class="btn btn-secondary btn-block" id="receiptProgressCancel">Cancel</button>
+    </div>
+  </div>
+
   <!-- ===== Move entries before deleting a subcategory ===== -->
   <div class="modal-overlay" id="reassignSubcatOverlay">
     <div class="modal reassign-modal" role="dialog" aria-modal="true" aria-labelledby="reassignSubcatTitle">
@@ -2696,7 +2738,7 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 221;
+const APP_VERSION = 222;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -5620,6 +5662,7 @@ function openEntryModal(id){
     title.textContent = 'Edit Entry';
     deleteBtn.style.display = 'block';
     addRecurringBtn.style.display = 'none';
+    receiptUiReset(false);
     document.getElementById('entryId').value = entry.id;
     document.getElementById('entryDate').value = entry.date;
     populateEntryCategorySelectors(entry.category, entry.subcategory);
@@ -5635,6 +5678,7 @@ function openEntryModal(id){
     title.textContent = 'Add Entry';
     deleteBtn.style.display = 'none';
     addRecurringBtn.style.display = 'inline-flex';
+    receiptUiReset(true);
     document.getElementById('entryId').value = '';
     const today = new Date();
     document.getElementById('entryDate').value = formatLocalDate(today);
@@ -5654,6 +5698,372 @@ function closeEntryModal(){
 document.getElementById('entryModalClose').addEventListener('click', closeEntryModal);
 document.getElementById('entryModalOverlay').addEventListener('click', (e)=>{
   if(e.target.id === 'entryModalOverlay') closeEntryModal();
+});
+
+/* =========================================================
+   RECEIPT SCANNER — photo of a receipt -> pre-filled new entry.
+   Text is read on the device with Tesseract.js (loaded only when the
+   first scan is started). The person always reviews the form and taps Save.
+   ========================================================= */
+
+// <receipt-parser>
+const RECEIPT_MONTHS = { jan:1, feb:2, mar:3, apr:4, may:5, jun:6, jul:7, aug:8, sep:9, sept:9, oct:10, nov:11, dec:12 };
+
+// "1,234.56" / "1.234,56" / "12,34" / "12.34" -> number
+function receiptNormalizeAmount(str){
+  const t = String(str).replace(/[^\d.,]/g, '');
+  const lastDot = t.lastIndexOf('.'), lastComma = t.lastIndexOf(',');
+  const dec = Math.max(lastDot, lastComma);
+  if(dec === -1) return parseFloat(t);
+  const intPart = t.slice(0, dec).replace(/[.,]/g, '');
+  return parseFloat(intPart + '.' + t.slice(dec + 1));
+}
+
+// Every money-looking amount (always with two decimals) on a line.
+function receiptAmountsIn(line){
+  const cleaned = String(line)
+    .replace(/(\d)[Oo](?=\d|[.,]\s*\d)/g, (m, d)=> d + '0')    // "1O.50" / "1O. 50" -> "10.50"
+    .replace(/(\d)\s*([.,])\s*(\d{2})(?!\d)/g, '$1$2$3');       // "12. 34" -> "12.34"
+  const re = /(\d{1,3}(?:[.,]\d{3})+[.,]\d{2}|\d+[.,]\d{2})(?!\d)/g;
+  const out = [];
+  let m;
+  while((m = re.exec(cleaned))){
+    const v = receiptNormalizeAmount(m[1]);
+    if(isFinite(v) && v > 0 && v < 1000000) out.push(v);
+  }
+  return out;
+}
+
+const RECEIPT_DATE_LIKE = /\b\d{1,2}[\/.\-]\d{1,2}[\/.\-]\d{2,4}\b|\b20\d{2}[\/.\-]\d{1,2}[\/.\-]\d{1,2}\b/;
+
+function receiptFindTotal(lines){
+  const strong = /grand\s*total|total\s*due|amount\s*due|balance\s*due|total\s*to\s*pay|amount\s*to\s*pay|total\s*a\s*pagar|importe\s*total|montant\s*total/i;
+  const notTotalWord = /total\s*(tax|items?|savings?|saved|discounts?|points?|qty|quantity|number|tendered|paid\s*by)/i;
+  const skip = /sub\s*-?\s*total|\bsavings?\b|you\s*saved|\bitems?\b|\bqty\b|\bpoints?\b|\bdiscounts?\b|\bcoupons?\b|\btax(es)?\b|\bchange\b|\bcash\b|tender|\bgst\b|\bvat\b|\btip\b|\bgratuity\b/i;
+
+  let best = null;
+  lines.forEach((line, idx)=>{
+    let score = 0;
+    if(strong.test(line)) score = 5;
+    else if(/^\W*total\b/i.test(line) && !notTotalWord.test(line)) score = 3;
+    else if(/\btotal\b|\bimporte\b/i.test(line) && !skip.test(line)) score = 2;
+    else if(/amount\s*paid/i.test(line)) score = 1;
+    if(!score) return;
+    let amts = receiptAmountsIn(line);
+    if(!amts.length && lines[idx + 1]) amts = receiptAmountsIn(lines[idx + 1]).slice(0, 1);   // value printed on the next line
+    if(!amts.length) return;
+    const value = amts[amts.length - 1];
+    const rank = score + (idx / Math.max(1, lines.length)) * 0.9;   // later in the receipt wins ties
+    if(!best || rank > best.rank) best = { value, line, rank };
+  });
+  if(best) return { value: best.value, line: best.line, confident: true };
+
+  // No "total" label found: take the largest amount that is not change/cash/card/date noise.
+  const noise = /change|cash|tender|received|given|visa|master|debit|credit|card|auth|ref\b|phone|tel\b|date|time|invoice|order/i;
+  let max = null;
+  lines.forEach(line=>{
+    if(noise.test(line) || RECEIPT_DATE_LIKE.test(line)) return;
+    receiptAmountsIn(line).forEach(v=>{ if(max === null || v > max.value) max = { value: v, line }; });
+  });
+  return max ? { value: max.value, line: max.line, confident: false } : null;
+}
+
+function receiptLocaleDayFirst(){
+  try{
+    const parts = new Intl.DateTimeFormat(navigator.language || 'en-US').formatToParts(new Date(2000, 11, 25));
+    const order = parts.filter(p => p.type === 'day' || p.type === 'month').map(p => p.type);
+    return order[0] === 'day';
+  }catch(e){ return false; }
+}
+
+function receiptFindDate(text, today, dayFirst){
+  const valid = (y, m, d)=>{
+    if(y < 100) y += 2000;
+    const dt = new Date(y, m - 1, d);
+    if(dt.getFullYear() !== y || dt.getMonth() !== m - 1 || dt.getDate() !== d) return null;
+    const latest = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 2);
+    const earliest = new Date(today.getFullYear() - 6, today.getMonth(), today.getDate());
+    if(dt > latest || dt < earliest) return null;
+    return y + '-' + String(m).padStart(2, '0') + '-' + String(d).padStart(2, '0');
+  };
+  const found = [];   // { index, iso }
+  let m;
+  let re = /\b(20\d{2})[\/.\-](\d{1,2})[\/.\-](\d{1,2})\b/g;
+  while((m = re.exec(text))){ const iso = valid(+m[1], +m[2], +m[3]); if(iso) found.push({ index: m.index, iso }); }
+  re = /\b(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{4}|\d{2})\b/g;
+  while((m = re.exec(text))){
+    const a = +m[1], b = +m[2], y = +m[3];
+    let day, mon;
+    if(a > 12 && b <= 12){ day = a; mon = b; }
+    else if(b > 12 && a <= 12){ day = b; mon = a; }
+    else if(dayFirst){ day = a; mon = b; }
+    else { day = b; mon = a; }
+    const iso = valid(y, mon, day);
+    if(iso) found.push({ index: m.index, iso });
+  }
+  const mon = '(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)';
+  re = new RegExp('\\b' + mon + '\\.?\\s+(\\d{1,2})(?:st|nd|rd|th)?,?\\s+(\\d{4}|\\d{2})\\b', 'gi');
+  while((m = re.exec(text))){ const iso = valid(+m[3], RECEIPT_MONTHS[m[1].toLowerCase().slice(0, 4) === 'sept' ? 'sept' : m[1].toLowerCase().slice(0, 3)], +m[2]); if(iso) found.push({ index: m.index, iso }); }
+  re = new RegExp('\\b(\\d{1,2})\\s+' + mon + '\\.?,?\\s+(\\d{4}|\\d{2})\\b', 'gi');
+  while((m = re.exec(text))){ const iso = valid(+m[3], RECEIPT_MONTHS[m[2].toLowerCase().slice(0, 4) === 'sept' ? 'sept' : m[2].toLowerCase().slice(0, 3)], +m[1]); if(iso) found.push({ index: m.index, iso }); }
+  if(!found.length) return null;
+  found.sort((x, y)=> x.index - y.index);
+  return found[0].iso;
+}
+
+function receiptFindMerchant(lines){
+  const skip = /receipt|welcome|thank|invoice|\btel\b|phone|www\.|http|@|store\s*(#|no)|cashier|register|order|table|customer|copy|survey|sale\b|\bvisit\b|manager|please|come again/i;
+  const addressLike = /^\d+\s+\w+|\b(st|street|ave|avenue|rd|road|blvd|dr|drive|ln|lane|way|hwy|suite|ste)\b\.?\s*\d*\s*$/i;
+  for(const raw of lines.slice(0, 10)){
+    let line = raw.replace(/[^A-Za-z0-9&'.,\-\s]/g, ' ').replace(/\s+/g, ' ').trim();
+    const letters = (line.match(/[A-Za-z]/g) || []).length;
+    const digits = (line.match(/\d/g) || []).length;
+    if(letters < 3 || digits > letters) continue;
+    if(skip.test(line) || addressLike.test(line)) continue;
+    if(RECEIPT_DATE_LIKE.test(line) || /\d{3}[\s\-.]\d{3,4}/.test(line)) continue;
+    line = line.replace(/^[^A-Za-z0-9]+|[^A-Za-z0-9.)]+$/g, '');
+    if(line === line.toUpperCase()){
+      line = line.toLowerCase().replace(/\b([a-z])/g, c => c.toUpperCase());
+    }
+    return line.slice(0, 40);
+  }
+  return '';
+}
+
+// Subcategory guesses from the store name (then the rest of the text). Only
+// subcategories that exist in the person's list are ever returned.
+const RECEIPT_RULES = [
+  ['Pets',           /\bpet\b|petco|petsmart|\bvet\b|veterinar/i],
+  ['Health',         /pharmacy|cvs|walgreens|rite\s*aid|\bdrug|clinic|dental|dentist|hospital|medical|optical|vision\b|urgent care/i],
+  ['Beauty',         /salon|barber|\bspa\b|beauty|sephora|ulta|\bnails?\b|cosmetic/i],
+  ['Transportation', /\bshell\b|chevron|exxon|mobil\b|\bbp\b|texaco|\bgas\b|fuel|petrol|sunoco|speedway|valero|\buber\b|lyft|parking|\btoll|metro\b|transit|taxi/i],
+  ['Meal & Drinks',  /restaurant|cafe|caf\u00e9|coffee|starbucks|mcdonald|burger|pizza|taco|chipotle|subway\b|kfc|wendy|dunkin|\bbar\b|grill|diner|bistro|bakery|sushi|bbq|kitchen|tavern|\bpub\b|\bdeli\b/i],
+  ['Entertainment',  /cinema|theat(er|re)|\bamc\b|netflix|spotify|ticket|bowling|arcade/i],
+  ['Education',      /school|college|universit|tuition|course|bookstore/i],
+  ['Travel',         /hotel|airline|airways|airport|flight|airbnb|booking\.com|hostel|resort|motel/i],
+  ['Communication',  /verizon|at&t|t-?mobile|comcast|xfinity|internet|wireless|telecom/i],
+  ['Home',           /home\s*depot|lowe'?s|\bikea\b|hardware|furniture|garden|bed\s*bath|ace\s*hardware/i],
+  ['Groceries',      /walmart|target|costco|kroger|safeway|publix|aldi|lidl|trader\s*joe|whole\s*foods|sprouts|wegmans|\bheb\b|h-e-b|food\s*lion|giant|meijer|supermarket|grocer|market|mercado|carrefour|tesco|sainsbury|woolworths|coles|albertsons|vons|ralphs|winco|stop\s*&\s*shop|piggly|fresh/i],
+  ['Shopping',       /amazon|best\s*buy|\bmall\b|\bstore\b|shop|apparel|clothing|h&m|zara|nike|adidas|old\s*navy|tj\s*maxx|\bross\b|marshalls|kohl|macy/i]
+];
+function receiptGuessSubcategory(merchant, text, learned, expenseSubs){
+  const key = receiptMerchantKey(merchant);
+  if(key && learned && learned[key] && expenseSubs.includes(learned[key])) return learned[key];
+  for(const scope of [merchant, text]){
+    if(!scope) continue;
+    for(const [sub, re] of RECEIPT_RULES){
+      if(re.test(scope) && expenseSubs.includes(sub)) return sub;
+    }
+  }
+  return expenseSubs.includes('Other') ? 'Other' : null;
+}
+// "WALMART SUPERCENTER #1234" -> "walmartsupercenter" (first two words, letters only)
+function receiptMerchantKey(merchant){
+  return String(merchant || '').toLowerCase().replace(/[^a-z\s]/g, ' ').trim().split(/\s+/).slice(0, 2).join('');
+}
+
+function parseReceiptText(raw, today, opts){
+  opts = opts || {};
+  const lines = String(raw || '').split(/\r?\n/).map(l => l.replace(/\s+/g, ' ').trim()).filter(Boolean);
+  const total = receiptFindTotal(lines);
+  const merchant = receiptFindMerchant(lines);
+  return {
+    amount: total ? total.value : null,
+    amountConfident: !!(total && total.confident),
+    date: receiptFindDate(lines.join('\n'), today || new Date(), !!opts.dayFirst),
+    merchant,
+    subcategory: receiptGuessSubcategory(merchant, lines.join(' '), opts.learned, opts.expenseSubs || []),
+    lineCount: lines.length
+  };
+}
+// </receipt-parser>
+
+/* ---- what the scanner has learned about stores (this device only) ---- */
+function receiptLoadLearned(){
+  try{ return JSON.parse(localStorage.getItem('wealthme_receipt_map') || '{}') || {}; }catch(e){ return {}; }
+}
+let _receiptCtx = null;   // set after a scan so saving the entry can teach the scanner
+function receiptLearnFromSave(category, subcategory){
+  if(!_receiptCtx || !_receiptCtx.merchantKey || category !== 'Expense') { _receiptCtx = null; return; }
+  const map = receiptLoadLearned();
+  map[_receiptCtx.merchantKey] = subcategory;
+  try{ localStorage.setItem('wealthme_receipt_map', JSON.stringify(map)); }catch(e){}
+  _receiptCtx = null;
+}
+function receiptUiReset(showScan){
+  _receiptCtx = null;
+  document.getElementById('receiptScanRow').style.display = showScan ? '' : 'none';
+  const note = document.getElementById('receiptNote');
+  note.style.display = 'none';
+  note.textContent = '';
+}
+
+/* ---- loading the reader on demand ---- */
+const TESSERACT_URL = 'https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/5.1.1/tesseract.min.js';
+let _tessLoading = null, _receiptWorker = null, _receiptLogger = null, _receiptRun = 0;
+function loadTesseract(){
+  if(window.Tesseract) return Promise.resolve();
+  if(_tessLoading) return _tessLoading;
+  _tessLoading = new Promise((resolve, reject)=>{
+    const sc = document.createElement('script');
+    sc.src = TESSERACT_URL;
+    sc.crossOrigin = 'anonymous';
+    sc.onload = ()=> resolve();
+    sc.onerror = ()=>{ _tessLoading = null; reject(new Error('scanner-load')); };
+    document.head.appendChild(sc);
+  });
+  return _tessLoading;
+}
+async function getReceiptWorker(){
+  if(_receiptWorker) return _receiptWorker;
+  await loadTesseract();
+  const worker = await Tesseract.createWorker('eng', 1, { logger: m => { if(_receiptLogger) _receiptLogger(m); } });
+  try{ await worker.setParameters({ tessedit_pageseg_mode: '4', preserve_interword_spaces: '1' }); }catch(e){}
+  _receiptWorker = worker;
+  return worker;
+}
+
+/* ---- photo -> clean greyscale canvas ---- */
+async function receiptImageToCanvas(file){
+  let bmp;
+  try{ bmp = await createImageBitmap(file); }
+  catch(e){
+    bmp = await new Promise((resolve, reject)=>{
+      const img = new Image();
+      img.onload = ()=> resolve(img);
+      img.onerror = reject;
+      img.src = URL.createObjectURL(file);
+    });
+  }
+  const w0 = bmp.width || bmp.naturalWidth, h0 = bmp.height || bmp.naturalHeight;
+  const longest = Math.max(w0, h0);
+  const scale = longest < 1000 ? 2 : Math.min(1, 2200 / longest);
+  const w = Math.max(1, Math.round(w0 * scale)), h = Math.max(1, Math.round(h0 * scale));
+  const canvas = document.createElement('canvas');
+  canvas.width = w; canvas.height = h;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(bmp, 0, 0, w, h);
+  if(bmp.close) try{ bmp.close(); }catch(e){}
+
+  const img = ctx.getImageData(0, 0, w, h), d = img.data, hist = new Uint32Array(256);
+  for(let i = 0; i < d.length; i += 4){
+    const g = ((d[i] * 299 + d[i + 1] * 587 + d[i + 2] * 114) / 1000) | 0;
+    d[i] = d[i + 1] = d[i + 2] = g;
+    hist[g]++;
+  }
+  // stretch the contrast between the 2nd and 98th percentile
+  const total = w * h;
+  let lo = 0, hi = 255, acc = 0;
+  for(let v = 0; v < 256; v++){ acc += hist[v]; if(acc >= total * 0.02){ lo = v; break; } }
+  acc = 0;
+  for(let v = 255; v >= 0; v--){ acc += hist[v]; if(acc >= total * 0.02){ hi = v; break; } }
+  if(hi - lo < 30){ lo = 0; hi = 255; }
+  const k = 255 / (hi - lo);
+  for(let i = 0; i < d.length; i += 4){
+    let v = (d[i] - lo) * k;
+    v = v < 0 ? 0 : v > 255 ? 255 : v;
+    d[i] = d[i + 1] = d[i + 2] = v;
+  }
+  ctx.putImageData(img, 0, 0);
+  return canvas;
+}
+
+/* ---- progress popup ---- */
+function receiptShowProgress(text, pct){
+  document.getElementById('receiptProgressText').textContent = text;
+  document.getElementById('receiptProgressFill').style.width = Math.max(3, Math.min(100, pct)) + '%';
+  document.getElementById('receiptProgressOverlay').classList.add('active');
+}
+function receiptHideProgress(){
+  document.getElementById('receiptProgressOverlay').classList.remove('active');
+}
+
+/* ---- fill the new-entry form from what was read ---- */
+function receiptShowNote(html, warn){
+  const note = document.getElementById('receiptNote');
+  note.innerHTML = html;
+  note.classList.toggle('warn', !!warn);
+  note.style.display = '';
+}
+function receiptEscape(t){ return String(t).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+function applyReceiptToForm(r){
+  const sub = r.subcategory || CATEGORY_MAP.Expense[0];
+  populateEntryCategorySelectors('Expense', sub);
+  if(r.amount !== null) document.getElementById('entryAmount').value = r.amount.toFixed(2);
+  if(r.date) document.getElementById('entryDate').value = r.date;
+  setStatusToggle('Closed');   // a receipt is something already paid
+  document.getElementById('entryNotes').value = r.merchant || 'Receipt';
+  _receiptCtx = { merchantKey: receiptMerchantKey(r.merchant) };
+
+  const bits = [];
+  if(r.merchant) bits.push(`<b>${receiptEscape(r.merchant)}</b>`);
+  if(r.amount !== null) bits.push(fmtMoney(r.amount));
+  if(r.date) bits.push(r.date);
+  if(r.subcategory) bits.push(receiptEscape(r.subcategory));
+  if(r.amount === null){
+    receiptShowNote('I couldn\u2019t find a total on that photo. Try a flatter, brighter shot, or type the amount in.', true);
+  } else if(!r.amountConfident){
+    receiptShowNote(`Read: ${bits.join(' \u00b7 ')}<br>I couldn\u2019t find a \u201cTotal\u201d line, so I picked the largest amount. <b>Please check it.</b>`, true);
+  } else {
+    receiptShowNote(`Read: ${bits.join(' \u00b7 ')}<br>Please check the details, then tap Save Entry.`, false);
+  }
+  const body = document.querySelector('#entryModalOverlay .modal');
+  if(body) body.scrollTop = 0;
+}
+
+async function scanReceiptFile(file){
+  const run = ++_receiptRun;
+  const alive = ()=> run === _receiptRun;
+  try{
+    receiptShowProgress('Preparing the photo\u2026', 4);
+    const canvas = await receiptImageToCanvas(file);
+    if(!alive()) return;
+    receiptShowProgress('Loading the reader\u2026 (first scan only, needs a connection)', 10);
+    _receiptLogger = null;
+    const worker = await getReceiptWorker();
+    if(!alive()) return;
+    _receiptLogger = (m)=>{
+      if(!alive()) return;
+      if(m.status === 'recognizing text') receiptShowProgress('Reading the receipt\u2026', 20 + Math.round((m.progress || 0) * 75));
+    };
+    receiptShowProgress('Reading the receipt\u2026', 20);
+    const result = await worker.recognize(canvas);
+    if(!alive()) return;
+    const text = (result && result.data && result.data.text) || '';
+    const parsed = parseReceiptText(text, new Date(), {
+      dayFirst: receiptLocaleDayFirst(),
+      learned: receiptLoadLearned(),
+      expenseSubs: CATEGORY_MAP.Expense
+    });
+    receiptHideProgress();
+    applyReceiptToForm(parsed);
+  }catch(err){
+    if(!alive()) return;
+    receiptHideProgress();
+    if(err && err.message === 'scanner-load'){
+      showToast('Couldn\u2019t load the reader \u2014 check your connection (needed the first time)');
+    } else {
+      showToast('Couldn\u2019t read that photo \u2014 try again or type it in');
+    }
+  }
+}
+
+document.getElementById('receiptScanBtn').addEventListener('click', ()=>{
+  document.getElementById('receiptFileInput').click();
+});
+document.getElementById('receiptFileInput').addEventListener('change', (e)=>{
+  const file = e.target.files && e.target.files[0];
+  e.target.value = '';
+  if(file) scanReceiptFile(file);
+});
+document.getElementById('receiptProgressCancel').addEventListener('click', ()=>{
+  _receiptRun++;               // any result that arrives later is ignored
+  receiptHideProgress();
+  if(_receiptWorker){          // stop the reading that is in progress
+    try{ _receiptWorker.terminate(); }catch(e){}
+    _receiptWorker = null;
+  }
 });
 
 document.getElementById('entrySaveBtn').addEventListener('click', ()=>{
@@ -5707,6 +6117,7 @@ document.getElementById('entrySaveBtn').addEventListener('click', ()=>{
       if(account){ newEntry.account = account; }
     }
     entries.push(newEntry);
+    receiptLearnFromSave(category, subcategory);
     showToast('Entry added');
     saveState();
     closeEntryModal();
