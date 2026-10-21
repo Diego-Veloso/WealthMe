@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v222 -->
+<!-- WEALTH.ME — v223 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1745,7 +1745,7 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
         </button>
       </div>
       <div id="refreshStatus" class="muted" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 222</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 223</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -1786,7 +1786,7 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 222</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 223</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -2017,7 +2017,7 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
             <li><strong>Press and hold a slice</strong> of the donut chart to open Category Detail for that specific subcategory — a quick tap on a slice does nothing on purpose, so brushing the chart by accident never navigates away.</li>
             <li><strong>Press and hold a Transaction row</strong> to enter bulk-select mode — checkboxes appear on every row, and the held one gets checked. Tap any row to toggle it while in this mode; deselecting everything exits it automatically.</li>
             <li><strong>Swipe a row left or right</strong> to mark it Closed or delete it, with a 5-second Undo.</li>
-            <li><strong>Scan a receipt</strong>: in Add Entry tap Scan receipt and take a photo. The store, total, date and a suggested subcategory are filled in for you to check before saving. The photo is read on your device and never uploaded. The first scan downloads the reader (about 10 MB), so it needs a connection that one time.</li>
+            <li><strong>Scan a receipt</strong>: in Add Entry tap Scan receipt, then take a photo or choose a PDF from your phone. The store, total, date and a suggested subcategory are filled in for you to check before saving. Files are read on your device and never uploaded. The first photo scan downloads the reader (about 10 MB) and the first PDF a small PDF reader, so each needs a connection that one time.</li>
             <li><strong>Swipe a page left or right</strong> to move to the next or previous month on Home, Budgets and Category Detail (touch screens). On Money and Insights, swipe the month bar to change month, and swipe the page to switch sections.</li>
             <li><strong>Ctrl/Cmd+K</strong> opens the command palette to search pages and transactions from anywhere.</li>
           </ul>
@@ -2400,9 +2400,9 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
       <div id="receiptScanRow">
         <button type="button" class="receipt-scan-btn" id="receiptScanBtn">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L8 6H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-3z"/><circle cx="12" cy="13" r="3.5"/></svg>
-          <span><b>Scan receipt</b><small>Take a photo and I fill in the details</small></span>
+          <span><b>Scan receipt</b><small>Take a photo or choose a PDF</small></span>
         </button>
-        <input type="file" id="receiptFileInput" accept="image/*" hidden>
+        <input type="file" id="receiptFileInput" accept="image/*,application/pdf,.pdf" hidden>
         <div class="receipt-note" id="receiptNote" style="display:none;"></div>
       </div>
       <div class="field">
@@ -2738,7 +2738,7 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 222;
+const APP_VERSION = 223;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -5737,7 +5737,7 @@ function receiptAmountsIn(line){
 const RECEIPT_DATE_LIKE = /\b\d{1,2}[\/.\-]\d{1,2}[\/.\-]\d{2,4}\b|\b20\d{2}[\/.\-]\d{1,2}[\/.\-]\d{1,2}\b/;
 
 function receiptFindTotal(lines){
-  const strong = /grand\s*total|total\s*due|amount\s*due|balance\s*due|total\s*to\s*pay|amount\s*to\s*pay|total\s*a\s*pagar|importe\s*total|montant\s*total/i;
+  const strong = /grand\s*total|total\s*due|amount\s*due|balance\s*due|total\s*to\s*pay|amount\s*to\s*pay|total\s*a\s*pagar|importe\s*total|montant\s*total|amount\s*charged|total\s*charged|total\s*paid|payment\s*total|order\s*total|invoice\s*total/i;
   const notTotalWord = /total\s*(tax|items?|savings?|saved|discounts?|points?|qty|quantity|number|tendered|paid\s*by)/i;
   const skip = /sub\s*-?\s*total|\bsavings?\b|you\s*saved|\bitems?\b|\bqty\b|\bpoints?\b|\bdiscounts?\b|\bcoupons?\b|\btax(es)?\b|\bchange\b|\bcash\b|tender|\bgst\b|\bvat\b|\btip\b|\bgratuity\b/i;
 
@@ -5815,6 +5815,9 @@ function receiptFindMerchant(lines){
   const skip = /receipt|welcome|thank|invoice|\btel\b|phone|www\.|http|@|store\s*(#|no)|cashier|register|order|table|customer|copy|survey|sale\b|\bvisit\b|manager|please|come again/i;
   const addressLike = /^\d+\s+\w+|\b(st|street|ave|avenue|rd|road|blvd|dr|drive|ln|lane|way|hwy|suite|ste)\b\.?\s*\d*\s*$/i;
   for(const raw of lines.slice(0, 10)){
+    // online receipts: "Receipt from Uber", "Your order from Chipotle"
+    const fromStore = raw.match(/\b(?:receipt|invoice|order|payment|statement)\s+from\s+([A-Za-z0-9&'.\-][A-Za-z0-9&'.,\-\s]{1,38})/i);
+    if(fromStore) return fromStore[1].replace(/\s+/g, ' ').trim().replace(/[.,\-]+$/, '').slice(0, 40);
     let line = raw.replace(/[^A-Za-z0-9&'.,\-\s]/g, ' ').replace(/\s+/g, ' ').trim();
     const letters = (line.match(/[A-Za-z]/g) || []).length;
     const digits = (line.match(/\d/g) || []).length;
@@ -5875,6 +5878,24 @@ function parseReceiptText(raw, today, opts){
     subcategory: receiptGuessSubcategory(merchant, lines.join(' '), opts.learned, opts.expenseSubs || []),
     lineCount: lines.length
   };
+}
+
+// pdf.js hands back separate pieces of text with positions; put the pieces
+// that share a baseline back together as one line, top to bottom.
+function receiptPdfItemsToLines(items){
+  const rows = [];
+  (items || []).forEach(it=>{
+    const str = it && it.str ? String(it.str) : '';
+    if(!str.trim() || !it.transform) return;
+    const x = it.transform[4], y = it.transform[5];
+    let row = rows.find(r => Math.abs(r.y - y) <= 2.5);
+    if(!row){ row = { y, parts: [] }; rows.push(row); }
+    row.parts.push({ x, str });
+  });
+  rows.sort((a, b)=> b.y - a.y);
+  return rows
+    .map(r => r.parts.sort((a, b)=> a.x - b.x).map(p => p.str.trim()).join(' ').replace(/\s+/g, ' ').trim())
+    .filter(Boolean);
 }
 // </receipt-parser>
 
@@ -5941,10 +5962,15 @@ async function receiptImageToCanvas(file){
   const w = Math.max(1, Math.round(w0 * scale)), h = Math.max(1, Math.round(h0 * scale));
   const canvas = document.createElement('canvas');
   canvas.width = w; canvas.height = h;
-  const ctx = canvas.getContext('2d');
-  ctx.drawImage(bmp, 0, 0, w, h);
+  canvas.getContext('2d').drawImage(bmp, 0, 0, w, h);
   if(bmp.close) try{ bmp.close(); }catch(e){}
+  return receiptEnhanceCanvas(canvas);
+}
 
+// greyscale + contrast stretch, which helps the reader on photos and scans
+function receiptEnhanceCanvas(canvas){
+  const w = canvas.width, h = canvas.height;
+  const ctx = canvas.getContext('2d');
   const img = ctx.getImageData(0, 0, w, h), d = img.data, hist = new Uint32Array(256);
   for(let i = 0; i < d.length; i += 4){
     const g = ((d[i] * 299 + d[i + 1] * 587 + d[i + 2] * 114) / 1000) | 0;
@@ -5966,6 +5992,43 @@ async function receiptImageToCanvas(file){
   }
   ctx.putImageData(img, 0, 0);
   return canvas;
+}
+
+/* ---- PDFs: read the text inside them; scanned (picture-only) PDFs are rendered and read like a photo ---- */
+const PDFJS_BASE = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/';
+let _pdfLoading = null;
+function loadPdfJs(){
+  if(window.pdfjsLib){
+    window.pdfjsLib.GlobalWorkerOptions.workerSrc = window.pdfjsLib.GlobalWorkerOptions.workerSrc || (PDFJS_BASE + 'pdf.worker.min.js');
+    return Promise.resolve();
+  }
+  if(_pdfLoading) return _pdfLoading;
+  _pdfLoading = new Promise((resolve, reject)=>{
+    const sc = document.createElement('script');
+    sc.src = PDFJS_BASE + 'pdf.min.js';
+    sc.crossOrigin = 'anonymous';
+    sc.onload = ()=>{ window.pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS_BASE + 'pdf.worker.min.js'; resolve(); };
+    sc.onerror = ()=>{ _pdfLoading = null; reject(new Error('pdf-load')); };
+    document.head.appendChild(sc);
+  });
+  return _pdfLoading;
+}
+function receiptIsPdf(file){
+  return file.type === 'application/pdf' || /\.pdf$/i.test(file.name || '');
+}
+async function receiptPdfRenderPage(pdf, pageNum){
+  const page = await pdf.getPage(pageNum);
+  const base = page.getViewport({ scale: 1 });
+  const scale = Math.min(3, 2000 / Math.max(base.width, base.height)) || 1;
+  const viewport = page.getViewport({ scale: Math.max(1, scale) });
+  const canvas = document.createElement('canvas');
+  canvas.width = Math.round(viewport.width);
+  canvas.height = Math.round(viewport.height);
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  await page.render({ canvasContext: ctx, viewport }).promise;
+  return receiptEnhanceCanvas(canvas);
 }
 
 /* ---- progress popup ---- */
@@ -6015,22 +6078,69 @@ function applyReceiptToForm(r){
 async function scanReceiptFile(file){
   const run = ++_receiptRun;
   const alive = ()=> run === _receiptRun;
-  try{
-    receiptShowProgress('Preparing the photo\u2026', 4);
-    const canvas = await receiptImageToCanvas(file);
-    if(!alive()) return;
-    receiptShowProgress('Loading the reader\u2026 (first scan only, needs a connection)', 10);
+  const readCanvases = async (canvases)=>{
+    // Run the photo reader over one or more page images and join the text.
+    receiptShowProgress('Loading the reader\u2026 (first scan only, needs a connection)', 12);
     _receiptLogger = null;
     const worker = await getReceiptWorker();
-    if(!alive()) return;
-    _receiptLogger = (m)=>{
+    if(!alive()) return null;
+    let text = '';
+    for(let i = 0; i < canvases.length; i++){
+      _receiptLogger = (m)=>{
+        if(!alive()) return;
+        if(m.status === 'recognizing text'){
+          const part = (i + (m.progress || 0)) / canvases.length;
+          receiptShowProgress(canvases.length > 1 ? `Reading page ${i + 1} of ${canvases.length}\u2026` : 'Reading the receipt\u2026', 20 + Math.round(part * 75));
+        }
+      };
+      const result = await worker.recognize(canvases[i]);
+      if(!alive()) return null;
+      text += '\n' + ((result && result.data && result.data.text) || '');
+    }
+    return text;
+  };
+
+  try{
+    let text = '';
+    if(receiptIsPdf(file)){
+      receiptShowProgress('Opening the PDF\u2026', 4);
+      await loadPdfJs();
       if(!alive()) return;
-      if(m.status === 'recognizing text') receiptShowProgress('Reading the receipt\u2026', 20 + Math.round((m.progress || 0) * 75));
-    };
-    receiptShowProgress('Reading the receipt\u2026', 20);
-    const result = await worker.recognize(canvas);
-    if(!alive()) return;
-    const text = (result && result.data && result.data.text) || '';
+      const pdf = await pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise;
+      if(!alive()) return;
+
+      // 1) PDFs made on a computer (emailed or online receipts) contain real text: read it directly.
+      const pages = Math.min(pdf.numPages, 8);
+      let lines = [];
+      for(let i = 1; i <= pages; i++){
+        receiptShowProgress(`Reading page ${i} of ${pages}\u2026`, 6 + Math.round((i / pages) * 70));
+        const page = await pdf.getPage(i);
+        const content = await page.getTextContent();
+        lines = lines.concat(receiptPdfItemsToLines(content.items));
+        if(!alive()) return;
+      }
+      text = lines.join('\n');
+
+      // 2) Scanned PDFs are only pictures: draw the first pages and read them like photos.
+      if(text.replace(/\s/g, '').length < 40){
+        const n = Math.min(pdf.numPages, 3);
+        const canvases = [];
+        for(let i = 1; i <= n; i++){
+          receiptShowProgress(`Preparing page ${i} of ${n}\u2026`, 6 + Math.round((i / n) * 5));
+          canvases.push(await receiptPdfRenderPage(pdf, i));
+          if(!alive()) return;
+        }
+        text = await readCanvases(canvases);
+        if(text === null) return;
+      }
+    } else {
+      receiptShowProgress('Preparing the photo\u2026', 4);
+      const canvas = await receiptImageToCanvas(file);
+      if(!alive()) return;
+      text = await readCanvases([canvas]);
+      if(text === null) return;
+    }
+
     const parsed = parseReceiptText(text, new Date(), {
       dayFirst: receiptLocaleDayFirst(),
       learned: receiptLoadLearned(),
@@ -6041,10 +6151,15 @@ async function scanReceiptFile(file){
   }catch(err){
     if(!alive()) return;
     receiptHideProgress();
+    const name = err && (err.name || err.message);
     if(err && err.message === 'scanner-load'){
       showToast('Couldn\u2019t load the reader \u2014 check your connection (needed the first time)');
+    } else if(err && err.message === 'pdf-load'){
+      showToast('Couldn\u2019t load the PDF reader \u2014 check your connection (needed the first time)');
+    } else if(name === 'PasswordException'){
+      showToast('That PDF is password-protected \u2014 open it, then try a screenshot instead');
     } else {
-      showToast('Couldn\u2019t read that photo \u2014 try again or type it in');
+      showToast('Couldn\u2019t read that file \u2014 try again or type it in');
     }
   }
 }
