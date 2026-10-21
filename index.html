@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v223 -->
+<!-- WEALTH.ME — v224 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1745,7 +1745,7 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
         </button>
       </div>
       <div id="refreshStatus" class="muted" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 223</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 224</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -1786,7 +1786,7 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 223</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 224</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -2017,7 +2017,7 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
             <li><strong>Press and hold a slice</strong> of the donut chart to open Category Detail for that specific subcategory — a quick tap on a slice does nothing on purpose, so brushing the chart by accident never navigates away.</li>
             <li><strong>Press and hold a Transaction row</strong> to enter bulk-select mode — checkboxes appear on every row, and the held one gets checked. Tap any row to toggle it while in this mode; deselecting everything exits it automatically.</li>
             <li><strong>Swipe a row left or right</strong> to mark it Closed or delete it, with a 5-second Undo.</li>
-            <li><strong>Scan a receipt</strong>: in Add Entry tap Scan receipt, then take a photo or choose a PDF from your phone. The store, total, date and a suggested subcategory are filled in for you to check before saving. Files are read on your device and never uploaded. The first photo scan downloads the reader (about 10 MB) and the first PDF a small PDF reader, so each needs a connection that one time.</li>
+            <li><strong>Scan a receipt</strong>: in Add Entry tap Scan receipt, then take a photo or choose a PDF from your phone. The store, total, date and a suggested subcategory are filled in for you to check before saving. You can also open an existing expense (for example an upcoming one with an estimated amount) and scan the receipt there: it updates the amount and date and marks it paid, and leaves your category, subcategory and notes alone. Entries on a card or financing stay Open. Files are read on your device and never uploaded. The first photo scan downloads the reader (about 10 MB) and the first PDF a small PDF reader, so each needs a connection that one time.</li>
             <li><strong>Swipe a page left or right</strong> to move to the next or previous month on Home, Budgets and Category Detail (touch screens). On Money and Insights, swipe the month bar to change month, and swipe the page to switch sections.</li>
             <li><strong>Ctrl/Cmd+K</strong> opens the command palette to search pages and transactions from anywhere.</li>
           </ul>
@@ -2400,7 +2400,7 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
       <div id="receiptScanRow">
         <button type="button" class="receipt-scan-btn" id="receiptScanBtn">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L8 6H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-3z"/><circle cx="12" cy="13" r="3.5"/></svg>
-          <span><b>Scan receipt</b><small>Take a photo or choose a PDF</small></span>
+          <span><b>Scan receipt</b><small id="receiptScanHint">Take a photo or choose a PDF</small></span>
         </button>
         <input type="file" id="receiptFileInput" accept="image/*,application/pdf,.pdf" hidden>
         <div class="receipt-note" id="receiptNote" style="display:none;"></div>
@@ -2738,7 +2738,7 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 223;
+const APP_VERSION = 224;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -5634,6 +5634,10 @@ function populateEntryAccountSelector(selectedType, selectedAccount){
 document.getElementById('entryCategory').addEventListener('change', (e)=>{
   const cat = e.target.value;
   populateEntryCategorySelectors(cat, CATEGORY_MAP[cat][0]);
+  // an existing entry can only be filled from a receipt while it is an Expense
+  if(document.getElementById('entryId').value){
+    document.getElementById('receiptScanRow').style.display = (cat === 'Expense') ? '' : 'none';
+  }
 });
 
 document.getElementById('entryType').addEventListener('change', (e)=>{
@@ -5662,7 +5666,7 @@ function openEntryModal(id){
     title.textContent = 'Edit Entry';
     deleteBtn.style.display = 'block';
     addRecurringBtn.style.display = 'none';
-    receiptUiReset(false);
+    receiptUiReset(entry.category === 'Expense', true);
     document.getElementById('entryId').value = entry.id;
     document.getElementById('entryDate').value = entry.date;
     populateEntryCategorySelectors(entry.category, entry.subcategory);
@@ -5678,7 +5682,7 @@ function openEntryModal(id){
     title.textContent = 'Add Entry';
     deleteBtn.style.display = 'none';
     addRecurringBtn.style.display = 'inline-flex';
-    receiptUiReset(true);
+    receiptUiReset(true, false);
     document.getElementById('entryId').value = '';
     const today = new Date();
     document.getElementById('entryDate').value = formatLocalDate(today);
@@ -5911,9 +5915,12 @@ function receiptLearnFromSave(category, subcategory){
   try{ localStorage.setItem('wealthme_receipt_map', JSON.stringify(map)); }catch(e){}
   _receiptCtx = null;
 }
-function receiptUiReset(showScan){
+function receiptUiReset(showScan, editing){
   _receiptCtx = null;
   document.getElementById('receiptScanRow').style.display = showScan ? '' : 'none';
+  document.getElementById('receiptScanHint').textContent = editing
+    ? 'Update this entry from a receipt photo or PDF'
+    : 'Take a photo or choose a PDF';
   const note = document.getElementById('receiptNote');
   note.style.display = 'none';
   note.textContent = '';
@@ -6051,6 +6058,9 @@ function receiptShowNote(html, warn){
 function receiptEscape(t){ return String(t).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 
 function applyReceiptToForm(r){
+  const editing = !!document.getElementById('entryId').value;
+  if(editing) return applyReceiptToExistingEntry(r);
+
   const sub = r.subcategory || CATEGORY_MAP.Expense[0];
   populateEntryCategorySelectors('Expense', sub);
   if(r.amount !== null) document.getElementById('entryAmount').value = r.amount.toFixed(2);
@@ -6058,18 +6068,54 @@ function applyReceiptToForm(r){
   setStatusToggle('Closed');   // a receipt is something already paid
   document.getElementById('entryNotes').value = r.merchant || 'Receipt';
   _receiptCtx = { merchantKey: receiptMerchantKey(r.merchant) };
+  receiptReportRead(r, 'Please check the details, then tap Save Entry.');
+}
 
+// An entry that already exists keeps what the person set up on purpose
+// (category, subcategory, notes, card / account). The receipt supplies the
+// real amount and date, and marks it paid.
+function applyReceiptToExistingEntry(r){
+  const changed = [];
+  if(r.amount !== null){
+    document.getElementById('entryAmount').value = r.amount.toFixed(2);
+    changed.push('amount');
+  }
+  if(r.date){
+    document.getElementById('entryDate').value = r.date;
+    changed.push('date');
+  }
+  // A purchase on a card or financing is still owed until it is paid off, so
+  // only plain expenses are marked Closed (paid) by a receipt.
+  const type = document.getElementById('entryType').value || 'Other';
+  const account = document.getElementById('entryAccount').value;
+  const isDebt = !(type === 'Other' && !account);
+  const toggle = document.getElementById('entryStatusToggle');
+  if(!isDebt && !toggle.checked){
+    setStatusToggle('Closed');
+    changed.push('status (now Closed)');
+  }
+  const notesEl = document.getElementById('entryNotes');
+  if(!notesEl.value.trim() && r.merchant){
+    notesEl.value = r.merchant;
+    changed.push('notes');
+  }
+  _receiptCtx = null;   // the subcategory here was chosen before the receipt, so it says nothing about the store
+  const notesChanged = changed.includes('notes');
+  const kept = notesChanged ? 'Your category and subcategory were left as they are.' : 'Your category, subcategory and notes were left as they are.';
+  receiptReportRead(r, (changed.length ? `Updated: ${changed.join(', ')}. ` : '') + kept + ' Please check, then tap Save Entry.');
+}
+
+function receiptReportRead(r, closing){
   const bits = [];
   if(r.merchant) bits.push(`<b>${receiptEscape(r.merchant)}</b>`);
   if(r.amount !== null) bits.push(fmtMoney(r.amount));
   if(r.date) bits.push(r.date);
-  if(r.subcategory) bits.push(receiptEscape(r.subcategory));
   if(r.amount === null){
-    receiptShowNote('I couldn\u2019t find a total on that photo. Try a flatter, brighter shot, or type the amount in.', true);
+    receiptShowNote('I couldn\u2019t find a total on that file. Try a flatter, brighter photo, or type the amount in.', true);
   } else if(!r.amountConfident){
     receiptShowNote(`Read: ${bits.join(' \u00b7 ')}<br>I couldn\u2019t find a \u201cTotal\u201d line, so I picked the largest amount. <b>Please check it.</b>`, true);
   } else {
-    receiptShowNote(`Read: ${bits.join(' \u00b7 ')}<br>Please check the details, then tap Save Entry.`, false);
+    receiptShowNote(`Read: ${bits.join(' \u00b7 ')}${r.subcategory && !document.getElementById('entryId').value ? ' \u00b7 ' + receiptEscape(r.subcategory) : ''}<br>${closing}`, false);
   }
   const body = document.querySelector('#entryModalOverlay .modal');
   if(body) body.scrollTop = 0;
