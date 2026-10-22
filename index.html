@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v225 -->
+<!-- WEALTH.ME — v226 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -869,10 +869,21 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
 #entryModalOverlay .modal-header{margin-bottom:8px;}
 #entryModalOverlay .field{margin-bottom:8px;}
 #entryModalOverlay .field label{font-size:11px;margin-bottom:3px;letter-spacing:0.4px;}
+/* Every cell may shrink below its content width, so a phone's built-in date
+   control can no longer push the Date field over the Amount field. */
+#entryModalOverlay .two-col{grid-template-columns:minmax(0,1fr) minmax(0,1fr);}
+#entryModalOverlay .field{min-width:0;}
 #entryModalOverlay .field input,
-#entryModalOverlay .field select{padding:8px 11px;}
-#entryModalOverlay .toggle-row{height:40px;padding:6px 12px;}
-#entryModalOverlay .status-caption{font-size:11px;font-weight:600;color:var(--slate);text-transform:uppercase;letter-spacing:0.4px;margin-right:10px;}
+#entryModalOverlay .field select{padding:0 11px;height:38px;min-width:0;max-width:100%;}
+#entryModalOverlay input[type="date"]{
+  -webkit-appearance:none;appearance:none;
+  display:block;text-align:left;line-height:normal;
+}
+#entryModalOverlay input[type="date"]::-webkit-date-and-time-value{text-align:left;min-height:1.3em;}
+#entryModalOverlay input[type="date"]::-webkit-calendar-picker-indicator{margin:0;padding:0;}
+/* Notes takes the free width; Status is just a small switch beside it */
+.entry-notes-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;}
+#entryModalOverlay .toggle-row{width:118px;height:38px;padding:0 10px;gap:8px;}
 #entryModalOverlay .receipt-scan-btn{padding:7px 12px;margin-bottom:8px;}
 #entryModalOverlay .receipt-note{margin:-2px 0 8px;padding:7px 11px;font-size:12px;}
 #entryModalOverlay .btn-row{margin-top:2px;}
@@ -1758,7 +1769,7 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
         </button>
       </div>
       <div id="refreshStatus" class="muted" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 225</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 226</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -1799,7 +1810,7 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 225</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 226</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -2453,17 +2464,21 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
           <select id="entryAccount"></select>
         </div>
       </div>
-      <div class="field">
-        <div class="toggle-row">
-          <span class="toggle-label"><span class="status-caption">Status</span><span id="entryStatusLabel">Open</span></span>
-          <label class="toggle-switch">
-            <input type="checkbox" id="entryStatusToggle" aria-labelledby="entryStatusLabel">
-            <span class="toggle-thumb"></span>
-          </label>
+      <div class="entry-notes-row">
+        <div class="field">
+          <label for="entryNotes">Notes (optional)</label>
+          <input type="text" id="entryNotes" placeholder="Add a note" maxlength="200">
         </div>
-      </div>
-      <div class="field">
-        <input type="text" id="entryNotes" placeholder="Notes (optional)" maxlength="200" aria-label="Notes (optional)">
+        <div class="field">
+          <label>Status</label>
+          <div class="toggle-row">
+            <span class="toggle-label" id="entryStatusLabel">Open</span>
+            <label class="toggle-switch">
+              <input type="checkbox" id="entryStatusToggle" aria-labelledby="entryStatusLabel">
+              <span class="toggle-thumb"></span>
+            </label>
+          </div>
+        </div>
       </div>
       <div class="btn-row">
         <button class="btn btn-danger" id="entryDeleteBtn" style="display:none;">Delete</button>
@@ -2752,7 +2767,7 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 225;
+const APP_VERSION = 226;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
