@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v237 -->
+<!-- WEALTH.ME — v238 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1290,6 +1290,10 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
 
 /* calendar popup: entry rows are <li>s, so they need the same list reset as every other list */
 #calendarModalOverlay .entry-row{list-style:none;}
+
+/* calendar popup + button: shadow like the main + button; light-colored in dark mode */
+#calAddBtn{box-shadow:0 4px 12px rgba(15,27,45,.28);}
+[data-theme="dark"] #calAddBtn{background:var(--navy);color:var(--cream);border-color:transparent;box-shadow:0 4px 14px rgba(0,0,0,.6);}
 </style>
 
 </head>
@@ -1791,7 +1795,7 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
         </button>
       </div>
       <div id="refreshStatus" class="muted" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 237</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 238</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -1832,7 +1836,7 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 237</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 238</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -2836,7 +2840,7 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 237;
+const APP_VERSION = 238;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
