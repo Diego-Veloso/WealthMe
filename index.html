@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v236 -->
+<!-- WEALTH.ME — v237 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1276,8 +1276,6 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
 
 .cal-cell.neg-bal{background:rgba(193,88,63,.12);}
 .cal-day-bal{font-size:12px;margin:-4px 0 8px;}
-.cal-actions{display:flex;gap:8px;margin-top:12px;}
-.cal-actions .pill-btn{justify-content:center;}
 .cal-up-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:20px 0 8px;}
 .cal-up-head .t{font-size:15px;font-weight:700;}
 .cal-up-note{font-size:11.5px;margin-top:6px;text-align:center;}
@@ -1793,7 +1791,7 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
         </button>
       </div>
       <div id="refreshStatus" class="muted" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 236</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 237</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -1834,7 +1832,7 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 236</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 237</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -2438,13 +2436,13 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
         </div>
         <div class="cal-day-head">
           <div class="t" id="calDayTitle"></div>
-          <div class="n" id="calDayNet"></div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div class="n" id="calDayNet"></div>
+            <button type="button" class="cal-open-btn" id="calAddBtn" title="Add entry on this day" aria-label="Add entry on this day"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+          </div>
         </div>
         <div class="muted cal-day-bal" id="calDayBal"></div>
         <div id="calDayList"></div>
-        <div class="cal-actions">
-          <button type="button" class="pill-btn" id="calAddBtn" style="flex:1;">+ Add entry on this day</button>
-        </div>
         <div id="calPastDue" style="display:none;">
           <div class="cal-up-head"><div class="t">Past due</div></div>
           <div id="calPastDueList"></div>
@@ -2838,7 +2836,7 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 236;
+const APP_VERSION = 237;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
