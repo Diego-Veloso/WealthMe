@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v229 -->
+<!-- WEALTH.ME — v230 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1782,7 +1782,7 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
         </button>
       </div>
       <div id="refreshStatus" class="muted" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 229</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 230</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -1823,7 +1823,7 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 229</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 230</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -2783,11 +2783,11 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
       <div class="export-file" id="csvFileChip"></div>
       <p class="muted" style="margin:10px 0 0;font-size:13.5px;">Choose what to do with it:</p>
       <div class="export-actions">
-        <button type="button" class="export-action primary" id="csvTextSaveBtn">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 8 5-5 5 5"/><path d="M5 14v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/></svg><span><b>Save to device</b><small id="csvSaveHint">Save or share the file</small></span>
+        <button type="button" class="export-action primary" id="csvTextDownloadBtn">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3"/><path d="m7 10 5 5 5-5"/><path d="M5 19h14"/></svg><span><b>Save to Device</b><small>Straight to your downloads folder</small></span>
         </button>
-        <button type="button" class="export-action" id="csvTextDownloadBtn">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3"/><path d="m7 10 5 5 5-5"/><path d="M5 19h14"/></svg><span><b>Download file</b><small>Straight to your downloads folder</small></span>
+        <button type="button" class="export-action" id="csvTextSaveBtn">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 8 5-5 5 5"/><path d="M5 14v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/></svg><span><b>Share</b><small id="csvSaveHint">Opens your phone’s share sheet</small></span>
         </button>
         <button type="button" class="export-action" id="csvTextCopyBtn">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg><span><b>Copy text</b><small>Copy the CSV to paste somewhere else</small></span>
@@ -2814,7 +2814,7 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 229;
+const APP_VERSION = 230;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -6751,12 +6751,10 @@ function openCsvTextModal(title, content){
   const kb = Math.max(1, Math.round(new Blob([content]).size / 1024));
   document.getElementById('csvFileChip').textContent = `${_pendingCsv.filename || 'wealthme.csv'} \u00b7 ${kb} KB`;
 
-  // "Save to device" opens the phone's share / save sheet where the browser
-  // supports it; otherwise it falls back to a normal download, and the
-  // separate Download option would just repeat it, so that one is hidden.
+  // "Save to Device" always downloads the file. "Share" opens the device's
+  // share sheet, so it only appears where the browser can share files.
   const canShare = csvCanShareFile();
-  document.getElementById('csvSaveHint').textContent = canShare ? 'Opens your phone\u2019s save / share sheet' : 'Saves the file to your downloads';
-  document.getElementById('csvTextDownloadBtn').style.display = canShare ? '' : 'none';
+  document.getElementById('csvTextSaveBtn').style.display = canShare ? '' : 'none';
   document.getElementById('csvTextModalOverlay').classList.add('active');
 }
 function closeCsvTextModal(){
@@ -6769,8 +6767,7 @@ document.getElementById('csvTextModalOverlay').addEventListener('click', (e)=>{
 
 document.getElementById('csvTextSaveBtn').addEventListener('click', async ()=>{
   if(!csvCanShareFile()){
-    attemptDirectDownload(_pendingCsv.content, _pendingCsv.filename);
-    showToast('Download attempted \u2014 check your downloads folder');
+    showToast('Sharing isn\u2019t available here \u2014 use Save to Device');
     return;
   }
   try{
@@ -6778,7 +6775,7 @@ document.getElementById('csvTextSaveBtn').addEventListener('click', async ()=>{
     await navigator.share({ files:[file], title: _pendingCsv.filename || 'wealthme.csv' });
   }catch(err){
     if(err && err.name === 'AbortError') return; // user cancelled the share sheet
-    showToast('Save failed — copy the text instead');
+    showToast('Share failed — try Save to Device or copy the text');
   }
 });
 
@@ -6799,7 +6796,7 @@ document.getElementById('csvTextCopyBtn').addEventListener('click', async ()=>{
     }
     showToast('Copied to clipboard');
   }catch(err){
-    showToast('Copy failed \u2014 try Save to device instead');
+    showToast('Copy failed \u2014 try Save to Device instead');
   }
 });
 
