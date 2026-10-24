@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v238 -->
+<!-- WEALTH.ME — v239 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1795,7 +1795,7 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
         </button>
       </div>
       <div id="refreshStatus" class="muted" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 238</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 239</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -1836,7 +1836,7 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 238</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 239</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -2840,7 +2840,7 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 238;
+const APP_VERSION = 239;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -8551,7 +8551,7 @@ function showCalTip(cell){
   const tip = document.getElementById('calTip');
   tip.style.background = c.tooltipBg;
   tip.style.color = c.tooltipText;
-  tip.innerHTML = `<div class="tt">Day ${day}</div><div class="tv">${fmtMoney(val)}</div>`;
+  tip.innerHTML = `<div class="tt">Cashflow</div><div class="tv">${fmtMoney(val)}</div>`;
   tip.style.display = 'block';
   const r = cell.getBoundingClientRect();
   const tw = tip.offsetWidth, th = tip.offsetHeight;
