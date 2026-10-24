@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v233 -->
+<!-- WEALTH.ME — v234 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1249,10 +1249,6 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
 }
 
 /* ---------- Calendar page ---------- */
-.cal-summary{display:flex;justify-content:space-between;gap:8px;margin-bottom:12px;}
-.cal-summary > div{flex:1;text-align:center;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px 4px;}
-.cal-summary .k{font-size:10.5px;color:var(--muted,#7a8896);text-transform:uppercase;letter-spacing:.04em;}
-.cal-summary .v{font-size:14px;font-weight:700;margin-top:2px;}
 .cal-weekdays,.cal-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;}
 .cal-weekdays div{text-align:center;font-size:10.5px;font-weight:600;color:var(--muted,#7a8896);padding:2px 0 6px;}
 .cal-cell{min-height:58px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--navy);padding:4px 2px 3px;display:flex;flex-direction:column;align-items:center;justify-content:space-between;font-family:inherit;cursor:pointer;min-width:0;}
@@ -1285,6 +1281,14 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
 .cal-up-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:20px 0 8px;}
 .cal-up-head .t{font-size:15px;font-weight:700;}
 .cal-up-note{font-size:11.5px;margin-top:6px;text-align:center;}
+
+.cal-cell.today{box-shadow:0 4px 12px rgba(15,27,45,.28);}
+.cal-cell.today.sel{box-shadow:0 0 0 1.5px var(--navy) inset,0 4px 12px rgba(15,27,45,.28);}
+[data-theme="dark"] .cal-cell.today{box-shadow:0 4px 14px rgba(0,0,0,.7);}
+[data-theme="dark"] .cal-cell.today.sel{box-shadow:0 0 0 1.5px var(--navy) inset,0 4px 14px rgba(0,0,0,.7);}
+.cal-tip{position:fixed;left:0;top:0;display:none;z-index:10;pointer-events:none;padding:10px;border-radius:8px;text-align:left;box-shadow:0 6px 18px rgba(0,0,0,.25);}
+.cal-tip .tt{font-size:13px;font-weight:600;line-height:1.3;}
+.cal-tip .tv{font-size:13px;font-weight:700;line-height:1.3;margin-top:2px;}
 </style>
 
 </head>
@@ -1786,7 +1790,7 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
         </button>
       </div>
       <div id="refreshStatus" class="muted" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 233</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 234</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -1827,7 +1831,7 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 233</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 234</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -2421,7 +2425,6 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
           <div class="label" id="calMonthLabel">June 2026</div>
           <button id="calNext" aria-label="Next month">&#8250;</button>
         </div>
-        <div class="cal-summary" id="calSummary"></div>
         <div class="cal-weekdays" id="calWeekdays"></div>
         <div class="cal-grid" id="calGrid" role="grid" aria-label="Calendar month"></div>
         <div class="cal-legend">
@@ -2438,18 +2441,20 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
         <div id="calDayList"></div>
         <div class="cal-actions">
           <button type="button" class="pill-btn" id="calAddBtn" style="flex:1;">+ Add entry on this day</button>
-          <button type="button" class="pill-btn" id="calDayIcsBtn" style="display:none;flex-shrink:0;">Add to calendar</button>
+        </div>
+        <div id="calPastDue" style="display:none;">
+          <div class="cal-up-head"><div class="t">Past due</div></div>
+          <div id="calPastDueList"></div>
+          <div class="muted cal-up-note" id="calPastDueNote"></div>
         </div>
         <div id="calUpcoming" style="display:none;">
-          <div class="cal-up-head">
-            <div class="t">Past due &amp; upcoming</div>
-            <button type="button" class="pill-btn" id="calUpcomingIcsBtn" style="flex-shrink:0;">Add to calendar</button>
-          </div>
+          <div class="cal-up-head"><div class="t">Upcoming</div></div>
           <div id="calUpcomingList"></div>
           <div class="muted cal-up-note" id="calUpcomingNote"></div>
         </div>
       </div>
     </div>
+    <div class="cal-tip" id="calTip" role="status" aria-live="polite"></div>
   </div>
 
   <!-- ===== Monthly Recap Popup ===== -->
@@ -2830,7 +2835,7 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 233;
+const APP_VERSION = 234;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -6732,9 +6737,9 @@ function entriesToCsv(rows){
 // buttons in the fallback modal can re-use it.
 let _pendingCsv = {content: '', filename: ''};
 
-function attemptDirectDownload(content, filename, mime){
+function attemptDirectDownload(content, filename){
   try{
-    const blob = new Blob([content], {type: mime || 'text/csv'});
+    const blob = new Blob([content], {type:'text/csv'});
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -6749,16 +6754,16 @@ function attemptDirectDownload(content, filename, mime){
 // Main entry point: attempts a normal download AND opens a fallback modal with the
 // raw CSV text, since automatic downloads can be silently blocked in sandboxed iframes
 // (e.g. the Claude.ai artifact preview).
-function downloadCsv(content, filename, title, mime){
+function downloadCsv(content, filename, title){
   // The popup opens first and nothing is saved until the person picks an
   // option in it (save to device, download, copy text, open in a tab).
-  _pendingCsv = {content, filename, mime: mime || 'text/csv'};
+  _pendingCsv = {content, filename};
   openCsvTextModal(title || 'Export CSV', content);
 }
 
 function csvCanShareFile(){
   try{
-    const testFile = new File([_pendingCsv.content], _pendingCsv.filename || 'wealthme.csv', {type: _pendingCsv.mime || 'text/csv'});
+    const testFile = new File([_pendingCsv.content], _pendingCsv.filename || 'wealthme.csv', {type:'text/csv'});
     return !!(navigator.canShare && navigator.canShare({files:[testFile]}));
   }catch(err){ return false; }
 }
@@ -6787,7 +6792,7 @@ document.getElementById('csvTextSaveBtn').addEventListener('click', async ()=>{
     return;
   }
   try{
-    const file = new File([_pendingCsv.content], _pendingCsv.filename || 'wealthme.csv', {type: _pendingCsv.mime || 'text/csv'});
+    const file = new File([_pendingCsv.content], _pendingCsv.filename || 'wealthme.csv', {type:'text/csv'});
     await navigator.share({ files:[file], title: _pendingCsv.filename || 'wealthme.csv' });
   }catch(err){
     if(err && err.name === 'AbortError') return; // user cancelled the share sheet
@@ -6817,7 +6822,7 @@ document.getElementById('csvTextCopyBtn').addEventListener('click', async ()=>{
 });
 
 document.getElementById('csvTextDownloadBtn').addEventListener('click', ()=>{
-  attemptDirectDownload(_pendingCsv.content, _pendingCsv.filename, _pendingCsv.mime);
+  attemptDirectDownload(_pendingCsv.content, _pendingCsv.filename);
   showToast('Download attempted — check your downloads folder');
 });
 
@@ -8375,13 +8380,6 @@ function renderCalendar(){
     if(typeof e.date === 'string' && e.date.slice(0,7) === monthKey){ (byDay[e.date] = byDay[e.date] || []).push(e); }
   });
 
-  // month summary
-  let inc = 0, out = 0;
-  Object.values(byDay).forEach(list=> list.forEach(e=>{
-    const a = Number(e.amount) || 0;
-    if(e.category === 'Income') inc += a;
-    else if(e.category === 'Expense' || e.category === 'Investment') out += a;
-  }));
   // running balance: the month's opening balance (same carry-over Home's
   // Projected Balance uses) plus each day's net, Open + Closed entries
   const daysInMonthN = new Date(y, m+1, 0).getDate();
@@ -8392,11 +8390,6 @@ function renderCalendar(){
     bal += calDayStats(byDay[ds] || []).net;
     calDayBal[ds] = bal;
   }
-  // the third card shows the projected balance at the end of the month
-  document.getElementById('calSummary').innerHTML =
-    `<div><div class="k">In</div><div class="v" style="color:#3E7C59;">${fmtMoney(inc)}</div></div>` +
-    `<div><div class="k">Out</div><div class="v" style="color:#C1583F;">${fmtMoney(out)}</div></div>` +
-    `<div><div class="k">Balance</div><div class="v" style="color:${bal < 0 ? '#C1583F' : '#3E7C59'};">${fmtMoney(bal)}</div></div>`;
 
   // selected day: keep if inside this month, else today (if shown) or the 1st
   const todayStr = formatLocalDate(new Date());
@@ -8431,7 +8424,7 @@ function renderCalendar(){
   }
   document.getElementById('calGrid').innerHTML = cells;
   renderCalendarDay(byDay);
-  renderCalendarUpcoming();
+  hideCalTip();
 }
 function renderCalendarDay(byDay){
   if(!byDay){
@@ -8451,15 +8444,14 @@ function renderCalendarDay(byDay){
   if(typeof dayBalVal === 'number'){
     balEl.innerHTML = `Projected balance after this day: <b style="color:${dayBalVal < 0 ? '#C1583F' : 'inherit'};">${fmtMoney(dayBalVal)}</b>`;
   } else { balEl.textContent = ''; }
-  const dueToAdd = calCalendarCandidates().filter(e=> e.date === calSelectedDate);
-  document.getElementById('calDayIcsBtn').style.display = dueToAdd.length ? '' : 'none';
   const box = document.getElementById('calDayList');
   if(!list.length){
     box.innerHTML = `<div class="muted cal-empty">Nothing on this day</div>`;
-    return;
+  } else {
+    box.innerHTML = list.map(e=> renderEntryRow(e, false, false)).join('');
+    attachEntryRowHandlers(box);
   }
-  box.innerHTML = list.map(e=> renderEntryRow(e, false, false)).join('');
-  attachEntryRowHandlers(box);
+  renderCalendarLists();
 }
 function calChangeMonth(delta){
   calDate = new Date(calDate.getFullYear(), calDate.getMonth() + delta, 1);
@@ -8474,6 +8466,7 @@ function openCalendarModal(monthDate){
   document.getElementById('calendarModalOverlay').classList.add('active');
 }
 function closeCalendarModal(){
+  hideCalTip();
   document.getElementById('calendarModalOverlay').classList.remove('active');
 }
 // Transactions: open on the month its period filter is showing.
@@ -8500,81 +8493,72 @@ document.getElementById('calGrid').addEventListener('click', (ev)=>{
   document.querySelectorAll('#calGrid .cal-cell.sel').forEach(c=>c.classList.remove('sel'));
   cell.classList.add('sel');
   renderCalendarDay();
+  showCalTip(cell);
 });
-// ---- Past due & upcoming strip -------------------------------------
+document.getElementById('calendarModalOverlay').addEventListener('click', (e)=>{
+  if(!e.target.closest('.cal-cell[data-date]')) hideCalTip();
+});
+document.querySelector('#calendarModalOverlay .modal').addEventListener('scroll', hideCalTip, {passive:true});
+// ---- Past due / Upcoming lists ---------------------------------------
+// Past due: Open entries dated before BOTH the selected day and today.
+// Upcoming: Open entries after today, shown only while today is selected.
 function calOpenEntries(){
   return entries.filter(e=> e.status === 'Open' && e.category !== 'Capital' && typeof e.date === 'string' && e.date)
     .sort((a,b)=> a.date < b.date ? -1 : a.date > b.date ? 1 : a.id - b.id);
 }
-function renderCalendarUpcoming(){
-  const all = calOpenEntries();
-  const wrap = document.getElementById('calUpcoming');
-  if(!all.length){ wrap.style.display = 'none'; return; }
+function calFillList(wrapId, listId, noteId, rows){
+  const wrap = document.getElementById(wrapId);
+  if(!rows.length){ wrap.style.display = 'none'; return; }
   wrap.style.display = '';
   const LIMIT = 6;
-  const shown = all.slice(0, LIMIT);
-  const box = document.getElementById('calUpcomingList');
-  box.innerHTML = shown.map(e=> renderEntryRow(e, false, false)).join('');
+  const box = document.getElementById(listId);
+  box.innerHTML = rows.slice(0, LIMIT).map(e=> renderEntryRow(e, false, false)).join('');
   attachEntryRowHandlers(box);
-  document.getElementById('calUpcomingNote').textContent = all.length > LIMIT ? `Showing the first ${LIMIT} of ${all.length} Open entries` : '';
-  document.getElementById('calUpcomingIcsBtn').style.display = calCalendarCandidates().length ? '' : 'none';
+  document.getElementById(noteId).textContent = rows.length > LIMIT ? `Showing the first ${LIMIT} of ${rows.length}` : '';
+}
+function renderCalendarLists(){
+  const todayStr = formatLocalDate(new Date());
+  const open = calOpenEntries();
+  calFillList('calPastDue', 'calPastDueList', 'calPastDueNote',
+    open.filter(e=> e.date < calSelectedDate && e.date < todayStr));
+  calFillList('calUpcoming', 'calUpcomingList', 'calUpcomingNote',
+    calSelectedDate === todayStr ? open.filter(e=> e.date > todayStr) : []);
 }
 
-// ---- Add to phone calendar (.ics) ----------------------------------
-// Open entries due today or later, next 60 days. Each becomes an all-day
-// event with a reminder at 9:00 the day before and at 9:00 that day.
-// Stable UIDs, so importing again updates the same events.
-const CAL_ICS_DAYS = 60;
-function calCalendarCandidates(){
-  const today = formatLocalDate(new Date());
-  const lim = new Date(); lim.setDate(lim.getDate() + CAL_ICS_DAYS);
-  const limStr = formatLocalDate(lim);
-  return calOpenEntries().filter(e=> e.date >= today && e.date <= limStr);
+// ---- Tap-a-day bubble: same look as the Daily Cashflow chart tooltip ----
+let _calTipTimer = null;
+function hideCalTip(){
+  clearTimeout(_calTipTimer);
+  const tip = document.getElementById('calTip');
+  if(tip) tip.style.display = 'none';
 }
-function icsEscape(t){
-  return String(t).replace(/\\/g,'\\\\').replace(/;/g,'\\;').replace(/,/g,'\\,').replace(/\r?\n/g,'\\n');
+function showCalTip(cell){
+  const ds = cell.dataset.date;
+  const day = Number(ds.slice(8,10));
+  // use the chart's own daily balances so both screens always agree
+  let val = calDayBal[ds];
+  try{
+    const cf = computeDailyCashflow(calDate);
+    if(cf && cf.values && typeof cf.values[day-1] === 'number') val = cf.values[day-1];
+  }catch(_){}
+  if(typeof val !== 'number') return;
+  const c = chartColors();
+  const tip = document.getElementById('calTip');
+  tip.style.background = c.tooltipBg;
+  tip.style.color = c.tooltipText;
+  tip.innerHTML = `<div class="tt">Day ${day}</div><div class="tv">${fmtMoney(val)}</div>`;
+  tip.style.display = 'block';
+  const r = cell.getBoundingClientRect();
+  const tw = tip.offsetWidth, th = tip.offsetHeight;
+  let left = r.left + r.width/2 - tw/2;
+  left = Math.max(8, Math.min(left, window.innerWidth - tw - 8));
+  let top = r.top - th - 8;
+  if(top < 8) top = r.bottom + 8;
+  tip.style.left = left + 'px';
+  tip.style.top = top + 'px';
+  clearTimeout(_calTipTimer);
+  _calTipTimer = setTimeout(hideCalTip, 4000);
 }
-function icsFold(line){
-  const out = [];
-  while(line.length > 73){ out.push(line.slice(0,73)); line = ' ' + line.slice(73); }
-  out.push(line);
-  return out.join('\r\n');
-}
-function buildDueIcs(list){
-  const stamp = new Date().toISOString().replace(/[-:]/g,'').replace(/\.\d+Z$/,'Z');
-  const L = ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Wealth.Me//Due entries//EN','CALSCALE:GREGORIAN','METHOD:PUBLISH'];
-  list.forEach(e=>{
-    const start = e.date.replace(/-/g,'');
-    const nd = parseLocalDate(e.date); nd.setDate(nd.getDate()+1);
-    const end = formatLocalDate(nd).replace(/-/g,'');
-    const kind = e.category === 'Income' ? 'Income due' : e.category === 'Investment' ? 'Investment due' : 'Due';
-    const title = `${kind}: ${e.subcategory} ${fmtMoney(Number(e.amount))}`;
-    const desc = [e.notes, e.account ? 'Account: ' + e.account : ''].filter(Boolean).join(' \u00b7 ');
-    L.push('BEGIN:VEVENT');
-    L.push(`UID:wealthme-${e.id}-${start}@wealthme`);
-    L.push(`DTSTAMP:${stamp}`);
-    L.push(`DTSTART;VALUE=DATE:${start}`);
-    L.push(`DTEND;VALUE=DATE:${end}`);
-    L.push(icsFold('SUMMARY:' + icsEscape(title)));
-    if(desc) L.push(icsFold('DESCRIPTION:' + icsEscape(desc)));
-    L.push('TRANSP:TRANSPARENT');
-    L.push('BEGIN:VALARM','ACTION:DISPLAY','DESCRIPTION:Due tomorrow','TRIGGER:-PT15H','END:VALARM');
-    L.push('BEGIN:VALARM','ACTION:DISPLAY','DESCRIPTION:Due today','TRIGGER:PT9H','END:VALARM');
-    L.push('END:VEVENT');
-  });
-  L.push('END:VCALENDAR');
-  return L.join('\r\n') + '\r\n';
-}
-function addEntriesToPhoneCalendar(list, filename){
-  if(!list.length){ showToast('No upcoming Open entries to add'); return; }
-  downloadCsv(buildDueIcs(list), filename, `Add to calendar (${list.length} ${list.length === 1 ? 'entry' : 'entries'})`, 'text/calendar');
-}
-document.getElementById('calUpcomingIcsBtn').addEventListener('click', ()=>{
-  addEntriesToPhoneCalendar(calCalendarCandidates(), 'wealthme_due.ics');
-});
-document.getElementById('calDayIcsBtn').addEventListener('click', ()=>{
-  addEntriesToPhoneCalendar(calCalendarCandidates().filter(e=> e.date === calSelectedDate), `wealthme_due_${calSelectedDate}.ics`);
-});
 document.getElementById('calAddBtn').addEventListener('click', ()=> openEntryModal(null, calSelectedDate));
 // Swipe the page for next / previous month (touch only). Entry rows keep
 // their own swipe (close / delete), so they're excluded.
