@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v232 -->
+<!-- WEALTH.ME — v233 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1278,8 +1278,6 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
 .cal-open-btn{width:32px;height:32px;flex-shrink:0;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--navy);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;padding:0;}
 .cal-open-btn:active{transform:scale(0.94);}
 
-.cal-balance{font-size:11.5px;text-align:center;margin:-4px 0 12px;line-height:1.45;color:var(--muted,#7a8896);}
-.cal-balance b{font-weight:700;}
 .cal-cell.neg-bal{background:rgba(193,88,63,.12);}
 .cal-day-bal{font-size:12px;margin:-4px 0 8px;}
 .cal-actions{display:flex;gap:8px;margin-top:12px;}
@@ -1788,7 +1786,7 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
         </button>
       </div>
       <div id="refreshStatus" class="muted" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 232</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 233</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -1829,7 +1827,7 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 232</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 233</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -2424,7 +2422,6 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
           <button id="calNext" aria-label="Next month">&#8250;</button>
         </div>
         <div class="cal-summary" id="calSummary"></div>
-        <div class="cal-balance" id="calBalance"></div>
         <div class="cal-weekdays" id="calWeekdays"></div>
         <div class="cal-grid" id="calGrid" role="grid" aria-label="Calendar month"></div>
         <div class="cal-legend">
@@ -2833,7 +2830,7 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 232;
+const APP_VERSION = 233;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -8385,29 +8382,21 @@ function renderCalendar(){
     if(e.category === 'Income') inc += a;
     else if(e.category === 'Expense' || e.category === 'Investment') out += a;
   }));
-  const netM = inc - out;
-  document.getElementById('calSummary').innerHTML =
-    `<div><div class="k">In</div><div class="v" style="color:#3E7C59;">${fmtMoney(inc)}</div></div>` +
-    `<div><div class="k">Out</div><div class="v" style="color:#C1583F;">${fmtMoney(out)}</div></div>` +
-    `<div><div class="k">Net</div><div class="v" style="color:${netM < 0 ? '#C1583F' : '#3E7C59'};">${fmtMoney(netM)}</div></div>`;
-
   // running balance: the month's opening balance (same carry-over Home's
   // Projected Balance uses) plus each day's net, Open + Closed entries
   const daysInMonthN = new Date(y, m+1, 0).getDate();
   let bal = computeMonthFinancials(calDate, false).prevBalance || 0;
-  const openBal = bal;
-  let minBal = null, minDate = '';
   calDayBal = {};
   for(let d=1; d<=daysInMonthN; d++){
     const ds = `${monthKey}-${String(d).padStart(2,'0')}`;
     bal += calDayStats(byDay[ds] || []).net;
     calDayBal[ds] = bal;
-    if(minBal === null || bal < minBal){ minBal = bal; minDate = ds; }
   }
-  const adjNote = (SETTINGS.taxRate || SETTINGS.netAdj || SETTINGS.expAdj || SETTINGS.invAdj || SETTINGS.balAdj) ? '<br>Excludes your % adjustments from Settings' : '';
-  document.getElementById('calBalance').innerHTML =
-    `Projected balance: starts <b>${fmtMoney(openBal)}</b> &rarr; ends <b>${fmtMoney(bal)}</b><br>` +
-    `Lowest <b style="color:${minBal < 0 ? '#C1583F' : 'inherit'};">${fmtMoney(minBal)}</b> on ${parseLocalDate(minDate).toLocaleDateString(undefined,{month:'short',day:'numeric'})}` + adjNote;
+  // the third card shows the projected balance at the end of the month
+  document.getElementById('calSummary').innerHTML =
+    `<div><div class="k">In</div><div class="v" style="color:#3E7C59;">${fmtMoney(inc)}</div></div>` +
+    `<div><div class="k">Out</div><div class="v" style="color:#C1583F;">${fmtMoney(out)}</div></div>` +
+    `<div><div class="k">Balance</div><div class="v" style="color:${bal < 0 ? '#C1583F' : '#3E7C59'};">${fmtMoney(bal)}</div></div>`;
 
   // selected day: keep if inside this month, else today (if shown) or the 1st
   const todayStr = formatLocalDate(new Date());
