@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v227 -->
+<!-- WEALTH.ME — v229 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1247,6 +1247,36 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
   }
   @keyframes fadeInDialog{from{transform:translateY(12px);opacity:0;}to{transform:translateY(0);opacity:1;}}
 }
+
+/* ---------- Calendar page ---------- */
+.cal-summary{display:flex;justify-content:space-between;gap:8px;margin-bottom:12px;}
+.cal-summary > div{flex:1;text-align:center;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px 4px;}
+.cal-summary .k{font-size:10.5px;color:var(--muted,#7a8896);text-transform:uppercase;letter-spacing:.04em;}
+.cal-summary .v{font-size:14px;font-weight:700;margin-top:2px;}
+.cal-weekdays,.cal-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;}
+.cal-weekdays div{text-align:center;font-size:10.5px;font-weight:600;color:var(--muted,#7a8896);padding:2px 0 6px;}
+.cal-cell{min-height:58px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--navy);padding:4px 2px 3px;display:flex;flex-direction:column;align-items:center;justify-content:space-between;font-family:inherit;cursor:pointer;min-width:0;}
+.cal-cell.blank{visibility:hidden;border:none;background:none;cursor:default;}
+.cal-cell .d{font-size:12px;font-weight:600;line-height:1;}
+.cal-cell.today .d{background:var(--navy);color:var(--card);border-radius:50%;min-width:18px;height:18px;display:flex;align-items:center;justify-content:center;}
+.cal-cell.due .d{color:#C1583F;}
+.cal-cell.today.due .d{color:var(--card);background:#C1583F;}
+.cal-cell.sel{border-color:var(--navy);box-shadow:0 0 0 1.5px var(--navy) inset;}
+.cal-dots{display:flex;gap:3px;height:7px;align-items:center;justify-content:center;}
+.cal-dot{width:6px;height:6px;border-radius:50%;box-sizing:border-box;}
+.cal-dot.open{background:transparent!important;border:1.5px solid currentColor;}
+.cal-net{font-size:9.5px;font-weight:700;line-height:1;white-space:nowrap;max-width:100%;overflow:hidden;}
+.cal-net.pos{color:#3E7C59;}
+.cal-net.neg{color:#C1583F;}
+.cal-legend{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;font-size:10.5px;color:var(--muted,#7a8896);margin:10px 0 4px;}
+.cal-legend span{display:inline-flex;align-items:center;gap:4px;}
+.cal-day-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:14px 0 8px;}
+.cal-day-head .t{font-size:15px;font-weight:700;}
+.cal-day-head .n{font-size:13px;font-weight:700;}
+.cal-empty{text-align:center;padding:18px 8px;font-size:13px;}
+
+.cal-open-btn{width:32px;height:32px;flex-shrink:0;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--navy);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;padding:0;}
+.cal-open-btn:active{transform:scale(0.94);}
 </style>
 
 </head>
@@ -1412,7 +1442,7 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
       </div>
 
       <div class="card">
-        <div class="card-title">Daily Cashflow</div>
+        <div class="card-title">Daily Cashflow<button type="button" class="cal-open-btn" id="homeCalendarBtn" title="Open calendar" aria-label="Open calendar"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></button></div>
         <div class="chart-wrap"><canvas id="lineChart" role="img" aria-label="Daily cashflow chart for the selected month"></canvas></div>
       </div>
 
@@ -1510,9 +1540,12 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
       </div>
 
       <!-- Saved filter presets -->
-      <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;overflow-x:auto;">
-        <div id="txPresetsRow" style="display:flex;gap:8px;flex-shrink:0;"></div>
-        <button class="pill-btn" id="txSavePresetBtn" style="flex-shrink:0;">+ Save Filter</button>
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+        <div style="display:flex;gap:8px;align-items:center;flex:1;min-width:0;overflow-x:auto;">
+          <div id="txPresetsRow" style="display:flex;gap:8px;flex-shrink:0;"></div>
+          <button class="pill-btn" id="txSavePresetBtn" style="flex-shrink:0;">+ Save Filter</button>
+        </div>
+        <button type="button" class="cal-open-btn" id="txCalendarBtn" title="Open calendar" aria-label="Open calendar"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></button>
       </div>
       <div id="txSavePresetForm" style="display:none;gap:8px;margin-bottom:8px;">
         <input type="text" id="txPresetNameInput" placeholder="Preset name" style="flex:1;border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-size:13px;">
@@ -1720,6 +1753,10 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
             <span>Budgets</span>
           </li>
+          <li class="more-row" id="calendarBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <span>Calendar</span>
+          </li>
           <li class="more-row" id="creditLimitsBtn">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
             <span>Credit Limits</span>
@@ -1745,7 +1782,7 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
         </button>
       </div>
       <div id="refreshStatus" class="muted" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 227</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 229</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -1786,7 +1823,7 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 227</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 229</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -1923,6 +1960,7 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
 
       <button class="btn btn-primary btn-block" id="budgetPlannerSaveBtn" style="margin-bottom:24px;">Save as My Budgets</button>
     </section>
+
 
     <!-- ===== Credit Limits Page ===== -->
     <section class="view" id="view-creditLimits">
@@ -2319,6 +2357,10 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
         Budgets
       </button>
+      <button class="sidebar-footer-btn" id="sidebarCalendarBtn" title="Calendar">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Calendar
+      </button>
       <button class="sidebar-footer-btn" id="sidebarCreditLimitsBtn" title="Credit Limits">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
         Credit Limits
@@ -2357,6 +2399,40 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
         </button>
       </div>
       <div id="notificationsContent"></div>
+    </div>
+  </div>
+
+  <!-- ===== Calendar Popup ===== -->
+  <div class="modal-overlay" id="calendarModalOverlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Calendar</h3>
+        <button class="icon-btn" id="calendarModalClose" aria-label="Close Calendar">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div id="calendarSwipeArea">
+        <div class="month-nav">
+          <button id="calPrev" aria-label="Previous month">&#8249;</button>
+          <div class="label" id="calMonthLabel">June 2026</div>
+          <button id="calNext" aria-label="Next month">&#8250;</button>
+        </div>
+        <div class="cal-summary" id="calSummary"></div>
+        <div class="cal-weekdays" id="calWeekdays"></div>
+        <div class="cal-grid" id="calGrid" role="grid" aria-label="Calendar month"></div>
+        <div class="cal-legend">
+          <span><i class="cal-dot" style="background:#3E7C59"></i>Income</span>
+          <span><i class="cal-dot" style="background:#C1583F"></i>Expense</span>
+          <span><i class="cal-dot" style="background:#D4A24E"></i>Investment</span>
+          <span><i class="cal-dot open" style="color:#5C6B7A"></i>Open</span>
+        </div>
+        <div class="cal-day-head">
+          <div class="t" id="calDayTitle"></div>
+          <div class="n" id="calDayNet"></div>
+        </div>
+        <div id="calDayList"></div>
+        <button type="button" class="pill-btn" id="calAddBtn" style="margin-top:12px;width:100%;justify-content:center;">+ Add entry on this day</button>
+      </div>
     </div>
   </div>
 
@@ -2738,7 +2814,7 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 227;
+const APP_VERSION = 229;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -3016,6 +3092,7 @@ function saveState(){
   invalidateFinancialsCache();
   invalidateInsightsCache();
   updateNotificationsBadge();
+  if(document.getElementById('calendarModalOverlay')?.classList.contains('active') && typeof renderCalendar === 'function') renderCalendar();
   // Keep the popup's list live if it's open — e.g. editing or swiping an
   // entry from within it should update/remove that row immediately
   // rather than leaving it stale until the popup is closed and reopened.
@@ -4810,6 +4887,7 @@ function closeInsightsPopup(){
 }
 
 function switchView(viewName){
+  if(viewName === 'calendar'){ openCalendarModal(); return; }   // popup, like Insights
   if(viewName === 'insights'){ openInsightsPopup(); return; }   // overlay: the page underneath stays put
   closeInsightsPopup();
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
@@ -5654,7 +5732,7 @@ document.getElementById('entryStatusToggle').addEventListener('change', (e)=>{
   document.getElementById('entryStatusLabel').textContent = e.target.checked ? 'Closed' : 'Open';
 });
 
-function openEntryModal(id){
+function openEntryModal(id, presetDate){
   const overlay = document.getElementById('entryModalOverlay');
   const title = document.getElementById('entryModalTitle');
   const deleteBtn = document.getElementById('entryDeleteBtn');
@@ -5685,7 +5763,7 @@ function openEntryModal(id){
     receiptUiReset(true, false);
     document.getElementById('entryId').value = '';
     const today = new Date();
-    document.getElementById('entryDate').value = formatLocalDate(today);
+    document.getElementById('entryDate').value = (typeof presetDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(presetDate)) ? presetDate : formatLocalDate(today);
     populateEntryCategorySelectors('Expense', CATEGORY_MAP.Expense[0]);
     document.getElementById('entryAmount').value = '';
     setStatusToggle('Open'); // default Open
@@ -7739,6 +7817,7 @@ function getCmdPalettePages(){
     {label:'Debts', view:'debts'},
     {label:'Money', view:'money'},
     {label:'Insights', view:'insights'},
+    {label:'Calendar', view:'calendar'},
   ];
 }
 
@@ -8247,6 +8326,159 @@ makeSwipeable(document.getElementById('view-budgets'), {
   touchOnly: true,
   canGo: ()=> true,
   onSwipe: (dir)=> budgetsChangeMonth(dir)
+});
+
+/* =========================================================
+   CALENDAR — month grid with colored dots per entry type (hollow = Open),
+   a daily net total under each date, and a tap-a-day entry list.
+   Shares homeDate with Home/Budgets/Money/Insights. Daily net =
+   Income - Expense - Investment (Open + Closed); Capital is listed
+   but not counted. Reads existing entries only — no new stored data.
+   ========================================================= */
+let calSelectedDate = null;
+let calDate = new Date(new Date().getFullYear(), new Date().getMonth(), 1);   // the popup's own month; opening/paging it never moves Home
+function calCompact(n){
+  const a = Math.abs(n), sign = n < 0 ? '-' : '+';
+  if(a >= 1000) return sign + (a/1000).toFixed(a >= 10000 ? 0 : 1).replace(/\.0$/,'') + 'k';
+  return sign + Math.round(a);
+}
+function calDayStats(list){
+  let net = 0, counted = 0;
+  list.forEach(e=>{
+    const a = Number(e.amount) || 0;
+    if(e.category === 'Income'){ net += a; counted++; }
+    else if(e.category === 'Expense' || e.category === 'Investment'){ net -= a; counted++; }
+  });
+  return {net, counted};
+}
+function renderCalendar(){
+  const y = calDate.getFullYear(), m = calDate.getMonth();
+  const monthKey = `${y}-${String(m+1).padStart(2,'0')}`;
+  document.getElementById('calMonthLabel').textContent = fmtMonthYear(calDate);
+
+  const byDay = {};
+  entries.forEach(e=>{
+    if(typeof e.date === 'string' && e.date.slice(0,7) === monthKey){ (byDay[e.date] = byDay[e.date] || []).push(e); }
+  });
+
+  // month summary
+  let inc = 0, out = 0;
+  Object.values(byDay).forEach(list=> list.forEach(e=>{
+    const a = Number(e.amount) || 0;
+    if(e.category === 'Income') inc += a;
+    else if(e.category === 'Expense' || e.category === 'Investment') out += a;
+  }));
+  const netM = inc - out;
+  document.getElementById('calSummary').innerHTML =
+    `<div><div class="k">In</div><div class="v" style="color:#3E7C59;">${fmtMoney(inc)}</div></div>` +
+    `<div><div class="k">Out</div><div class="v" style="color:#C1583F;">${fmtMoney(out)}</div></div>` +
+    `<div><div class="k">Net</div><div class="v" style="color:${netM < 0 ? '#C1583F' : '#3E7C59'};">${fmtMoney(netM)}</div></div>`;
+
+  // selected day: keep if inside this month, else today (if shown) or the 1st
+  const todayStr = formatLocalDate(new Date());
+  if(!calSelectedDate || calSelectedDate.slice(0,7) !== monthKey){
+    calSelectedDate = todayStr.slice(0,7) === monthKey ? todayStr : `${monthKey}-01`;
+  }
+
+  const wd = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  document.getElementById('calWeekdays').innerHTML = wd.map(d=>`<div>${d}</div>`).join('');
+
+  const firstDow = new Date(y, m, 1).getDay();
+  const daysInMonth = new Date(y, m+1, 0).getDate();
+  let cells = '';
+  for(let i=0;i<firstDow;i++) cells += `<div class="cal-cell blank" aria-hidden="true"></div>`;
+  for(let d=1; d<=daysInMonth; d++){
+    const ds = `${monthKey}-${String(d).padStart(2,'0')}`;
+    const list = byDay[ds] || [];
+    const st = calDayStats(list);
+    let dots = '';
+    ['Income','Expense','Investment'].forEach(cat=>{
+      const ofCat = list.filter(e=>e.category === cat);
+      if(!ofCat.length) return;
+      const anyOpen = ofCat.some(e=>e.status === 'Open');
+      const col = CATEGORY_COLORS[cat];
+      dots += `<i class="cal-dot${anyOpen ? ' open' : ''}" style="background:${col};color:${col};"></i>`;
+    });
+    const net = st.counted ? `<span class="cal-net ${st.net < 0 ? 'neg' : 'pos'}">${calCompact(st.net)}</span>` : `<span class="cal-net">&nbsp;</span>`;
+    const due = ds < todayStr && list.some(e=>e.status === 'Open' && e.category !== 'Capital');
+    const cls = 'cal-cell' + (ds === todayStr ? ' today' : '') + (due ? ' due' : '') + (ds === calSelectedDate ? ' sel' : '');
+    const label = `${parseLocalDate(ds).toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'})}, ${list.length} ${list.length === 1 ? 'entry' : 'entries'}`;
+    cells += `<button type="button" class="${cls}" data-date="${ds}" role="gridcell" aria-label="${label}"><span class="d">${d}</span><span class="cal-dots">${dots}</span>${net}</button>`;
+  }
+  document.getElementById('calGrid').innerHTML = cells;
+  renderCalendarDay(byDay);
+}
+function renderCalendarDay(byDay){
+  if(!byDay){
+    byDay = {};
+    entries.forEach(e=>{ if(e.date === calSelectedDate) (byDay[e.date] = byDay[e.date] || []).push(e); });
+  }
+  const list = (byDay[calSelectedDate] || []).slice().sort((a,b)=> a.id - b.id);
+  const st = calDayStats(list);
+  document.getElementById('calDayTitle').textContent = parseLocalDate(calSelectedDate).toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'});
+  const netEl = document.getElementById('calDayNet');
+  if(st.counted){
+    netEl.textContent = 'Net ' + fmtMoney(st.net);
+    netEl.style.color = st.net < 0 ? '#C1583F' : '#3E7C59';
+  } else { netEl.textContent = ''; }
+  const box = document.getElementById('calDayList');
+  if(!list.length){
+    box.innerHTML = `<div class="muted cal-empty">Nothing on this day</div>`;
+    return;
+  }
+  box.innerHTML = list.map(e=> renderEntryRow(e, false, false)).join('');
+  attachEntryRowHandlers(box);
+}
+function calChangeMonth(delta){
+  calDate = new Date(calDate.getFullYear(), calDate.getMonth() + delta, 1);
+  renderCalendar();
+}
+// monthDate (a Date) picks the month to show; otherwise the Home month.
+function openCalendarModal(monthDate){
+  const base = (monthDate instanceof Date) ? monthDate : homeDate;
+  calDate = new Date(base.getFullYear(), base.getMonth(), 1);
+  calSelectedDate = null;
+  renderCalendar();
+  document.getElementById('calendarModalOverlay').classList.add('active');
+}
+function closeCalendarModal(){
+  document.getElementById('calendarModalOverlay').classList.remove('active');
+}
+// Transactions: open on the month its period filter is showing.
+function calMonthForTransactions(){
+  const now = new Date();
+  if(txPeriod === 'nextmonth') return new Date(now.getFullYear(), now.getMonth()+1, 1);
+  if(txPeriod === 'thismonth') return new Date(now.getFullYear(), now.getMonth(), 1);
+  if(txPeriod === 'custom' && /^\d{4}-\d{2}-\d{2}$/.test(txDateFrom||'')){ const d = parseLocalDate(txDateFrom); return new Date(d.getFullYear(), d.getMonth(), 1); }
+  return homeDate;
+}
+document.getElementById('calendarBtn').addEventListener('click', ()=> openCalendarModal());
+document.getElementById('sidebarCalendarBtn')?.addEventListener('click', ()=> openCalendarModal());
+document.getElementById('homeCalendarBtn').addEventListener('click', ()=> openCalendarModal(homeDate));
+document.getElementById('txCalendarBtn').addEventListener('click', ()=> openCalendarModal(calMonthForTransactions()));
+document.getElementById('calendarModalClose').addEventListener('click', closeCalendarModal);
+document.getElementById('calendarModalOverlay').addEventListener('click', (e)=>{
+  if(e.target.id === 'calendarModalOverlay') closeCalendarModal();
+});
+document.getElementById('calPrev').addEventListener('click', ()=> calChangeMonth(-1));
+document.getElementById('calNext').addEventListener('click', ()=> calChangeMonth(1));
+document.getElementById('calGrid').addEventListener('click', (ev)=>{
+  const cell = ev.target.closest('.cal-cell[data-date]');
+  if(!cell) return;
+  calSelectedDate = cell.dataset.date;
+  document.querySelectorAll('#calGrid .cal-cell.sel').forEach(c=>c.classList.remove('sel'));
+  cell.classList.add('sel');
+  renderCalendarDay();
+});
+document.getElementById('calAddBtn').addEventListener('click', ()=> openEntryModal(null, calSelectedDate));
+// Swipe the page for next / previous month (touch only). Entry rows keep
+// their own swipe (close / delete), so they're excluded.
+makeSwipeable(document.getElementById('calendarSwipeArea'), {
+  el: document.getElementById('calendarSwipeArea'),
+  ignore: '.entry-row',
+  touchOnly: true,
+  canGo: ()=> true,
+  onSwipe: (dir)=> calChangeMonth(dir)
 });
 
 /* =========================================================
