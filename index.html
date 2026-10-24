@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v234 -->
+<!-- WEALTH.ME — v235 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1289,6 +1289,9 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
 .cal-tip{position:fixed;left:0;top:0;display:none;z-index:10;pointer-events:none;padding:10px;border-radius:8px;text-align:left;box-shadow:0 6px 18px rgba(0,0,0,.25);}
 .cal-tip .tt{font-size:13px;font-weight:600;line-height:1.3;}
 .cal-tip .tv{font-size:13px;font-weight:700;line-height:1.3;margin-top:2px;}
+
+/* calendar popup: entry rows without the category dot */
+#calendarModalOverlay .entry-dot{display:none;}
 </style>
 
 </head>
@@ -1790,7 +1793,7 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
         </button>
       </div>
       <div id="refreshStatus" class="muted" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 234</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 235</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -1831,7 +1834,7 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 234</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 235</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -2835,7 +2838,7 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 234;
+const APP_VERSION = 235;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
