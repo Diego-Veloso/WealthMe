@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v240 -->
+<!-- WEALTH.ME — v243 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1795,7 +1795,7 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
         </button>
       </div>
       <div id="refreshStatus" class="muted" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 240</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 243</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -1836,7 +1836,7 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 240</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 243</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -1891,6 +1891,14 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
         </div>
         <button class="btn btn-secondary btn-block" id="changePasswordBtn">Change Password</button>
       </div>
+      </div>
+
+      <!-- License: only shown when the app is opened through the license gate -->
+      <div class="card" id="licenseCard" style="display:none;margin-top:14px;">
+        <div class="section-title">License</div>
+        <p class="muted" id="licenseInfo" style="font-size:13px;margin:0 0 12px;"></p>
+        <button class="btn btn-secondary btn-block" id="licenseDeactivateBtn">Deactivate this device</button>
+        <p class="muted" style="font-size:12px;margin:10px 0 0;">Frees this device&rsquo;s slot so your code can be used on another phone or computer. Your entries aren&rsquo;t deleted, but you&rsquo;ll need your code to open Wealth.Me here again.</p>
       </div>
     </section>
 
@@ -2056,6 +2064,19 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
       <div class="section-title">✨ Tips &amp; Features</div>
       <p class="muted" style="font-size:13px;margin-bottom:10px;">A few things that aren't obvious just from looking at the app.</p>
 
+      <!-- First step accordion -->
+      <div class="accordion">
+        <div class="accordion-header" data-target="acc-first-step">
+          <span>🚀 First Step</span>
+          <svg class="accordion-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="accordion-body" id="acc-first-step">
+          <ul style="font-size:13px;line-height:1.8;margin:0;padding-left:18px;">
+            <li><strong>Starting with an empty app?</strong> Make your first entry the money you have available today: an Income entry marked Closed (for example &ldquo;Other Incomes&rdquo; with the note &ldquo;Starting balance&rdquo;). Your balance is built on top of it with every entry you add after that. It counts as income for that month.</li>
+          </ul>
+        </div>
+      </div>
+
       <!-- Gestures accordion -->
       <div class="accordion">
         <div class="accordion-header" data-target="acc-gestures">
@@ -2160,7 +2181,7 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
             <li>Tap <strong>"Add"</strong> to confirm</li>
             <li>Wealth.Me will appear on your home screen like a native app, opening fullscreen</li>
           </ol>
-          <p class="muted" style="font-size:12px;margin-top:10px;margin-bottom:0;">💡 Tip: If you host the app on GitHub Pages (<strong>diego-veloso.github.io/wealthme</strong>), Chrome will show an automatic install banner at the bottom of the screen.</p>
+          <p class="muted" style="font-size:12px;margin-top:10px;margin-bottom:0;">💡 Tip: Chrome may also show an install banner at the bottom of the screen when you open Wealth.Me.</p>
         </div>
       </div>
 
@@ -2840,7 +2861,7 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 240;
+const APP_VERSION = 243;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -9086,11 +9107,60 @@ document.getElementById('refreshAppBtn').addEventListener('click', ()=> checkFor
 document.getElementById('refreshAppBtnDesktop').addEventListener('click', ()=> checkForAppUpdate(document.getElementById('refreshStatusDesktop')));
 
 /* =========================================================
+   LICENSE CARD (Privacy page) — only appears when the app is served by
+   the license gate (Cloudflare Worker). Anywhere else the status request
+   fails or isn't JSON, and the card simply stays hidden.
+   ========================================================= */
+async function loadLicenseCard(){
+  if(!/^https?:$/.test(location.protocol)) return;
+  try{
+    const res = await fetch('/license/status', { credentials:'same-origin', cache:'no-store' });
+    if(!res.ok || !(res.headers.get('content-type') || '').includes('application/json')) return;
+    const st = await res.json();
+    if(!st || !st.licensed) return;
+    let info = `Licensed \u00b7 code ending ${st.keyLast4}`;
+    if(st.devicesUsed && st.deviceLimit) info += ` \u00b7 ${st.devicesUsed} of ${st.deviceLimit} devices were in use when this device was activated`;
+    document.getElementById('licenseInfo').textContent = info;
+    document.getElementById('licenseCard').style.display = '';
+  }catch(e){ /* not behind the gate */ }
+}
+let _licDeactArmed = false, _licDeactTimer = null;
+function resetLicenseDeactivateBtn(){
+  _licDeactArmed = false;
+  clearTimeout(_licDeactTimer);
+  const b = document.getElementById('licenseDeactivateBtn');
+  b.disabled = false;
+  b.textContent = 'Deactivate this device';
+}
+document.getElementById('licenseDeactivateBtn').addEventListener('click', async ()=>{
+  const b = document.getElementById('licenseDeactivateBtn');
+  if(!_licDeactArmed){
+    _licDeactArmed = true;
+    b.textContent = 'Tap again to confirm';
+    _licDeactTimer = setTimeout(resetLicenseDeactivateBtn, 4000);
+    return;
+  }
+  clearTimeout(_licDeactTimer);
+  b.disabled = true;
+  b.textContent = 'Deactivating\u2026';
+  try{
+    const res = await fetch('/license/deactivate', { method:'POST', credentials:'same-origin' });
+    const out = await res.json();
+    if(out && out.ok){ location.replace('/'); return; }
+    showToast((out && out.error) || 'Couldn\u2019t deactivate this device');
+  }catch(e){
+    showToast('Couldn\u2019t reach the license server');
+  }
+  resetLicenseDeactivateBtn();
+});
+
+/* =========================================================
    APP INITIALIZATION
    ========================================================= */
 
 
 function init(){
+  loadLicenseCard();
   currentLang = 'en';
   loadTheme();
   loadSyncUrl();
@@ -10718,7 +10788,7 @@ const TOUR_STEPS = [
   { view:'home', target:'#view-home .summary-grid', title:'The month at a glance', text:'Gross Income and Taxes (shown only when you have taxes), Net Income, Expenses, Investments, and Projected Balance \u2014 which also counts "Open" entries (planned but not done yet).' },
   { view:'home', target:'#lineChart', title:'Daily cashflow', text:'Your running balance day by day through the month, so you can see when money is tight or flush.' },
   { view:'home', target:'#donutWrap', title:'Breakdown', text:'See where your Income, Expenses, or Investments are going by category. Use the tabs above the chart to switch. Tap a row below the chart to drill in \u2014 on the chart itself, press and hold a slice (a quick tap won\u2019t open anything, so you can\u2019t trigger it by accident).' },
-  { view:'home', target:'#addFab', title:'Add an entry', text:'Tap + any time to add Income, an Expense, an Investment, or a Capital gain/loss. You\u2019ll set a date, category, amount, and whether it\u2019s Open (planned) or Closed (done).' },
+  { view:'home', target:'#addFab', title:'Add an entry', text:'Tap + any time to add Income, an Expense, an Investment, or a Capital gain/loss. You\u2019ll set a date, category, amount, and whether it\u2019s Open (planned) or Closed (done). Starting with an empty app? Make your first entry an Income entry (Closed) for the money you have available today \u2014 your balance builds on it from then on.' },
   { view:'home', target:'#notificationsBtn', title:'Notifications', text:'The bell shows anything Past Due or Due Today among your Open entries. It greys out when there\u2019s nothing waiting on you.' },
   { view:'home', target:'#themeToggleBtn', title:'Light / dark mode', text:'Tap to switch the whole app between light and dark instantly.' },
   { view:'home', target:'#insightsFab', title:'Insights', text:'A deeper look at your spending \u2014 trends, cost-cutting ideas, and more, generated automatically from your entries.' },
