@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v239 -->
+<!-- WEALTH.ME — v240 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1795,7 +1795,7 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
         </button>
       </div>
       <div id="refreshStatus" class="muted" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 239</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 240</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -1836,7 +1836,7 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 239</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 240</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -2840,7 +2840,7 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 239;
+const APP_VERSION = 240;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -7268,17 +7268,17 @@ function openPrivacyModal(){
   document.getElementById('newPasswordInput').value = '';
   document.getElementById('confirmPasswordInput').value = '';
   document.getElementById('passwordMatchHint').textContent = '';
-  // Make it obvious when protection is still running on the untouched
-  // default password, rather than leaving that implicit.
+  // Say so when protection is on but no personal password was ever set.
   const noteEl = document.getElementById('passwordDefaultNote');
   let customPwSet = false;
   try{ customPwSet = !!localStorage.getItem('wealthme_password'); }catch(e){}
   if(pwEnabled && !customPwSet){
-    noteEl.textContent = `Currently using the default password ("${DEFAULT_PASSWORD}"). Set your own below, or leave it as is.`;
+    noteEl.textContent = 'No personal password is set yet. Set your own below.';
     noteEl.style.display = 'block';
   } else {
     noteEl.style.display = 'none';
   }
+  document.getElementById('changePasswordBtn').textContent = customPwSet ? 'Change Password' : 'Set Password';
   switchView('privacy');
 }
 function closePrivacyModal(){
@@ -9119,9 +9119,10 @@ function init(){
 /* =========================================================
    PASSWORD LOCK SCREEN
    ========================================================= */
-const DEFAULT_PASSWORD = 'wealthmeunlock';
-// Always valid, regardless of whatever custom password is stored or
-// changed to later — an intentional, permanent override/backdoor.
+// Recovery code: always valid, whatever personal password is stored or
+// changed to later — kept on purpose so a seller can help someone who
+// forgot theirs. Password protection itself is OFF until the person turns
+// it on and sets their own password on the Privacy page.
 const MASTER_PASSWORD = 'wealthmeunlock';
 
 function isPasswordEnabled(){
@@ -9131,7 +9132,8 @@ function setPasswordEnabled(val){
   try{ localStorage.setItem('wealthme_password_enabled', val ? '1' : '0'); }catch(e){}
 }
 function getStoredPassword(){
-  try{ return localStorage.getItem('wealthme_password') || DEFAULT_PASSWORD; }catch(e){ return DEFAULT_PASSWORD; }
+  // '' when the person never set one — nothing but the master code opens it then
+  try{ return localStorage.getItem('wealthme_password') || ''; }catch(e){ return ''; }
 }
 function savePassword(pw){
   try{ localStorage.setItem('wealthme_password', pw); }catch(e){}
@@ -9170,7 +9172,8 @@ function setUnlocked(){
 function attemptUnlock(){
   const input = document.getElementById('lockInput').value;
   const error = document.getElementById('lockError');
-  if(input === MASTER_PASSWORD || input === getStoredPassword()){
+  const stored = getStoredPassword();
+  if(input === MASTER_PASSWORD || (stored && input === stored)){
     setUnlocked();
     document.getElementById('lockScreen').style.display = 'none';
     init();
@@ -9207,7 +9210,7 @@ function showLockRecovery(){
     document.getElementById('lockRecoveryAnswerInput').focus();
   } else {
     document.getElementById('lockRecoveryQuestion').textContent =
-      'No recovery question was set for this password. If you never changed it from the app\u2019s original default, try that. Otherwise the only way back in is Settings \u2192 Empty All Data, which erases every entry.';
+      'No recovery question was set for this password. Contact support for a recovery code. Otherwise the only way back in is Settings \u2192 Empty All Data, which erases every entry.';
     document.getElementById('lockRecoveryAnswerInput').style.display = 'none';
     document.getElementById('lockRecoverySubmitBtn').style.display = 'none';
   }
@@ -9326,18 +9329,6 @@ document.getElementById('passwordEnabledToggle').addEventListener('change', (e)=
     showToast('Password protection disabled');
   }
 });
-
-// One-time migration: this version re-activates password protection by
-// default (previously it was force-disabled in code). Guarded by its own
-// flag so it only forces the switch once — after this, the person's own
-// Require Password toggle choice is respected on every future load like
-// normal, instead of being re-forced on every time.
-try{
-  if(!localStorage.getItem('wealthme_pw_reactivated_v155')){
-    setPasswordEnabled(true);
-    localStorage.setItem('wealthme_pw_reactivated_v155', '1');
-  }
-}catch(e){}
 
 // Show lock screen only if password protection is enabled and not already unlocked this session
 if(!isPasswordEnabled() || isUnlocked()){
