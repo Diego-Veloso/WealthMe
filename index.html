@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v243 -->
+<!-- WEALTH.ME — v244 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1795,7 +1795,7 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
         </button>
       </div>
       <div id="refreshStatus" class="muted" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 243</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 244</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -1836,7 +1836,7 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 243</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 244</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -1893,13 +1893,6 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
       </div>
       </div>
 
-      <!-- License: only shown when the app is opened through the license gate -->
-      <div class="card" id="licenseCard" style="display:none;margin-top:14px;">
-        <div class="section-title">License</div>
-        <p class="muted" id="licenseInfo" style="font-size:13px;margin:0 0 12px;"></p>
-        <button class="btn btn-secondary btn-block" id="licenseDeactivateBtn">Deactivate this device</button>
-        <p class="muted" style="font-size:12px;margin:10px 0 0;">Frees this device&rsquo;s slot so your code can be used on another phone or computer. Your entries aren&rsquo;t deleted, but you&rsquo;ll need your code to open Wealth.Me here again.</p>
-      </div>
     </section>
 
     <!-- ===== Appearance Page ===== -->
@@ -2181,7 +2174,7 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
             <li>Tap <strong>"Add"</strong> to confirm</li>
             <li>Wealth.Me will appear on your home screen like a native app, opening fullscreen</li>
           </ol>
-          <p class="muted" style="font-size:12px;margin-top:10px;margin-bottom:0;">💡 Tip: Chrome may also show an install banner at the bottom of the screen when you open Wealth.Me.</p>
+          <p class="muted" style="font-size:12px;margin-top:10px;margin-bottom:0;">💡 Tip: If you host the app on GitHub Pages (<strong>diego-veloso.github.io/wealthme</strong>), Chrome will show an automatic install banner at the bottom of the screen.</p>
         </div>
       </div>
 
@@ -2861,7 +2854,7 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 243;
+const APP_VERSION = 244;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -9107,60 +9100,11 @@ document.getElementById('refreshAppBtn').addEventListener('click', ()=> checkFor
 document.getElementById('refreshAppBtnDesktop').addEventListener('click', ()=> checkForAppUpdate(document.getElementById('refreshStatusDesktop')));
 
 /* =========================================================
-   LICENSE CARD (Privacy page) — only appears when the app is served by
-   the license gate (Cloudflare Worker). Anywhere else the status request
-   fails or isn't JSON, and the card simply stays hidden.
-   ========================================================= */
-async function loadLicenseCard(){
-  if(!/^https?:$/.test(location.protocol)) return;
-  try{
-    const res = await fetch('/license/status', { credentials:'same-origin', cache:'no-store' });
-    if(!res.ok || !(res.headers.get('content-type') || '').includes('application/json')) return;
-    const st = await res.json();
-    if(!st || !st.licensed) return;
-    let info = `Licensed \u00b7 code ending ${st.keyLast4}`;
-    if(st.devicesUsed && st.deviceLimit) info += ` \u00b7 ${st.devicesUsed} of ${st.deviceLimit} devices were in use when this device was activated`;
-    document.getElementById('licenseInfo').textContent = info;
-    document.getElementById('licenseCard').style.display = '';
-  }catch(e){ /* not behind the gate */ }
-}
-let _licDeactArmed = false, _licDeactTimer = null;
-function resetLicenseDeactivateBtn(){
-  _licDeactArmed = false;
-  clearTimeout(_licDeactTimer);
-  const b = document.getElementById('licenseDeactivateBtn');
-  b.disabled = false;
-  b.textContent = 'Deactivate this device';
-}
-document.getElementById('licenseDeactivateBtn').addEventListener('click', async ()=>{
-  const b = document.getElementById('licenseDeactivateBtn');
-  if(!_licDeactArmed){
-    _licDeactArmed = true;
-    b.textContent = 'Tap again to confirm';
-    _licDeactTimer = setTimeout(resetLicenseDeactivateBtn, 4000);
-    return;
-  }
-  clearTimeout(_licDeactTimer);
-  b.disabled = true;
-  b.textContent = 'Deactivating\u2026';
-  try{
-    const res = await fetch('/license/deactivate', { method:'POST', credentials:'same-origin' });
-    const out = await res.json();
-    if(out && out.ok){ location.replace('/'); return; }
-    showToast((out && out.error) || 'Couldn\u2019t deactivate this device');
-  }catch(e){
-    showToast('Couldn\u2019t reach the license server');
-  }
-  resetLicenseDeactivateBtn();
-});
-
-/* =========================================================
    APP INITIALIZATION
    ========================================================= */
 
 
 function init(){
-  loadLicenseCard();
   currentLang = 'en';
   loadTheme();
   loadSyncUrl();
