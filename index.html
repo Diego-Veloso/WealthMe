@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v244 -->
+<!-- WEALTH.ME — v247 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1298,6 +1298,24 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
 
 </head>
 <body>
+<!-- ===== License Key Screen (only used when the license gate is switched on) ===== -->
+<div id="licenseScreen" style="
+  display:none;position:fixed;inset:0;background:#0F1B2D;
+  flex-direction:column;align-items:center;justify-content:center;
+  z-index:1000;padding:32px;overflow-y:auto;
+">
+  <div style="width:60px;height:60px;border-radius:16px;background:#1a2d45;display:flex;align-items:center;justify-content:center;margin-bottom:20px;">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#F7F4EF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="15" r="4"/><path d="M10.85 12.15 19 4"/><path d="m18 5 3 3"/><path d="m15 8 3 3"/></svg>
+  </div>
+  <div style="font-family:'Inter',sans-serif;font-size:13px;font-weight:600;color:#8fa3b0;margin-bottom:6px;letter-spacing:.5px;">Wealth.Me</div>
+  <h1 style="font-family:'Inter',sans-serif;font-size:24px;font-weight:600;color:#F7F4EF;margin:0 0 8px;text-align:center;">Enter your license key</h1>
+  <div style="font-size:13px;color:#8fa3b0;margin-bottom:28px;text-align:center;max-width:320px;line-height:1.45;">Your key was emailed to you after purchase. You need an internet connection the first time.</div>
+  <input type="text" id="licenseInput" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="License key"
+    style="width:100%;max-width:320px;padding:14px 16px;border-radius:12px;border:1px solid #2a3d54;background:#1a2d45;color:#F7F4EF;font-size:15px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;outline:none;text-align:center;box-sizing:border-box;margin-bottom:12px;">
+  <div id="licenseError" role="alert" style="color:#E88B73;font-size:13px;min-height:20px;margin-bottom:12px;max-width:320px;text-align:center;line-height:1.4;"></div>
+  <button id="licenseBtn" type="button" style="width:100%;max-width:320px;padding:14px;border-radius:12px;border:none;background:#F7F4EF;color:#0F1B2D;font-size:15px;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;">Activate</button>
+</div>
+
 <!-- ===== Password Lock Screen ===== -->
 <div id="lockScreen" style="
   position:fixed;inset:0;background:#0F1B2D;
@@ -1795,7 +1813,7 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
         </button>
       </div>
       <div id="refreshStatus" class="muted" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 244</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">Wealth.Me · version 247</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -1836,7 +1854,7 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 244</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">Wealth.Me · version 247</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -1891,6 +1909,14 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
         </div>
         <button class="btn btn-secondary btn-block" id="changePasswordBtn">Change Password</button>
       </div>
+      </div>
+
+      <!-- License: only shown when the license gate is on and this device is activated -->
+      <div class="card" id="licenseCard" style="display:none;margin-top:14px;">
+        <div class="section-title">License</div>
+        <p class="muted" id="licenseInfo" style="font-size:13px;margin:0 0 12px;"></p>
+        <button class="btn btn-secondary btn-block" id="licenseDeactivateBtn">Deactivate this device</button>
+        <p class="muted" style="font-size:12px;margin:10px 0 0;">Use this before you switch to a new phone or computer, so your key can be activated there. Your entries aren&rsquo;t deleted, but you&rsquo;ll need your key to open Wealth.Me on this device again.</p>
       </div>
 
     </section>
@@ -2854,7 +2880,7 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 244;
+const APP_VERSION = 247;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -7272,6 +7298,7 @@ function closeSettingsModal(){
   switchView('more');
 }
 function openPrivacyModal(){
+  updateLicenseCard();
   const pwEnabled = isPasswordEnabled();
   document.getElementById('passwordEnabledToggle').checked = pwEnabled;
   document.getElementById('passwordFieldsWrap').style.display = pwEnabled ? 'block' : 'none';
@@ -9344,14 +9371,331 @@ document.getElementById('passwordEnabledToggle').addEventListener('change', (e)=
   }
 });
 
-// Show lock screen only if password protection is enabled and not already unlocked this session
-if(!isPasswordEnabled() || isUnlocked()){
-  document.getElementById('lockScreen').style.display = 'none';
-  init();
-} else {
-  // Don't call init() yet — called after successful unlock
-  document.getElementById('lockInput').focus();
+/* =========================================================
+   LICENSE GATE (Lemon Squeezy) — OFF until BOTH IDs below are filled in.
+   The key is entered once per device, checked with Lemon Squeezy, and the
+   app only opens if it belongs to THIS store and product. The saved
+   license survives restarts and errors; it is re-checked every 7 days, and
+   a network problem never locks anyone out — only an explicit "no" from
+   Lemon Squeezy (key disabled, expired, refunded, device removed) does.
+   ========================================================= */
+const LICENSE_STORE_ID   = '497527';   // your Lemon Squeezy store ID
+const LICENSE_PRODUCT_ID = '1472717';   // your product ID (several are allowed, comma-separated)
+// Official endpoint. If browsers ever block direct calls to it, point this at the
+// optional license-proxy-worker.js instead (see LICENSE-SETUP.md).
+const LICENSE_API_BASE   = 'https://api.lemonsqueezy.com/v1/licenses';
+// Master key (for the owner): opens the app without Lemon Squeezy and without a device limit.
+// Only a SHA-256 fingerprint of "salt:key" is stored here, never the key itself. Empty = master key off.
+const LICENSE_MASTER_SALT = 'wealthme-license-v1';
+const LICENSE_MASTER_HASH = '8cd655ae1ce825d0133bedc4cb3793f3cf8932ea2f1c3d280eeb70b1179cd4b8';
+const LICENSE_RECHECK_MS = 7 * 24 * 60 * 60 * 1000;
+const LICENSE_TIMEOUT_MS = 10000;
+const LICENSE_KEY_MAIN   = 'wealthme_license';
+const LICENSE_KEY_BACKUP = 'wealthme_license_bak';
+
+// Small self-contained SHA-256 (works on any page, secure context or not).
+function licenseSha256Hex(text){
+  const bytes = Array.from(new TextEncoder().encode(String(text)));
+  const K = [], H = [];
+  const isPrime = n => { for(let i = 2; i * i <= n; i++) if(n % i === 0) return false; return true; };
+  for(let n = 2, c = 0; c < 64; n++){
+    if(!isPrime(n)) continue;
+    if(c < 8) H[c] = (Math.pow(n, 1/2) % 1) * 4294967296 | 0;
+    K[c] = (Math.pow(n, 1/3) % 1) * 4294967296 | 0;
+    c++;
+  }
+  const bitLen = bytes.length * 8;
+  bytes.push(0x80);
+  while(bytes.length % 64 !== 56) bytes.push(0);
+  const hi = Math.floor(bitLen / 4294967296), lo = bitLen >>> 0;
+  for(let i = 3; i >= 0; i--) bytes.push((hi >>> (i * 8)) & 255);
+  for(let i = 3; i >= 0; i--) bytes.push((lo >>> (i * 8)) & 255);
+  const rr = (x, n) => (x >>> n) | (x << (32 - n));
+  for(let off = 0; off < bytes.length; off += 64){
+    const w = new Array(64);
+    for(let i = 0; i < 16; i++) w[i] = (bytes[off+4*i] << 24) | (bytes[off+4*i+1] << 16) | (bytes[off+4*i+2] << 8) | bytes[off+4*i+3];
+    for(let i = 16; i < 64; i++){
+      const s0 = rr(w[i-15], 7) ^ rr(w[i-15], 18) ^ (w[i-15] >>> 3);
+      const s1 = rr(w[i-2], 17) ^ rr(w[i-2], 19) ^ (w[i-2] >>> 10);
+      w[i] = (w[i-16] + s0 + w[i-7] + s1) | 0;
+    }
+    let [a, b, c, d, e, f, g, h] = H;
+    for(let i = 0; i < 64; i++){
+      const S1 = rr(e, 6) ^ rr(e, 11) ^ rr(e, 25), ch = (e & f) ^ (~e & g), t1 = (h + S1 + ch + K[i] + w[i]) | 0;
+      const S0 = rr(a, 2) ^ rr(a, 13) ^ rr(a, 22), mj = (a & b) ^ (a & c) ^ (b & c), t2 = (S0 + mj) | 0;
+      h = g; g = f; f = e; e = (d + t1) | 0; d = c; c = b; b = a; a = (t1 + t2) | 0;
+    }
+    H[0] = (H[0] + a) | 0; H[1] = (H[1] + b) | 0; H[2] = (H[2] + c) | 0; H[3] = (H[3] + d) | 0;
+    H[4] = (H[4] + e) | 0; H[5] = (H[5] + f) | 0; H[6] = (H[6] + g) | 0; H[7] = (H[7] + h) | 0;
+  }
+  return H.map(x => (x >>> 0).toString(16).padStart(8, '0')).join('');
 }
+function licenseIsMasterKey(key){
+  return !!LICENSE_MASTER_HASH && licenseSha256Hex(LICENSE_MASTER_SALT + ':' + key) === LICENSE_MASTER_HASH;
+}
+
+function licenseGateEnabled(){
+  return !!(String(LICENSE_STORE_ID).trim() && String(LICENSE_PRODUCT_ID).trim());
+}
+function licenseProductIds(){
+  return String(LICENSE_PRODUCT_ID).split(',').map(x=>x.trim()).filter(Boolean);
+}
+function licenseRead(){
+  for(const k of [LICENSE_KEY_MAIN, LICENSE_KEY_BACKUP]){
+    try{
+      const o = JSON.parse(localStorage.getItem(k));
+      if(o && o.key && o.instanceId && typeof o.lastCheck === 'number') return o;
+    }catch(e){ /* unreadable copy: try the other one */ }
+  }
+  return null;
+}
+function licenseWrite(rec){
+  const txt = JSON.stringify(rec);
+  try{ localStorage.setItem(LICENSE_KEY_MAIN, txt); }catch(e){}
+  try{ localStorage.setItem(LICENSE_KEY_BACKUP, txt); }catch(e){}
+}
+function licenseClear(){
+  try{ localStorage.removeItem(LICENSE_KEY_MAIN); }catch(e){}
+  try{ localStorage.removeItem(LICENSE_KEY_BACKUP); }catch(e){}
+}
+// The saved license only counts for the store/product the app is currently configured for.
+function licenseSavedForThisApp(rec){
+  if(rec && rec.master === true){                  // owner's master key: not tied to the store/product IDs,
+    // but it only counts while the app still carries the same master-key fingerprint, so changing the key revokes it
+    return !!LICENSE_MASTER_HASH && rec.masterFp === LICENSE_MASTER_HASH.slice(0, 16);
+  }
+  return !!rec && String(rec.storeId) === String(LICENSE_STORE_ID).trim() &&
+         String(rec.productId) === String(LICENSE_PRODUCT_ID).trim();
+}
+function licenseMetaMatches(data){
+  const m = (data && data.meta) || {};
+  return String(m.store_id) === String(LICENSE_STORE_ID).trim() &&
+         licenseProductIds().includes(String(m.product_id));
+}
+function licenseDeviceName(){
+  const ua = navigator.userAgent || '';
+  const os = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android'
+    : /Windows/.test(ua) ? 'Windows' : /Mac OS X|Macintosh/.test(ua) ? 'Mac' : /Linux/.test(ua) ? 'Linux' : 'Device';
+  const br = /Edg\//.test(ua) ? 'Edge' : /Firefox|FxiOS/.test(ua) ? 'Firefox'
+    : /Chrome|CriOS/.test(ua) ? 'Chrome' : /Safari/.test(ua) ? 'Safari' : 'Browser';
+  const tag = Math.floor(Math.random() * 0x10000).toString(16).padStart(4, '0');
+  return `Wealth.Me \u00b7 ${os} \u00b7 ${br} \u00b7 ${tag}`;
+}
+function licenseFriendlyError(msg){
+  const m = String(msg || '').toLowerCase();
+  if(m.includes('activation limit')) return 'This key has already been used on the maximum number of devices. Open Wealth.Me on a device you no longer use and choose Deactivate this device (More \u2192 Privacy), or contact the seller.';
+  if(m.includes('expired')) return 'This license has expired.';
+  if(m.includes('disabled')) return 'This license has been disabled. Please contact the seller.';
+  return 'That key wasn\u2019t recognized. Check it and try again.';
+}
+
+// One call to the license server. A network failure, timeout, rate limit, server
+// error or an unreadable reply is reported as {networkError:true} — never as a verdict on the key.
+async function licenseCall(action, params){
+  const ctrl = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+  const timer = ctrl ? setTimeout(()=> ctrl.abort(), LICENSE_TIMEOUT_MS) : null;
+  try{
+    const res = await fetch(`${LICENSE_API_BASE.replace(/\/+$/, '')}/${action}`, {
+      method: 'POST',
+      headers: { 'Accept': 'application/json', 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams(params).toString(),
+      cache: 'no-store',
+      signal: ctrl ? ctrl.signal : undefined
+    });
+    if(res.status >= 500 || res.status === 429) return { networkError: true, status: res.status };
+    let data;
+    try{ data = await res.json(); }catch(e){ return { networkError: true, status: res.status }; }
+    return { ok: true, status: res.status, data };
+  }catch(e){
+    return { networkError: true };
+  }finally{
+    if(timer) clearTimeout(timer);
+  }
+}
+
+async function licenseActivate(rawKey){
+  const key = String(rawKey || '').trim();
+  if(!key) return { ok:false, message:'Please enter your license key.' };
+  if(licenseIsMasterKey(key)){
+    // owner's master key: no Lemon Squeezy call, no device limit, works offline, never re-checked
+    licenseWrite({ master: true, masterFp: LICENSE_MASTER_HASH.slice(0, 16), key: 'master', instanceId: 'master',
+      storeId: String(LICENSE_STORE_ID).trim(), productId: String(LICENSE_PRODUCT_ID).trim(),
+      activatedAt: Date.now(), lastCheck: Date.now() });
+    return { ok:true };
+  }
+  if(key.length > 100) return { ok:false, message:'That key wasn\u2019t recognized. Check it and try again.' };
+  const res = await licenseCall('activate', { license_key: key, instance_name: licenseDeviceName() });
+  if(res.networkError) return { ok:false, message:'We couldn\u2019t reach the license server. Check your internet connection and try again.' };
+  const d = res.data || {};
+  if(!d.activated || !d.instance || !d.instance.id) return { ok:false, message: licenseFriendlyError(d.error) };
+  if(!licenseMetaMatches(d)){
+    // a key from another store or product: undo the activation it just created, best effort
+    await licenseCall('deactivate', { license_key: key, instance_id: d.instance.id });
+    return { ok:false, message:'This key isn\u2019t valid for this app.' };
+  }
+  const lk = d.license_key || {};
+  licenseWrite({
+    key, instanceId: d.instance.id,
+    storeId: String(LICENSE_STORE_ID).trim(), productId: String(LICENSE_PRODUCT_ID).trim(),
+    activatedAt: Date.now(), lastCheck: Date.now(),
+    usage: lk.activation_usage, limit: lk.activation_limit
+  });
+  return { ok:true };
+}
+
+let _licCheckBusy = false;
+async function licenseRevalidate(){
+  if(!licenseGateEnabled() || _licCheckBusy) return;
+  const rec = licenseRead();
+  if(!licenseSavedForThisApp(rec) || rec.master === true) return;
+  const now = Date.now();
+  const due = (now - rec.lastCheck > LICENSE_RECHECK_MS) || (rec.lastCheck > now + 24*60*60*1000);   // 2nd case: clock was set back
+  if(!due) return;
+  _licCheckBusy = true;
+  try{
+    const res = await licenseCall('validate', { license_key: rec.key, instance_id: rec.instanceId });
+    if(res.networkError) return;                    // offline or server trouble: keep working, try again later
+    const d = res.data || {};
+    if(d.valid === true && licenseMetaMatches(d)){
+      rec.lastCheck = Date.now();
+      licenseWrite(rec);
+      return;
+    }
+    if(d.valid === false || (d.valid === true && !licenseMetaMatches(d))){
+      // an explicit "no": disabled, expired or refunded key, removed device, or not this product
+      licenseClear();
+      licenseShowScreen('This license is no longer active. If you think that\u2019s a mistake, please contact the seller.');
+    }
+    // any other reply shape is inconclusive, so nobody is locked out by it
+  }finally{
+    _licCheckBusy = false;
+  }
+}
+
+/* ---- license screen ---- */
+function licenseShowScreen(message){
+  const el = document.getElementById('licenseScreen');
+  el.style.display = 'flex';
+  document.getElementById('licenseError').textContent = message || '';
+  const input = document.getElementById('licenseInput');
+  const btn = document.getElementById('licenseBtn');
+  btn.disabled = false; btn.textContent = 'Activate';
+  if(!input.value) input.value = '';
+  setTimeout(()=>{ try{ input.focus(); }catch(e){} }, 50);
+}
+function licenseHideScreen(){
+  document.getElementById('licenseScreen').style.display = 'none';
+}
+async function licenseSubmit(){
+  const input = document.getElementById('licenseInput');
+  const btn = document.getElementById('licenseBtn');
+  const err = document.getElementById('licenseError');
+  if(btn.disabled) return;
+  btn.disabled = true; btn.textContent = 'Checking\u2026'; err.textContent = '';
+  const out = await licenseActivate(input.value);
+  if(out.ok){
+    input.value = '';
+    try{ const u = new URL(location.href); if(u.searchParams.has('license_key') || u.searchParams.has('key')){ u.searchParams.delete('license_key'); u.searchParams.delete('key'); history.replaceState(null, '', u.pathname + (u.search || '') + u.hash); } }catch(e){}
+    licenseHideScreen();
+    startApp();
+    return;
+  }
+  err.textContent = out.message;
+  btn.disabled = false; btn.textContent = 'Activate';
+}
+document.getElementById('licenseBtn').addEventListener('click', licenseSubmit);
+document.getElementById('licenseInput').addEventListener('keydown', (e)=>{ if(e.key === 'Enter') licenseSubmit(); });
+
+/* ---- Privacy page: Deactivate this device ---- */
+let _licDeactArmed = false, _licDeactTimer = null;
+function resetLicenseDeactivateBtn(){
+  _licDeactArmed = false;
+  clearTimeout(_licDeactTimer);
+  const b = document.getElementById('licenseDeactivateBtn');
+  b.disabled = false;
+  b.textContent = 'Deactivate this device';
+}
+function updateLicenseCard(){
+  const card = document.getElementById('licenseCard');
+  const rec = licenseGateEnabled() ? licenseRead() : null;
+  if(!rec || !licenseSavedForThisApp(rec)){ card.style.display = 'none'; return; }
+  document.getElementById('licenseInfo').textContent = rec.master === true ? 'Licensed \u00b7 master key (no device limit)' : `Licensed \u00b7 key ending ${String(rec.key).slice(-4)}`;
+  card.style.display = '';
+  resetLicenseDeactivateBtn();
+}
+document.getElementById('licenseDeactivateBtn').addEventListener('click', async ()=>{
+  const b = document.getElementById('licenseDeactivateBtn');
+  if(!_licDeactArmed){
+    _licDeactArmed = true;
+    b.textContent = 'Tap again to confirm';
+    _licDeactTimer = setTimeout(resetLicenseDeactivateBtn, 4000);
+    return;
+  }
+  clearTimeout(_licDeactTimer);
+  b.disabled = true; b.textContent = 'Deactivating\u2026';
+  const rec = licenseRead();
+  if(!rec){ resetLicenseDeactivateBtn(); updateLicenseCard(); return; }
+  if(rec.master === true){          // master key: nothing to release on the server, just sign this device out
+    licenseClear();
+    resetLicenseDeactivateBtn();
+    updateLicenseCard();
+    licenseShowScreen('This device was deactivated. Enter a key to use Wealth.Me again.');
+    return;
+  }
+  const res = await licenseCall('deactivate', { license_key: rec.key, instance_id: rec.instanceId });
+  if(res.networkError){
+    showToast('Connect to the internet to deactivate this device');
+    resetLicenseDeactivateBtn();
+    return;
+  }
+  const d = res.data || {};
+  const alreadyGone = res.status === 404;      // the device was already removed on the Lemon Squeezy side
+  if(d.deactivated === true || alreadyGone){
+    licenseClear();
+    resetLicenseDeactivateBtn();
+    updateLicenseCard();
+    licenseShowScreen('This device was deactivated. Enter a key to use Wealth.Me again.');
+    return;
+  }
+  showToast(d.error || 'Couldn\u2019t deactivate this device');
+  resetLicenseDeactivateBtn();
+});
+
+/* ---- start-up ---- */
+let _appStarted = false;
+function startApp(){
+  if(_appStarted) return;
+  _appStarted = true;
+  // Show lock screen only if password protection is enabled and not already unlocked this session
+  if(!isPasswordEnabled() || isUnlocked()){
+    document.getElementById('lockScreen').style.display = 'none';
+    init();
+  } else {
+    // Don't call init() yet — called after successful unlock
+    document.getElementById('lockInput').focus();
+  }
+}
+function licenseBoot(){
+  if(!licenseGateEnabled()){ startApp(); return; }          // gate switched off: the app behaves exactly as before
+  document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState === 'visible') licenseRevalidate(); });
+  window.addEventListener('online', licenseRevalidate);
+  setInterval(licenseRevalidate, 60 * 60 * 1000);
+  const rec = licenseRead();
+  if(licenseSavedForThisApp(rec)){
+    startApp();
+    licenseRevalidate();
+    return;
+  }
+  // not activated on this device yet: the key screen comes first, the app only starts after it
+  try{
+    const q = new URL(location.href).searchParams;
+    const pre = q.get('license_key') || q.get('key') || '';
+    if(pre) document.getElementById('licenseInput').value = pre.trim().slice(0, 100);
+  }catch(e){}
+  licenseShowScreen('');
+}
+licenseBoot();
+
 
 
 // Payoff-goal stats for one debt type+account, computed from that
