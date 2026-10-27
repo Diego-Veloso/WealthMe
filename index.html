@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v249 -->
+<!-- WEALTH.ME — v251 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1307,7 +1307,7 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
   z-index:1000;padding:32px;overflow-y:auto;
 ">
   <div style="margin:auto 0;width:100%;display:flex;flex-direction:column;align-items:center;">
-    <div style="width:72px;height:72px;border-radius:18px;background:#002448;overflow:hidden;display:flex;align-items:center;justify-content:center;margin-bottom:18px;">
+    <div style="width:144px;height:144px;border-radius:36px;background:#002448;overflow:hidden;display:flex;align-items:center;justify-content:center;margin-bottom:22px;">
       <img id="licenseLogo" alt="WealthMe logo" style="width:100%;height:100%;object-fit:cover;display:block;">
     </div>
     <div style="font-family:'Inter',sans-serif;font-size:13px;font-weight:600;color:#8fa3b0;margin-bottom:6px;letter-spacing:.5px;">WealthMe</div>
@@ -1826,7 +1826,7 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
         </button>
       </div>
       <div id="refreshStatus" class="muted" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 249</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 251</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -1867,7 +1867,7 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 249</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 251</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -2933,7 +2933,7 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 249;
+const APP_VERSION = 251;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -2942,6 +2942,24 @@ const CATEGORY_MAP = {
   Investment: ["Cash","Crypto","Emergency","Retirement","Bonds & Stocks","Other"],
   Capital: ["Cash","Crypto","Emergency","Retirement","Bonds & Stocks","Other"]
 };
+// Investment and Capital always share the SAME subcategories. Investment is the master list;
+// Capital is kept as an exact copy of it (see syncCapitalMirror), and every Settings change
+// to either one is applied to both.
+const MIRRORED_CATS = ['Investment', 'Capital'];
+function isMirroredCat(cat){ return MIRRORED_CATS.includes(cat); }
+function mirrorCats(cat){ return isMirroredCat(cat) ? MIRRORED_CATS : [cat]; }
+function syncCapitalMirror(adoptOrphans){
+  // When old saved data is loaded (adoptOrphans = true), a Capital entry whose subcategory isn't in the
+  // Investment list yet adds it, so nothing already logged disappears. Settings edits pass false.
+  if(adoptOrphans){
+    entries.forEach(e=>{
+      if(e.category === 'Capital' && e.subcategory && !CATEGORY_MAP.Investment.includes(e.subcategory)){
+        CATEGORY_MAP.Investment.push(e.subcategory);
+      }
+    });
+  }
+  CATEGORY_MAP.Capital = CATEGORY_MAP.Investment.slice();
+}
 const CATEGORY_COLORS = {
   Income:"#3E7C59", Expense:"#C1583F", Investment:"#D4A24E", Capital:"#5C6B7A"
 };
@@ -3255,6 +3273,7 @@ function loadState(){
         if(Array.isArray(parsed[c]) && parsed[c].length > 0){ CATEGORY_MAP[c] = parsed[c]; }
       });
     }
+    syncCapitalMirror(true);
     if(bg){ BUDGETS = JSON.parse(bg); }
     if(cl){ CREDIT_LIMITS = JSON.parse(cl); }
     if(bp){
@@ -5800,6 +5819,7 @@ function populateEntryCategorySelectors(selectedCategory, selectedSub){
   const sortedSubs = CATEGORY_MAP[selectedCategory].slice().sort((a,b)=>a.localeCompare(b));
   subSel.innerHTML = sortedSubs.map(s=>`<option value="${s}" ${s===selectedSub?'selected':''}>${s}</option>`).join('');
 
+  catSel.dataset.prev = selectedCategory;
   document.getElementById('entryTypeField').style.display = (selectedCategory === 'Expense') ? 'block' : 'none';
   if(selectedCategory === 'Expense'){
     populateEntryAccountSelector(document.getElementById('entryType').value, null);
@@ -5830,7 +5850,9 @@ function populateEntryAccountSelector(selectedType, selectedAccount){
 
 document.getElementById('entryCategory').addEventListener('change', (e)=>{
   const cat = e.target.value;
-  populateEntryCategorySelectors(cat, CATEGORY_MAP[cat][0]);
+  // Investment <-> Capital share the same subcategories, so the one already picked stays picked
+  const keepSub = isMirroredCat(e.target.dataset.prev) && isMirroredCat(cat) ? document.getElementById('entrySubcategory').value : null;
+  populateEntryCategorySelectors(cat, keepSub && CATEGORY_MAP[cat].includes(keepSub) ? keepSub : CATEGORY_MAP[cat][0]);
   // an existing entry can only be filled from a receipt while it is an Expense
   if(document.getElementById('entryId').value){
     document.getElementById('receiptScanRow').style.display = (cat === 'Expense') ? '' : 'none';
@@ -6570,6 +6592,7 @@ function populateRecurringCategorySelectors(selectedCategory, selectedSub){
   const sortedSubs = CATEGORY_MAP[selectedCategory].slice().sort((a,b)=>a.localeCompare(b));
   subSel.innerHTML = sortedSubs.map(s=>`<option value="${s}" ${s===selectedSub?'selected':''}>${s}</option>`).join('');
 
+  catSel.dataset.prev = selectedCategory;
   document.getElementById('recurringTypeField').style.display = (selectedCategory === 'Expense') ? 'block' : 'none';
   if(selectedCategory === 'Expense'){
     populateRecurringAccountSelector(document.getElementById('recurringType').value, null);
@@ -6594,7 +6617,8 @@ function populateRecurringAccountSelector(selectedType, selectedAccount){
 }
 document.getElementById('recurringCategory').addEventListener('change', (e)=>{
   const cat = e.target.value;
-  populateRecurringCategorySelectors(cat, CATEGORY_MAP[cat][0]);
+  const keepSub = isMirroredCat(e.target.dataset.prev) && isMirroredCat(cat) ? document.getElementById('recurringSubcategory').value : null;
+  populateRecurringCategorySelectors(cat, keepSub && CATEGORY_MAP[cat].includes(keepSub) ? keepSub : CATEGORY_MAP[cat][0]);
 });
 document.getElementById('recurringType').addEventListener('change', (e)=>{
   populateRecurringAccountSelector(e.target.value, null);
@@ -6770,6 +6794,7 @@ function applySettingsRow(e){
       Object.keys(CATEGORY_MAP).forEach(c=>{
         if(Array.isArray(parsed[c]) && parsed[c].length > 0){ CATEGORY_MAP[c] = parsed[c]; }
       });
+      syncCapitalMirror(true);
       return true;
     }
     if(e.subcategory === 'DEBT_ACCOUNTS'){
@@ -8855,7 +8880,10 @@ function renderSubcategoryManager(){
     </div>
   `).join('');
 
+  const mirrorNote = isMirroredCat(cat)
+    ? `<div class="muted" style="font-size:12px;margin:0 0 10px;">Investment and Capital share the same subcategories. Changes made here apply to both.</div>` : '';
   container.innerHTML = `
+    ${mirrorNote}
     <div class="account-chip-list">${chips || `<span class="muted">No subcategories yet.</span>`}</div>
     <div class="account-add-row">
       <input type="text" placeholder="New subcategory name" id="newSubcatInput">
@@ -8886,7 +8914,8 @@ function addSubcategory(name){
     showToast('That subcategory already exists');
     return;
   }
-  CATEGORY_MAP[cat].push(name);
+  CATEGORY_MAP[mirrorCats(cat)[0]].push(name);      // Investment is the master list for Investment + Capital
+  if(isMirroredCat(cat)) syncCapitalMirror();
   saveState();
   syncSettingsNow();
   showToast('Subcategory added');
@@ -8924,17 +8953,19 @@ function startSubcategoryRename(chipEl, oldName){
 
 function renameSubcategory(oldName, newName){
   const cat = subcatManagerCategory;
-  const idx = CATEGORY_MAP[cat].indexOf(oldName);
+  const cats = mirrorCats(cat);                       // Investment and Capital are renamed together
+  const idx = CATEGORY_MAP[cats[0]].indexOf(oldName);
   if(idx === -1) return;
-  CATEGORY_MAP[cat][idx] = newName;
+  CATEGORY_MAP[cats[0]][idx] = newName;
+  if(isMirroredCat(cat)) syncCapitalMirror();
 
   // update detail view selection if needed
-  if(detailCategory === cat && detailSubcategory === oldName){ detailSubcategory = newName; }
+  if(cats.includes(detailCategory) && detailSubcategory === oldName){ detailSubcategory = newName; }
 
   // update all existing entries referencing the old subcategory name
   let updated = 0;
   entries.forEach(e=>{
-    if(e.category === cat && e.subcategory === oldName){
+    if(cats.includes(e.category) && e.subcategory === oldName){
       e.subcategory = newName;
       updated++;
     }
@@ -8950,11 +8981,13 @@ function renameSubcategory(oldName, newName){
 // Removes a subcategory - but only once nothing references it any more.
 // Returns true if it was deleted.
 function finishSubcategoryDelete(cat, name){
-  if(entries.some(e=>e.category === cat && e.subcategory === name)){
+  const cats = mirrorCats(cat);
+  if(entries.some(e=>cats.includes(e.category) && e.subcategory === name)){
     showToast('Entries still use this subcategory - nothing was deleted');
     return false;
   }
-  CATEGORY_MAP[cat] = CATEGORY_MAP[cat].filter(s=>s !== name);
+  CATEGORY_MAP[cats[0]] = CATEGORY_MAP[cats[0]].filter(s=>s !== name);
+  if(isMirroredCat(cat)) syncCapitalMirror();
 
   // Expense budgets / planner entries are keyed by subcategory name; drop
   // the ones that belonged to the deleted subcategory so they can't linger.
@@ -8964,7 +8997,7 @@ function finishSubcategoryDelete(cat, name){
     delete BUDGET_PLANNER_AMT[name];
     delete BUDGET_PLANNER_TOUCHED[name];
   }
-  if(detailCategory === cat && detailSubcategory === name){ detailSubcategory = CATEGORY_MAP[cat][0]; }
+  if(cats.includes(detailCategory) && detailSubcategory === name){ detailSubcategory = CATEGORY_MAP[detailCategory][0]; }
 
   saveState();
   syncSettingsNow();
@@ -8979,7 +9012,7 @@ function deleteSubcategory(name){
     showToast('A category needs at least one subcategory');
     return;
   }
-  const inUseCount = entries.filter(e=>e.category === cat && e.subcategory === name).length;
+  const inUseCount = entries.filter(e=>mirrorCats(cat).includes(e.category) && e.subcategory === name).length;
 
   // Nothing uses it: a plain confirm is enough.
   if(inUseCount === 0){
@@ -9080,8 +9113,9 @@ document.getElementById('reassignSubcatConfirm').addEventListener('click', ()=>{
     return;
   }
   let moved = 0;
+  const reassignCats = mirrorCats(cat);               // Investment and Capital entries move together
   entries.forEach(e=>{
-    if(e.category === cat && e.subcategory === name){ e.subcategory = target; moved++; }
+    if(reassignCats.includes(e.category) && e.subcategory === name){ e.subcategory = target; moved++; }
   });
   // Delete only if nothing is left under it.
   if(finishSubcategoryDelete(cat, name)){
