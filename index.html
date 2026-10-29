@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v254 -->
+<!-- WEALTH.ME — v255 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1826,7 +1826,7 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
         </button>
       </div>
       <div id="refreshStatus" class="muted" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 254</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 255</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -1867,7 +1867,7 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 254</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 255</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -2934,7 +2934,7 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 254;
+const APP_VERSION = 255;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -4558,6 +4558,13 @@ function isDebtEntry(e){
    The account total (invested + capital) never changes, and neither does cash flow: a withdrawal is
    still a negative Investment entry, so it still adds to cash flow exactly as before.
    opts: investCutoff (Date or null = no limit), capitalCutoff (Date or null), includeOpen, sub. */
+// In the Money page's account lists a zero amount always reads "—" (this also catches tiny rounding
+// leftovers such as 0.0000000001). Pass signed = true to put a "+" in front of positive amounts.
+function moneyOrDash(n, signed){
+  const v = Number(n) || 0;
+  if(Math.abs(v) < 0.005) return '—';
+  return (signed && v > 0 ? '+' : '') + fmtMoney(v);
+}
 function investmentSplit(opts){
   opts = opts || {};
   const dep = {}, wd = {}, cap = {}, seen = new Set();
@@ -4582,7 +4589,7 @@ function investmentSplit(opts){
     const d = dep[k] || 0, w = wd[k] || 0, c = cap[k] || 0;
     const fromCapital = c > 0 ? Math.min(w, c) : 0;          // only gains can be withdrawn first, not losses
     const inv = d - (w - fromCapital), cp = c - fromCapital;
-    accounts[k] = { invested: inv, capital: cp, hasCapital: (k in cap) };
+    accounts[k] = { invested: inv, capital: cp };
     invested += inv; capital += cp;
   });
   return { accounts, invested, capital };
@@ -4914,7 +4921,7 @@ function renderMoneyAllTimeBreakdown(){
   const split = investmentSplit({ includeOpen: false });
   const rows = subcats.map((sub, i) => {
     const a = split.accounts[sub];
-    return a ? {sub, invested: a.invested, capital: a.capital, hasCapital: a.hasCapital, i} : null;
+    return a ? {sub, invested: a.invested, capital: a.capital, i} : null;
   }).filter(Boolean)
     .sort((a, b) => b.invested - a.invested);
 
@@ -4955,15 +4962,15 @@ function renderMoneyAllTimeBreakdown(){
         <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;">
           <div>
             <div class="muted" style="font-size:10px;text-transform:uppercase;letter-spacing:.4px;">Invested</div>
-            <div class="breakdown-amt" style="color:${color};font-size:13px;">${fmtMoney(r.invested)}</div>
+            <div class="breakdown-amt" style="color:${color};font-size:13px;">${moneyOrDash(r.invested)}</div>
           </div>
           <div>
             <div class="muted" style="font-size:10px;text-transform:uppercase;letter-spacing:.4px;">Capital</div>
-            <div class="breakdown-amt" style="${capColor}font-size:13px;">${r.capital !== 0 ? (r.capital > 0 ? '+' : '') + fmtMoney(r.capital) : (r.hasCapital ? fmtMoney(0) : '—')}</div>
+            <div class="breakdown-amt" style="${capColor}font-size:13px;">${moneyOrDash(r.capital, true)}</div>
           </div>
           <div>
             <div class="muted" style="font-size:10px;text-transform:uppercase;letter-spacing:.4px;">Total</div>
-            <div class="breakdown-amt" style="font-size:13px;">${fmtMoney(total)}</div>
+            <div class="breakdown-amt" style="font-size:13px;">${moneyOrDash(total)}</div>
           </div>
           <div>
             <div class="muted" style="font-size:10px;text-transform:uppercase;letter-spacing:.4px;">Return</div>
@@ -4985,15 +4992,15 @@ function renderMoneyAllTimeBreakdown(){
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;">
         <div>
           <div class="muted" style="font-size:10px;text-transform:uppercase;letter-spacing:.4px;">Invested</div>
-          <div class="breakdown-amt gold" style="font-size:13px;">${fmtMoney(grandInvested)}</div>
+          <div class="breakdown-amt gold" style="font-size:13px;">${moneyOrDash(grandInvested)}</div>
         </div>
         <div>
           <div class="muted" style="font-size:10px;text-transform:uppercase;letter-spacing:.4px;">Capital</div>
-          <div class="breakdown-amt" style="${capTotalColor}font-size:13px;">${grandCapital !== 0 ? (grandCapital > 0 ? '+' : '') + fmtMoney(grandCapital) : '—'}</div>
+          <div class="breakdown-amt" style="${capTotalColor}font-size:13px;">${moneyOrDash(grandCapital, true)}</div>
         </div>
         <div>
           <div class="muted" style="font-size:10px;text-transform:uppercase;letter-spacing:.4px;">Total</div>
-          <div class="breakdown-amt" style="font-size:13px;">${fmtMoney(grandTotal)}</div>
+          <div class="breakdown-amt" style="font-size:13px;">${moneyOrDash(grandTotal)}</div>
         </div>
         <div>
           <div class="muted" style="font-size:10px;text-transform:uppercase;letter-spacing:.4px;">Return</div>
@@ -5022,9 +5029,9 @@ function openAccountDetail(sub){
   const returnStr = returnPct !== null ? 'Return: ' + (returnPct >= 0 ? '+' : '') + returnPct.toFixed(1) + '%' : '';
 
   document.getElementById('accountDetailTitle').textContent = sub;
-  document.getElementById('accountDetailInvested').textContent = fmtMoney(invested);
-  document.getElementById('accountDetailCapital').textContent = (capital >= 0 ? '+' : '') + fmtMoney(capital);
-  document.getElementById('accountDetailTotal').textContent = fmtMoney(total);
+  document.getElementById('accountDetailInvested').textContent = moneyOrDash(invested);
+  document.getElementById('accountDetailCapital').textContent = moneyOrDash(capital, true);
+  document.getElementById('accountDetailTotal').textContent = moneyOrDash(total);
   document.getElementById('accountDetailReturn').textContent = returnStr;
 
   const listEl = document.getElementById('accountDetailList');
