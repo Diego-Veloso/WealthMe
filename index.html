@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v255 -->
+<!-- WEALTH.ME — v256 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1296,6 +1296,284 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
 [data-theme="dark"] #calAddBtn{background:var(--navy);color:var(--cream);border-color:transparent;box-shadow:0 4px 14px rgba(0,0,0,.6);}
 
 #contactMessage{min-height:110px;resize:vertical;font-family:inherit;line-height:1.4;}
+
+/* =====================================================================
+   BANK SKIN (v256) — colour, depth and polish only. No behaviour changes.
+   ===================================================================== */
+:root{
+  --skin-grad-hero:linear-gradient(135deg,#0B2545 0%,#133E68 46%,#0A8FE8 100%);
+  --skin-grad-primary:linear-gradient(135deg,#0B2545 0%,#0A6FD0 100%);
+  --skin-blue:#0A8FE8;
+  --skin-blue-ink:#0A7BD0;
+  --skin-shadow:0 8px 24px rgba(0,36,72,.07);
+  --skin-radius:20px;
+  --insights-page-bg:#1F5CA6;
+}
+[data-theme="dark"]{
+  --skin-blue-ink:#7CC4F5;
+  --skin-shadow:0 8px 24px rgba(0,0,0,.38);
+  --insights-page-bg:#1B3A5E;
+}
+body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,var(--cream);}
+[data-theme="dark"] body{background:linear-gradient(180deg,#132743 0,var(--cream) 360px) no-repeat,var(--cream);}
+#app{background:transparent;}
+
+/* ----- top bar ----- */
+.topbar{
+  background:rgba(237,240,243,.74);
+  -webkit-backdrop-filter:blur(16px) saturate(1.3);backdrop-filter:blur(16px) saturate(1.3);
+}
+[data-theme="dark"] .topbar{background:rgba(22,26,31,.72);}
+.icon-btn{border-color:transparent;box-shadow:0 2px 10px rgba(0,36,72,.10);}
+[data-theme="dark"] .icon-btn{box-shadow:0 2px 10px rgba(0,0,0,.35);}
+.logo-mark{box-shadow:0 4px 12px rgba(0,36,72,.28);}
+.logo-text{font-weight:800;letter-spacing:-.3px;}
+
+/* ----- month selector ----- */
+.month-nav button{border-color:transparent;box-shadow:0 3px 10px rgba(0,36,72,.12);transition:transform .15s,box-shadow .15s;}
+[data-theme="dark"] .month-nav button{box-shadow:0 3px 10px rgba(0,0,0,.4);}
+.month-nav .label{font-weight:700;letter-spacing:-.2px;}
+
+/* ----- balance hero: gradient bank card ----- */
+.balance-hero{
+  position:relative;overflow:hidden;
+  background:var(--skin-grad-hero);
+  color:#fff;
+  border-radius:26px;
+  padding:22px 18px 18px;
+  box-shadow:0 16px 34px rgba(10,60,110,.30);
+}
+.balance-hero::before,.balance-hero::after{content:"";position:absolute;border-radius:50%;pointer-events:none;}
+.balance-hero::before{width:230px;height:230px;right:-70px;top:-90px;background:radial-gradient(circle,rgba(255,255,255,.22),rgba(255,255,255,0) 68%);}
+.balance-hero::after{width:200px;height:200px;left:-60px;bottom:-110px;background:radial-gradient(circle,rgba(0,220,255,.30),rgba(0,220,255,0) 68%);}
+.balance-hero > *{position:relative;z-index:1;}
+.balance-hero .eyebrow{color:#BFE3FF;letter-spacing:1.8px;font-weight:700;}
+.balance-hero .figure{color:#fff;font-weight:800;font-size:46px;letter-spacing:-1.2px;text-shadow:0 2px 14px rgba(0,30,70,.25);}
+.balance-hero .figure.negative{color:#FFB8A8;}
+.balance-hero .underline{width:84px;height:3px;background:linear-gradient(90deg,rgba(242,200,121,0),#F2C879,rgba(242,200,121,0));}
+.balance-hero .sub{
+  display:inline-flex;align-items:center;gap:6px;
+  margin-top:12px;padding:6px 14px;border-radius:999px;
+  background:rgba(255,255,255,.15);color:#E3F2FF;font-weight:600;
+  -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+  border:1px solid rgba(255,255,255,.18);
+}
+.balance-hero .sub:empty{display:none;}
+.balance-hero .sub .pos{color:#86F2B8;}
+.balance-hero .sub .neg{color:#FFB09E;}
+.balance-hero .hero-note{
+  margin-top:12px;font-size:11px;font-weight:600;color:rgba(214,236,255,.85);
+  display:flex;align-items:center;justify-content:center;gap:6px;
+}
+.balance-hero .hero-note .dot{width:7px;height:7px;border-radius:50%;background:#59E0A0;box-shadow:0 0 0 3px rgba(89,224,160,.25);}
+
+/* ----- stat tiles: tinted, with a coloured icon bubble ----- */
+.summary-card{
+  position:relative;overflow:hidden;
+  border-radius:var(--skin-radius);
+  border:1px solid color-mix(in srgb,var(--t,#0A8FE8) 20%,var(--line));
+  background:linear-gradient(145deg,color-mix(in srgb,var(--t,#0A8FE8) 13%,var(--card)) 0%,var(--card) 72%);
+  box-shadow:var(--skin-shadow);
+  padding:14px;
+  transition:transform .15s ease,box-shadow .15s ease;
+}
+.summary-card:active{transform:scale(.98);}
+.summary-card .label{color:color-mix(in srgb,var(--t,var(--slate)) 55%,var(--slate));letter-spacing:.9px;}
+.summary-card .value{font-weight:800;font-size:21px;letter-spacing:-.4px;}
+#homeSummaryGrid .summary-card::after{
+  content:var(--g,"•");
+  position:absolute;right:11px;bottom:11px;
+  width:28px;height:28px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:800;line-height:1;
+  color:var(--t);background:color-mix(in srgb,var(--t) 17%,transparent);
+}
+#homeSummaryGrid .summary-card:nth-child(1){--t:#2F9E6E;--g:"↓";}
+#homeSummaryGrid .summary-card:nth-child(2){--t:#7B8794;--g:"%";}
+#homeSummaryGrid .summary-card:nth-child(3){--t:#0A8FE8;--g:"◎";}
+#homeSummaryGrid .summary-card:nth-child(4){--t:#E0674A;--g:"↑";}
+#homeSummaryGrid .summary-card:nth-child(5){--t:#D4A24E;--g:"◆";}
+#homeSummaryGrid .summary-card:nth-child(6){--t:#1FAE8E;--g:"✓";}
+
+/* ----- cards ----- */
+.card{
+  border-radius:var(--skin-radius);
+  border-color:color-mix(in srgb,var(--line) 65%,transparent);
+  box-shadow:var(--skin-shadow);
+}
+.card-title{font-weight:800;letter-spacing:-.2px;}
+.section-title{font-weight:800;}
+
+/* ----- segmented controls ----- */
+.segmented{border-radius:14px;padding:3px;}
+.segmented button{border-radius:11px;font-weight:700;}
+.segmented button.active{
+  color:var(--skin-blue-ink);
+  box-shadow:0 2px 10px rgba(10,100,200,.18);
+}
+[data-theme="dark"] .segmented button.active{background:#2C3642;}
+
+/* ----- buttons ----- */
+.btn{border-radius:14px;transition:transform .12s ease,box-shadow .12s ease,opacity .12s;}
+.btn-primary{background:var(--skin-grad-primary);color:#fff;box-shadow:0 8px 18px rgba(10,111,208,.28);}
+.btn-primary:active{transform:scale(.98);opacity:1;}
+.btn-secondary{background:color-mix(in srgb,var(--skin-blue) 11%,var(--card));color:var(--skin-blue-ink);}
+.export-action.primary{background:var(--skin-grad-primary);color:#fff;border-color:transparent;}
+.pill-btn{background:color-mix(in srgb,var(--skin-blue) 13%,var(--card));color:var(--skin-blue-ink);}
+.pill-btn:hover{background:color-mix(in srgb,var(--skin-blue) 22%,var(--card));}
+
+/* ----- floating buttons ----- */
+.fab{
+  background:var(--skin-grad-primary);color:#fff;
+  box-shadow:0 12px 26px rgba(10,111,208,.45),0 0 0 6px rgba(10,143,232,.10);
+}
+.fab-secondary{
+  background:linear-gradient(135deg,#7C4DFF 0%,#0A8FE8 100%);color:#fff;
+  box-shadow:0 12px 26px rgba(124,77,255,.40),0 0 0 6px rgba(124,77,255,.10);
+}
+#calAddBtn,[data-theme="dark"] #calAddBtn{background:var(--skin-grad-primary);color:#fff;border-color:transparent;box-shadow:0 8px 18px rgba(10,111,208,.4);}
+
+/* ----- bottom tab bar (phones) ----- */
+@media (max-width:899px){
+  .bottomnav{
+    background:rgba(255,255,255,.80);
+    -webkit-backdrop-filter:blur(20px) saturate(1.5);backdrop-filter:blur(20px) saturate(1.5);
+    border-top:1px solid rgba(220,228,236,.7);
+    box-shadow:0 -10px 28px rgba(0,36,72,.07);
+  }
+  [data-theme="dark"] .bottomnav{background:rgba(32,38,46,.80);border-top-color:rgba(255,255,255,.07);box-shadow:0 -10px 28px rgba(0,0,0,.4);}
+  .navtab{position:relative;border-radius:16px;margin:0 3px;transition:background .2s,color .2s,transform .15s;}
+  .navtab:active{transform:scale(.94);}
+  .navtab.active{background:color-mix(in srgb,var(--skin-blue) 14%,transparent);}
+  .navtab.active::after{content:"";position:absolute;bottom:1px;left:50%;width:16px;height:3px;margin-left:-8px;border-radius:3px;background:var(--skin-blue);}
+}
+
+/* ----- popups / sheets ----- */
+.modal-overlay{background:rgba(10,24,45,.52);-webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px);}
+.modal-overlay:not(#confirmModalOverlay):not(#reassignSubcatOverlay) > .modal{
+  border-radius:28px 28px 0 0;box-shadow:0 -14px 44px rgba(0,36,72,.22);
+}
+.modal-overlay:not(#confirmModalOverlay):not(#reassignSubcatOverlay) > .modal::before{
+  content:"";display:block;width:44px;height:4px;border-radius:4px;
+  background:color-mix(in srgb,var(--slate) 38%,transparent);margin:-6px auto 14px;
+}
+@media (min-width:900px){
+  .modal-overlay > .modal::before{display:none !important;}
+  .modal-overlay:not(#confirmModalOverlay):not(#reassignSubcatOverlay) > .modal{border-radius:24px;}
+}
+
+/* ----- Insights sheet ----- */
+.insights-sheet{background:linear-gradient(180deg,var(--insights-page-bg) 0,#3F86D6 55%,#58A6EC 100%);border-radius:28px 28px 0 0;}
+[data-theme="dark"] .insights-sheet{background:linear-gradient(180deg,var(--insights-page-bg) 0,#22456F 60%,#2A5586 100%);}
+
+/* ----- lock + license screens ----- */
+#licenseScreen,#lockScreen{
+  background:
+    radial-gradient(900px 520px at 88% -8%,rgba(10,143,232,.38),transparent 62%),
+    radial-gradient(760px 520px at -12% 108%,rgba(124,77,255,.26),transparent 58%),
+    #0A1730 !important;
+}
+#licenseBtn{background:linear-gradient(135deg,#FFFFFF 0%,#DDEBFA 100%) !important;box-shadow:0 10px 24px rgba(10,143,232,.3);}
+
+/* ----- credit limits: bank-card look ----- */
+#creditLimitsList .budget-row{
+  position:relative;overflow:hidden;
+  background:linear-gradient(135deg,#0B2545 0%,#124A88 55%,#0A8FE8 100%);
+  color:#fff;border:none !important;border-radius:22px;
+  padding:16px 16px 14px !important;margin-bottom:12px;
+  box-shadow:0 14px 28px rgba(10,60,110,.28);
+}
+#creditLimitsList .budget-row:nth-child(4n+2){background:linear-gradient(135deg,#3B1F6B 0%,#6C3FD0 55%,#B06BFF 100%);box-shadow:0 14px 28px rgba(90,50,170,.30);}
+#creditLimitsList .budget-row:nth-child(4n+3){background:linear-gradient(135deg,#0F4C3A 0%,#188A66 55%,#46D6A2 100%);box-shadow:0 14px 28px rgba(20,120,90,.30);}
+#creditLimitsList .budget-row:nth-child(4n+4){background:linear-gradient(135deg,#6B2418 0%,#C2512F 55%,#F2A063 100%);box-shadow:0 14px 28px rgba(170,70,40,.30);}
+#creditLimitsList .budget-row::before{content:"";position:absolute;width:210px;height:210px;right:-70px;top:-100px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.24),rgba(255,255,255,0) 68%);pointer-events:none;}
+#creditLimitsList .budget-row > *{position:relative;z-index:1;}
+#creditLimitsList .budget-row span{color:#fff !important;font-weight:700;}
+#creditLimitsList .budget-row .muted{color:rgba(255,255,255,.82) !important;}
+#creditLimitsList .budget-row .progress-track{background:rgba(255,255,255,.22);}
+#creditLimitsList .budget-row .credit-limit-input{background:rgba(255,255,255,.16) !important;color:#fff !important;border:1px solid rgba(255,255,255,.3) !important;}
+#creditLimitsList .budget-row .credit-limit-input::placeholder{color:rgba(255,255,255,.6);}
+
+/* ----- progress bars ----- */
+.progress-track{height:10px;border-radius:999px;background:color-mix(in srgb,var(--slate) 15%,transparent);}
+.progress-fill{position:relative;overflow:hidden;border-radius:999px;transition:width .7s cubic-bezier(.2,.8,.2,1);animation:skinGrowX .9s cubic-bezier(.2,.8,.2,1);}
+.progress-fill::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(255,255,255,0) 0%,rgba(255,255,255,.34) 100%);}
+@keyframes skinGrowX{from{width:0;}}
+
+/* ----- tactile feedback ----- */
+.entry-row-content,.more-row,.money-account-row,.breakdown-row{transition:background .15s,transform .12s;}
+.more-row:active,.money-account-row:active{transform:scale(.99);}
+@media (prefers-reduced-motion:reduce){
+  .progress-fill{animation:none;transition:none;}
+  .summary-card,.btn,.navtab,.month-nav button{transition:none;}
+}
+
+/* ----- accounts / lists ----- */
+.money-account-row{border-radius:var(--skin-radius);border-color:transparent;box-shadow:var(--skin-shadow);}
+.breakdown-swatch{width:12px;height:12px;border-radius:4px;box-shadow:0 0 0 3px color-mix(in srgb,var(--slate) 10%,transparent);}
+
+/* ----- entry rows ----- */
+.entry-dot{
+  width:38px;height:38px;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  background:color-mix(in srgb,var(--c,#7B8794) 16%,transparent);
+}
+.entry-dot::after{content:"•";font-size:17px;font-weight:800;line-height:1;color:var(--c,#7B8794);}
+.entry-dot[data-cat="Income"]::after{content:"↓";}
+.entry-dot[data-cat="Expense"]::after{content:"↑";}
+.entry-dot[data-cat="Investment"]::after{content:"◆";font-size:14px;}
+.entry-dot[data-cat="Capital"]::after{content:"●";font-size:13px;}
+.entry-main{gap:12px;}
+.entry-amt{font-weight:800;letter-spacing:-.2px;}
+.status-badge{padding:3px 9px;border-radius:999px;font-weight:800;letter-spacing:.5px;}
+.status-badge.open{background:color-mix(in srgb,#F5A623 18%,transparent);color:#B86E00;}
+.status-badge.closed{background:color-mix(in srgb,#22A06B 16%,transparent);color:#1B8A5A;}
+[data-theme="dark"] .status-badge.open{color:#F6B64C;}
+[data-theme="dark"] .status-badge.closed{color:#5ED39B;}
+
+/* ----- money tiles: one tint per card ----- */
+.summary-card:has(#moneyCardInvested),.summary-card:has(#moneyCardCumulative){--t:#D4A24E;}
+.summary-card:has(#moneyCardPlanned){--t:#7C4DFF;}
+.summary-card:has(#moneyCardCapital){--t:#2F9E6E;}
+.summary-card:has(#moneyCardNetPosition){--t:#0A8FE8;}
+.summary-card:has(#moneyCardNetWorth){--t:#1FAE8E;}
+.debt-type-dot.active{background:var(--skin-blue);}
+
+/* ----- entry rows rise in ----- */
+.entry-list .entry-row{animation:skinRise .28s ease both;}
+.entry-list .entry-row:nth-child(2){animation-delay:.03s;}
+.entry-list .entry-row:nth-child(3){animation-delay:.06s;}
+.entry-list .entry-row:nth-child(4){animation-delay:.09s;}
+.entry-list .entry-row:nth-child(5){animation-delay:.12s;}
+.entry-list .entry-row:nth-child(6){animation-delay:.15s;}
+.entry-list .entry-row:nth-child(n+7){animation-delay:.18s;}
+@keyframes skinRise{from{opacity:0;transform:translateY(7px);}to{opacity:1;transform:none;}}
+@media (prefers-reduced-motion:reduce){.entry-list .entry-row{animation:none;}}
+
+/* ----- Add Entry: coloured category chips (the select stays underneath as the source of truth) ----- */
+.cat-chips{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;}
+@media (max-width:479px){.cat-chip::before{display:none;}}
+@media (max-width:359px){.cat-chips{grid-template-columns:repeat(2,minmax(0,1fr));}}
+.cat-chip{
+  --cc:var(--slate);
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  padding:11px 3px;border-radius:14px;
+  border:1.5px solid color-mix(in srgb,var(--cc) 28%,transparent);
+  background:color-mix(in srgb,var(--cc) 10%,var(--card));
+  color:var(--cc);font:inherit;font-size:12.5px;font-weight:700;cursor:pointer;white-space:nowrap;
+  transition:transform .12s ease,background .15s,box-shadow .15s,color .15s;
+}
+.cat-chip::before{content:var(--ci,"•");font-size:14px;line-height:1;}
+.cat-chip:active{transform:scale(.96);}
+.cat-chip[data-cat="Income"]{--cc:#2F9E6E;--ci:"↓";}
+.cat-chip[data-cat="Expense"]{--cc:#E0674A;--ci:"↑";}
+.cat-chip[data-cat="Investment"]{--cc:#D4A24E;--ci:"◆";}
+.cat-chip[data-cat="Capital"]{--cc:#5C6B7A;--ci:"●";}
+[data-theme="dark"] .cat-chip[data-cat="Capital"]{--cc:#9AA7B4;}
+.cat-chip.active{background:var(--cc);border-color:var(--cc);color:#fff;box-shadow:0 8px 18px color-mix(in srgb,var(--cc) 40%,transparent);}
+[data-theme="dark"] .cat-chip.active[data-cat="Capital"]{color:#10151A;}
+.two-col > .field.cat-hidden{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0;padding:0;}
+.two-col:has(> .field.cat-hidden) > .field:not(.cat-hidden){grid-column:1 / -1;}
 </style>
 
 </head>
@@ -1450,6 +1728,7 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
         <div class="figure" id="homeBalanceFig">$0</div>
         <div class="underline"></div>
         <div class="sub" id="homeBalanceDelta"></div>
+        <div class="hero-note"><span class="dot"></span>Saved on this device</div>
       </div>
 
       <div class="summary-grid" id="homeSummaryGrid">
@@ -1826,7 +2105,7 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
         </button>
       </div>
       <div id="refreshStatus" class="muted" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 255</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 256</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -1867,7 +2146,7 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 255</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 256</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -2605,10 +2884,14 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
         <label>Date</label>
         <input type="date" id="entryDate">
       </div>
+      <div class="field">
+        <label id="entryCategoryLabel">Category</label>
+        <div class="cat-chips" id="entryCategoryChips" role="radiogroup" aria-labelledby="entryCategoryLabel"></div>
+      </div>
       <div class="two-col">
-        <div class="field">
-          <label>Category</label>
-          <select id="entryCategory"></select>
+        <div class="field cat-hidden">
+          <label for="entryCategory">Category</label>
+          <select id="entryCategory" tabindex="-1"></select>
         </div>
         <div class="field">
           <label>Subcategory</label>
@@ -2934,7 +3217,7 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 255;
+const APP_VERSION = 256;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -2968,7 +3251,7 @@ function statusLabel(st){ return STATUS_LABELS[st] || st; }
 const CATEGORY_COLORS = {
   Income:"#3E7C59", Expense:"#C1583F", Investment:"#D4A24E", Capital:"#5C6B7A"
 };
-const PALETTE = ["#3E7C59","#D4A24E","#C1583F","#5C6B7A","#7A9E7E","#E0B968","#D98C73","#8FA3B0","#2F5C46","#A6783A","#9C4632","#3E4E5E"];
+const PALETTE = ["#0A8FE8","#2FBF8F","#F5A623","#E0674A","#7C4DFF","#EC5BA0","#14B8C8","#8BC34A","#3B6FD6","#F2C879","#B06BFF","#5C6B7A"];
 const DEBT_TYPES = ["Credit Card","Financing","Other"];
 
 // Default Needs vs Discretionary classification for Expense subcategories.
@@ -3114,6 +3397,18 @@ function chartColors(){
 // Converts a "#RRGGBB" hex string to an "rgba(r,g,b,alpha)" string — used to
 // derive a theme-matched, low-opacity chart fill from chartColors().lineColor
 // (which flips between a dark and a light hex depending on currentTheme).
+// Soft top-to-bottom gradient under a line, built when the chart is drawn (so it always matches the chart area).
+function skinGradientFill(hex, topAlpha){
+  return (context)=>{
+    const chart = context.chart, area = chart && chart.chartArea;
+    if(!area) return hexToRgba(hex, 0.12);
+    const g = chart.ctx.createLinearGradient(0, area.top, 0, area.bottom);
+    g.addColorStop(0, hexToRgba(hex, topAlpha || 0.32));
+    g.addColorStop(1, hexToRgba(hex, 0));
+    return g;
+  };
+}
+function skinBrandLine(){ return currentTheme === 'dark' ? '#4FB3FF' : '#0A8FE8'; }
 function hexToRgba(hex, alpha){
   const h = hex.replace('#','');
   const r = parseInt(h.substring(0,2),16);
@@ -3159,7 +3454,9 @@ function fmtMoney(n){
 function fmtMonthYear(d){
   return d.toLocaleString(undefined,{month:'long',year:'numeric'});
 }
+function prefersReducedMotion(){ return typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches; }
 function animateValue(el, fromVal, toVal, duration, formatFn){
+  if(prefersReducedMotion()){ el.textContent = formatFn(toVal); return; }     // respect the phone's "reduce motion" setting
   const start = performance.now();
   function step(now){
     const progress = Math.min((now - start) / duration, 1);
@@ -4457,8 +4754,9 @@ function renderMonthlyTrendChart(data){
       datasets: [{
         data: values,
         backgroundColor: values.map((v,i)=> i===highlightIdx ? color : color+'55'),
-        borderRadius: 4,
-        maxBarThickness: 22
+        borderRadius: 8,
+        borderSkipped: false,
+        maxBarThickness: 24
       }]
     },
     options: {
@@ -4758,7 +5056,7 @@ function renderMoneyLineChart(){
           label: 'Invested',
           data: investedData,
           borderColor: '#D4A24E',
-          backgroundColor: 'rgba(212,162,78,0.12)',
+          backgroundColor: skinGradientFill('#D4A24E', 0.30),
           fill: true,
           tension: 0.35,
           pointRadius: 0,
@@ -4769,14 +5067,14 @@ function renderMoneyLineChart(){
         {
           label: 'Invested + Capital',
           data: netData,
-          borderColor: '#3E7C59',
-          backgroundColor: 'rgba(62,124,89,0.12)',
+          borderColor: '#2FBF8F',
+          backgroundColor: skinGradientFill('#2FBF8F', 0.28),
           fill: true,
           tension: 0.35,
           pointRadius: 0,
           pointHoverRadius: 5,
-          pointHoverBackgroundColor: '#3E7C59',
-          borderWidth: 2
+          pointHoverBackgroundColor: '#2FBF8F',
+          borderWidth: 2.5
         },
         {
           label: 'Projection',
@@ -4880,13 +5178,13 @@ function renderNetWorthChart(){
       datasets: [{
         label: 'Net Worth',
         data: netWorthData,
-        borderColor: chartColors().lineColor,
-        backgroundColor: hexToRgba(chartColors().lineColor, 0.12),
+        borderColor: skinBrandLine(),
+        backgroundColor: skinGradientFill(skinBrandLine(), 0.34),
         fill: true,
         tension: 0.35,
         pointRadius: 0,
         pointHoverRadius: 5,
-        pointHoverBackgroundColor: chartColors().lineColor,
+        pointHoverBackgroundColor: skinBrandLine(),
         borderWidth: 2.5
       }]
     },
@@ -5852,6 +6150,30 @@ makeSwipeable(document.getElementById('moneyMonthNav'), {
 /* =========================================================
    ENTRY MODAL (ADD / EDIT / DELETE)
    ========================================================= */
+// Coloured category chips shown in place of the Category dropdown. The category dropdown
+// stays in the page (visually hidden) and is still the single source of truth for every other piece of code.
+function syncEntryCategoryChips(){
+  const box = document.getElementById('entryCategoryChips');
+  const sel = document.getElementById('entryCategory');
+  if(!box || !sel) return;
+  const cats = Object.keys(CATEGORY_MAP);
+  if(box.children.length !== cats.length){
+    box.innerHTML = cats.map(c=>`<button type="button" class="cat-chip" role="radio" data-cat="${c}">${c}</button>`).join('');
+  }
+  box.querySelectorAll('.cat-chip').forEach(b=>{
+    const on = b.dataset.cat === sel.value;
+    b.classList.toggle('active', on);
+    b.setAttribute('aria-checked', on ? 'true' : 'false');
+  });
+}
+document.getElementById('entryCategoryChips').addEventListener('click', (e)=>{
+  const b = e.target.closest('.cat-chip');
+  if(!b) return;
+  const sel = document.getElementById('entryCategory');
+  if(sel.value === b.dataset.cat) return;
+  sel.value = b.dataset.cat;
+  sel.dispatchEvent(new Event('change', { bubbles: true }));
+});
 function populateEntryCategorySelectors(selectedCategory, selectedSub){
   const catSel = document.getElementById('entryCategory');
   catSel.innerHTML = Object.keys(CATEGORY_MAP).map(c=>`<option value="${c}" ${c===selectedCategory?'selected':''}>${c}</option>`).join('');
@@ -5861,6 +6183,7 @@ function populateEntryCategorySelectors(selectedCategory, selectedSub){
   subSel.innerHTML = sortedSubs.map(s=>`<option value="${s}" ${s===selectedSub?'selected':''}>${s}</option>`).join('');
 
   catSel.dataset.prev = selectedCategory;
+  syncEntryCategoryChips();
   document.getElementById('entryTypeField').style.display = (selectedCategory === 'Expense') ? 'block' : 'none';
   if(selectedCategory === 'Expense'){
     populateEntryAccountSelector(document.getElementById('entryType').value, null);
@@ -9562,6 +9885,51 @@ document.getElementById('contactMessage').addEventListener('input', (e)=>{
 });
 
 /* =========================================================
+   POLISH (v256): count-up numbers and a tiny tap vibration.
+   Pure presentation — the figures themselves are calculated exactly as before.
+   ========================================================= */
+const SKIN_NO_MOTION = (typeof navigator !== 'undefined' && navigator.webdriver) ||
+  (typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches);
+// Animates a money figure from its previous value to what the render just wrote into the element.
+function skinCountUp(el){
+  if(!el || SKIN_NO_MOTION) return;
+  const finalText = el.textContent.trim();
+  if(!/^-?\$[\d,]+\.\d\d$/.test(finalText)) return;           // only plain money figures
+  if(el._cuFinal === finalText) return;                        // unchanged: don't replay
+  const to = Number(finalText.replace(/[^0-9.]/g, '')) * (finalText.startsWith('-') ? -1 : 1);
+  const from = typeof el._cuVal === 'number' ? el._cuVal : 0;
+  el._cuFinal = finalText; el._cuVal = to;
+  if(el._cuRaf) cancelAnimationFrame(el._cuRaf);
+  const t0 = performance.now(), dur = 650;
+  const step = (now)=>{
+    const k = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - k, 3);
+    el.textContent = k < 1 ? fmtMoney(from + (to - from) * e) : finalText;
+    if(k < 1) el._cuRaf = requestAnimationFrame(step);
+  };
+  el._cuRaf = requestAnimationFrame(step);
+}
+function skinCountUpAll(ids){ ids.forEach(id=> skinCountUp(document.getElementById(id))); }
+(function(){
+  const baseHome = renderHome, baseMoney = renderMoney;
+  renderHome = function(){
+    const r = baseHome.apply(this, arguments);
+    skinCountUpAll(['sumGross','sumTaxes','sumNet','sumExpenses','sumInvestment','sumBalance']);   // the big balance already animates itself (animateValue)
+    return r;
+  };
+  renderMoney = function(){
+    const r = baseMoney.apply(this, arguments);
+    skinCountUpAll(['moneyCardInvested','moneyCardPlanned','moneyCardCumulative','moneyCardCapital','moneyCardNetPosition','moneyCardNetWorth']);
+    return r;
+  };
+})();
+// A very short buzz on phones that support it (Android; iPhone ignores it) for taps on nav, + / Insights and swipe actions.
+function skinHaptic(ms){ try{ if(navigator.vibrate) navigator.vibrate(ms || 8); }catch(e){} }
+document.addEventListener('click', (e)=>{
+  if(e.target.closest('.navtab, .fab, .segmented button, .month-nav button, .cat-chip')) skinHaptic(8);
+  else if(e.target.closest('.toast-action, .swipe-close-btn, .swipe-delete-btn')) skinHaptic(14);
+}, true);
+
+/* =========================================================
    LICENSE GATE (Lemon Squeezy) — OFF until BOTH IDs below are filled in.
    The key is entered once per device, checked with Lemon Squeezy, and the
    app only opens if it belongs to THIS store and product. The saved
@@ -10480,7 +10848,7 @@ function renderEntryRow(e, selectable, isTransactionsPage){
         <div style="display:flex;align-items:center;gap:10px;min-width:0;flex:1;">
           ${checkboxHtml}
           <div class="entry-main">
-            <div class="entry-dot" style="background:${dotColor}"></div>
+            <div class="entry-dot" data-cat="${String(e.category).replace(/[^A-Za-z]/g,'')}" style="--c:${dotColor}"></div>
             <div class="entry-info">
               <div class="sub">${e.subcategory}</div>
               <div class="meta">${metaText}</div>
@@ -10991,8 +11359,8 @@ function renderLineChart(){
 
   const ctx2d = ctx.getContext('2d');
   const fillGradient = ctx2d.createLinearGradient(0, 0, 0, ctx.clientHeight || 200);
-  fillGradient.addColorStop(0, 'rgba(212,162,78,0.30)');
-  fillGradient.addColorStop(1, 'rgba(212,162,78,0)');
+  fillGradient.addColorStop(0, hexToRgba(skinBrandLine(), 0.34));
+  fillGradient.addColorStop(1, hexToRgba(skinBrandLine(), 0));
 
   // Find today's index within the chart (only relevant when viewing the current month)
   const now = new Date();
@@ -11027,7 +11395,7 @@ function renderLineChart(){
       datasets: [{
         label: 'Balance',
         data: values,
-        borderColor: chartColors().lineColor,
+        borderColor: skinBrandLine(),
         backgroundColor: fillGradient,
         fill: true,
         tension: 0.35,
@@ -11037,17 +11405,17 @@ function renderLineChart(){
         pointHoverBackgroundColor: '#D4A24E',
         pointHoverBorderColor: chartColors().lineColor,
         pointHoverBorderWidth: 2,
-        borderWidth: 2,
+        borderWidth: 2.5,
         segment: {
           borderColor: (ctx) => {
             const y0 = ctx.p0.parsed.y;
             const y1 = ctx.p1.parsed.y;
-            return (y0 < 0 || y1 < 0) ? '#C1583F' : chartColors().lineColor;
+            return (y0 < 0 || y1 < 0) ? '#C1583F' : skinBrandLine();
           },
           backgroundColor: (ctx) => {
             const y0 = ctx.p0.parsed.y;
             const y1 = ctx.p1.parsed.y;
-            return (y0 < 0 || y1 < 0) ? 'rgba(193,88,63,0.12)' : 'rgba(212,162,78,0.15)';
+            return (y0 < 0 || y1 < 0) ? 'rgba(193,88,63,0.12)' : hexToRgba(skinBrandLine(), 0.14);
           }
         }
       }]
@@ -11115,7 +11483,7 @@ function renderDonutChart(){
       ctx.save();
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.font = "700 17px 'Fraunces', serif";
+      ctx.font = "800 18px 'Inter', sans-serif";
       ctx.fillStyle = chartColors().lineColor;
       ctx.fillText(fmtMoney(donutTotal), cx, cy - 8);
       ctx.font = "700 10px 'Inter', sans-serif";
@@ -11132,8 +11500,10 @@ function renderDonutChart(){
       datasets: [{
         data: rows.map(r=>Math.abs(r.amount)),
         backgroundColor: rows.map((_,i)=>PALETTE[i % PALETTE.length]),
-        borderWidth: 2,
-        borderColor: chartColors().pageBg
+        borderWidth: 0,
+        borderRadius: 7,
+        spacing: 3,
+        hoverOffset: 6
       }]
     },
     options: {
