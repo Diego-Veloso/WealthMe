@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v258 -->
+<!-- WEALTH.ME — v261 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1386,7 +1386,6 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
 #homeSummaryGrid .summary-card:nth-child(4){--t:#E0674A;}
 #homeSummaryGrid .summary-card:nth-child(5){--t:#D4A24E;}
 #homeSummaryGrid .summary-card:nth-child(6){--t:#1FAE8E;}
-#homeSummaryGrid .summary-card:nth-child(7){--t:#F2994A;}
 
 /* ----- cards ----- */
 .card{
@@ -1605,6 +1604,7 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
 .balance-hero.debt-hero .sub{color:#FFE6E3;}
 
 /* ===== v258 tweaks ===== */
+#txSortBtn{width:40px;height:40px;border-radius:13px;flex-shrink:0;}
 .tile-badge{font-size:9.5px;font-weight:700;text-transform:none;letter-spacing:0;background:var(--slate-light);color:var(--slate);padding:1px 7px;border-radius:999px;white-space:nowrap;flex-shrink:0;}
 .tile-badge.bad{background:color-mix(in srgb,#E0674A 16%,transparent);color:#C2412A;}
 .tile-badge.good{background:color-mix(in srgb,#22A06B 16%,transparent);color:#1B8A5A;}
@@ -1615,12 +1615,18 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
 .tile-head{display:flex;justify-content:space-between;align-items:flex-start;gap:6px;}
 .tile-head > span:first-child{flex:1;min-width:0;}
 .tile-head .tile-badge{margin-top:-1px;}
+.search-bar.collapsed{display:none;}
+.icon-btn.search-toggle.active{background:var(--skin-grad-primary);color:#fff;border-color:transparent;box-shadow:0 6px 14px rgba(10,111,208,.3);}
+.burn-strip{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:9px 14px;margin-bottom:14px;box-shadow:var(--shadow-sm,0 2px 8px rgba(15,27,45,.05));}
+.burn-main{display:flex;align-items:baseline;gap:8px;min-width:0;}
+.burn-label{font-size:11px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:var(--slate);}
+.burn-val{font-size:16px;font-weight:800;color:var(--terracotta,#C1583F);}
 .burn-unit{font-size:12px;font-weight:700;opacity:.65;letter-spacing:0;}
 
 /* Home calendar button: bigger and in the gradient button style */
-#homeCalendarBtn{width:40px;height:40px;border-radius:13px;background:var(--skin-grad-primary);color:#fff;border-color:transparent;box-shadow:0 8px 18px rgba(10,111,208,.30);}
-#homeCalendarBtn svg{width:21px;height:21px;}
-[data-theme="dark"] #homeCalendarBtn{box-shadow:0 8px 18px rgba(10,111,208,.4);}
+#homeCalendarBtn,#txCalendarBtn{width:40px;height:40px;border-radius:13px;background:var(--skin-grad-primary);color:#fff;border-color:transparent;box-shadow:0 8px 18px rgba(10,111,208,.30);}
+#homeCalendarBtn svg,#txCalendarBtn svg{width:21px;height:21px;}
+[data-theme="dark"] #homeCalendarBtn,[data-theme="dark"] #txCalendarBtn{box-shadow:0 8px 18px rgba(10,111,208,.4);}
 
 /* Calendar popup: gradient month bar, tinted days, gradient today / selected day */
 #calendarModalOverlay .modal-header h3{font-weight:800;letter-spacing:-.3px;}
@@ -1644,9 +1650,9 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
 #calendarModalOverlay .cal-open-btn{box-shadow:0 8px 18px rgba(10,111,208,.3);}
 
 /* Debts: planned-only page, no header on the type card; amount above the badge */
-#debtList .entry-right{flex-direction:column;align-items:flex-end;justify-content:center;gap:3px;}
-#debtList .entry-right .entry-amt{line-height:1.3;}
-#debtList .entry-right .status-badge{margin-left:0;}
+#debtList .entry-right,#calendarModalOverlay .entry-right,#notificationsModalOverlay .entry-right{flex-direction:column;align-items:flex-end;justify-content:center;gap:3px;}
+#debtList .entry-right .entry-amt,#calendarModalOverlay .entry-right .entry-amt,#notificationsModalOverlay .entry-right .entry-amt{line-height:1.3;}
+#debtList .entry-right .status-badge,#calendarModalOverlay .entry-right .status-badge,#notificationsModalOverlay .entry-right .status-badge{margin-left:0;}
 .balance-hero.debt-hero .figure{font-size:33.1px;letter-spacing:-.9px;}
 .balance-hero.debt-hero .eyebrow{margin-bottom:2px;}
 
@@ -1654,10 +1660,23 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
 #entryTypeAccountRow:has(> #entryAccountField[style*="display: none"]) > #entryTypeField,
 #entryTypeAccountRow:has(> #entryAccountField[style*="display:none"]) > #entryTypeField{grid-column:1 / -1;}
 #entryTypeAccountRow:not(:has(> .field:not([style*="none"]))){display:none;}
+#recurringTypeAccountRow:has(> #recurringAccountField[style*="display: none"]) > #recurringTypeField,
+#recurringTypeAccountRow:has(> #recurringAccountField[style*="display:none"]) > #recurringTypeField{grid-column:1 / -1;}
+#recurringTypeAccountRow:not(:has(> .field:not([style*="none"]))){display:none;}
 #entryModalTitle{white-space:nowrap;}
 
 /* Money: Net Position hero */
-.balance-hero.money-hero{margin-bottom:14px;}
+.balance-hero.money-hero{margin-bottom:14px;background:linear-gradient(135deg,#4A3207 0%,#A8741A 48%,#F0BC45 100%);box-shadow:0 16px 34px rgba(168,116,26,.32);}
+.balance-hero.money-hero::after{background:radial-gradient(circle,rgba(255,226,120,.38),rgba(255,226,120,0) 68%);}
+.balance-hero.money-hero .eyebrow{color:#FFF0C2;}
+.balance-hero.money-hero .figure{text-shadow:0 2px 14px rgba(60,35,0,.38);}
+.balance-hero.money-hero .figure.negative{color:#FFE3DB;}
+.balance-hero.money-hero .underline{background:linear-gradient(90deg,rgba(255,244,205,0),#FFF4CD,rgba(255,244,205,0));}
+.balance-hero.money-hero .sub{background:rgba(60,35,0,.30);border-color:rgba(255,235,170,.32);color:#FFF4D6;}
+.card-badge{display:flex;justify-content:flex-end;margin-bottom:8px;}
+.money-total-row{cursor:pointer;}
+.money-total-row .tot-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;}
+.money-total-row .tot-head span.hint{font-size:11px;font-weight:600;color:var(--slate);display:inline-flex;align-items:center;gap:3px;}
 .balance-hero.money-hero .sub{margin-top:12px;font-size:12px;}
 </style>
 
@@ -1812,7 +1831,7 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
       </div>
 
       <div class="balance-hero">
-        <div class="eyebrow">Liquid Balance</div>
+        <div class="eyebrow">Current Balance</div>
         <div class="figure" id="homeBalanceFig">$0</div>
         <div class="underline"></div>
         <div class="sub" id="homeBalanceDelta"></div>
@@ -1849,19 +1868,19 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
           <div class="label">Projected Balance</div>
           <div class="value" id="sumBalance">$0</div>
         </div>
-        <div class="summary-card" id="burnRateCard" style="grid-column:span 2;">
-          <div class="label" style="display:flex;justify-content:space-between;align-items:center;gap:4px;flex-wrap:wrap;">
-            <span>Burn Rate</span>
-            <span class="tile-badge" id="burnRateBadge" style="display:none;"></span>
-          </div>
-          <div class="value neg" id="burnRateValue">$0.00<span class="burn-unit"> / day</span></div>
-          <div class="muted" id="burnRateNote" style="font-size:11px;margin-top:2px;">Daily expenses of the month</div>
-        </div>
       </div>
 
       <div class="card">
         <div class="card-title">Daily Cashflow<button type="button" class="cal-open-btn" id="homeCalendarBtn" title="Open calendar" aria-label="Open calendar"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></button></div>
         <div class="chart-wrap"><canvas id="lineChart" role="img" aria-label="Daily cashflow chart for the selected month"></canvas></div>
+      </div>
+
+      <div class="burn-strip" id="burnRateCard">
+        <div class="burn-main">
+          <span class="burn-label">Burn Rate</span>
+          <span class="burn-val" id="burnRateValue">$0.00<span class="burn-unit"> / day</span></span>
+        </div>
+        <span class="tile-badge" id="burnRateBadge" style="display:none;"></span>
       </div>
 
       <div class="card" id="homeExpenseBudgetBar" style="padding:12px 14px;">
@@ -1907,32 +1926,19 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
         <button id="detailNext">&#8250;</button>
       </div>
       <div class="card">
+        <div class="field">
+          <label id="detailCategoryLabel">Category</label>
+          <div class="cat-chips" id="detailCategoryChips" role="radiogroup" aria-labelledby="detailCategoryLabel"></div>
+        </div>
         <div class="two-col">
-          <div class="field" style="margin-bottom:0;">
-            <label>Category</label>
-            <select id="detailCategorySel"></select>
+          <div class="field cat-hidden">
+            <label for="detailCategorySel">Category</label>
+            <select id="detailCategorySel" tabindex="-1"></select>
           </div>
           <div class="field" style="margin-bottom:0;">
             <label>Subcategory</label>
             <select id="detailSubcatSel"></select>
           </div>
-        </div>
-      </div>
-      <div class="segmented" id="detailPeriodSeg" style="margin-bottom:8px;">
-        <button data-period="all">All</button>
-        <button class="active" data-period="thismonth">This Month</button>
-        <button data-period="nextmonth">Next Month</button>
-        <button data-period="thisyear">This Year</button>
-        <button data-period="custom">Custom</button>
-      </div>
-      <div id="detailDateRangeRow" style="display:none;gap:8px;margin-bottom:8px;" class="two-col">
-        <div class="field" style="margin-bottom:0;">
-          <label>From</label>
-          <input type="date" id="detailDateFrom">
-        </div>
-        <div class="field" style="margin-bottom:0;">
-          <label>To</label>
-          <input type="date" id="detailDateTo">
         </div>
       </div>
       <!-- Category trendline chart (% of Net Income; Taxes % of Gross Income) -->
@@ -1956,12 +1962,10 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
             <button class="active" data-filter="Open">Planned</button>
             <button data-filter="Closed">Actual</button>
           </div>
-          <button class="icon-btn" id="txSortBtn" title="Sort order" style="flex-shrink:0;" aria-label="Sort order">
-            <svg id="txSortIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
-          </button>
+          <button type="button" class="icon-btn search-toggle" id="txSearchToggle" title="Search" aria-label="Search" aria-expanded="false"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button>
         </div>
       </div>
-      <div class="search-bar">
+      <div class="search-bar collapsed" id="txSearchBar">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         <input type="text" id="txSearchInput" placeholder="Search by category, subcategory, notes, account...">
         <button id="txSearchClear" class="search-clear" style="display:none;" title="Clear search" aria-label="Clear search">
@@ -1976,6 +1980,9 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
           <button class="pill-btn" id="txSavePresetBtn" style="flex-shrink:0;">+ Save Filter</button>
         </div>
         <button type="button" class="cal-open-btn" id="txCalendarBtn" title="Open calendar" aria-label="Open calendar"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></button>
+        <button class="icon-btn" id="txSortBtn" title="Sort order" style="flex-shrink:0;" aria-label="Sort order">
+          <svg id="txSortIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
+        </button>
       </div>
       <div id="txSavePresetForm" style="display:none;gap:8px;margin-bottom:8px;">
         <input type="text" id="txPresetNameInput" placeholder="Preset name" style="flex:1;border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-size:13px;">
@@ -2021,8 +2028,9 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
     <section class="view" id="view-debts">
       <div class="page-head">
         <h2 class="card-title">Debts</h2>
+        <button type="button" class="icon-btn search-toggle" id="debtSearchToggle" title="Search" aria-label="Search" aria-expanded="false"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button>
       </div>
-      <div class="search-bar">
+      <div class="search-bar collapsed" id="debtSearchBar">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         <input type="text" id="debtSearchInput" placeholder="Search by subcategory, account, notes...">
         <button id="debtSearchClear" class="search-clear" style="display:none;" title="Clear search">
@@ -2074,6 +2082,17 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
       </div>
       <div class="summary-grid">
         <div class="summary-card">
+          <div class="label tile-head"><span>Invested</span><span class="tile-badge tint">All time</span></div>
+          <div class="value gold" id="moneyCardCumulative">$0</div>
+        </div>
+        <div class="summary-card">
+          <div class="label tile-head"><span>Capital</span><span class="tile-badge tint">All time</span></div>
+          <div class="value" id="moneyCardCapital">$0</div>
+          <div class="muted" style="font-size:11px;margin-top:2px;">Gains / Losses</div>
+        </div>
+      </div>
+      <div class="summary-grid">
+        <div class="summary-card">
           <div class="label tile-head"><span>Invested</span><span class="tile-badge tint">Month</span></div>
           <div class="value gold" id="moneyCardInvested">$0</div>
           <div class="muted" style="font-size:11px;margin-top:2px;">Actual entries</div>
@@ -2082,20 +2101,6 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
           <div class="label tile-head"><span>Planned</span><span class="tile-badge tint">Month</span></div>
           <div class="value" id="moneyCardPlanned">$0</div>
           <div class="muted" style="font-size:11px;margin-top:2px;">Planned + Actual</div>
-        </div>
-        <div class="summary-card">
-          <div class="label tile-head"><span>Cumulative Invested</span><span class="tile-badge tint">All time</span></div>
-          <div class="value gold" id="moneyCardCumulative">$0</div>
-        </div>
-        <div class="summary-card">
-          <div class="label">Capital (all time)</div>
-          <div class="value" id="moneyCardCapital">$0</div>
-          <div class="muted" style="font-size:11px;margin-top:2px;">Gains / Losses</div>
-        </div>
-        <div class="summary-card" style="grid-column:span 2;">
-          <div class="label">Net Worth</div>
-          <div class="value" id="moneyCardNetWorth">$0</div>
-          <div class="muted" style="font-size:11px;margin-top:2px;">Net Position minus outstanding (Planned) debt</div>
         </div>
       </div>
 
@@ -2107,41 +2112,29 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
         </div>
         <div class="progress-track"><div class="progress-fill" id="moneyProgressFill" style="width:0%"></div></div>
       </div>
+      <div class="summary-grid">
+        <div class="summary-card" style="grid-column:span 2;">
+          <div class="label">Net Worth</div>
+          <div class="value" id="moneyCardNetWorth">$0</div>
+          <div class="muted" style="font-size:11px;margin-top:2px;">Net Position minus outstanding (Planned) debt</div>
+        </div>
+      </div>
       </div><!-- /overview -->
 
       <div class="money-page" data-page="accounts">
       <!-- Subcategory breakdown -->
       <div class="card">
-        <div class="card-title" style="padding-bottom:10px;margin-bottom:10px;border-bottom:1px solid var(--line);">By Account</div>
+        <div class="card-title" style="padding-bottom:10px;margin-bottom:10px;border-bottom:1px solid var(--line);"><span>By Account</span><span class="tile-badge tint">Month</span></div>
         <div id="moneyBreakdown"></div>
       </div>
 
       <!-- All-time breakdown by subcategory -->
       <div class="card">
-        <div class="card-title" style="padding-bottom:10px;margin-bottom:10px;border-bottom:1px solid var(--line);">Investment Accounts</div>
+        <div class="card-title" style="padding-bottom:10px;margin-bottom:10px;border-bottom:1px solid var(--line);"><span>Investment Accounts</span><span class="tile-badge tint">All Time</span></div>
         <div id="moneyAllTimeBreakdown"></div>
       </div>
       </div><!-- /accounts -->
 
-      <div class="money-page" data-page="trends">
-      <!-- Net worth trend -->
-      <div class="card">
-        <div class="card-title">
-          <span>Net Worth</span>
-          <span class="muted" style="font-size:12px;font-family:'Inter',sans-serif;font-weight:500;">12-month trend</span>
-        </div>
-        <div class="chart-wrap" style="height:220px;"><canvas id="netWorthChart" role="img" aria-label="Net worth 12-month trend chart"></canvas></div>
-      </div>
-
-      <!-- 12-month cumulative projection chart -->
-      <div class="card">
-        <div class="card-title">
-          <span>12-Month Projection</span>
-          <span class="muted" style="font-size:12px;font-family:'Inter',sans-serif;font-weight:500;">cumulative planned</span>
-        </div>
-        <div class="chart-wrap" style="height:220px;"><canvas id="moneyLineChart" role="img" aria-label="12-month cumulative investment projection chart"></canvas></div>
-      </div>
-      </div><!-- /trends -->
       </div><!-- /moneyPages -->
       </div><!-- /moneySwipeArea -->
     </section>
@@ -2200,7 +2193,7 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
         </button>
       </div>
       <div id="refreshStatus" class="muted" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 258</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 261</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -2241,7 +2234,7 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 258</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 261</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -3042,8 +3035,8 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
   <div class="modal-overlay" id="recurringModalOverlay">
     <div class="modal">
       <div class="modal-header">
-        <h3>Recurring Entry</h3>
-        <button class="icon-btn" id="recurringModalClose" aria-label="Close Recurring Entry">
+        <h3>New Recurring Entry</h3>
+        <button class="icon-btn" id="recurringModalClose" aria-label="Close New Recurring Entry">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
       </div>
@@ -3053,10 +3046,14 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
         <label>Start Date</label>
         <input type="date" id="recurringDate">
       </div>
+      <div class="field">
+        <label id="recurringCategoryLabel">Category</label>
+        <div class="cat-chips" id="recurringCategoryChips" role="radiogroup" aria-labelledby="recurringCategoryLabel"></div>
+      </div>
       <div class="two-col">
-        <div class="field">
-          <label>Category</label>
-          <select id="recurringCategory"></select>
+        <div class="field cat-hidden">
+          <label for="recurringCategory">Category</label>
+          <select id="recurringCategory" tabindex="-1"></select>
         </div>
         <div class="field">
           <label>Subcategory</label>
@@ -3080,20 +3077,22 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
         </div>
       </div>
       <div class="field">
-        <label>Notes (optional)</label>
+        <label>Description (optional)</label>
         <textarea id="recurringNotes" placeholder="e.g. Rent"></textarea>
       </div>
-      <div class="field" id="recurringTypeField" style="display:none;">
-        <label>Type</label>
-        <select id="recurringType">
-          <option>Credit Card</option>
-          <option>Financing</option>
-          <option>Other</option>
-        </select>
-      </div>
-      <div class="field" id="recurringAccountField" style="display:none;">
-        <label>Account (optional)</label>
-        <select id="recurringAccount"></select>
+      <div class="two-col" id="recurringTypeAccountRow">
+        <div class="field" id="recurringTypeField" style="display:none;">
+          <label>Type</label>
+          <select id="recurringType">
+            <option>Credit Card</option>
+            <option>Financing</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="field" id="recurringAccountField" style="display:none;">
+          <label>Account (optional)</label>
+          <select id="recurringAccount"></select>
+        </div>
       </div>
 
       <div class="section-title" style="margin-top:16px;">Repeat</div>
@@ -3162,6 +3161,34 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
     </div>
   </div>
 
+  <!-- ===== Trends Modal (Money > Investment Accounts > Total) ===== -->
+  <div class="modal-overlay" id="moneyTrendsModalOverlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Trends</h3>
+        <button class="icon-btn" id="moneyTrendsClose" aria-label="Close Trends">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <!-- Net worth trend -->
+      <div class="card" style="margin-bottom:16px;">
+        <div class="card-title">
+          <span>Net Worth</span>
+          <span class="muted" style="font-size:12px;font-family:'Inter',sans-serif;font-weight:500;">12-month trend</span>
+        </div>
+        <div class="chart-wrap" style="height:220px;"><canvas id="netWorthChart" role="img" aria-label="Net worth 12-month trend chart"></canvas></div>
+      </div>
+      <!-- 12-month cumulative projection chart -->
+      <div class="card">
+        <div class="card-title">
+          <span>12-Month Projection</span>
+          <span class="muted" style="font-size:12px;font-family:'Inter',sans-serif;font-weight:500;">cumulative planned</span>
+        </div>
+        <div class="chart-wrap" style="height:220px;"><canvas id="moneyLineChart" role="img" aria-label="12-month cumulative investment projection chart"></canvas></div>
+      </div>
+    </div>
+  </div>
+
   <!-- ===== Account Detail Modal (Money > All-Time by Investment) ===== -->
   <div class="modal-overlay" id="accountDetailModalOverlay">
     <div class="modal">
@@ -3185,6 +3212,13 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
           <div class="value" id="accountDetailTotal">$0</div>
           <div class="muted" style="font-size:11px;margin-top:2px;" id="accountDetailReturn"></div>
         </div>
+      </div>
+      <div class="card" style="margin-bottom:16px;">
+        <div class="card-title">
+          <span>12-Month Projection</span>
+          <span class="muted" style="font-size:12px;font-family:'Inter',sans-serif;font-weight:500;">cumulative planned</span>
+        </div>
+        <div class="chart-wrap" style="height:220px;"><canvas id="accountDetailChart" role="img" aria-label="12-month projection chart for this investment account"></canvas></div>
       </div>
       <div class="card-title" style="margin-bottom:6px;">All Entries</div>
       <ul class="entry-list" id="accountDetailList"></ul>
@@ -3317,7 +3351,7 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 258;
+const APP_VERSION = 261;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -4939,6 +4973,7 @@ function computeDonutBreakdown(refDate, category){
    ========================================================= */
 let moneyLineChartInstance = null;
 let netWorthChartInstance = null;
+let accountDetailChartInstance = null;
 // A debt entry is any Expense entry the Debts page would show — tagged
 // with a debt type (Credit Card/Financing), or "Other" with an account
 // assigned. Mirrors renderDebts()'s own inclusion filter so "current
@@ -5062,8 +5097,10 @@ function renderMoney(){
   renderMoneyBreakdown(inMonth);
 
   // 12-month projection line chart
-  renderMoneyLineChart();
-  renderNetWorthChart();
+  if(document.getElementById('moneyTrendsModalOverlay').classList.contains('active')){
+    renderMoneyLineChart();
+    renderNetWorthChart();
+  }
   renderMoneyAllTimeBreakdown();
 }
 
@@ -5106,9 +5143,10 @@ function renderMoneyBreakdown(inMonth){
   document.getElementById('moneyBreakdown').innerHTML = html;
 }
 
-function renderMoneyLineChart(){
-  const ctx = document.getElementById('moneyLineChart');
-  if(moneyLineChartInstance){ moneyLineChartInstance.destroy(); }
+// 12-month projection chart. With `sub` it is drawn for that one investment
+// account only (the Account detail popup); without it, for everything (Trends popup).
+function buildMoneyProjectionChart(ctx, sub){
+  const src = sub ? entries.filter(e => e.subcategory === sub) : entries;
 
   const labels = [];
   const investedData = [];   // cumulative Closed Investment
@@ -5132,9 +5170,9 @@ function renderMoneyLineChart(){
     const d = new Date(homeDate.getFullYear(), homeDate.getMonth() + i, 1);
     const inM = (dateStr) => isSameMonth(dateStr, d);
 
-    const monthInvested = entries.filter(e => e.category === 'Investment' && e.status === 'Closed' && inM(e.date)).reduce((a, e) => a + Number(e.amount), 0);
-    const monthPlanned  = entries.filter(e => e.category === 'Investment' && inM(e.date)).reduce((a, e) => a + Number(e.amount), 0);
-    const monthCapital  = entries.filter(e => e.category === 'Capital' && inM(e.date)).reduce((a, e) => a + Number(e.amount), 0);
+    const monthInvested = src.filter(e => e.category === 'Investment' && e.status === 'Closed' && inM(e.date)).reduce((a, e) => a + Number(e.amount), 0);
+    const monthPlanned  = src.filter(e => e.category === 'Investment' && inM(e.date)).reduce((a, e) => a + Number(e.amount), 0);
+    const monthCapital  = src.filter(e => e.category === 'Capital' && inM(e.date)).reduce((a, e) => a + Number(e.amount), 0);
 
     cumulativeInvested += monthInvested;
     cumulativePlanned  += monthPlanned + monthCapital;
@@ -5142,12 +5180,12 @@ function renderMoneyLineChart(){
     cumulativeNet      += monthInvested + monthCapital; // each month: add newly invested + that month's capital
 
     labels.push(d.toLocaleString(undefined, {month:'short', year:'2-digit'}));
-    investedData.push(investmentSplit({ investCutoff: monthEnd, capitalCutoff: null, includeOpen: false }).invested);   // same basis as the Cumulative card
+    investedData.push(investmentSplit({ investCutoff: monthEnd, capitalCutoff: null, includeOpen: false, sub }).invested);   // same basis as the Cumulative card
     plannedData.push(cumulativePlanned);
     netData.push(cumulativeNet);
   }
 
-  moneyLineChartInstance = new Chart(ctx, {
+  return new Chart(ctx, {
     type: 'line',
     data: {
       labels,
@@ -5216,6 +5254,13 @@ function renderMoneyLineChart(){
       }
     }
   });
+}
+
+function renderMoneyLineChart(){
+  const ctx = document.getElementById('moneyLineChart');
+  if(!ctx) return;
+  if(moneyLineChartInstance){ moneyLineChartInstance.destroy(); moneyLineChartInstance = null; }
+  moneyLineChartInstance = buildMoneyProjectionChart(ctx);
 }
 
 // Net Worth = (cumulative Closed Investment + all-time Capital), plus
@@ -5385,8 +5430,11 @@ function renderMoneyAllTimeBreakdown(){
   const totalReturnColor = totalReturnPct === null ? 'color:var(--slate);' : totalReturnPct > 0 ? 'color:#3E7C59;' : totalReturnPct < 0 ? 'color:#C1583F;' : 'color:var(--slate);';
   const grandTotal = grandInvested + grandCapital;
   const totalRow = `
-    <div class="money-account-row" style="border-top:2px solid var(--line);border-radius:0;background:transparent;padding:12px 0 0;margin-top:4px;">
-      <div class="breakdown-name" style="font-weight:700;margin-bottom:8px;">Total</div>
+    <div class="money-total-row" id="moneyTotalRow" role="button" tabindex="0" aria-label="Total of all investment accounts. Tap to see trend charts" style="border-top:2px solid var(--line);border-radius:0;background:transparent;padding:12px 0 0;margin-top:4px;">
+      <div class="tot-head">
+        <div class="breakdown-name" style="font-weight:700;">Total</div>
+        <span class="hint">Trends <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+      </div>
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;">
         <div>
           <div class="muted" style="font-size:10px;text-transform:uppercase;letter-spacing:.4px;">Invested</div>
@@ -5409,10 +5457,29 @@ function renderMoneyAllTimeBreakdown(){
 
   container.innerHTML = html + totalRow;
 
-  container.querySelectorAll('.money-account-row').forEach(row=>{
+  container.querySelectorAll('.money-account-row[data-sub]').forEach(row=>{
     row.addEventListener('click', ()=> openAccountDetail(row.dataset.sub));
   });
+  const totalEl = document.getElementById('moneyTotalRow');
+  if(totalEl){
+    totalEl.addEventListener('click', openMoneyTrends);
+    totalEl.addEventListener('keydown', (e)=>{ if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); openMoneyTrends(); } });
+  }
 }
+
+// Trends popup: the Net Worth trend and the 12-Month Projection (they used to be the Money page's third section).
+function openMoneyTrends(){
+  document.getElementById('moneyTrendsModalOverlay').classList.add('active');
+  renderMoneyLineChart();
+  renderNetWorthChart();
+}
+function closeMoneyTrends(){
+  document.getElementById('moneyTrendsModalOverlay').classList.remove('active');
+}
+document.getElementById('moneyTrendsClose').addEventListener('click', closeMoneyTrends);
+document.getElementById('moneyTrendsModalOverlay').addEventListener('click', (e)=>{
+  if(e.target.id === 'moneyTrendsModalOverlay') closeMoneyTrends();
+});
 
 function openAccountDetail(sub){
   const matching = entries
@@ -5439,9 +5506,13 @@ function openAccountDetail(sub){
   attachEntryRowHandlers(listEl);
 
   document.getElementById('accountDetailModalOverlay').classList.add('active');
+  // draw once the popup is showing, so the chart measures its real width
+  if(accountDetailChartInstance){ accountDetailChartInstance.destroy(); accountDetailChartInstance = null; }
+  accountDetailChartInstance = buildMoneyProjectionChart(document.getElementById('accountDetailChart'), sub);
 }
 function closeAccountDetail(){
   document.getElementById('accountDetailModalOverlay').classList.remove('active');
+  if(accountDetailChartInstance){ accountDetailChartInstance.destroy(); accountDetailChartInstance = null; }
 }
 document.getElementById('accountDetailClose').addEventListener('click', closeAccountDetail);
 document.getElementById('accountDetailModalOverlay').addEventListener('click', (e)=>{
@@ -5568,11 +5639,7 @@ makeSwipeable(document.getElementById('view-home'), {
 
 /* Detail month navigation */
 function setDetailPeriodToThisMonth(){
-  detailPeriod = 'thismonth';
-  document.getElementById('detailPeriodSeg').querySelectorAll('button').forEach(b=>{
-    b.classList.toggle('active', b.dataset.period === 'thismonth');
-  });
-  document.getElementById('detailDateRangeRow').style.display = 'none';
+  detailPeriod = 'thismonth';   // Category Detail always shows the selected month (the period buttons were removed in v261)
 }
 function detailChangeMonth(delta){
   homeDate = new Date(homeDate.getFullYear(), homeDate.getMonth() + delta, 1);
@@ -5692,26 +5759,6 @@ document.getElementById('detailSubcatSel').addEventListener('change', (e)=>{
   renderDetail();
 });
 
-/* Detail period filter */
-document.getElementById('detailPeriodSeg').querySelectorAll('button').forEach(btn=>{
-  btn.addEventListener('click', ()=>{
-    document.getElementById('detailPeriodSeg').querySelectorAll('button').forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');
-    detailPeriod = btn.dataset.period;
-    document.getElementById('detailDateRangeRow').style.display = detailPeriod === 'custom' ? 'grid' : 'none';
-    renderDetail();
-  });
-});
-document.getElementById('detailDateFrom').addEventListener('change', e=>{
-  detailDateFrom = e.target.value;
-  renderDetail();
-});
-document.getElementById('detailDateTo').addEventListener('change', e=>{
-  detailDateTo = e.target.value;
-  renderDetail();
-});
-
-
 /* Transactions period filter */
 document.getElementById('txPeriodSeg').querySelectorAll('button').forEach(btn=>{
   btn.addEventListener('click', ()=>{
@@ -5769,6 +5816,26 @@ txSearchClear.addEventListener('click', ()=>{
   renderTransactions();
   txSearchInput.focus();
 });
+// The search fields stay hidden until the magnifier is tapped; hiding one also clears it,
+// so a hidden field never filters the list without the person knowing.
+function setSearchOpen(kind, open, focus){
+  const bar = document.getElementById(kind + 'SearchBar');
+  const btn = document.getElementById(kind + 'SearchToggle');
+  const input = document.getElementById(kind + 'SearchInput');
+  bar.classList.toggle('collapsed', !open);
+  btn.classList.toggle('active', open);
+  btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  if(open){ if(focus !== false) input.focus(); return; }
+  if(input.value !== ''){
+    input.value = '';
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+}
+['tx', 'debt'].forEach(kind=>{
+  document.getElementById(kind + 'SearchToggle').addEventListener('click', ()=>{
+    setSearchOpen(kind, document.getElementById(kind + 'SearchBar').classList.contains('collapsed'));
+  });
+});
 
 /* ===== Transactions: saved filter presets ===== */
 // A preset captures the full current filter state (status, period,
@@ -5812,6 +5879,7 @@ function applyTxPreset(preset){
 
   txSearchInput.value = txSearchQuery;
   txSearchClear.style.display = txSearchQuery ? 'flex' : 'none';
+  if(txSearchQuery) setSearchOpen('tx', true, false);   // a saved filter with a search term shows its field
 
   renderTransactions();
 }
@@ -6175,11 +6243,10 @@ function makeSwipeable(area, opts){
   }, true);
 }
 
-/* Money sections: Overview <-> Accounts <-> Trends (swipe the content) */
+/* Money sections: Overview <-> Accounts (swipe the content). The old Trends section is now a popup (tap Total in Investment Accounts). */
 const MONEY_PAGES = [
   { id:'overview', label:'Overview' },
-  { id:'accounts', label:'Accounts' },
-  { id:'trends',   label:'Trends' }
+  { id:'accounts', label:'Accounts' }
 ];
 let moneyPage = 'overview';
 function moneyPageIndex(){ return Math.max(0, MONEY_PAGES.findIndex(p => p.id === moneyPage)); }
@@ -6206,13 +6273,6 @@ function setMoneyPage(id){
     pg.classList.toggle('active', pg.dataset.page === moneyPage);
   });
   renderMoneyPager();
-  // Charts drawn while their card was hidden were measured at zero width;
-  // redraw them now that the card is showing so they fill it properly.
-  if(moneyPage === 'trends'){
-    renderMoney();
-    try{ if(netWorthChartInstance) netWorthChartInstance.resize(); }catch(e){}
-    try{ if(moneyLineChartInstance) moneyLineChartInstance.resize(); }catch(e){}
-  }
 }
 // Sections have different heights; after switching, make sure the month bar
 // and section name are still on screen instead of leaving the new section
@@ -7040,6 +7100,29 @@ document.addEventListener('keydown', (e)=>{
    RECURRING ENTRY — fill fields once, pick a frequency, and
    create every occurrence at once.
    ========================================================= */
+// Coloured category chips (same look as New Financial Entry); the hidden dropdown stays the source of truth.
+function syncRecurringCategoryChips(){
+  const box = document.getElementById('recurringCategoryChips');
+  const sel = document.getElementById('recurringCategory');
+  if(!box || !sel) return;
+  const cats = Object.keys(CATEGORY_MAP);
+  if(box.children.length !== cats.length){
+    box.innerHTML = cats.map(c=>`<button type="button" class="cat-chip" role="radio" data-cat="${c}">${c}</button>`).join('');
+  }
+  box.querySelectorAll('.cat-chip').forEach(b=>{
+    const on = b.dataset.cat === sel.value;
+    b.classList.toggle('active', on);
+    b.setAttribute('aria-checked', on ? 'true' : 'false');
+  });
+}
+document.getElementById('recurringCategoryChips').addEventListener('click', (e)=>{
+  const b = e.target.closest('.cat-chip');
+  if(!b) return;
+  const sel = document.getElementById('recurringCategory');
+  if(sel.value === b.dataset.cat) return;
+  sel.value = b.dataset.cat;
+  sel.dispatchEvent(new Event('change', { bubbles: true }));
+});
 function populateRecurringCategorySelectors(selectedCategory, selectedSub){
   const catSel = document.getElementById('recurringCategory');
   catSel.innerHTML = Object.keys(CATEGORY_MAP).map(c=>`<option value="${c}" ${c===selectedCategory?'selected':''}>${c}</option>`).join('');
@@ -7049,6 +7132,7 @@ function populateRecurringCategorySelectors(selectedCategory, selectedSub){
   subSel.innerHTML = sortedSubs.map(s=>`<option value="${s}" ${s===selectedSub?'selected':''}>${s}</option>`).join('');
 
   catSel.dataset.prev = selectedCategory;
+  syncRecurringCategoryChips();
   document.getElementById('recurringTypeField').style.display = (selectedCategory === 'Expense') ? 'block' : 'none';
   if(selectedCategory === 'Expense'){
     populateRecurringAccountSelector(document.getElementById('recurringType').value, null);
@@ -10483,7 +10567,7 @@ function renderDebts(){
       <div class="eyebrow">${debtTypeFilter}</div>
       <div class="figure${outstanding < 0 ? ' negative' : ''}" id="debtOutstandingFig">${fmtMoney(outstanding)}</div>
       <div class="underline"></div>
-      <div class="sub">Total Outstanding</div>
+      <div class="sub">Outstanding</div>
     </div>`;
   let anyData = false;
   types.forEach(type=>{
@@ -10650,9 +10734,29 @@ function renderTransactions(){
   document.getElementById('txSelectAllChk').checked = false;
   updateTxSelectedCount();
 }
+function syncDetailCategoryChips(){
+  const box = document.getElementById('detailCategoryChips');
+  const cats = Object.keys(CATEGORY_MAP);
+  if(box.children.length !== cats.length){
+    box.innerHTML = cats.map(c=>`<button type="button" class="cat-chip" role="radio" data-cat="${c}">${c}</button>`).join('');
+  }
+  box.querySelectorAll('.cat-chip').forEach(b=>{
+    const on = b.dataset.cat === detailCategory;
+    b.classList.toggle('active', on);
+    b.setAttribute('aria-checked', on ? 'true' : 'false');
+  });
+}
+document.getElementById('detailCategoryChips').addEventListener('click', (e)=>{
+  const b = e.target.closest('.cat-chip');
+  if(!b || b.dataset.cat === detailCategory) return;
+  const sel = document.getElementById('detailCategorySel');
+  sel.value = b.dataset.cat;
+  sel.dispatchEvent(new Event('change', { bubbles: true }));
+});
 function populateDetailSelectors(){
   const catSel = document.getElementById('detailCategorySel');
   catSel.innerHTML = Object.keys(CATEGORY_MAP).map(c=>`<option value="${c}" ${c===detailCategory?'selected':''}>${c}</option>`).join('');
+  syncDetailCategoryChips();
 
   const subSel = document.getElementById('detailSubcatSel');
   subSel.innerHTML = CATEGORY_MAP[detailCategory].map(s=>`<option value="${s}" ${s===detailSubcategory?'selected':''}>${s}</option>`).join('');
@@ -11382,7 +11486,6 @@ function renderHome(){
       days += dim(d.getFullYear(), d.getMonth());
     }
     const badge = document.getElementById('burnRateBadge');
-    const note = document.getElementById('burnRateNote');
     const avg = days > 0 ? sum / days : 0;
     if(avg > 0.004){
       const pct = (daily - avg) / avg * 100;
@@ -11390,10 +11493,9 @@ function renderHome(){
       badge.textContent = (up ? '▲ ' : down ? '▼ ' : '') + Math.abs(pct).toFixed(1) + '% vs 12-mo avg';
       badge.className = 'tile-badge ' + (up ? 'bad' : down ? 'good' : '');
       badge.style.display = '';
-      note.textContent = '12-month average: ' + fmtMoney(avg) + ' / day';
+      badge.title = '12-month average: ' + fmtMoney(avg) + ' / day';
     }else{
       badge.style.display = 'none';
-      note.textContent = 'Daily expenses of the month';
     }
   })();
 
@@ -11777,13 +11879,12 @@ const TOUR_STEPS = [
   { view:'home', target:'#themeToggleBtn', title:'Light / dark mode', text:'Tap to switch the whole app between light and dark instantly.' },
   { view:'home', target:'#insightsFab', title:'Insights', text:'A deeper look at your spending \u2014 trends, cost-cutting ideas, and more, generated automatically from your entries.' },
   { view:'insights', insightsPage:'summary', title:'Insights, in full', text:'Browse automatic observations about your spending habits here. Swipe the page left or right to move between Summary, Spending and Savings, and swipe the month bar to change month. Tap any category to drill in further.' },
-  { view:'transactions', target:'#txSearchInput', title:'Find any transaction', text:'Search by category, subcategory, notes, or account \u2014 this list covers every entry you\u2019ve ever made.' },
+  { view:'transactions', target:'#txSearchToggle', title:'Find any transaction', text:'Tap the magnifier, then search by category, subcategory, notes, or account \u2014 this list covers every entry you\u2019ve ever made.' },
   { view:'transactions', target:'#txPeriodSeg', title:'Filter by time', text:'Narrow the list to this month, next month, this year, or your own custom date range.' },
   { view:'transactions', target:'#txFilterSeg', title:'Planned vs. Actual', text:'Show everything, just what\u2019s still planned, or just what\u2019s already happened. The sort button beside it flips oldest/newest first.' },
   { view:'debts', target:'#debtTypePager', title:'Track what you owe', text:'Swipe left or right to switch between Credit Cards, Financing, and Other debts, grouped by account \u2014 each shows a payoff-progress bar, and Credit Cards also show their credit limit usage if you\u2019ve set one (More \u2192 Credit Limits).' },
-  { view:'money', moneyPage:'overview', target:'#view-money .summary-grid', title:'Money, at a glance', text:'Swipe the page left or right for Accounts and Trends, and swipe the month bar to change month. What you\u2019ve invested, what\u2019s planned, your cumulative total, capital gains/losses, and your overall net position.' },
+  { view:'money', moneyPage:'overview', target:'#view-money .summary-grid', title:'Money, at a glance', text:'Swipe the page left or right for Accounts, and swipe the month bar to change month. What you\u2019ve invested, what\u2019s planned, your cumulative total, capital gains/losses, and your overall net position.' },
   { view:'money', moneyPage:'overview', target:'#moneyProgressFill', title:'Plan progress', text:'How much of this month\u2019s planned investing is actually done (Actual) versus still Planned.' },
-  { view:'money', moneyPage:'trends', target:'#netWorthChart', title:'Net worth over time', text:'Your invested balance plus capital gains/losses, tracked month by month.' },
   { view:'more', target:'#budgetsBtn', title:'Budgets', text:'A beginner-friendly planner: enter your income, get a split per category suggested from your 12-month average, type or nudge the % for each category until it fits, and track actual spend against the plan each month.' },
   { view:'more', target:'#creditLimitsBtn', title:'Credit Limits', text:'Set the total limit on each credit card to see available credit and usage \u2014 shown here and on the Debts page.' },
   { view:'more', target:'#settingsBtn', title:'Accounts Settings', text:'Manage your categories and subcategories, and the specific accounts under each debt type.' },
