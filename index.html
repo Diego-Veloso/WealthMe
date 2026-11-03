@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v263 -->
+<!-- WEALTH.ME — v266 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -258,13 +258,6 @@ main{
 #view-detail,
 #view-budgets{touch-action:pan-y pinch-zoom;}
 .insights-swipe-area{touch-action:pan-y;overflow-x:hidden;overscroll-behavior-x:none;min-height:55vh;}
-#view-insights .insights-sheet-head h2,
-#view-insights .month-nav .label,
-#view-insights .debt-type-title,
-#view-insights .debt-type-arrow{color:#fff;}
-#view-insights .debt-type-dot{background:rgba(255,255,255,0.4);}
-#view-insights .debt-type-dot.active{background:#fff;}
-#insightsContainer .insights-fullspan:not(.card) > .muted{color:rgba(255,255,255,0.9);}
 /* Insights report cards: a rule under the title (and subtitle, where a card has one) makes it read as a heading. */
 #insightsContainer.with-headings .card > .card-title{padding-bottom:10px;margin-bottom:10px;border-bottom:1px solid var(--line);}
 #insightsContainer.with-headings .card > .card-title.has-sub{padding-bottom:0;margin-bottom:2px;border-bottom:none;}
@@ -1450,8 +1443,6 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
 }
 
 /* ----- Insights sheet ----- */
-.insights-sheet{background:linear-gradient(180deg,var(--insights-page-bg) 0,#3F86D6 55%,#58A6EC 100%);border-radius:28px 28px 0 0;}
-[data-theme="dark"] .insights-sheet{background:linear-gradient(180deg,var(--insights-page-bg) 0,#22456F 60%,#2A5586 100%);}
 
 /* ----- lock + license screens ----- */
 #licenseScreen,#lockScreen{
@@ -1558,7 +1549,12 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
 .cat-chip[data-cat="Capital"]{--cc:#5C6B7A;--ci:"●";}
 [data-theme="dark"] .cat-chip[data-cat="Capital"]{--cc:#9AA7B4;}
 .cat-chip.active{background:var(--cc);border-color:var(--cc);color:#fff;box-shadow:0 8px 18px color-mix(in srgb,var(--cc) 40%,transparent);}
-[data-theme="dark"] .cat-chip.active[data-cat="Capital"]{color:#10151A;}
+/* Active chip: the same gradients as the coloured category switch (Insights trend, Home Breakdown, Settings) */
+.cat-chip.active{border-color:transparent;background-origin:border-box;}
+.cat-chip.active[data-cat="Income"]{background-image:linear-gradient(135deg,#1E8A5E,#4FD6A4);}
+.cat-chip.active[data-cat="Expense"]{background-image:linear-gradient(135deg,#B5432A,#EE8A66);}
+.cat-chip.active[data-cat="Investment"]{background-image:linear-gradient(135deg,#B7821F,#F0BC45);}
+.cat-chip.active[data-cat="Capital"]{background-image:linear-gradient(135deg,#46525F,#8795A5);color:#fff;}
 .two-col > .field.cat-hidden{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0;padding:0;}
 .two-col:has(> .field.cat-hidden) > .field:not(.cat-hidden){grid-column:1 / -1;}
 
@@ -1675,6 +1671,61 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
 .money-total-row .tot-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;}
 .money-total-row .tot-head span.hint{font-size:11px;font-weight:600;color:var(--slate);display:inline-flex;align-items:center;gap:3px;}
 .balance-hero.money-hero .sub{margin-top:12px;font-size:12px;}
+
+/* ===== v264: Insights restyle (page look, section colours, status dots) ===== */
+.insights-sheet{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 340px) no-repeat,var(--cream);border-radius:28px 28px 0 0;--sec:#0A8FE8;}
+.insights-sheet[data-sec="spending"]{--sec:#E0674A;}
+[data-theme="dark"] .insights-sheet{background:var(--cream);}
+.insights-sheet-head{background:color-mix(in srgb,var(--cream) 95%,transparent);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);}
+#view-insights .debt-type-dot.active{background:var(--sec);}
+.ins-hero{margin-bottom:14px;}
+.ins-hero.spend{background:linear-gradient(135deg,#4F1608 0%,#B5432A 50%,#EE8A66 100%);box-shadow:0 16px 34px rgba(181,67,42,.30);}
+.ins-hero.spend::after{background:radial-gradient(circle,rgba(255,200,150,.34),rgba(255,200,150,0) 68%);}
+.ins-hero.spend .eyebrow{color:#FFE0D2;}
+.ins-hero.save{background:linear-gradient(135deg,#063B2B 0%,#1E8A5E 52%,#4FD6A4 100%);box-shadow:0 16px 34px rgba(30,138,94,.30);}
+.ins-hero.save::after{background:radial-gradient(circle,rgba(150,255,210,.34),rgba(150,255,210,0) 68%);}
+.ins-hero.save .eyebrow{color:#D4FBEA;}
+.ins-hero .figure.negative{color:#FFD9CF;}
+.ins-cut-cap{margin-top:12px;font-size:11px;font-weight:600;color:rgba(255,255,255,.85);}
+.ins-cut{display:inline-flex;gap:3px;margin-top:6px;padding:3px;border-radius:12px;background:rgba(255,255,255,.16);}
+.ins-cut button{border:none;background:transparent;color:#fff;font-weight:800;font-size:12.5px;padding:6px 18px;border-radius:9px;cursor:pointer;font-family:'Inter',sans-serif;}
+.ins-cut button.active{background:#fff;color:#0E6B47;}
+.ins-tiles{margin-bottom:14px;}
+.ins-dot{display:inline-block;width:9px;height:9px;border-radius:50%;flex-shrink:0;margin-top:4px;}
+.ins-dot.good{background:#22A06B;box-shadow:0 0 0 3px rgba(34,160,107,.18);}
+.ins-dot.watch{background:#F5A623;box-shadow:0 0 0 3px rgba(245,166,35,.2);}
+.ins-dot.alert{background:#E0674A;box-shadow:0 0 0 3px rgba(224,103,74,.2);}
+.ins-dot.info{background:#0A8FE8;box-shadow:0 0 0 3px rgba(10,143,232,.18);}
+.ins-row{display:flex;gap:11px;align-items:flex-start;padding:9px 0;}
+.ins-row.bordered{border-bottom:1px solid var(--slate-light);}
+.ins-row:last-child{border-bottom:none;}
+.ins-row-text{font-size:12.5px;line-height:1.45;}
+.ins-cmp{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.ins-chip{border-radius:14px;padding:9px 6px;text-align:center;background:color-mix(in srgb,var(--slate) 10%,var(--card));}
+.ins-chip .l{font-size:9.5px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;color:var(--slate);line-height:1.25;}
+.ins-chip .v{font-size:15px;font-weight:800;margin-top:4px;color:var(--slate);}
+.ins-chip.bad{background:color-mix(in srgb,#E0674A 14%,var(--card));}
+.ins-chip.bad .v{color:#C2412A;}
+.ins-chip.good{background:color-mix(in srgb,#22A06B 14%,var(--card));}
+.ins-chip.good .v{color:#1B8A5A;}
+[data-theme="dark"] .ins-chip.bad .v{color:#FF9A85;}
+[data-theme="dark"] .ins-chip.good .v{color:#5ED39B;}
+.ins-meta{display:flex;justify-content:space-between;gap:10px;font-size:12px;color:var(--slate);padding:7px 0 0;}
+.ins-meta strong{color:var(--navy);font-weight:700;text-align:right;}
+.ins-health .summary-card .st{font-size:11px;font-weight:700;display:flex;align-items:center;gap:6px;margin-top:3px;}
+.ins-health .summary-card .st .ins-dot{margin-top:0;width:8px;height:8px;}
+.ins-mode{margin-bottom:10px;}
+.segmented.seg-sm.ins-mode button{flex:1 1 0;padding:6px 4px;}
+/* Coloured category switch (Income green, Expense red, Investment gold, Capital slate): Insights trend, Home Breakdown, Accounts Settings subcategories */
+.segmented.seg-colour button.active{color:#fff;}
+.segmented.seg-colour button.active[data-cat="Expense"],.segmented.seg-colour button.active[data-mode="expense"]{background:linear-gradient(135deg,#B5432A,#EE8A66);}
+.segmented.seg-colour button.active[data-cat="Income"],.segmented.seg-colour button.active[data-mode="income"]{background:linear-gradient(135deg,#1E8A5E,#4FD6A4);}
+.segmented.seg-colour button.active[data-cat="Investment"],.segmented.seg-colour button.active[data-mode="investment"]{background:linear-gradient(135deg,#B7821F,#F0BC45);}
+.segmented.seg-colour button.active[data-cat="Capital"]{background:linear-gradient(135deg,#46525F,#8795A5);}
+.segmented.ins-dir button.active{background:var(--skin-grad-primary);color:#fff;box-shadow:0 6px 14px rgba(10,111,208,.28);}
+.ins-more{display:block;width:100%;background:none;border:none;color:var(--skin-blue-ink,#0A6FD0);font-weight:700;font-size:12.5px;padding:10px 0 0;cursor:pointer;text-align:center;font-family:'Inter',sans-serif;}
+.tile-badge.watch{background:color-mix(in srgb,#F5A623 20%,transparent);color:#B86E00;margin-left:4px;vertical-align:1px;}
+[data-theme="dark"] .tile-badge.watch{color:#F6B64C;}
 </style>
 
 </head>
@@ -1900,7 +1951,7 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
       <div class="card">
         <div class="card-title">
           <span>Breakdown</span>
-          <div class="segmented" id="donutSeg" style="width:auto;">
+          <div class="segmented seg-colour" id="donutSeg" style="width:auto;">
             <button data-cat="Income">Income</button>
             <button class="active" data-cat="Expense">Expense</button>
             <button data-cat="Investment">Investment</button>
@@ -2184,7 +2235,7 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
         </button>
       </div>
       <div id="refreshStatus" class="muted" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 263</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 266</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -2199,7 +2250,7 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
       <div class="card">
       <div class="section-title">Subcategories</div>
       <p class="muted">Add, rename, or remove subcategories for each category. Renaming or removing updates existing entries.</p>
-      <div class="segmented" id="subcatCategorySeg">
+      <div class="segmented seg-colour" id="subcatCategorySeg">
         <button class="active" data-cat="Income">Income</button>
         <button data-cat="Expense">Expense</button>
         <button data-cat="Investment">Investment</button>
@@ -2225,7 +2276,7 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 263</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 266</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -3349,7 +3400,7 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 263;
+const APP_VERSION = 266;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -4253,31 +4304,22 @@ function generateFinancialInsights(selectedDate, direction){
   const keyInsights = [];
   if(categoryTotals.length > 0){
     const top = categoryTotals[0];
-    keyInsights.push({ icon:'💡', text:`Your largest expense category over the ${direction==='future'?'next':'last'} 12 months ${direction==='future'?'is projected to be':'was'} <strong>${top.subcategory}</strong>, accounting for <strong style="color:var(--terracotta)">${top.pctOfTotal.toFixed(0)}%</strong> of total spending.`, weight: 100 });
+    keyInsights.push({ tone:'info', text:`Your largest expense category over the ${direction==='future'?'next':'last'} 12 months ${direction==='future'?'is projected to be':'was'} <strong>${top.subcategory}</strong>, accounting for <strong style="color:var(--terracotta)">${top.pctOfTotal.toFixed(0)}%</strong> of total spending.`, weight: 100 });
   }
   if(biggestIncreasesYoY[0] && biggestIncreasesYoY[0].pctChange.pct !== null){
     const c = biggestIncreasesYoY[0];
     const changeColor = c.pctChange.pct >= 0 ? 'var(--terracotta)' : 'var(--sage)';
-    keyInsights.push({ icon:'📈', text:`<strong>${c.subcategory}</strong> spending is <strong style="color:${changeColor}">${c.pctChange.label}</strong> ${direction==='future' ? 'projected compared with the same month next year' : 'compared with the same month last year'}.`, weight: 60 });
+    keyInsights.push({ tone: c.pctChange.pct >= 0 ? 'alert' : 'good', text:`<strong>${c.subcategory}</strong> spending is <strong style="color:${changeColor}">${c.pctChange.label}</strong> ${direction==='future' ? 'projected compared with the same month next year' : 'compared with the same month last year'}.`, weight: 60 });
   }
   if(unusualCategories[0]){
     const u = unusualCategories[0];
-    keyInsights.push({ icon:'⚠️', text:`<strong>${u.subcategory}</strong> spending ${direction==='future'?'is scheduled at':'was'} <strong style="color:var(--terracotta)">${fmtMoney(u.selAmt)}</strong> this month, <strong style="color:var(--terracotta)">${u.pctAbove}%</strong> above your typical <strong style="color:var(--terracotta)">${fmtMoney(u.mean)}</strong>.`, weight: 90 });
+    keyInsights.push({ tone:'alert', text:`<strong>${u.subcategory}</strong> spending ${direction==='future'?'is scheduled at':'was'} <strong style="color:var(--terracotta)">${fmtMoney(u.selAmt)}</strong> this month, <strong style="color:var(--terracotta)">${u.pctAbove}%</strong> above your typical <strong style="color:var(--terracotta)">${fmtMoney(u.mean)}</strong>.`, weight: 90 });
   }
-  if(financialHealth.investmentRate !== null){
-    keyInsights.push({ icon:'💰', text:`You ${direction==='future'?'are on track to invest':'invested'} <strong>${financialHealth.investmentRate.toFixed(0)}%</strong> of your income over this 12-month period.`, weight: 40 });
-  }
-  if(estimatedRecurringMonthly > 0){
-    keyInsights.push({ icon:'🔄', text:`You have approximately <strong style="color:var(--terracotta)">${fmtMoney(estimatedRecurringMonthly)}</strong>/month in recurring expenses, based on historical patterns.`, weight: 50 });
-  }
-  keyInsights.push({ icon:'🎯', text:`Your top 3 expense categories represent <strong style="color:var(--terracotta)">${concentration.top3.toFixed(0)}%</strong> of total spending.`, weight: 45 });
-  if(financialHealth.savingsRate !== null){
-    keyInsights.push({ icon: financialHealth.savingsRate >= 0 ? '✅' : '🚨', text:`Your overall savings rate over this period is <strong>${financialHealth.savingsRate.toFixed(0)}%</strong>.`, weight: 55 });
-  }
+  keyInsights.push({ tone:'info', text:`Your top 3 expense categories represent <strong style="color:var(--terracotta)">${concentration.top3.toFixed(0)}%</strong> of total spending.`, weight: 45 });
   const monthVsAdjacent = direction === 'future' ? overview.vsNextMonth : overview.vsPrevMonth;
   if(monthVsAdjacent.pct !== null && Math.abs(monthVsAdjacent.pct) >= 10){
     const vsColor = monthVsAdjacent.pct > 0 ? 'var(--terracotta)' : 'var(--sage)';
-    keyInsights.push({ icon: monthVsAdjacent.pct>0?'📈':'📉', text:`${direction==='future'?'Scheduled':'Total'} expenses this month are <strong style="color:${vsColor}">${monthVsAdjacent.label}</strong> vs. ${direction==='future'?'next':'last'} month.`, weight: 70 });
+    keyInsights.push({ tone: monthVsAdjacent.pct>0?'alert':'good', text:`${direction==='future'?'Scheduled':'Total'} expenses this month are <strong style="color:${vsColor}">${monthVsAdjacent.label}</strong> vs. ${direction==='future'?'next':'last'} month.`, weight: 70 });
   }
   keyInsights.sort((a,b)=>b.weight-a.weight);
 
@@ -4358,6 +4400,9 @@ let insightsMonthlyChartInstance = null;
 let insightsDrillChartInstance = null;
 let insightsMonthlyChartMode = 'expense'; // expense | income | investment
 let insightsDirection = 'past'; // 'past' | 'future'
+let insightsCutPct = 10;            // Savings ideas: 10 or 20 % cut of non-essential spending
+let insightsShowAllCats = false;    // Where Your Money Went: top 5 or all
+let insightsShowAllRecurring = false;
 let insightsDrillPath = []; // [] = top level; [{level:'subcategory',value}] ; [{level:'subcategory',value},{level:'merchant',value}]
 
 function pctArrow(pct){
@@ -4377,6 +4422,8 @@ function renderInsightsView(){
   const container = document.getElementById('insightsContainer');
   if(!container) return;
   container.classList.remove('with-headings');
+  // Each section has its own colour (blue Summary, red Spending); drill-downs belong to Spending
+  document.getElementById('insightsSheet').dataset.sec = insightsDrillPath.length ? 'spending' : insightsPage;
   document.getElementById('insightsMonthLabel').textContent = fmtMonthYear(homeDate);
 
   const data = generateFinancialInsights(homeDate, insightsDirection);
@@ -4386,9 +4433,9 @@ function renderInsightsView(){
 
   const toggleHtml = `
     <div class="insights-fullspan">
-      <div style="display:flex;background:var(--slate-light);border-radius:10px;padding:3px;margin-bottom:6px;">
-        <button id="insightsDirPast" class="insights-dir-btn" style="flex:1;padding:8px 0;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;background:${insightsDirection==='past'?'var(--card)':'transparent'};color:${insightsDirection==='past'?'var(--navy)':'var(--slate)'};">Past 12 Months</button>
-        <button id="insightsDirFuture" class="insights-dir-btn" style="flex:1;padding:8px 0;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;background:${insightsDirection==='future'?'var(--card)':'transparent'};color:${insightsDirection==='future'?'var(--navy)':'var(--slate)'};">Next 12 Months</button>
+      <div class="segmented ins-dir" style="margin-bottom:6px;">
+        <button id="insightsDirPast" type="button" class="insights-dir-btn${insightsDirection==='past'?' active':''}">Past 12 Months</button>
+        <button id="insightsDirFuture" type="button" class="insights-dir-btn${insightsDirection==='future'?' active':''}">Next 12 Months</button>
       </div>
       <div class="muted" style="font-size:11.5px;margin:0 2px 12px;">${insightsDirection==='future'?'Projected':'Historical'}: ${periodFromLabel} to ${periodToLabel}</div>
     </div>`;
@@ -4423,30 +4470,30 @@ function renderInsightsView(){
   }
 
   // ---------- Top level ----------
-  // Biggest Changes is backward-looking (vs last year), which doesn't make
-  // sense for a forward 12-month projection — shown only for Past 12 Months.
+  // (The Up / Down vs last year lists only make sense for Past 12 Months; What Changed hides them for Next 12 Months.)
   const card = {
+    sumHero:   ()=> renderSummaryHeroCard(data),
     overview:  ()=> renderOverviewCard(data),
+    compare:   ()=> renderMonthCompareCard(data),
     trend:     ()=> renderMonthlyTrendCard(data),
-    key:       ()=> renderKeyInsightsCard(data),
+    health:    ()=> renderFinancialHealthCard(data),
+    key:       ()=> renderHighlightsCard(data),
+    spendHero: ()=> renderSpendHeroCard(data),
     ranking:   ()=> renderCategoryRankingCard(data),
-    cost:      ()=> renderCostReductionCard(data),
-    biggest:   ()=> insightsDirection === 'past' ? renderBiggestChangesCard(data) : '',
-    unusual:   ()=> renderUnusualSpendingCard(data),
-    recurring: ()=> renderRecurringCard(data),
-    health:    ()=> renderFinancialHealthCard(data)
+    changed:   ()=> renderWhatChangedCard(data),
+    savings:   ()=> renderSavingsIdeasCard(data),
+    recurring: ()=> renderRecurringBlock(data)
+  };
+  const sections = {
+    summary:  ['sumHero','overview','compare','trend','health','key'],
+    spending: ['spendHero','ranking','changed','savings','recurring']
   };
   let cardsHtml;
   if(insightsWide.matches){
-    // Desktop: the whole report, stacked, as before.
-    cardsHtml = ['overview','trend','key','ranking','cost','biggest','unusual','recurring','health'].map(k=>card[k]()).join('');
+    // Desktop: the whole report, stacked.
+    cardsHtml = [...sections.summary, ...sections.spending].map(k=>card[k]()).join('');
   } else {
     // Phones: one section at a time, swipe to change.
-    const sections = {
-      summary:  ['overview','trend','key','health'],
-      spending: ['ranking','biggest','unusual'],
-      savings:  ['cost','recurring']
-    };
     cardsHtml = (sections[insightsPage] || sections.summary).map(k=>card[k]()).join('');
     insightsPagerActive = true;
     renderInsightsPager();
@@ -4456,6 +4503,7 @@ function renderInsightsView(){
 
   wireCategoryRankingDrill();
   wireMonthlyTrendToggle(data);
+  wireInsightsControls();
   wireTransactionClicks(data);
   wireDirectionToggle();
   renderMonthlyTrendChart(data);
@@ -4538,118 +4586,186 @@ function renderDrillChart(monthlyAmounts, period){
 
 function fmtSigned(n){ return (n>=0?'+':'') + fmtMoney(n); }
 
-function renderOverviewCard(data){
-  const o = data.overview;
+const INS_TONE_COLOR = { good:'#22A06B', watch:'#E09A1A', alert:'#E0674A', info:'#0A8FE8' };
+const INS_TONE_WORD  = { good:'On track', watch:'Watch', alert:'Needs attention' };
+function insDot(tone){ return `<span class="ins-dot ${tone}"></span>`; }
+// Expenses: an increase is bad, a decrease is good.
+function insPctTone(pct){
+  if(pct === null || pct === undefined || Math.abs(pct) < 1) return 'flat';
+  return pct > 0 ? 'bad' : 'good';
+}
+function insHero(kind, eyebrow, amount, subHtml, extraHtml){
   return `
-    <div class="card">
-      <div class="card-title">Financial Overview <span class="muted" style="font-weight:400;font-size:11px;">${data.direction==='future'?'12-month projected total':'12-month total'}</span></div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px 10px;">
-        <div><div class="muted" style="font-size:10px;text-transform:uppercase;">Income</div><div class="breakdown-amt" style="color:var(--sage);font-size:15px;">${fmtMoney(o.totalIncome12mo)}</div></div>
-        <div><div class="muted" style="font-size:10px;text-transform:uppercase;">Taxes</div><div class="breakdown-amt" style="color:var(--slate);font-size:15px;">${fmtMoney(o.totalTaxes12mo)}</div></div>
-        <div><div class="muted" style="font-size:10px;text-transform:uppercase;">Expenses</div><div class="breakdown-amt" style="color:var(--terracotta);font-size:15px;">${fmtMoney(o.totalExpensesNoTaxes12mo)}</div></div>
-        <div><div class="muted" style="font-size:10px;text-transform:uppercase;">Investments</div><div class="breakdown-amt" style="color:var(--gold);font-size:15px;">${fmtMoney(o.totalInvestment12mo)}</div></div>
-      </div>
-      <div style="margin-top:14px;border-top:1px solid var(--slate-light);padding-top:10px;">
-        <div style="display:flex;justify-content:space-between;font-size:12.5px;padding:4px 0;"><span class="muted">Avg monthly expenses + taxes</span><span>${fmtMoney(o.avgMonthlyExpense)}</span></div>
-        ${data.direction === 'future' ? `
-        <div style="display:flex;justify-content:space-between;font-size:12.5px;padding:4px 0;"><span class="muted">Next month vs selected month</span><span style="color:${pctColor(o.vsNextMonth.pct,true)}">${o.vsNextMonth.label}</span></div>
-        <div style="display:flex;justify-content:space-between;font-size:12.5px;padding:4px 0;"><span class="muted">Selected month vs 12-mo average</span><span style="color:${pctColor(o.vs12moAvg.pct,true)}">${o.vs12moAvg.label}</span></div>
-        <div style="display:flex;justify-content:space-between;font-size:12.5px;padding:4px 0;"><span class="muted">Same month next year vs selected month</span><span style="color:${pctColor(o.vsSameMonthNextYear.pct,true)}">${o.vsSameMonthNextYear.label}</span></div>
-        ` : `
-        <div style="display:flex;justify-content:space-between;font-size:12.5px;padding:4px 0;"><span class="muted">Selected month vs last month</span><span style="color:${pctColor(o.vsPrevMonth.pct,true)}">${o.vsPrevMonth.label}</span></div>
-        <div style="display:flex;justify-content:space-between;font-size:12.5px;padding:4px 0;"><span class="muted">Selected month vs 12-mo average</span><span style="color:${pctColor(o.vs12moAvg.pct,true)}">${o.vs12moAvg.label}</span></div>
-        <div style="display:flex;justify-content:space-between;font-size:12.5px;padding:4px 0;"><span class="muted">Selected month vs same month last year</span><span style="color:${pctColor(o.vsSameMonthLastYear.pct,true)}">${o.vsSameMonthLastYear.label}</span></div>
-        `}
-        <div style="display:flex;justify-content:space-between;font-size:12.5px;padding:4px 0;"><span class="muted">Highest spending month</span><span>${data.overview.highestMonth.label} (${fmtMoney(data.overview.highestMonth.expense)})</span></div>
-        <div style="display:flex;justify-content:space-between;font-size:12.5px;padding:4px 0;"><span class="muted">Lowest spending month</span><span>${data.overview.lowestMonth.label} (${fmtMoney(data.overview.lowestMonth.expense)})</span></div>
-      </div>
+    <div class="balance-hero ins-hero ${kind}">
+      <div class="eyebrow">${eyebrow}</div>
+      <div class="figure${amount < 0 ? ' negative' : ''}">${fmtMoney(amount)}</div>
+      <div class="underline"></div>
+      ${subHtml ? `<div class="sub">${subHtml}</div>` : ''}
+      ${extraHtml || ''}
     </div>`;
 }
 
-function renderKeyInsightsCard(data){
-  if(data.keyInsights.length === 0) return '';
-  const rows = data.keyInsights.map((k,i)=>`
-    <div style="display:flex;gap:10px;align-items:flex-start;padding:8px 0;${i<data.keyInsights.length-1?'border-bottom:1px solid var(--slate-light);':''}">
-      <div style="font-size:16px;line-height:1.3;flex-shrink:0;">${k.icon}</div>
-      <div style="font-size:12.5px;line-height:1.4;">${k.text}</div>
+function renderSummaryHeroCard(data){
+  const h = data.financialHealth;
+  const saved = h.avgMonthlySurplus * 12;
+  const rate = h.savingsRate !== null ? `${h.savingsRate.toFixed(1)}% savings rate` : '';
+  return insHero('sum', data.direction === 'future' ? 'Projected Savings · 12 months' : 'Saved · 12 months', saved, rate);
+}
+
+function renderOverviewCard(data){
+  const o = data.overview;
+  const tile = (label, val, color, tint)=>`
+    <div class="summary-card" style="--t:${tint};">
+      <div class="label">${label}</div>
+      <div class="value" style="color:${color};">${fmtMoney(val)}</div>
+    </div>`;
+  return `
+    <div class="summary-grid ins-tiles">
+      ${tile('Income', o.totalIncome12mo, 'var(--sage)', '#22A06B')}
+      ${tile('Taxes', o.totalTaxes12mo, 'var(--slate)', '#7B8794')}
+      ${tile('Expenses', o.totalExpensesNoTaxes12mo, 'var(--terracotta)', '#E0674A')}
+      ${tile('Investments', o.totalInvestment12mo, 'var(--gold)', '#D4A24E')}
+    </div>`;
+}
+
+function renderMonthCompareCard(data){
+  const o = data.overview;
+  const future = data.direction === 'future';
+  const chip = (label, c)=>{
+    const t = insPctTone(c.pct);
+    return `<div class="ins-chip ${t}"><div class="l">${label}</div><div class="v">${c.label}</div></div>`;
+  };
+  const chips = future
+    ? chip('vs next month', o.vsNextMonth) + chip('vs 12-mo avg', o.vs12moAvg) + chip('vs same month next year', o.vsSameMonthNextYear)
+    : chip('vs last month', o.vsPrevMonth) + chip('vs 12-mo avg', o.vs12moAvg) + chip('vs same month last year', o.vsSameMonthLastYear);
+  return `
+    <div class="card">
+      <div class="card-title">Selected Month <span class="muted" style="font-weight:400;font-size:11px;">expenses compared</span></div>
+      <div class="ins-cmp">${chips}</div>
+      <div class="ins-meta"><span>Avg monthly expenses + taxes</span><strong>${fmtMoney(o.avgMonthlyExpense)}</strong></div>
+      <div class="ins-meta"><span>Highest spending month</span><strong>${o.highestMonth.label} (${fmtMoney(o.highestMonth.expense)})</strong></div>
+      <div class="ins-meta"><span>Lowest spending month</span><strong>${o.lowestMonth.label} (${fmtMoney(o.lowestMonth.expense)})</strong></div>
+    </div>`;
+}
+
+function renderHighlightsCard(data){
+  const list = data.keyInsights.slice(0, 3);
+  if(list.length === 0) return '';
+  const rows = list.map((k,i)=>`
+    <div class="ins-row${i < list.length - 1 ? ' bordered' : ''}">
+      ${insDot(k.tone || 'info')}
+      <div class="ins-row-text">${k.text}</div>
     </div>`).join('');
   return `
     <div class="card">
-      <div class="card-title">Key Insights</div>
+      <div class="card-title">Highlights</div>
       ${rows}
     </div>`;
 }
 
+function renderSpendHeroCard(data){
+  const total = data.categoryTotals.reduce((a,c)=>a + c.total, 0);
+  return insHero('spend', data.direction === 'future' ? 'Projected Spending · 12 months' : 'Spent · 12 months', total, `avg ${fmtMoney(total / 12)} / month`);
+}
+
 function renderCategoryRankingCard(data){
   const maxTotal = data.categoryTotals.length ? data.categoryTotals[0].total : 1;
-  const rows = data.categoryTotals.map((c,i)=>`
-    <div class="breakdown-row insights-cat-row" data-sub="${c.subcategory}" style="cursor:pointer;flex-direction:column;align-items:stretch;gap:4px;">
-      <div style="display:flex;justify-content:space-between;">
-        <div style="flex:1;min-width:0;">
-          <div class="breakdown-name">${i+1}. ${c.subcategory}</div>
-          <div class="muted" style="font-size:11px;">${c.pctOfTotal.toFixed(1)}% of total · avg ${fmtMoney(c.monthlyAvg)}/mo</div>
+  const all = data.categoryTotals;
+  const shown = insightsShowAllCats ? all : all.slice(0, 5);
+  const rows = shown.map((c,i)=>{
+    const col = PALETTE[i % PALETTE.length];
+    return `
+    <div class="breakdown-row insights-cat-row" data-sub="${c.subcategory}" style="cursor:pointer;flex-direction:column;align-items:stretch;gap:5px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
+        <div style="display:flex;align-items:center;gap:9px;flex:1;min-width:0;">
+          <div class="breakdown-swatch" style="background:${col};"></div>
+          <div style="min-width:0;">
+            <div class="breakdown-name">${i+1}. ${c.subcategory}</div>
+            <div class="muted" style="font-size:11px;">${c.pctOfTotal.toFixed(1)}% of total · avg ${fmtMoney(c.monthlyAvg)}/mo</div>
+          </div>
         </div>
-        <div style="text-align:right;">
-          <div class="breakdown-amt" style="font-size:13px;">${fmtMoney(c.total)}</div>
-        </div>
+        <div class="breakdown-amt" style="font-size:13px;color:${col};">${fmtMoney(c.total)}</div>
       </div>
       <div style="height:6px;background:var(--slate-light);border-radius:4px;overflow:hidden;">
-        <div style="height:100%;width:${(c.total/maxTotal*100).toFixed(1)}%;background:var(--terracotta);"></div>
+        <div style="height:100%;width:${(c.total/maxTotal*100).toFixed(1)}%;background:linear-gradient(90deg,${col},${col}CC);border-radius:4px;"></div>
       </div>
-    </div>
-  `).join('');
+    </div>`;
+  }).join('');
+  const more = all.length > 5
+    ? `<button type="button" class="ins-more" id="insightsCatMore">${insightsShowAllCats ? 'Show less' : `Show all (${all.length})`}</button>`
+    : '';
   return `
     <div class="card">
       <div class="card-title has-sub">Where Your Money ${data.direction === 'future' ? 'Go' : 'Went'}</div>
       <div class="muted insights-sub" style="font-size:11px;">Tap a category to drill in</div>
       ${rows}
+      ${more}
     </div>`;
 }
 
-function renderCostReductionCard(data){
+function renderRecurringBlock(data){
+  const subtitle = data.direction === 'future'
+    ? '<span class="muted" style="font-weight:400;font-size:10.5px;">based on your historical patterns</span>'
+    : '';
+  if(data.recurring.length === 0){
+    return `<div class="card"><div class="card-title">Recurring Expenses ${subtitle}</div><div class="muted" style="font-size:12px;">No recurring patterns detected yet — needs at least 3 similar charges across 3+ months.</div></div>`;
+  }
+  const list = data.recurring.slice(0, 10);
+  const shown = insightsShowAllRecurring ? list : list.slice(0, 3);
+  const rows = shown.map(r=>`
+    <div class="breakdown-row">
+      <div style="flex:1;min-width:0;">
+        <div class="breakdown-name">${r.label}${NEEDS_SUBCATEGORIES.has(r.subcategory) ? '' : ' <span class="tile-badge watch">Review</span>'}</div>
+        <div class="muted" style="font-size:10.5px;">Frequency: ${r.frequency} · ${r.occurrences}×</div>
+      </div>
+      <div class="breakdown-amt" style="font-size:13px;">${fmtMoney(r.monthlyAmount)}/mo</div>
+    </div>`).join('');
+  const more = list.length > 3
+    ? `<button type="button" class="ins-more" id="insightsRecurMore">${insightsShowAllRecurring ? 'Show less' : `Show all (${list.length})`}</button>`
+    : '';
+  return `
+    <div class="card">
+      <div class="card-title">Recurring Expenses ${subtitle}</div>
+      <div style="font-weight:800;font-size:15px;margin-bottom:6px;font-family:'Inter',sans-serif;">Estimated: ${fmtMoney(data.estimatedRecurringMonthly)}/month</div>
+      ${rows}
+      ${more}
+    </div>`;
+}
+
+function renderSavingsIdeasCard(data){
   const n = data.needsVsDiscretionary;
   const discretionaryCats = data.categoryTotals
     .filter(c => !NEEDS_SUBCATEGORIES.has(c.subcategory))
     .sort((a,b)=> b.total - a.total);
+  const infoBtn = `<button type="button" class="insights-info-btn" data-explain-toggle="cost-cut" title="What is this?">i</button>`;
+  const explain = `<div class="insights-explain" id="explain-cost-cut">Non-essential means anything not on your Needs list (set in Accounts Settings). The 10% / 20% figures apply that cut to your monthly average of non-essential spending. Recurring items marked Review are non-essential.</div>`;
   if(discretionaryCats.length === 0 || n.discTotal === 0){
-    return `<div class="card"><div class="card-title has-sub" style="margin-bottom:2px;"><span style="white-space:nowrap;">Cost-Cutting Opportunities</span><button type="button" class="insights-info-btn" data-explain-toggle="cost-cut" title="What is this?">i</button></div><div class="muted insights-sub" style="font-size:13px;">Non-essential spending</div><div class="insights-explain" id="explain-cost-cut">Anything not on your Needs list (set in Accounts Settings).</div><div class="muted" style="font-size:12px;">Nothing detected in this period.</div></div>`;
+    return `<div class="card"><div class="card-title has-sub" style="margin-bottom:2px;"><span>Savings Ideas</span>${infoBtn}</div><div class="muted insights-sub" style="font-size:13px;">Non-essential spending</div>${explain}<div class="muted" style="font-size:12px;">Nothing detected in this period.</div></div>`;
   }
   const monthlyDisc = n.discTotal / 12;
-  const save10 = monthlyDisc * 0.10, save20 = monthlyDisc * 0.20;
-  const recurDisc = data.recurring
-    .filter(r => !NEEDS_SUBCATEGORIES.has(r.subcategory))
-    .sort((a,b)=> b.monthlyAmount - a.monthlyAmount);
-  const recurDiscMonthly = recurDisc.reduce((a,r)=>a+r.monthlyAmount, 0);
-
-  const rows = discretionaryCats.slice(0,5).map(c=>`
+  const save = monthlyDisc * insightsCutPct / 100;
+  const cutSwitch = `
+    <div class="ins-cut-cap">If you cut non-essential spending by</div>
+    <div class="ins-cut">
+      <button type="button" data-cut="10" class="${insightsCutPct === 10 ? 'active' : ''}">10%</button>
+      <button type="button" data-cut="20" class="${insightsCutPct === 20 ? 'active' : ''}">20%</button>
+    </div>`;
+  const hero = insHero('save', 'You could save', save, `per month · ${fmtMoney(save * 12)} a year`, cutSwitch);
+  const rows = discretionaryCats.slice(0, 3).map(c=>`
     <div class="breakdown-row insights-cat-row" data-sub="${c.subcategory}" style="cursor:pointer;">
       <div style="flex:1;min-width:0;">
         <div class="breakdown-name">${c.subcategory}</div>
-        <div class="muted" style="font-size:10.5px;">avg ${fmtMoney(c.monthlyAvg)}/mo · ${((c.total/n.discTotal)*100).toFixed(0)}% of this total</div>
+        <div class="muted" style="font-size:10.5px;">avg ${fmtMoney(c.monthlyAvg)}/mo · ${((c.total/n.discTotal)*100).toFixed(0)}% of non-essential</div>
       </div>
       <div class="breakdown-amt" style="font-size:13px;color:var(--gold);">${fmtMoney(c.total)}</div>
     </div>`).join('');
-
-  return `
+  return hero + `
     <div class="card">
-      <div class="card-title has-sub" style="margin-bottom:2px;"><span style="white-space:nowrap;">Cost-Cutting Opportunities</span><button type="button" class="insights-info-btn" data-explain-toggle="cost-cut" title="What is this?">i</button></div>
-      <div class="muted insights-sub" style="font-size:13px;">Non-essential spending</div>
-      <div class="insights-explain" id="explain-cost-cut">Anything not on your Needs list (set in Accounts Settings). The 10%/20% projections apply that cut to your monthly average.</div>
-      <div class="muted" style="font-size:11.5px;margin-bottom:10px;">${fmtMoney(n.discTotal)} over 12 months (${n.discPct.toFixed(0)}% of total) — avg ${fmtMoney(monthlyDisc)}/month</div>
-      <div style="background:var(--sky-light);border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:12.5px;line-height:1.5;">
-        Cutting <strong>10%</strong> saves ~${fmtMoney(save10)}/mo (${fmtMoney(save10*12)}/yr).<br>
-        Cutting <strong>20%</strong> saves ~${fmtMoney(save20)}/mo (${fmtMoney(save20*12)}/yr).
-      </div>
+      <div class="card-title has-sub" style="margin-bottom:2px;"><span>Non-essential Spending</span>${infoBtn}</div>
+      <div class="muted insights-sub" style="font-size:12px;">${fmtMoney(n.discTotal)} over 12 months (${n.discPct.toFixed(0)}% of total) · avg ${fmtMoney(monthlyDisc)}/month</div>
+      ${explain}
       <div class="muted" style="font-size:10.5px;text-transform:uppercase;margin-bottom:4px;">Biggest categories — tap to explore</div>
       ${rows}
-      ${recurDisc.length ? `
-        <div class="muted" style="font-size:10.5px;text-transform:uppercase;margin:14px 0 4px;">Recurring costs worth reviewing</div>
-        ${recurDisc.slice(0,5).map(r=>`
-          <div style="display:flex;justify-content:space-between;font-size:12px;padding:4px 0;">
-            <span>${r.label}</span><span>${fmtMoney(r.monthlyAmount)}/mo</span>
-          </div>`).join('')}
-        <div class="muted" style="font-size:11px;margin-top:4px;border-top:1px solid var(--slate-light);padding-top:6px;">Total: ${fmtMoney(recurDiscMonthly)}/month — review for anything you no longer use.</div>
-      ` : ''}
     </div>`;
 }
 
@@ -4677,11 +4793,14 @@ function renderSubcategoryDrillScreen(data, sub){
   const maxMerchant = merchants.length ? merchants[0].total : 1;
 
   return `
+    <div class="balance-hero ins-hero spend">
+      <div class="eyebrow">${sub}</div>
+      <div class="figure">${fmtMoney(cat.total)}</div>
+      <div class="underline"></div>
+      <div class="sub">${cat.pctOfTotal.toFixed(1)}% of total · avg ${fmtMoney(cat.monthlyAvg)}/mo</div>
+    </div>
     <div class="card">
-      <div class="card-title">${sub}</div>
-      <div style="font-weight:700;font-size:22px;font-family:'Inter',sans-serif;margin-bottom:2px;">${fmtMoney(cat.total)}</div>
-      <div class="muted" style="font-size:11.5px;margin-bottom:12px;">${cat.pctOfTotal.toFixed(1)}% of total expenses · avg ${fmtMoney(cat.monthlyAvg)}/mo</div>
-      <div style="display:flex;justify-content:space-between;font-size:11.5px;padding:4px 0;border-top:1px solid var(--slate-light);">
+      <div style="display:flex;justify-content:space-between;font-size:11.5px;padding:4px 0;">
         <span class="muted">${data.direction === 'future' ? 'vs next month' : 'vs previous month'}</span><span style="color:${pctColor(cat.momChange.pct,true)}">${pctArrow(cat.momChange.pct)} ${fmtSigned(data.direction === 'future' ? cat.nextMonthAmt-cat.selAmt : cat.selAmt-cat.prevAmt)} (${cat.momChange.label})</span>
       </div>
       <div style="display:flex;justify-content:space-between;font-size:11.5px;padding:4px 0;">
@@ -4723,10 +4842,13 @@ function renderMerchantDrillScreen(data, sub, merchantName){
   if(!merchant) return `<div class="card"><div class="muted">No data for ${merchantName}.</div></div>`;
   const txns = merchant.entries.slice().sort((a,b)=>parseLocalDate(b.date)-parseLocalDate(a.date));
   return `
+    <div class="balance-hero ins-hero spend">
+      <div class="eyebrow">${merchantName}</div>
+      <div class="figure">${fmtMoney(merchant.total)}</div>
+      <div class="underline"></div>
+      <div class="sub">${merchant.count} transaction${merchant.count===1?'':'s'} · avg ${fmtMoney(merchant.total/merchant.count)}</div>
+    </div>
     <div class="card">
-      <div class="card-title">${merchantName}</div>
-      <div style="font-weight:700;font-size:20px;font-family:'Inter',sans-serif;margin-bottom:2px;">${fmtMoney(merchant.total)}</div>
-      <div class="muted" style="font-size:11.5px;margin-bottom:12px;">${merchant.count} transaction${merchant.count===1?'':'s'} · avg ${fmtMoney(merchant.total/merchant.count)}</div>
       ${txns.map(e=>`
         <div class="breakdown-row insights-tx-row" data-id="${e.id}" style="cursor:pointer;">
           <div style="flex:1;min-width:0;">
@@ -4740,15 +4862,12 @@ function renderMerchantDrillScreen(data, sub, merchantName){
 
 
 function renderMonthlyTrendCard(data){
+  const mode = (m, label)=>`<button type="button" data-mode="${m}" class="${insightsMonthlyChartMode === m ? 'active' : ''}">${label}</button>`;
   return `
     <div class="card">
-      <div class="card-title" style="display:flex;justify-content:space-between;align-items:center;">
-        <span>12-Month Trend</span>
-        <select id="insightsTrendToggle" style="font-size:11px;padding:4px 6px;border-radius:6px;border:1px solid var(--slate-light);background:var(--card);color:var(--navy);">
-          <option value="expense" ${insightsMonthlyChartMode==='expense'?'selected':''}>Expenses</option>
-          <option value="income" ${insightsMonthlyChartMode==='income'?'selected':''}>Income</option>
-          <option value="investment" ${insightsMonthlyChartMode==='investment'?'selected':''}>Investments</option>
-        </select>
+      <div class="card-title">12-Month Trend</div>
+      <div class="segmented seg-sm seg-colour ins-mode" id="insightsTrendToggle">
+        ${mode('expense', 'Expenses')}${mode('income', 'Income')}${mode('investment', 'Investments')}
       </div>
       <div class="chart-wrap"><canvas id="insightsMonthlyChart" role="img" aria-label="Insights monthly comparison chart"></canvas></div>
     </div>`;
@@ -4762,81 +4881,69 @@ function renderChangeRow(c){
     </div>`;
 }
 
-function renderBiggestChangesCard(data){
-  // The direction arrow lives on the section title, not on each item.
-  const sectionOrEmpty = (title, list, arrow, color) => list.length ? `<div class="muted" style="font-size:10.5px;text-transform:uppercase;margin:10px 0 2px;"><span style="color:${color};font-weight:700;">${arrow}</span> ${title}</div>${list.map(renderChangeRow).join('')}` : '';
-  return `
-    <div class="card">
-      <div class="card-title">Biggest Changes</div>
-      ${sectionOrEmpty('Increases vs last year', data.biggestIncreasesYoY, '↑', 'var(--terracotta)')}
-      ${sectionOrEmpty('Decreases vs last year', data.biggestDecreasesYoY, '↓', 'var(--sage)')}
-      ${(!data.biggestIncreasesYoY.length && !data.biggestDecreasesYoY.length) ? '<div class="muted" style="font-size:12px;">No notable changes.</div>' : ''}
-    </div>`;
-}
-
-function renderUnusualSpendingCard(data){
-  const monthWord = data.direction === 'future' ? 'the selected month' : 'this month';
-  const verbWord = data.direction === 'future' ? 'is scheduled at' : 'was';
-  const explainHtml = `<button type="button" class="insights-info-btn" data-explain-toggle="unusual-spend" title="What is this?">i</button>`;
-  const explainPanel = `<div class="insights-explain" id="explain-unusual-spend">Flags a subcategory whose amount this period is well above its typical monthly average across the 12-month window, or a single transaction much larger than your usual entries in that category.</div>`;
-  if(data.unusualCategories.length === 0 && data.unusualTransactions.length === 0){
-    return `<div class="card"><div class="card-title">Unusual Spending${explainHtml}</div>${explainPanel}<div class="muted" style="font-size:12px;">Nothing unusual in ${monthWord} — spending looks consistent with your history.</div></div>`;
-  }
-  return `
-    <div class="card">
-      <div class="card-title">Unusual Spending${explainHtml}</div>
-      ${explainPanel}
-      ${data.unusualCategories.map(u=>`
-        <div style="display:flex;gap:8px;padding:6px 0;border-bottom:1px solid var(--slate-light);">
-          <div style="font-size:15px;">⚠️</div>
-          <div style="font-size:12px;"><strong>${u.subcategory}</strong> spending ${verbWord} <strong style="color:var(--terracotta)">${fmtMoney(u.selAmt)}</strong> in ${monthWord}, <strong style="color:var(--terracotta)">${u.pctAbove}%</strong> above your typical <strong style="color:var(--terracotta)">${fmtMoney(u.mean)}</strong>.</div>
-        </div>`).join('')}
-      ${data.unusualTransactions.slice(0,5).map(u=>`
-        <div style="display:flex;gap:8px;padding:6px 0;border-bottom:1px solid var(--slate-light);">
-          <div style="font-size:15px;">💸</div>
-          <div style="font-size:12px;"><strong>${u.entry.subcategory}</strong>${u.entry.notes?' — '+u.entry.notes:''}: <strong style="color:var(--terracotta)">${fmtMoney(u.entry.amount)}</strong> is ${u.multiple.toFixed(1)}× your typical entry for this category (${u.entry.date}).</div>
-        </div>`).join('')}
-    </div>`;
-}
-
-function renderRecurringCard(data){
-  const subtitle = data.direction==='future'
-    ? '<span class="muted" style="font-weight:400;font-size:10.5px;">based on your historical patterns</span>'
+function renderWhatChangedCard(data){
+  const future = data.direction === 'future';
+  const monthWord = future ? 'the selected month' : 'this month';
+  const verbWord = future ? 'is scheduled at' : 'was';
+  const infoBtn = `<button type="button" class="insights-info-btn" data-explain-toggle="unusual-spend" title="What is this?">i</button>`;
+  const explain = `<div class="insights-explain" id="explain-unusual-spend">Unusual: a subcategory well above its typical monthly average across the 12-month window, or a single transaction much larger than your usual entries in that category. Up / Down compares each subcategory with the same month last year.</div>`;
+  const ups = future ? [] : data.biggestIncreasesYoY;
+  const downs = future ? [] : data.biggestDecreasesYoY;
+  const unusualCats = data.unusualCategories.map(u=>`
+    <div class="ins-row bordered">
+      ${insDot('alert')}
+      <div class="ins-row-text"><strong>${u.subcategory}</strong> spending ${verbWord} <strong style="color:var(--terracotta)">${fmtMoney(u.selAmt)}</strong> in ${monthWord}, <strong style="color:var(--terracotta)">${u.pctAbove}%</strong> above your typical <strong style="color:var(--terracotta)">${fmtMoney(u.mean)}</strong>.</div>
+    </div>`).join('');
+  const unusualTx = data.unusualTransactions.slice(0, 5).map(u=>`
+    <div class="ins-row bordered">
+      ${insDot('watch')}
+      <div class="ins-row-text"><strong>${u.entry.subcategory}</strong>${u.entry.notes ? ' — ' + u.entry.notes : ''}: <strong style="color:var(--terracotta)">${fmtMoney(u.entry.amount)}</strong> is ${u.multiple.toFixed(1)}× your typical entry for this category (${u.entry.date}).</div>
+    </div>`).join('');
+  const group = (badge, list)=> list.length
+    ? `<div style="margin:10px 0 2px;">${badge}</div>${list.map(renderChangeRow).join('')}`
     : '';
-  if(data.recurring.length === 0){
-    return `<div class="card"><div class="card-title">Recurring Expenses ${subtitle}</div><div class="muted" style="font-size:12px;">No recurring patterns detected yet — needs at least 3 similar charges across 3+ months.</div></div>`;
-  }
+  const hasAny = unusualCats || unusualTx || ups.length || downs.length;
+  const body = hasAny
+    ? `${unusualCats}${unusualTx}
+       ${group('<span class="tile-badge bad">▲ Up vs last year</span>', ups)}
+       ${group('<span class="tile-badge good">▼ Down vs last year</span>', downs)}`
+    : `<div class="muted" style="font-size:12px;">Nothing unusual in ${monthWord} — spending looks consistent with your history.</div>`;
   return `
     <div class="card">
-      <div class="card-title">Recurring Expenses ${subtitle}</div>
-      <div style="font-weight:700;font-size:15px;margin-bottom:10px;font-family:'Inter',sans-serif;">Estimated: ${fmtMoney(data.estimatedRecurringMonthly)}/month</div>
-      ${data.recurring.slice(0,10).map(r=>`
-        <div class="breakdown-row">
-          <div style="flex:1;min-width:0;">
-            <div class="breakdown-name">${r.label}</div>
-            <div class="muted" style="font-size:10.5px;">Frequency: ${r.frequency} · ${r.occurrences}×</div>
-          </div>
-          <div class="breakdown-amt" style="font-size:13px;">${fmtMoney(r.monthlyAmount)}/mo</div>
-        </div>`).join('')}
+      <div class="card-title">What Changed${infoBtn}</div>
+      ${explain}
+      ${body}
     </div>`;
 }
 
+function insHealthTone(kind, v){
+  if(v === null || v === undefined) return null;
+  if(kind === 'save')    return v >= 20 ? 'good' : v >= 10 ? 'watch' : 'alert';
+  if(kind === 'invest')  return v >= 10 ? 'good' : v >= 5 ? 'watch' : 'alert';
+  if(kind === 'ratio')   return v <= 80 ? 'good' : v <= 95 ? 'watch' : 'alert';
+  return v > 0 ? 'good' : v === 0 ? 'watch' : 'alert';   // surplus
+}
 function renderFinancialHealthCard(data){
   const h = data.financialHealth;
-  const row = (label, val) => `
-    <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--slate-light);font-size:12.5px;">
-      <span class="muted">${label}</span><span style="font-weight:600;">${val===null?'—':val.toFixed(1)+'%'}</span>
-    </div>`;
+  const tile = (label, text, tone)=>{
+    const col = tone ? INS_TONE_COLOR[tone] : 'var(--slate)';
+    return `
+      <div class="summary-card" style="--t:${tone ? INS_TONE_COLOR[tone] : '#7B8794'};">
+        <div class="label">${label}</div>
+        <div class="value" style="color:${col};">${text}</div>
+        ${tone ? `<div class="st" style="color:${col};">${insDot(tone)}${INS_TONE_WORD[tone]}</div>` : ''}
+      </div>`;
+  };
+  const pct = v => v === null ? '—' : v.toFixed(1) + '%';
   return `
-    <div class="card">
+    <div class="card ins-health">
       <div class="card-title">Financial Health<button type="button" class="insights-info-btn" data-explain-toggle="fin-health" title="What is this?">i</button></div>
-      <div class="insights-explain" id="explain-fin-health">Savings rate is (income − expenses) ÷ income. Investment rate is investment contributions ÷ income. Expense-to-income ratio is expenses ÷ income. All are averaged across the 12-month period shown.</div>
-      ${row('Savings rate', h.savingsRate)}
-      ${row('Investment rate', h.investmentRate)}
-      ${row('Expense-to-income ratio', h.expenseRatio)}
-      <div style="display:flex;justify-content:space-between;padding:6px 0;font-size:12.5px;">
-        <span class="muted">Avg monthly surplus/deficit</span>
-        <span style="font-weight:600;color:${h.avgMonthlySurplus>=0?'var(--sage)':'var(--terracotta)'}">${fmtMoney(h.avgMonthlySurplus)}</span>
+      <div class="insights-explain" id="explain-fin-health">Savings rate is (income − expenses) ÷ income. Investment rate is investment contributions ÷ income. Expense-to-income ratio is expenses ÷ income. All are averaged across the 12-month period shown. Colours: green = on track (saving 20%+, investing 10%+, spending up to 80% of income), amber = watch, red = needs attention.</div>
+      <div class="summary-grid">
+        ${tile('Savings rate', pct(h.savingsRate), insHealthTone('save', h.savingsRate))}
+        ${tile('Investment rate', pct(h.investmentRate), insHealthTone('invest', h.investmentRate))}
+        ${tile('Expense / income', pct(h.expenseRatio), insHealthTone('ratio', h.expenseRatio))}
+        ${tile('Avg monthly surplus', fmtMoney(h.avgMonthlySurplus), insHealthTone('surplus', h.avgMonthlySurplus))}
       </div>
     </div>`;
 }
@@ -4848,12 +4955,26 @@ function wireTransactionClicks(data){
 }
 
 function wireMonthlyTrendToggle(data){
-  const sel = document.getElementById('insightsTrendToggle');
-  if(!sel) return;
-  sel.addEventListener('change', ()=>{
-    insightsMonthlyChartMode = sel.value;
-    renderMonthlyTrendChart(data);
+  const box = document.getElementById('insightsTrendToggle');
+  if(!box) return;
+  box.querySelectorAll('button').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      insightsMonthlyChartMode = b.dataset.mode;
+      box.querySelectorAll('button').forEach(x=> x.classList.toggle('active', x === b));
+      renderMonthlyTrendChart(data);
+    });
   });
+}
+
+// Savings-idea percentage switch and the "Show all" links
+function wireInsightsControls(){
+  document.querySelectorAll('.ins-cut button').forEach(b=>{
+    b.addEventListener('click', ()=>{ insightsCutPct = Number(b.dataset.cut); renderInsightsView(); });
+  });
+  const cats = document.getElementById('insightsCatMore');
+  if(cats) cats.addEventListener('click', ()=>{ insightsShowAllCats = !insightsShowAllCats; renderInsightsView(); });
+  const rec = document.getElementById('insightsRecurMore');
+  if(rec) rec.addEventListener('click', ()=>{ insightsShowAllRecurring = !insightsShowAllRecurring; renderInsightsView(); });
 }
 
 function renderMonthlyTrendChart(data){
@@ -5657,11 +5778,10 @@ function insightsChangeMonth(delta){
 document.getElementById('insightsPrev').addEventListener('click', ()=> insightsChangeMonth(-1));
 document.getElementById('insightsNext').addEventListener('click', ()=> insightsChangeMonth(1));
 
-/* Insights sections: Summary <-> Spending <-> Savings (swipe the report) */
+/* Insights sections: Summary <-> Spending (swipe the report). Savings ideas live inside Spending. */
 const INSIGHTS_PAGES = [
   { id:'summary',  label:'Summary'  },
-  { id:'spending', label:'Spending' },
-  { id:'savings',  label:'Savings'  }
+  { id:'spending', label:'Spending' }
 ];
 let insightsPage = 'summary';
 let insightsPagerActive = false;   // true while a section (not a drill-down / empty state) is showing on a phone
@@ -11828,7 +11948,7 @@ const TOUR_STEPS = [
   { view:'home', target:'#notificationsBtn', title:'Notifications', text:'The bell shows anything Past Due or Due Today among your Planned entries. It greys out when there\u2019s nothing waiting on you.' },
   { view:'home', target:'#themeToggleBtn', title:'Light / dark mode', text:'Tap to switch the whole app between light and dark instantly.' },
   { view:'home', target:'#insightsFab', title:'Insights', text:'A deeper look at your spending \u2014 trends, cost-cutting ideas, and more, generated automatically from your entries.' },
-  { view:'insights', insightsPage:'summary', title:'Insights, in full', text:'Browse automatic observations about your spending habits here. Swipe the page left or right to move between Summary, Spending and Savings, and swipe the month bar to change month. Tap any category to drill in further.' },
+  { view:'insights', insightsPage:'summary', title:'Insights, in full', text:'Browse automatic observations about your spending habits here. Swipe the page left or right to move between Summary and Spending, and swipe the month bar to change month. Tap any category to drill in further.' },
   { view:'transactions', target:'#txSearchToggle', title:'Find any transaction', text:'Tap the magnifier, then search by category, subcategory, notes, or account \u2014 this list covers every entry you\u2019ve ever made.' },
   { view:'transactions', target:'#txPeriodSeg', title:'Filter by time', text:'Narrow the list to this month, next month, this year, or your own custom date range.' },
   { view:'transactions', target:'#txFilterSeg', title:'Planned vs. Actual', text:'Show everything, just what\u2019s still planned, or just what\u2019s already happened. The sort button beside it flips oldest/newest first.' },
