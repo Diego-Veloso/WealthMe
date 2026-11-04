@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v289 -->
+<!-- WEALTH.ME — v292 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -2870,14 +2870,14 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         <ul class="entry-list">
           <li class="more-row more-refresh-row" id="refreshAppBtn" role="button" tabindex="0">
             <span class="acc-ico" style="--c:#0A6FD0;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg></span>
-            <span class="more-txt"><span>Refresh App</span><small id="refreshAppDesc">Check for updates · version 289</small></span>
+            <span class="more-txt"><span>Refresh App</span><small id="refreshAppDesc">Check for updates</small></span>
             <svg class="more-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
           </li>
         </ul>
         <div id="refreshStatus" class="more-refresh-status"></div>
       </div>
 
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 289</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 292</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -2920,7 +2920,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 289</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 292</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -4118,7 +4118,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 289;
+const APP_VERSION = 292;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -10248,7 +10248,7 @@ function renderDebtAccountsManager(){
         <div class="account-chip-list">${chips || `<span class="muted">No accounts added yet.</span>`}</div>
         ${swHtml}
         <div class="account-add-row">
-          <input type="text" placeholder="e.g. Tangerine 7177" data-type="${type}" class="new-account-input">
+          <input type="text" placeholder="e.g. ${({'Financing':'Car Loan','Other':'PayDay Loan'})[type] || 'Visa Gold'}" data-type="${type}" class="new-account-input">
           <button type="button" data-type="${type}" class="add-account-btn">Add</button>
         </div>
       </div>
@@ -10800,7 +10800,7 @@ function init(){
   const versionElDesktop = document.getElementById('versionFooterTextDesktop');
   if(versionElDesktop) versionElDesktop.textContent = 'WealthMe · version ' + APP_VERSION;
   const refreshDesc = document.getElementById('refreshAppDesc');
-  if(refreshDesc) refreshDesc.textContent = 'Check for updates · version ' + APP_VERSION;
+  if(refreshDesc) refreshDesc.textContent = 'Check for updates';
 }
 
 /* =========================================================
