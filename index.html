@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v275 -->
+<!-- WEALTH.ME — v276 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1726,18 +1726,9 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
 .ins-more{display:block;width:100%;background:none;border:none;color:var(--skin-blue-ink,#0A6FD0);font-weight:700;font-size:12.5px;padding:10px 0 0;cursor:pointer;text-align:center;font-family:'Inter',sans-serif;}
 .tile-badge.watch{background:color-mix(in srgb,#F5A623 20%,transparent);color:#B86E00;margin-left:4px;vertical-align:1px;}
 [data-theme="dark"] .tile-badge.watch{color:#F6B64C;}
-/* More page (v275): app card, tinted icon tiles with a short description, chevrons */
-.balance-hero.more-hero{margin-bottom:14px;padding:16px;text-align:left;}
-.more-hero-row{display:flex;align-items:center;gap:12px;}
-.more-hero-logo{width:46px;height:46px;border-radius:14px;overflow:hidden;flex-shrink:0;box-shadow:0 6px 16px rgba(0,20,50,.35);border:1px solid rgba(255,255,255,.25);}
-.more-hero-logo img{width:100%;height:100%;object-fit:cover;display:block;}
-.more-hero-id{flex:1;min-width:0;}
-.more-hero-name{font-size:19px;font-weight:800;letter-spacing:-.3px;color:#fff;}
-.more-hero-note{display:flex;align-items:center;gap:6px;margin-top:2px;font-size:11.5px;font-weight:600;color:rgba(255,255,255,.8);white-space:nowrap;}
-.more-hero-note .dot{width:7px;height:7px;border-radius:50%;background:#34C98B;box-shadow:0 0 0 3px rgba(52,201,139,.25);}
-.more-hero .more-refresh{flex-shrink:0;background:linear-gradient(135deg,#FFFFFF 0%,#DDEBFA 100%) !important;color:#0B2545 !important;font-weight:800;box-shadow:0 6px 16px rgba(0,20,50,.3);border:none;}
-.more-hero-status{font-size:12px;font-weight:600;color:rgba(255,255,255,.9);text-align:left;margin-top:0;min-height:0;}
-.more-hero-status:not(:empty){margin-top:10px;}
+/* More page (v275/v276): tinted icon tiles with a short description, chevrons; Refresh App is the last row */
+.more-refresh-status{font-size:12px;font-weight:600;color:var(--slate);padding:0 10px;}
+.more-refresh-status:not(:empty){padding:2px 10px 10px 60px;}
 #view-more .more-card{padding:6px 8px;}
 #view-more .more-row{gap:12px;padding:10px 8px;border-radius:14px;border-bottom:none;transition:background .15s;}
 #view-more .more-row + .more-row{box-shadow:0 -1px 0 color-mix(in srgb,var(--line) 70%,transparent);}
@@ -1754,11 +1745,9 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
   main.more-split .more-row + .more-row{box-shadow:none !important;}
   main.more-split .more-row .acc-ico{width:34px;height:34px;border-radius:11px;}
   main.more-split .more-txt small{display:none;}
+  main.more-split .more-refresh-status:not(:empty){padding:2px 8px 8px 50px;}
   main.more-split .more-txt > span{font-size:14px;}
   main.more-split .more-row.desk-current .more-txt > span{color:var(--skin-blue-ink);}
-  main.more-split .more-hero{padding:14px;}
-  main.more-split .more-hero-row{flex-wrap:wrap;}
-  main.more-split .more-hero .more-refresh{width:100%;justify-content:center;}
 }
 
 /* Help + Accounts Settings (v274): hero card, one card per topic, icon tiles instead of emojis */
@@ -2705,21 +2694,7 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
          #donutWrap). -->
     <section class="view" id="view-more">
       <h2 class="card-title" style="margin:10px 0 14px;">More</h2>
-<!-- v275: app card (logo is copied from the top bar by script) -->
-      <div class="balance-hero more-hero">
-        <div class="more-hero-row">
-          <div class="more-hero-logo" id="moreHeroLogo"></div>
-          <div class="more-hero-id">
-            <div class="more-hero-name">WealthMe</div>
-            <div class="more-hero-note"><span class="dot"></span>Saved on this device</div>
-          </div>
-          <button class="pill-btn more-refresh" id="refreshAppBtn">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
-          Refresh App
-        </button>
-        </div>
-        <div id="refreshStatus" class="more-hero-status"></div>
-      </div>
+<!-- v276: no app card (the top bar already shows the logo and name); Refresh App is the last menu row -->
       <div class="card more-card">
         <ul class="entry-list">
           <li class="more-row" id="helpBtn">
@@ -2762,10 +2737,16 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
             <span class="more-txt"><span>Contact</span><small>Send us a message</small></span>
             <svg class="more-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
           </li>
+          <li class="more-row more-refresh-row" id="refreshAppBtn" role="button" tabindex="0">
+            <span class="acc-ico" style="--c:#0A6FD0;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg></span>
+            <span class="more-txt"><span>Refresh App</span><small id="refreshAppDesc">Check for updates · version 276</small></span>
+            <svg class="more-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+          </li>
         </ul>
+        <div id="refreshStatus" class="more-refresh-status"></div>
       </div>
 
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 275</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 276</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -2808,7 +2789,7 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 275</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 276</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -4000,7 +3981,7 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 275;
+const APP_VERSION = 276;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -9381,11 +9362,6 @@ document.getElementById('sidebarHelpBtn')?.addEventListener('click', ()=>{
 // Sidebar branding: clone the topbar's logo image mark (rather than
 // duplicating the embedded base64 image in the HTML markup) into the
 // sidebar-brand header, ahead of its "Wealth.Me" text.
-(function initMoreHeroLogo(){
-  const box = document.getElementById('moreHeroLogo');
-  const img = document.querySelector('.topbar .logo-mark img');
-  if(box && img) box.appendChild(img.cloneNode(true));
-})();
 (function initSidebarBrand(){
   const brand = document.getElementById('sidebarBrand');
   const mark = document.querySelector('.topbar .logo-mark');
@@ -10519,6 +10495,7 @@ async function checkForAppUpdate(statusEl){
   }
 }
 document.getElementById('refreshAppBtn').addEventListener('click', ()=> checkForAppUpdate(document.getElementById('refreshStatus')));
+document.getElementById('refreshAppBtn').addEventListener('keydown', (e)=>{ if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); e.currentTarget.click(); } });
 document.getElementById('refreshAppBtnDesktop').addEventListener('click', ()=> checkForAppUpdate(document.getElementById('refreshStatusDesktop')));
 
 /* =========================================================
@@ -10550,6 +10527,8 @@ function init(){
   if(versionEl) versionEl.textContent = 'WealthMe · version ' + APP_VERSION;
   const versionElDesktop = document.getElementById('versionFooterTextDesktop');
   if(versionElDesktop) versionElDesktop.textContent = 'WealthMe · version ' + APP_VERSION;
+  const refreshDesc = document.getElementById('refreshAppDesc');
+  if(refreshDesc) refreshDesc.textContent = 'Check for updates · version ' + APP_VERSION;
 }
 
 /* =========================================================
