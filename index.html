@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v285 -->
+<!-- WEALTH.ME — v286 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1738,6 +1738,17 @@ html.show-saved .topbar{padding-bottom:8px;}
   .topbar-saved{margin-top:3px;}
 }
 
+/* v286: colour picker in the Debts account headings */
+.dah-name{display:inline-flex;align-items:center;gap:8px;min-width:0;}
+.debt-acct-head .cl-color-btn{width:26px;height:26px;}
+.debt-acct-head.tone-light .cl-color-btn{color:#0B2545;background:rgba(255,255,255,.55);border-color:rgba(11,37,69,.18);}
+.debt-acct-head.tone-light .cl-color-btn.on{background:#0B2545;color:#fff;}
+.debt-acct-head .cl-swatches{margin-top:10px;padding-top:10px;}
+.debt-acct-head .cl-sw-label{color:rgba(255,255,255,.85);}
+.debt-acct-head.tone-light .cl-swatches{border-top-color:rgba(11,37,69,.14);}
+.debt-acct-head.tone-light .cl-sw-label{color:rgba(11,37,69,.7);}
+.debt-acct-head.tone-light .cl-swatch.on{border-color:#0B2545;}
+
 /* v284: light card colours + very light "Unassigned" heading on Debts */
 
 .cl-sw-label{font-size:10.5px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:rgba(255,255,255,.85);margin:0 0 6px;}
@@ -2850,14 +2861,14 @@ html.show-saved .topbar{padding-bottom:8px;}
         <ul class="entry-list">
           <li class="more-row more-refresh-row" id="refreshAppBtn" role="button" tabindex="0">
             <span class="acc-ico" style="--c:#0A6FD0;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg></span>
-            <span class="more-txt"><span>Refresh App</span><small id="refreshAppDesc">Check for updates · version 285</small></span>
+            <span class="more-txt"><span>Refresh App</span><small id="refreshAppDesc">Check for updates · version 286</small></span>
             <svg class="more-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
           </li>
         </ul>
         <div id="refreshStatus" class="more-refresh-status"></div>
       </div>
 
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 285</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 286</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -2900,7 +2911,7 @@ html.show-saved .topbar{padding-bottom:8px;}
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 285</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 286</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -4098,7 +4109,7 @@ html.show-saved .topbar{padding-bottom:8px;}
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 285;
+const APP_VERSION = 286;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -4214,11 +4225,14 @@ function hueShade(h){
   return currentTheme === 'dark' ? x.dark : x.light;
 }
 // Colour index for an account: the one picked on Credit Limits, else the default for its position.
-// Hue of an account: the one picked on Credit Limits, else the default for its position.
+// v286: colours can be picked for every debt account. Credit cards keep the plain account
+// name as key (older saves still work); Financing / Other use "Type::Account".
+function accountColorKey(type, account){ return type === 'Credit Card' ? account : type + '::' + account; }
+// Hue of an account: the one picked (Credit Limits or the Debts heading), else the default for its position.
 function accountHue(type, account){
-  if(type === 'Credit Card'){
-    const picked = Number(ACCOUNT_COLORS[account]);
-    if(Number.isInteger(picked) && picked >= 0){ const h = hueOfTone(picked); if(h >= 0) return h; }
+  const picked = Number(ACCOUNT_COLORS[accountColorKey(type, account)]);
+  if(ACCOUNT_COLORS[accountColorKey(type, account)] !== undefined && Number.isInteger(picked) && picked >= 0){
+    const h = hueOfTone(picked); if(h >= 0) return h;
   }
   const i = (DEBT_ACCOUNTS[type] || []).indexOf(account);
   if(i < 0) return -1;
@@ -4384,6 +4398,7 @@ let txPeriod = "thismonth";   // all | thismonth | nextmonth | thisyear | custom
 let txDateFrom = "";    // YYYY-MM-DD, used when txPeriod === "custom"
 let txDateTo = "";      // YYYY-MM-DD, used when txPeriod === "custom"
 let debtTypeFilter = "Credit Card";
+let DEBT_COLOR_OPEN = null;   // v286: which Debts account heading has its colour row open
 let debtSearchQuery = "";
 
 let detailCategory = "Income";
@@ -10226,7 +10241,7 @@ function renderDebtAccountsManager(){
     const accounts = DEBT_ACCOUNTS[type] || [];
     const chips = accounts.map((acc, idx)=>`
       <div class="account-chip">
-        ${type === 'Credit Card' ? `<i class="chip-tone" style="background:${(ACCOUNT_TONES[accountToneIndex(type, acc)] || ACCOUNT_TONES[0]).grad};"></i>` : ''}
+        <i class="chip-tone" style="background:${(ACCOUNT_TONES[accountToneIndex(type, acc)] || ACCOUNT_TONES[0]).grad};"></i>
         <span class="chip-label">${acc}</span>
         <button type="button" class="edit-btn" data-action="edit-account" data-type="${type}" data-index="${idx}" title="Rename">
           <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
@@ -10293,7 +10308,8 @@ function finishDebtAccountDelete(type, name){
     return false;
   }
   DEBT_ACCOUNTS[type] = DEBT_ACCOUNTS[type].filter(a=>a !== name);
-  if(type === 'Credit Card'){ delete CREDIT_LIMITS[name]; delete ACCOUNT_COLORS[name]; } // its limit and colour go with it
+  if(type === 'Credit Card'){ delete CREDIT_LIMITS[name]; } // its limit goes with it
+  delete ACCOUNT_COLORS[accountColorKey(type, name)];      // and its colour
   saveState();
   syncSettingsNow();
   renderDebtAccountsManager();
@@ -10366,9 +10382,9 @@ function renameDebtAccount(type, oldName, newName){
     CREDIT_LIMITS[newName] = CREDIT_LIMITS[oldName];
     delete CREDIT_LIMITS[oldName];
   }
-  if(type === 'Credit Card' && ACCOUNT_COLORS[oldName] !== undefined){
-    ACCOUNT_COLORS[newName] = ACCOUNT_COLORS[oldName];
-    delete ACCOUNT_COLORS[oldName];
+  if(ACCOUNT_COLORS[accountColorKey(type, oldName)] !== undefined){
+    ACCOUNT_COLORS[accountColorKey(type, newName)] = ACCOUNT_COLORS[accountColorKey(type, oldName)];
+    delete ACCOUNT_COLORS[accountColorKey(type, oldName)];
   }
 
   saveState();
@@ -11608,12 +11624,23 @@ function renderDebts(){
         const toneI = accountToneIndex(type, key) >= 0 ? accountToneIndex(type, key) : hueShade(HUE_UNASSIGNED);
         const tone = ACCOUNT_TONES[toneI].light ? 'tone-light' : '';
         const toneStyle = `style="background:${ACCOUNT_TONES[toneI].grad};"`;
+        // v286: palette button beside the name (not for Unassigned) opens the colour row
+        const canColor = accountsForType.includes(key);
+        const ck = canColor ? accountColorKey(type, key) : '';
+        const open = canColor && DEBT_COLOR_OPEN === ck;
+        const curHue = canColor ? accountHue(type, key) : -1;
+        const palBtn = canColor ? `<button type="button" class="cl-color-btn dah-color-btn${open ? ' on' : ''}" data-type="${type}" data-account="${key}" aria-label="Change colour of ${key}" aria-expanded="${open}" title="Colour"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r="1.5"/><circle cx="17.5" cy="10.5" r="1.5"/><circle cx="8.5" cy="7.5" r="1.5"/><circle cx="6.5" cy="12.5" r="1.5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.9 0 1.7-.8 1.7-1.7 0-.4-.2-.8-.4-1.1-.3-.3-.4-.7-.4-1.1 0-.9.8-1.7 1.7-1.7H16c3.1 0 5.6-2.5 5.6-5.6C21.7 6 17.3 2 12 2z"/></svg></button>` : '';
+        const swHtml = open ? `<div class="cl-swatches"><div class="cl-sw-label">Colour (shade follows light / dark mode)</div><div class="cl-sw-row">${ACCOUNT_HUES.map((h, hi)=>{
+            const t = ACCOUNT_TONES[hueShade(hi)];
+            return `<button type="button" class="cl-swatch dah-swatch${t.light ? ' lt' : ''}${hi === curHue ? ' on' : ''}" data-type="${type}" data-account="${key}" data-tone="${hi}" style="background:${t.grad};" aria-label="${h.name}" aria-pressed="${hi === curHue}"></button>`;
+          }).join('')}</div></div>` : '';
         return `
           <div class="card debt-acct-card">
             <div class="debt-acct-head ${tone}" ${toneStyle}>
-              <div class="dah-row"><span class="dah-name">${key}</span><span class="dah-amt">${fmtMoney(acctTotal)}</span></div>
+              <div class="dah-row"><span class="dah-name">${key}${palBtn}</span><span class="dah-amt">${fmtMoney(acctTotal)}</span></div>
               ${goalHtml}
               ${limitHtml}
+              ${swHtml}
             </div>
             <ul class="entry-list">${acctRows.map(e=>renderEntryRow(e)).join('')}</ul>
           </div>
@@ -11639,6 +11666,21 @@ function renderDebts(){
 
   document.getElementById('debtList').innerHTML = html;
   attachEntryRowHandlers(document.getElementById('debtList'));
+  // v286: colour picker in the account headings
+  const dl = document.getElementById('debtList');
+  dl.querySelectorAll('.dah-color-btn').forEach(btn=> btn.addEventListener('click', (ev)=>{
+    ev.stopPropagation();
+    const k = accountColorKey(btn.dataset.type, btn.dataset.account);
+    DEBT_COLOR_OPEN = DEBT_COLOR_OPEN === k ? null : k;
+    renderDebts();
+  }));
+  dl.querySelectorAll('.dah-swatch').forEach(sw=> sw.addEventListener('click', (ev)=>{
+    ev.stopPropagation();
+    ACCOUNT_COLORS[accountColorKey(sw.dataset.type, sw.dataset.account)] = Number(sw.dataset.tone);
+    saveState();
+    syncSettingsNow();
+    renderDebts();
+  }));
   if(typeof renderDebtSidePanel === 'function') renderDebtSidePanel();
 }
 function renderTransactions(){
