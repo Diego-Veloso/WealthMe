@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v286 -->
+<!-- WEALTH.ME — v288 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1790,6 +1790,15 @@ html.show-saved .topbar{padding-bottom:8px;}
 .cl-swatch:active{transform:scale(.9);}
 .cl-swatch.on{border:3px solid #fff;box-shadow:0 0 0 2px rgba(0,0,0,.25),0 3px 8px rgba(0,0,0,.25);}
 .chip-tone{width:12px;height:12px;border-radius:50%;flex-shrink:0;margin-right:-1px;box-shadow:0 0 0 2px var(--card);}
+/* v288: the dot is a button that opens the colour row */
+button.chip-tone{width:20px;height:20px;padding:0;border:none;cursor:pointer;margin-left:-6px;box-shadow:0 0 0 2px var(--card),0 1px 4px rgba(0,36,72,.25);transition:transform .12s;}
+button.chip-tone:active{transform:scale(.9);}
+button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);}
+.set-swatches{margin:2px 0 12px;padding:10px 12px;border-radius:14px;background:var(--card);border:1px solid color-mix(in srgb,var(--line) 80%,transparent);}
+.set-sw-label{font-size:11px;font-weight:800;letter-spacing:.3px;color:var(--navy);margin-bottom:8px;}
+.set-sw-label span{font-weight:600;color:var(--slate);}
+.set-swatches .cl-swatch{width:28px;height:28px;border:2px solid var(--card);box-shadow:0 2px 6px rgba(0,36,72,.2);}
+.set-swatches .cl-swatch.on{border:3px solid var(--navy);box-shadow:0 0 0 2px var(--card),0 2px 6px rgba(0,36,72,.2);}
 
 /* v279: Debts account cards with coloured headings (same colours as the Credit Limits cards) */
 .card.debt-acct-card{padding:0;overflow:hidden;}
@@ -2861,14 +2870,14 @@ html.show-saved .topbar{padding-bottom:8px;}
         <ul class="entry-list">
           <li class="more-row more-refresh-row" id="refreshAppBtn" role="button" tabindex="0">
             <span class="acc-ico" style="--c:#0A6FD0;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg></span>
-            <span class="more-txt"><span>Refresh App</span><small id="refreshAppDesc">Check for updates · version 286</small></span>
+            <span class="more-txt"><span>Refresh App</span><small id="refreshAppDesc">Check for updates · version 288</small></span>
             <svg class="more-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
           </li>
         </ul>
         <div id="refreshStatus" class="more-refresh-status"></div>
       </div>
 
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 286</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 288</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -2911,7 +2920,7 @@ html.show-saved .topbar{padding-bottom:8px;}
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 286</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 288</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -4109,7 +4118,7 @@ html.show-saved .topbar{padding-bottom:8px;}
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 286;
+const APP_VERSION = 288;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -9378,12 +9387,7 @@ function renderCreditLimitsView(){
     const stats = creditLimitStatsFor(account);
     const tone = ACCOUNT_TONES[accountToneIndex('Credit Card', account)] || ACCOUNT_TONES[0];
     const toneIdx = accountToneIndex('Credit Card', account);
-    const open = CL_COLOR_OPEN === account;
-    const curHue = accountHue('Credit Card', account);
-    const swatches = `<div class="cl-sw-label">Colour (shade follows light / dark mode)</div><div class="cl-sw-row">${ACCOUNT_HUES.map((h, i)=>{
-      const t = ACCOUNT_TONES[hueShade(i)];
-      return `<button type="button" class="cl-swatch${t.light ? ' lt' : ''}${i === curHue ? ' on' : ''}" data-account="${account}" data-tone="${i}" style="background:${t.grad};" aria-label="${h.name}" aria-pressed="${i === curHue}"></button>`;
-    }).join('')}</div>`;
+    // v287: colours are picked on the Debts page; this card just shows the same colour
 
     let progressHtml = '';
     if(stats.limit > 0){
@@ -9399,34 +9403,16 @@ function renderCreditLimitsView(){
     return `
       <div class="budget-row${tone.light ? ' tone-light' : ''}" style="padding:10px 0;border-bottom:1px solid var(--line);background:${tone.grad};box-shadow:0 14px 28px ${tone.glow};">
         <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
-          <span class="cl-name" style="font-size:14px;"><span>${account}</span><button type="button" class="cl-color-btn${open ? ' on' : ''}" data-account="${account}" aria-label="Change colour of ${account}" aria-expanded="${open}" title="Card colour"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r="1.5"/><circle cx="17.5" cy="10.5" r="1.5"/><circle cx="8.5" cy="7.5" r="1.5"/><circle cx="6.5" cy="12.5" r="1.5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.9 0 1.7-.8 1.7-1.7 0-.4-.2-.8-.4-1.1-.3-.3-.4-.7-.4-1.1 0-.9.8-1.7 1.7-1.7H16c3.1 0 5.6-2.5 5.6-5.6C21.7 6 17.3 2 12 2z"/></svg></button></span>
+          <span class="cl-name" style="font-size:14px;"><span>${account}</span></span>
           <div style="display:flex;align-items:center;gap:4px;">
             <span class="muted" style="font-size:13px;">$</span>
             <input type="number" class="credit-limit-input" data-account="${account}" value="${stats.limit || ''}" placeholder="0" min="0" step="1" inputmode="decimal" aria-label="Credit limit for ${account}" style="width:80px;text-align:right;border:1px solid var(--line);border-radius:6px;padding:4px 6px;font-size:13px;">
           </div>
         </div>
         ${progressHtml}
-        ${open ? `<div class="cl-swatches" role="group" aria-label="Card colour">${swatches}</div>` : ''}
       </div>
     `;
   }).join('');
-
-  // v280: colour picker (palette button opens the swatches; picking one saves it)
-  container.querySelectorAll('.cl-color-btn').forEach(btn=>{
-    btn.addEventListener('click', ()=>{
-      CL_COLOR_OPEN = CL_COLOR_OPEN === btn.dataset.account ? null : btn.dataset.account;
-      renderCreditLimitsView();
-    });
-  });
-  container.querySelectorAll('.cl-swatch').forEach(sw=>{
-    sw.addEventListener('click', ()=>{
-      ACCOUNT_COLORS[sw.dataset.account] = Number(sw.dataset.tone);
-      saveState();
-      syncSettingsNow();
-      renderCreditLimitsView();
-      if(getActiveViewName() === 'debts'){ renderDebts(); }
-    });
-  });
 
   container.querySelectorAll('.credit-limit-input').forEach(input=>{
     input.addEventListener('change', (e)=>{
@@ -9442,9 +9428,7 @@ function renderCreditLimitsView(){
     });
   });
 }
-let CL_COLOR_OPEN = null;   // which card's colour swatches are showing
 function openCreditLimitsModal(){
-  CL_COLOR_OPEN = null;
   renderCreditLimitsView();
   switchView('creditLimits');
 }
@@ -10241,7 +10225,7 @@ function renderDebtAccountsManager(){
     const accounts = DEBT_ACCOUNTS[type] || [];
     const chips = accounts.map((acc, idx)=>`
       <div class="account-chip">
-        <i class="chip-tone" style="background:${(ACCOUNT_TONES[accountToneIndex(type, acc)] || ACCOUNT_TONES[0]).grad};"></i>
+        <button type="button" class="chip-tone${SET_COLOR_OPEN === accountColorKey(type, acc) ? ' on' : ''}" data-type="${type}" data-account="${acc}" style="background:${(ACCOUNT_TONES[accountToneIndex(type, acc)] || ACCOUNT_TONES[0]).grad};" aria-label="Change colour of ${acc}" title="Colour"></button>
         <span class="chip-label">${acc}</span>
         <button type="button" class="edit-btn" data-action="edit-account" data-type="${type}" data-index="${idx}" title="Rename">
           <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
@@ -10249,10 +10233,21 @@ function renderDebtAccountsManager(){
         <button type="button" data-type="${type}" data-account="${acc}" class="remove-account-btn" title="Remove">&times;</button>
       </div>
     `).join('');
+    // v288: tapping a chip's colour dot opens the colour row for that account (same colours as Debts)
+    const openAcc = accounts.find(a=> SET_COLOR_OPEN === accountColorKey(type, a));
+    let swHtml = '';
+    if(openAcc !== undefined){
+      const curHue = accountHue(type, openAcc);
+      swHtml = `<div class="set-swatches"><div class="set-sw-label">Colour for ${openAcc} <span>(shade follows light / dark mode)</span></div><div class="cl-sw-row">${ACCOUNT_HUES.map((h, hi)=>{
+        const t = ACCOUNT_TONES[hueShade(hi)];
+        return `<button type="button" class="cl-swatch set-swatch${hi === curHue ? ' on' : ''}" data-type="${type}" data-account="${openAcc}" data-tone="${hi}" style="background:${t.grad};" aria-label="${h.name}" aria-pressed="${hi === curHue}"></button>`;
+      }).join('')}</div></div>`;
+    }
     html += `
       <div class="debt-type-group" data-type="${type}">
         <div class="type-label"><span>${type}</span><span class="tile-badge tint">${accounts.length} ${accounts.length === 1 ? 'account' : 'accounts'}</span></div>
         <div class="account-chip-list">${chips || `<span class="muted">No accounts added yet.</span>`}</div>
+        ${swHtml}
         <div class="account-add-row">
           <input type="text" placeholder="e.g. Tangerine 7177" data-type="${type}" class="new-account-input">
           <button type="button" data-type="${type}" class="add-account-btn">Add</button>
@@ -10298,7 +10293,25 @@ function renderDebtAccountsManager(){
       deleteDebtAccount(btn.dataset.type, btn.dataset.account);
     });
   });
+
+  // v288: colour picking (same ACCOUNT_COLORS as the Debts headings, so every page matches)
+  container.querySelectorAll('button.chip-tone').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const k = accountColorKey(btn.dataset.type, btn.dataset.account);
+      SET_COLOR_OPEN = SET_COLOR_OPEN === k ? null : k;
+      renderDebtAccountsManager();
+    });
+  });
+  container.querySelectorAll('.set-swatch').forEach(sw=>{
+    sw.addEventListener('click', ()=>{
+      ACCOUNT_COLORS[accountColorKey(sw.dataset.type, sw.dataset.account)] = Number(sw.dataset.tone);
+      saveState();
+      syncSettingsNow();
+      renderDebtAccountsManager();
+    });
+  });
 }
+let SET_COLOR_OPEN = null;   // v288: which account's colour row is open in Accounts Settings
 
 // Removes a debt account - but only once no entry is left under it.
 // Returns true if it was deleted.
