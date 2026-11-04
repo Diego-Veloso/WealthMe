@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v304 -->
+<!-- WEALTH.ME — v305 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1723,6 +1723,10 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
 .segmented.seg-colour button.active[data-cat="Income"],.segmented.seg-colour button.active[data-mode="income"]{background:linear-gradient(135deg,#1E8A5E,#4FD6A4);}
 .segmented.seg-colour button.active[data-cat="Investment"],.segmented.seg-colour button.active[data-mode="investment"]{background:linear-gradient(135deg,#B7821F,#F0BC45);}
 .segmented.seg-colour button.active[data-cat="Capital"]{background:linear-gradient(135deg,#46525F,#8795A5);}
+/* v305: Activity All / Planned / Actual — bigger, selected one in the app's blue */
+#txFilterSeg{padding:3px;border-radius:13px;gap:2px;}
+#txFilterSeg button{padding:8px 14px;font-size:13.5px;border-radius:10px;}
+#txFilterSeg button.active{background:var(--skin-grad-primary);color:#fff;box-shadow:0 6px 14px rgba(10,111,208,.28);}
 .segmented.ins-dir button.active{background:var(--skin-grad-primary);color:#fff;box-shadow:0 6px 14px rgba(10,111,208,.28);}
 .ins-more{display:block;width:100%;background:none;border:none;color:var(--skin-blue-ink,#0A6FD0);font-weight:700;font-size:12.5px;padding:10px 0 0;cursor:pointer;text-align:center;font-family:'Inter',sans-serif;}
 .tile-badge.watch{background:color-mix(in srgb,#F5A623 20%,transparent);color:#B86E00;margin-left:4px;vertical-align:1px;}
@@ -2965,7 +2969,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         <div id="refreshStatus" class="more-refresh-status"></div>
       </div>
 
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 304</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 305</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -3008,7 +3012,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 304</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 305</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -4237,7 +4241,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 304;
+const APP_VERSION = 305;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
