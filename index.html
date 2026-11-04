@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v297 -->
+<!-- WEALTH.ME — v299 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -2928,7 +2928,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         <div id="refreshStatus" class="more-refresh-status"></div>
       </div>
 
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 297</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 299</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -2971,7 +2971,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 297</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 299</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -3329,7 +3329,6 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
             <li>Tap <strong>"Install"</strong> (or <strong>"Add"</strong>) to confirm</li>
             <li>WealthMe will appear on your home screen like a native app, opening fullscreen</li>
           </ol>
-          <p class="muted help-note" style="font-size:12px;margin-top:10px;margin-bottom:0;">Tip: If you host the app on GitHub Pages (<strong>diego-veloso.github.io/wealthme</strong>), Chrome will show an automatic install banner at the bottom of the screen.</p>
         </div>
       </div>
 
@@ -4181,7 +4180,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 297;
+const APP_VERSION = 299;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -10745,29 +10744,38 @@ document.getElementById('reassignSubcatConfirm').addEventListener('click', ()=>{
 /* =========================================================
    CUSTOM CONFIRM MODAL (avoids window.confirm, which is blocked in some sandboxed iframes)
    ========================================================= */
-function showConfirm(title, message, onConfirm){
+// opts (v299, all optional): confirmLabel, cancelLabel, confirmClass ('danger' | 'primary'),
+// onCancel (also runs when the backdrop is tapped).
+let _confirmBackdropCancel = null;
+function showConfirm(title, message, onConfirm, opts){
+  opts = opts || {};
   const overlay = document.getElementById('confirmModalOverlay');
   document.getElementById('confirmModalTitle').textContent = title;
   document.getElementById('confirmModalMessage').textContent = message;
-  overlay.classList.add('active');
-
   const confirmBtn = document.getElementById('confirmModalConfirm');
   const cancelBtn = document.getElementById('confirmModalCancel');
+  confirmBtn.textContent = opts.confirmLabel || 'Confirm';
+  cancelBtn.textContent = opts.cancelLabel || 'Cancel';
+  confirmBtn.className = 'btn btn-block ' + (opts.confirmClass === 'primary' ? 'btn-primary' : 'btn-danger');
+  overlay.classList.add('active');
 
   function cleanup(){
     overlay.classList.remove('active');
     confirmBtn.removeEventListener('click', onConfirmClick);
     cancelBtn.removeEventListener('click', onCancelClick);
+    _confirmBackdropCancel = null;
   }
   function onConfirmClick(){ cleanup(); onConfirm(); }
-  function onCancelClick(){ cleanup(); }
+  function onCancelClick(){ cleanup(); if(opts.onCancel) opts.onCancel(); }
+  _confirmBackdropCancel = onCancelClick;
 
   confirmBtn.addEventListener('click', onConfirmClick);
   cancelBtn.addEventListener('click', onCancelClick);
 }
 document.getElementById('confirmModalOverlay').addEventListener('click', (e)=>{
   if(e.target.id === 'confirmModalOverlay'){
-    e.target.classList.remove('active');
+    if(_confirmBackdropCancel){ _confirmBackdropCancel(); }
+    else e.target.classList.remove('active');
   }
 });
 
@@ -10777,9 +10785,34 @@ document.getElementById('emptyDataBtn').addEventListener('click', ()=>{
     nextId = 1;
     saveState();
     showToast('All data cleared');
-    switchView('home');
+    // v299: offer to import a dataset; otherwise go Home and suggest the starting balance
+    setTimeout(()=> showConfirm('Import a new dataset?',
+      'Your data is now empty. Do you want to import a CSV file with your entries?',
+      ()=>{
+        // stay on Data Management and open the file picker (same as Import CSV)
+        if(getActiveViewName() !== 'dataManagement') openDataManagementModal();
+        document.getElementById('csvFileInput').click();
+      },
+      { confirmLabel:'Yes, import', cancelLabel:'No', confirmClass:'primary',
+        onCancel: ()=>{
+          switchView('home');
+          setTimeout(()=> showConfirm('Start with your balance',
+            'Start by adding a new Income entry with your initial balance (the amount you have available right now), marked as Actual.',
+            openInitialBalanceEntry,
+            { confirmLabel:'Add initial balance', cancelLabel:'Later', confirmClass:'primary' }), 250);
+        } }), 250);
   });
 });
+// v299: new entry pre-filled as the starting balance (Income, Actual, today)
+function openInitialBalanceEntry(){
+  openEntryModal();
+  const subs = CATEGORY_MAP.Income || [];
+  const sub = subs.find(x=> /other/i.test(x)) || subs[0];
+  populateEntryCategorySelectors('Income', sub);
+  setStatusToggle('Closed');
+  document.getElementById('entryNotes').value = 'Initial balance';
+  setTimeout(()=> document.getElementById('entryAmount').focus(), 150);
+}
 
 document.getElementById('resetDataBtn').addEventListener('click', ()=>{
   showConfirm('Reset to sample data?', 'This will replace all current data with sample data.', ()=>{
