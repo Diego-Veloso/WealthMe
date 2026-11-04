@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v294 -->
+<!-- WEALTH.ME — v295 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1749,6 +1749,21 @@ html.show-saved .topbar{padding-bottom:8px;}
 .debt-acct-head.tone-light .cl-sw-label{color:rgba(11,37,69,.7);}
 .debt-acct-head.tone-light .cl-swatch.on{border-color:#0B2545;}
 
+/* v295: entry lists everywhere get the same right-hand spacing as Activity:
+   amount above the status badge, and lists that sat flush (calendar day / past due / upcoming,
+   account detail) are now inside a card with inner padding. */
+#detailLists .entry-right{flex-direction:column;align-items:flex-end;justify-content:center;gap:3px;}
+#detailLists .entry-right .entry-amt{line-height:1.3;}
+#detailLists .entry-right .status-badge{margin-left:0;}
+#calDayList > .entry-list,#calPastDueList > .entry-list,#calUpcomingList > .entry-list,ul#accountDetailList{
+  background:var(--card);border:1px solid var(--line);border-radius:var(--radius,16px);padding:0 16px;margin:0 0 4px;
+  box-shadow:var(--skin-shadow);}
+@media (min-width:900px){
+  /* account popup: figures two per row so the amounts fit */
+  #accountDetailModalOverlay .summary-grid{grid-template-columns:repeat(2,minmax(0,1fr)) !important;}
+  #accountDetailModalOverlay .summary-grid .summary-card .value{font-size:clamp(18px,1.7vw,22px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+}
+
 /* v294: "by Diego Veloso" under the app name, only on the More page */
 .app-byline{display:none;font-size:11px;font-weight:600;letter-spacing:.1px;color:var(--slate);line-height:1.2;margin-top:1px;white-space:nowrap;}
 html.show-byline .app-byline{display:block;}
@@ -2895,7 +2910,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         <div id="refreshStatus" class="more-refresh-status"></div>
       </div>
 
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 294</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 295</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -2938,7 +2953,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 294</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 295</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -4129,7 +4144,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 294;
+const APP_VERSION = 295;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
