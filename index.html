@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v296 -->
+<!-- WEALTH.ME — v297 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1749,6 +1749,11 @@ html.show-saved .topbar{padding-bottom:8px;}
 .debt-acct-head.tone-light .cl-sw-label{color:rgba(11,37,69,.7);}
 .debt-acct-head.tone-light .cl-swatch.on{border-color:#0B2545;}
 
+/* v297: "Watch how" buttons in the Help install sections */
+.install-video-btn{display:inline-flex;align-items:center;gap:8px;margin:0 0 12px;padding:9px 16px;border:none;border-radius:12px;cursor:pointer;font:inherit;font-size:13.5px;font-weight:700;color:#fff;background:var(--skin-grad-primary);box-shadow:0 6px 14px rgba(10,111,208,.28);}
+.install-video-btn span{font-size:11px;font-weight:800;padding:1px 8px;border-radius:999px;background:rgba(255,255,255,.22);}
+.install-video-btn:active{transform:scale(.97);}
+
 /* v296: video tutorial button + popup */
 .tut-video-btn{margin-top:10px;display:flex;align-items:center;justify-content:center;gap:10px;width:min(100%,380px);margin-left:auto;margin-right:auto;border-radius:14px;color:#fff;background:rgba(255,255,255,.14);border:1.5px solid rgba(255,255,255,.32);}
 .tut-video-btn span{font-size:11px;font-weight:800;padding:2px 8px;border-radius:999px;background:rgba(255,255,255,.2);}
@@ -2923,7 +2928,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         <div id="refreshStatus" class="more-refresh-status"></div>
       </div>
 
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 296</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 297</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -2966,7 +2971,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 296</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 297</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -3297,14 +3302,15 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
           <svg class="accordion-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
         <div class="accordion-body" id="acc-iphone">
+          <button type="button" class="install-video-btn" id="installVideoIos"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg>Watch how <span>47 s</span></button>
           <ol>
-            <li>Open this page in <strong>Safari</strong> (not Chrome or other browsers)</li>
-            <li>Tap the <strong>Share</strong> button ⎋ at the bottom of the screen</li>
+            <li>Open this page in <strong>Safari</strong></li>
+            <li>Tap the <strong>•••</strong> button next to the address bar, then tap <strong>Share</strong> (on older iPhones, tap the <strong>Share</strong> button at the bottom)</li>
             <li>Scroll down and tap <strong>"Add to Home Screen"</strong></li>
-            <li>Tap <strong>"Add"</strong> in the top right corner</li>
+            <li>Keep <strong>"Open as Web App"</strong> on, then tap <strong>"Add"</strong> in the top right corner</li>
             <li>WealthMe will appear on your home screen like a native app, opening fullscreen with no browser bar</li>
           </ol>
-          <p class="muted help-note" style="font-size:12px;margin-top:10px;margin-bottom:0;">Must use Safari — Chrome on iPhone does not support Add to Home Screen as a PWA.</p>
+          <p class="muted help-note" style="font-size:12px;margin-top:10px;margin-bottom:0;">Always open WealthMe from its Home Screen icon: on iPhone, the icon keeps its own copy of your data, separate from Safari. Chrome on iPhone (iOS 16.4 or later) can also Add to Home Screen from its Share menu.</p>
         </div>
       </div>
 
@@ -3315,11 +3321,12 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
           <svg class="accordion-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
         <div class="accordion-body" id="acc-android">
+          <button type="button" class="install-video-btn" id="installVideoAndroid"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg>Watch how <span>39 s</span></button>
           <ol>
             <li>Open this page in <strong>Chrome</strong></li>
             <li>Tap the <strong>three-dot menu</strong> ⋮ in the top right corner</li>
-            <li>Tap <strong>"Add to Home Screen"</strong> or <strong>"Install App"</strong></li>
-            <li>Tap <strong>"Add"</strong> to confirm</li>
+            <li>Tap <strong>"Add to home screen"</strong> (on some phones: <strong>"Install app"</strong>)</li>
+            <li>Tap <strong>"Install"</strong> (or <strong>"Add"</strong>) to confirm</li>
             <li>WealthMe will appear on your home screen like a native app, opening fullscreen</li>
           </ol>
           <p class="muted help-note" style="font-size:12px;margin-top:10px;margin-bottom:0;">Tip: If you host the app on GitHub Pages (<strong>diego-veloso.github.io/wealthme</strong>), Chrome will show an automatic install banner at the bottom of the screen.</p>
@@ -4174,7 +4181,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 296;
+const APP_VERSION = 297;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -13303,19 +13310,26 @@ DESK_MQ.addEventListener('change', updateSavedNote);
    taps "Watch the video tutorial" — it never slows down opening the app.
    ========================================================= */
 const TUTORIAL_VIDEO_URL = 'tutorial.mp4';
+// v297: install guides use the same popup
+const INSTALL_VIDEO_IOS_URL = 'install_iphone.mp4';
+const INSTALL_VIDEO_ANDROID_URL = 'install_android.mp4';
 function tutorialShowMsg(text){
   const m = document.getElementById('tutorialMsg');
   m.textContent = text; m.style.display = text ? 'flex' : 'none';
 }
-function openTutorialVideo(){
+function openTutorialVideo(url, title, note){
+  url = (typeof url === 'string') ? url : TUTORIAL_VIDEO_URL;
+  document.getElementById('tutorialTitle').textContent = title || 'How to use WealthMe';
+  document.querySelector('#tutorialModalOverlay .tut-note').textContent = note || '2-minute walkthrough of every page. Needs an internet connection.';
   const v = document.getElementById('tutorialVideo');
+  if(v.getAttribute('src') && v.getAttribute('src') !== url){ v.pause(); v.removeAttribute('src'); v.load(); }
   document.getElementById('tutorialModalOverlay').classList.add('active');
   if(navigator.onLine === false && !v.getAttribute('src')){
     tutorialShowMsg('You\u2019re offline. Connect to the internet to watch the tutorial.');
     return;
   }
   tutorialShowMsg('');
-  if(!v.getAttribute('src')){ v.src = TUTORIAL_VIDEO_URL; }
+  if(!v.getAttribute('src')){ v.src = url; }
   const p = v.play(); if(p && p.catch) p.catch(()=>{});   // autoplay can be refused; the controls stay available
 }
 function closeTutorialVideo(){
@@ -13330,8 +13344,12 @@ document.getElementById('tutorialVideo').addEventListener('error', ()=>{
     ? 'You\u2019re offline. Connect to the internet to watch the tutorial.'
     : 'The video couldn\u2019t be loaded right now. Please try again later.');
 });
-document.getElementById('watchTutorialBtn').addEventListener('click', openTutorialVideo);
-document.getElementById('tourPromptVideoBtn')?.addEventListener('click', openTutorialVideo);
+document.getElementById('watchTutorialBtn').addEventListener('click', ()=> openTutorialVideo(TUTORIAL_VIDEO_URL));
+document.getElementById('tourPromptVideoBtn')?.addEventListener('click', ()=> openTutorialVideo(TUTORIAL_VIDEO_URL));
+document.getElementById('installVideoIos').addEventListener('click', (e)=>{ e.stopPropagation();
+  openTutorialVideo(INSTALL_VIDEO_IOS_URL, 'Install on iPhone', 'How to add WealthMe to your Home Screen. Needs an internet connection.'); });
+document.getElementById('installVideoAndroid').addEventListener('click', (e)=>{ e.stopPropagation();
+  openTutorialVideo(INSTALL_VIDEO_ANDROID_URL, 'Install on Android', 'How to add WealthMe to your home screen. Needs an internet connection.'); });
 document.getElementById('tutorialClose').addEventListener('click', closeTutorialVideo);
 document.getElementById('tutorialModalOverlay').addEventListener('click', (e)=>{
   if(e.target.id === 'tutorialModalOverlay') closeTutorialVideo();
