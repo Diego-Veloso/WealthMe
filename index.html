@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v282 -->
+<!-- WEALTH.ME — v284 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1738,23 +1738,44 @@ html.show-saved .topbar{padding-bottom:8px;}
   .topbar-saved{margin-top:3px;}
 }
 
-/* v282: Debts type chips with counts */
+/* v284: light card colours + very light "Unassigned" heading on Debts */
+
+.cl-sw-label{font-size:10.5px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:rgba(255,255,255,.85);margin:0 0 6px;}
+.cl-sw-row{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:10px;}
+.cl-sw-row:last-child{margin-bottom:0;}
+.cl-swatch.lt{border-color:rgba(255,255,255,.9);}
+#creditLimitsList .budget-row.tone-light span,
+#creditLimitsList .budget-row.tone-light .cl-name span{color:#0B2545 !important;}
+#creditLimitsList .budget-row.tone-light .muted{color:rgba(11,37,69,.72) !important;}
+#creditLimitsList .budget-row.tone-light .progress-track{background:rgba(11,37,69,.12);}
+#creditLimitsList .budget-row.tone-light .credit-limit-input{background:rgba(255,255,255,.65) !important;color:#0B2545 !important;border:1px solid rgba(11,37,69,.18) !important;}
+#creditLimitsList .budget-row.tone-light .credit-limit-input::placeholder{color:rgba(11,37,69,.45);}
+#creditLimitsList .budget-row.tone-light::before{background:radial-gradient(circle,rgba(255,255,255,.6),rgba(255,255,255,0) 68%);}
+.budget-row.tone-light .cl-color-btn{color:#0B2545;background:rgba(255,255,255,.55);border-color:rgba(11,37,69,.18);}
+.budget-row.tone-light .cl-color-btn.on{background:#0B2545;color:#fff;}
+.budget-row.tone-light .cl-swatches{border-top-color:rgba(11,37,69,.14);}
+.budget-row.tone-light .cl-sw-label{color:rgba(11,37,69,.7);}
+.budget-row.tone-light .cl-swatch.on{border-color:#0B2545;}
+.debt-acct-head.dbt-gx.tone-light{background:linear-gradient(135deg,#F7F9FB 0%,#EEF2F6 55%,#E3E8EE 100%);}
+.debt-acct-head.tone-light{color:#0B2545;}
+.debt-acct-head.tone-light::before{background:radial-gradient(circle,rgba(255,255,255,.6),rgba(255,255,255,0) 68%);}
+.debt-acct-head.tone-light .muted{color:rgba(11,37,69,.7) !important;}
+.debt-acct-head.tone-light .progress-track{background:rgba(11,37,69,.12);}
+.debt-acct-head.tone-light .progress-fill[style*="--sage"],
+.debt-acct-head.tone-light .progress-fill[style*="--accent-blue"]{background:#0B2545 !important;}
+
+/* v283: Debts type segmented switch (red gradient on the active type) */
 #view-debts .debt-type-pager{padding:2px 0 4px;}
-.debt-chips{display:flex;gap:8px;justify-content:flex-start;overflow-x:auto;scrollbar-width:none;padding:4px 8px 16px;margin:-4px -8px -8px;}
-.debt-chips::-webkit-scrollbar{display:none;}
-.debt-chip{flex-shrink:0;display:inline-flex;align-items:center;gap:7px;padding:8px 10px 8px 14px;border-radius:999px;border:none;cursor:pointer;font:inherit;font-size:13px;font-weight:700;color:var(--navy);background:var(--card);box-shadow:0 2px 8px rgba(0,36,72,.08);transition:background .15s,color .15s,box-shadow .15s,transform .12s;}
-[data-theme="dark"] .debt-chip{box-shadow:0 2px 8px rgba(0,0,0,.35);}
-.debt-chip:active{transform:scale(.96);}
-.debt-chip i{font-style:normal;font-size:11px;font-weight:800;min-width:20px;text-align:center;padding:2px 7px;border-radius:999px;box-sizing:border-box;background:color-mix(in srgb,var(--slate) 14%,transparent);color:var(--slate);}
-.debt-chip.active{color:#fff;background:linear-gradient(135deg,#7A1020,#C3283A);box-shadow:0 6px 14px rgba(160,20,40,.3);}
-.debt-chip.active i{background:rgba(255,255,255,.25);color:#fff;}
+.segmented.debt-seg{border-radius:14px;padding:3px;}
+.segmented.debt-seg .debt-chip{flex:1 1 0;border:none;background:transparent;cursor:pointer;font:inherit;font-size:13px;font-weight:700;color:var(--slate);padding:9px 4px;border-radius:11px;white-space:nowrap;transition:background .15s,color .15s,box-shadow .15s;}
+.segmented.debt-seg .debt-chip.active{color:#fff;background:linear-gradient(135deg,#7A1020,#C3283A);box-shadow:0 6px 14px rgba(160,20,40,.3);}
 
 /* v280: per-card colour on Credit Limits (used on Debts and Accounts Settings too) */
 
 .cl-name{display:inline-flex;align-items:center;gap:8px;min-width:0;}
 .cl-color-btn{width:28px;height:28px;border-radius:50%;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.32);padding:0;}
 .cl-color-btn.on{background:#fff;color:#0B2545;}
-.cl-swatches{display:flex;flex-wrap:wrap;gap:9px;margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,.22);}
+.cl-swatches{display:block;margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,.22);}
 .cl-swatch{width:30px;height:30px;border-radius:50%;border:2px solid rgba(255,255,255,.55);cursor:pointer;padding:0;box-shadow:0 3px 8px rgba(0,0,0,.25);transition:transform .12s;}
 .cl-swatch:active{transform:scale(.9);}
 .cl-swatch.on{border:3px solid #fff;box-shadow:0 0 0 2px rgba(0,0,0,.25),0 3px 8px rgba(0,0,0,.25);}
@@ -2673,9 +2694,9 @@ html.show-saved .topbar{padding-bottom:8px;}
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
       </div>
-      <!-- v282: debt type chips with the number of planned debts (tap one, or swipe the list) -->
+      <!-- v283: debt type segmented switch (tap a type, or swipe the list) -->
       <div class="debt-type-pager" id="debtTypePager">
-        <div class="debt-chips" id="debtTypeChips" role="tablist" aria-label="Debt type"></div>
+        <div class="segmented debt-seg" id="debtTypeChips" role="tablist" aria-label="Debt type"></div>
       </div>
       <div id="debtSwipeArea" class="debt-swipe-area">
         <div id="debtList" style="margin-top:14px;"></div>
@@ -2688,7 +2709,7 @@ html.show-saved .topbar{padding-bottom:8px;}
     <section class="view" id="view-money">
       <h2 class="card-title" style="margin:10px 0 14px;">Money</h2>
       <!-- Swipe this bar left / right to change month -->
-      <div class="month-nav" id="moneyMonthNav" style="touch-action:pan-y;margin-bottom:6px;">
+      <div class="month-nav" id="moneyMonthNav" style="touch-action:pan-y;">
         <button id="moneyPrev">&#8249;</button>
         <div class="label" id="moneyLabel">June 2026</div>
         <button id="moneyNext">&#8250;</button>
@@ -2830,14 +2851,14 @@ html.show-saved .topbar{padding-bottom:8px;}
         <ul class="entry-list">
           <li class="more-row more-refresh-row" id="refreshAppBtn" role="button" tabindex="0">
             <span class="acc-ico" style="--c:#0A6FD0;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg></span>
-            <span class="more-txt"><span>Refresh App</span><small id="refreshAppDesc">Check for updates · version 282</small></span>
+            <span class="more-txt"><span>Refresh App</span><small id="refreshAppDesc">Check for updates · version 284</small></span>
             <svg class="more-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
           </li>
         </ul>
         <div id="refreshStatus" class="more-refresh-status"></div>
       </div>
 
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 282</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 284</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -2880,7 +2901,7 @@ html.show-saved .topbar{padding-bottom:8px;}
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 282</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 284</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -4078,7 +4099,7 @@ html.show-saved .topbar{padding-bottom:8px;}
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 282;
+const APP_VERSION = 284;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -4157,7 +4178,16 @@ const ACCOUNT_TONES = [
   { name:'Teal',     grad:'linear-gradient(135deg,#073F4A 0%,#0E8FA0 55%,#4FD8E0 100%)', glow:'rgba(10,120,140,.30)', dot:'#14B8C8' },
   { name:'Pink',     grad:'linear-gradient(135deg,#5E1645 0%,#C2338A 55%,#F57DBF 100%)', glow:'rgba(180,40,120,.30)', dot:'#EC5BA0' },
   { name:'Gold',     grad:'linear-gradient(135deg,#4A3207 0%,#A8741A 48%,#F0BC45 100%)', glow:'rgba(168,116,26,.32)', dot:'#D4A24E' },
-  { name:'Graphite', grad:'linear-gradient(135deg,#1E252E 0%,#3D4855 55%,#7D8B9A 100%)', glow:'rgba(30,40,55,.32)',   dot:'#5C6B7A' }
+  { name:'Graphite', grad:'linear-gradient(135deg,#1E252E 0%,#3D4855 55%,#7D8B9A 100%)', glow:'rgba(30,40,55,.32)',   dot:'#5C6B7A' },
+  // v284: light tones (dark text on these cards)
+  { name:'Sky',      grad:'linear-gradient(135deg,#DCEEFF 0%,#B9DCFB 55%,#8EC7F5 100%)', glow:'rgba(10,143,232,.18)', dot:'#8EC7F5', light:true },
+  { name:'Lavender', grad:'linear-gradient(135deg,#ECE4FF 0%,#D5C6FB 55%,#BBA5F5 100%)', glow:'rgba(124,77,255,.18)', dot:'#BBA5F5', light:true },
+  { name:'Mint',     grad:'linear-gradient(135deg,#DDF7EC 0%,#B6EBD5 55%,#86DDB9 100%)', glow:'rgba(34,160,107,.18)', dot:'#86DDB9', light:true },
+  { name:'Peach',    grad:'linear-gradient(135deg,#FFE9DE 0%,#FCD2BC 55%,#F7B394 100%)', glow:'rgba(224,103,74,.18)', dot:'#F7B394', light:true },
+  { name:'Rose',     grad:'linear-gradient(135deg,#FFE4EE 0%,#FBC7DA 55%,#F4A3C2 100%)', glow:'rgba(236,91,160,.18)', dot:'#F4A3C2', light:true },
+  { name:'Lemon',    grad:'linear-gradient(135deg,#FFF6D6 0%,#FBE7A6 55%,#F5D574 100%)', glow:'rgba(212,162,78,.20)', dot:'#F5D574', light:true },
+  { name:'Aqua',     grad:'linear-gradient(135deg,#DDF8FA 0%,#B4ECF1 55%,#84DCE5 100%)', glow:'rgba(20,184,200,.18)', dot:'#84DCE5', light:true },
+  { name:'Cloud',    grad:'linear-gradient(135deg,#F4F6F9 0%,#E3E8EE 55%,#CBD3DC 100%)', glow:'rgba(30,40,55,.12)',   dot:'#CBD3DC', light:true }
 ];
 // Colour index for an account: the one picked on Credit Limits, else the default for its position.
 function accountToneIndex(type, account){
@@ -6937,7 +6967,7 @@ function renderDebtTypePager(){
   const box = document.getElementById('debtTypeChips');
   box.innerHTML = pages.map((t, i)=>{
     const n = debtTypeCount(t);
-    return `<button type="button" class="debt-chip${i === idx ? ' active' : ''}" data-type="${t}" role="tab" aria-selected="${i === idx}" aria-label="${t}, ${n} planned">${t}<i>${n}</i></button>`;
+    return `<button type="button" class="debt-chip${i === idx ? ' active' : ''}" data-type="${t}" role="tab" aria-selected="${i === idx}" aria-label="${t}, ${n} planned">${t}</button>`;
   }).join('');
   box.querySelectorAll('.debt-chip').forEach(chip=>{
     chip.addEventListener('click', ()=>{
@@ -6945,8 +6975,6 @@ function renderDebtTypePager(){
       if(target !== idx) switchDebtType(chip.dataset.type, target > idx ? 1 : -1);
     });
   });
-  const act = box.querySelector('.debt-chip.active');
-  if(act && box.scrollWidth > box.clientWidth) act.scrollIntoView({block:'nearest', inline:'nearest'});
 }
 // dir: 1 = moving to a later type (the new list slides in from the right), -1 = earlier.
 function switchDebtType(type, dir){
@@ -9301,7 +9329,9 @@ function renderCreditLimitsView(){
     const tone = ACCOUNT_TONES[accountToneIndex('Credit Card', account)] || ACCOUNT_TONES[0];
     const toneIdx = accountToneIndex('Credit Card', account);
     const open = CL_COLOR_OPEN === account;
-    const swatches = ACCOUNT_TONES.map((t, i)=>`<button type="button" class="cl-swatch${i === toneIdx ? ' on' : ''}" data-account="${account}" data-tone="${i}" style="background:${t.grad};" aria-label="${t.name}" aria-pressed="${i === toneIdx}"></button>`).join('');
+    const sw = (t, i)=>`<button type="button" class="cl-swatch${t.light ? ' lt' : ''}${i === toneIdx ? ' on' : ''}" data-account="${account}" data-tone="${i}" style="background:${t.grad};" aria-label="${t.name}" aria-pressed="${i === toneIdx}"></button>`;
+    const swatches = `<div class="cl-sw-label">Bold</div><div class="cl-sw-row">${ACCOUNT_TONES.map((t, i)=> t.light ? '' : sw(t, i)).join('')}</div>`
+                   + `<div class="cl-sw-label">Light</div><div class="cl-sw-row">${ACCOUNT_TONES.map((t, i)=> t.light ? sw(t, i) : '').join('')}</div>`;
 
     let progressHtml = '';
     if(stats.limit > 0){
@@ -9315,7 +9345,7 @@ function renderCreditLimitsView(){
     }
 
     return `
-      <div class="budget-row" style="padding:10px 0;border-bottom:1px solid var(--line);background:${tone.grad};box-shadow:0 14px 28px ${tone.glow};">
+      <div class="budget-row${tone.light ? ' tone-light' : ''}" style="padding:10px 0;border-bottom:1px solid var(--line);background:${tone.grad};box-shadow:0 14px 28px ${tone.glow};">
         <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
           <span class="cl-name" style="font-size:14px;"><span>${account}</span><button type="button" class="cl-color-btn${open ? ' on' : ''}" data-account="${account}" aria-label="Change colour of ${account}" aria-expanded="${open}" title="Card colour"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r="1.5"/><circle cx="17.5" cy="10.5" r="1.5"/><circle cx="8.5" cy="7.5" r="1.5"/><circle cx="6.5" cy="12.5" r="1.5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.9 0 1.7-.8 1.7-1.7 0-.4-.2-.8-.4-1.1-.3-.3-.4-.7-.4-1.1 0-.9.8-1.7 1.7-1.7H16c3.1 0 5.6-2.5 5.6-5.6C21.7 6 17.3 2 12 2z"/></svg></button></span>
           <div style="display:flex;align-items:center;gap:4px;">
@@ -11486,7 +11516,6 @@ function renderDebts(){
     .reduce((a,e)=> a + Number(e.amount), 0);
   let html = `
     <div class="balance-hero debt-hero">
-      <div class="eyebrow">${debtTypeFilter}</div>
       <div class="figure${outstanding < 0 ? ' negative' : ''}" id="debtOutstandingFig">${fmtMoney(outstanding)}</div>
       <div class="underline"></div>
       <div class="sub">Outstanding</div>
@@ -11539,7 +11568,7 @@ function renderDebts(){
 
         // v279: each account is its own card; the heading uses that account's Credit Limits card colour
         const toneI = accountToneIndex(type, key);
-        const tone = toneI >= 0 ? '' : 'dbt-gx';
+        const tone = toneI >= 0 ? (ACCOUNT_TONES[toneI].light ? 'tone-light' : '') : 'dbt-gx tone-light';   // v284: Unassigned is very light
         const toneStyle = toneI >= 0 ? `style="background:${ACCOUNT_TONES[toneI].grad};"` : '';
         return `
           <div class="card debt-acct-card">
@@ -12802,7 +12831,7 @@ const TOUR_STEPS = [
   { view:'transactions', target:'#txSearchToggle', title:'Find any transaction', text:'Tap the magnifier, then search by category, subcategory, notes, or account \u2014 this list covers every entry you\u2019ve ever made.' },
   { view:'transactions', target:'#txPeriodSeg', title:'Filter by time', text:'Narrow the list to this month, next month, this year, or your own custom date range.' },
   { view:'transactions', target:'#txFilterSeg', title:'Planned vs. Actual', text:'Show everything, just what\u2019s still planned, or just what\u2019s already happened. The sort button beside it flips oldest/newest first.' },
-  { view:'debts', target:'#debtTypePager', title:'Track what you owe', text:'Tap a chip (or swipe the list) to switch between Credit Cards, Financing, and Other debts \u2014 the number shows how many are planned \u2014 grouped by account \u2014 each shows a payoff-progress bar, and Credit Cards also show their credit limit usage if you\u2019ve set one (More \u2192 Credit Limits).' },
+  { view:'debts', target:'#debtTypePager', title:'Track what you owe', text:'Tap a type in the switch (or swipe the list) to move between Credit Cards, Financing, and Other debts \u2014 grouped by account \u2014 each shows a payoff-progress bar, and Credit Cards also show their credit limit usage if you\u2019ve set one (More \u2192 Credit Limits).' },
   { view:'money', moneyPage:'overview', target:'#view-money .summary-grid', title:'Money, at a glance', text:'Tap the Net Position card to see your investment accounts (on a computer they sit beside it), and swipe the month bar to change month. What you\u2019ve invested, what\u2019s planned, your cumulative total, capital gains/losses, and your overall net position.' },
   { view:'money', moneyPage:'overview', target:'#moneyProgressFill', title:'Plan progress', text:'How much of this month\u2019s planned investing is actually done (Actual) versus still Planned.' },
   { view:'more', target:'#budgetsBtn', title:'Budgets', text:'A beginner-friendly planner: enter your income, get a split per category suggested from your 12-month average, type or nudge the % for each category until it fits, and track actual spend against the plan each month.' },
