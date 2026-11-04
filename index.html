@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v266 -->
+<!-- WEALTH.ME — v268 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1726,6 +1726,303 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
 .ins-more{display:block;width:100%;background:none;border:none;color:var(--skin-blue-ink,#0A6FD0);font-weight:700;font-size:12.5px;padding:10px 0 0;cursor:pointer;text-align:center;font-family:'Inter',sans-serif;}
 .tile-badge.watch{background:color-mix(in srgb,#F5A623 20%,transparent);color:#B86E00;margin-left:4px;vertical-align:1px;}
 [data-theme="dark"] .tile-badge.watch{color:#F6B64C;}
+/* Category Detail popup (v268): gradient month bar like the calendar popup */
+#detailModalOverlay .modal-header h3{font-weight:800;letter-spacing:-.3px;}
+#detailModalOverlay .month-nav{background:var(--skin-grad-hero);border-radius:18px;padding:8px 10px;margin-bottom:12px;box-shadow:0 12px 26px rgba(10,60,110,.28);}
+#detailModalOverlay .month-nav .label{color:#fff;text-shadow:0 1px 8px rgba(0,30,70,.25);}
+#detailModalOverlay .month-nav button{background:rgba(255,255,255,.18);color:#fff;border:1px solid rgba(255,255,255,.22);box-shadow:none;}
+
+/* =====================================================================
+   DESKTOP LAYOUT (v267) — 900px and wider only. Phones are untouched:
+   below 900px the only rules here hide the new desktop-only pieces.
+   ===================================================================== */
+.topbar .desk-only{display:none;}
+.desk-side{display:none;}
+
+@media (min-width:900px){
+  :root{--desk-rail:76px;--desk-top:68px;}
+
+  /* ---- slim sidebar: icons only, expands over the page on hover ---- */
+  .bottomnav{
+    width:var(--desk-rail);max-width:none;padding:16px 12px 16px;
+    overflow:hidden;z-index:85;gap:3px;
+    transition:width .22s ease,box-shadow .22s ease;
+  }
+  .bottomnav:hover,.bottomnav:focus-within{width:244px;box-shadow:14px 0 40px rgba(0,20,45,.32);}
+  .bottomnav .navtab,.bottomnav .sidebar-footer-btn{
+    flex:0 0 auto;font-size:0;gap:0;white-space:nowrap;
+    padding:12px 14px;min-height:46px;box-sizing:border-box;border-radius:12px;
+  }
+  .bottomnav:hover .navtab,.bottomnav:focus-within .navtab,
+  .bottomnav:hover .sidebar-footer-btn,.bottomnav:focus-within .sidebar-footer-btn{font-size:13.5px;gap:14px;}
+  .bottomnav .navtab svg,.bottomnav .sidebar-footer-btn svg{width:20px;height:20px;flex-shrink:0;}
+  .bottomnav .navtab.active{background:linear-gradient(135deg,rgba(10,143,232,.34),rgba(124,77,255,.22));box-shadow:inset 3px 0 0 var(--accent-blue);}
+  .sidebar-brand{order:0;padding:2px 2px 16px;margin-bottom:10px;gap:12px;white-space:nowrap;}
+  .sidebar-brand .logo-mark{width:40px;height:40px;border-radius:12px;flex-shrink:0;}
+  .sidebar-brand .logo-stack{opacity:0;transition:opacity .18s ease;}
+  .bottomnav:hover .sidebar-brand .logo-stack,.bottomnav:focus-within .sidebar-brand .logo-stack{opacity:1;}
+  /* theme + bell now live in the top bar */
+  .sidebar-brand > div:last-child{display:none !important;}
+  .bottomnav .navtab[data-view="home"]{order:1;}
+  .bottomnav .navtab[data-view="transactions"]{order:2;}
+  .bottomnav .navtab[data-view="debts"]{order:3;}
+  .bottomnav .navtab[data-view="money"]{order:5;}
+  /* Category Detail (Home donut) and Insights (sparkles button) open as popups, not from the sidebar */
+  .bottomnav #sidebarCategoryDetailBtn,.bottomnav #sidebarInsightsBtn{display:none;}
+  .bottomnav .sidebar-footer{order:8;margin-top:auto;padding-top:10px;gap:3px;}
+  .bottomnav .sidebar-footer-btn:not(#sidebarCalendarBtn){display:none;}
+  .bottomnav .navtab.mobile-only-tab{display:flex;order:9;}
+  .sidebar-footer-btn{font-weight:600;}
+
+  /* ---- page frame: fills the screen beside the rail ---- */
+  #app{max-width:none;width:auto;margin:0 0 0 var(--desk-rail);}
+  main{width:100%;max-width:1680px;margin:0 auto;padding:22px 32px 48px;box-sizing:border-box;}
+  .fab{right:28px;bottom:28px;}
+  .fab-secondary{right:96px;left:auto;bottom:31px;}
+
+  /* ---- top bar: title · month · search · theme · bell ---- */
+  .topbar{
+    display:flex;align-items:center;gap:18px;
+    min-height:var(--desk-top);box-sizing:border-box;padding:12px 32px;
+    border-bottom:1px solid color-mix(in srgb,var(--line) 75%,transparent);
+  }
+  .topbar > .logo{display:none;}
+  .topbar .desk-head{display:flex;flex-direction:column;justify-content:center;flex:1 1 0;min-width:0;}
+  .desk-title{margin:0;font-size:22px;font-weight:800;letter-spacing:-.4px;line-height:1.15;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .desk-sub{margin-top:2px;}
+  .topbar .desk-month{display:flex;align-items:center;gap:6px;flex:0 0 auto;}
+  .topbar .desk-month.off{visibility:hidden;}
+  .desk-month button{
+    width:34px;height:34px;border-radius:11px;border:none;cursor:pointer;
+    background:var(--card);color:var(--navy);font-size:19px;line-height:1;
+    box-shadow:0 3px 10px rgba(0,36,72,.12);transition:transform .15s;
+  }
+  [data-theme="dark"] .desk-month button{box-shadow:0 3px 10px rgba(0,0,0,.4);}
+  .desk-month button:active{transform:scale(.94);}
+  .desk-month .lbl{min-width:160px;text-align:center;font-weight:800;font-size:15.5px;letter-spacing:-.2px;color:var(--navy);}
+  .topbar-tools{flex:1 1 0;justify-content:flex-end;min-width:0;}
+  .topbar .desk-search{
+    display:flex;align-items:center;gap:8px;flex:0 1 320px;min-width:150px;height:40px;
+    padding:0 10px 0 12px;box-sizing:border-box;border-radius:13px;cursor:text;
+    background:var(--card);color:var(--slate);border:1px solid var(--line);
+    box-shadow:0 2px 10px rgba(0,36,72,.06);
+  }
+  .desk-search:focus-within{border-color:var(--skin-blue);box-shadow:0 0 0 3px color-mix(in srgb,var(--skin-blue) 18%,transparent);}
+  .desk-search input{flex:1;min-width:0;border:none;outline:none;background:transparent;font:inherit;font-size:13.5px;color:var(--navy);}
+  .desk-search input::placeholder{color:var(--slate);}
+  .desk-search kbd{font-family:inherit;font-size:10.5px;font-weight:700;color:var(--slate);background:var(--slate-light);border-radius:6px;padding:2px 6px;white-space:nowrap;}
+  .desk-search-clear{border:none;background:var(--slate-light);color:var(--slate);width:20px;height:20px;border-radius:50%;align-items:center;justify-content:center;cursor:pointer;padding:0;flex-shrink:0;}
+  .topbar .icon-btn{width:40px;height:40px;border-radius:13px;}
+
+  /* page headings, month bars and search toggles move to the top bar */
+  #view-home > .month-nav,#moneyMonthNav,
+  #view-money > h2.card-title,#view-more > h2.card-title,
+  #view-transactions .page-head > .card-title,#view-debts .page-head,
+  #txSearchToggle,#txSearchBar,#debtSearchBar{display:none !important;}
+  #view-transactions .page-head{justify-content:flex-start;margin-top:0;}
+  /* Activity: status switch and filter tools on one row */
+  #view-transactions.active{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:start;}
+  #view-transactions.active > *{grid-column:1 / -1;min-width:0;}
+  #view-transactions.active > .page-head{grid-column:1;grid-row:1;align-self:center;margin:0 14px 10px 0;}
+  #view-transactions.active > div:has(#txSavePresetBtn){grid-column:2;grid-row:1;align-self:center;margin:0 0 10px !important;}
+  .view.active{animation:fadeIn .2s ease;}
+
+  /* every card grid: rows always fill */
+  .summary-grid{grid-template-columns:repeat(4,minmax(0,1fr));}
+
+  /* ---- Home: dashboard ---- */
+  #view-home.active{
+    display:grid;gap:18px 20px;align-items:start;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    grid-template-rows:auto auto auto auto auto 1fr;
+    grid-template-areas:
+      "tour tour tour"
+      "hero tiles tiles"
+      "cash cash brk"
+      "burn burn brk"
+      "bud  bud  brk"
+      ".    .    brk";
+  }
+  #view-home.active > *{margin:0;}
+  #tourPromptBanner{grid-area:tour;}
+  #view-home > .balance-hero{grid-area:hero;align-self:stretch;display:flex;flex-direction:column;justify-content:center;}
+  #view-home > #homeSummaryGrid{grid-area:tiles;}
+  #view-home #homeSummaryGrid:not(.four-cards){grid-template-columns:repeat(3,minmax(0,1fr));}
+  #view-home #homeSummaryGrid.four-cards{grid-template-columns:repeat(2,minmax(0,1fr));}
+  #homeSummaryGrid .summary-card{display:flex;flex-direction:column;justify-content:center;min-height:74px;}
+  #homeCashflowCard{grid-area:cash;}
+  #homeCashflowCard .chart-wrap{height:290px;}
+  #burnRateCard{grid-area:burn;}
+  #homeExpenseBudgetBar{grid-area:bud;}
+  #homeBreakdownCard{grid-area:brk;}
+  #homeBreakdownCard .card-title{flex-wrap:wrap;gap:8px;}
+  #homeBreakdownCard .donut-wrap{height:230px;}
+  #donutBreakdownList{max-height:270px;overflow-y:auto;margin-right:-6px;padding-right:6px;}
+
+  /* ---- Money: Overview and Accounts side by side ---- */
+  #view-money .money-page[data-page="overview"]{grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 18px;}
+  #view-money .money-page[data-page="overview"] > *{margin:0;}
+  #view-money .money-page[data-page="overview"] > .balance-hero,
+  #view-money .money-page[data-page="overview"] > .card{grid-column:1 / -1;}
+  #view-money .summary-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+  #view-money .money-page > .card{margin-bottom:0;}
+
+  /* ---- Category Detail: picker + trend left, entries right ---- */
+  #detailTrendCard .chart-wrap{height:260px;}
+
+  /* ---- More: settings screen (menu left, section right) ---- */
+  main.more-split{display:grid;grid-template-columns:270px minmax(0,1fr);gap:28px;align-items:start;}
+  main.more-split > #view-more{display:block;grid-column:1;grid-row:1;position:sticky;top:calc(var(--desk-top) + 18px);animation:none;}
+  main.more-split > .view.active:not(#view-more){grid-column:2;grid-row:1;min-width:0;}
+  main.more-split #view-more .card{padding:8px;}
+  main.more-split .more-row{padding:11px 12px;border-radius:12px;border-bottom:none;font-size:14px;transition:background .15s,color .15s;}
+  main.more-split .more-row:hover{background:color-mix(in srgb,var(--skin-blue) 8%,transparent);}
+  main.more-split .more-row.desk-current{background:linear-gradient(135deg,color-mix(in srgb,var(--skin-blue) 18%,transparent),color-mix(in srgb,#7C4DFF 10%,transparent));color:var(--skin-blue-ink);}
+  main.more-split .more-row.desk-current svg{color:var(--skin-blue-ink);}
+  #helpModalClose,#settingsModalClose,#privacyModalClose,#appearanceModalClose,#budgetsModalClose,
+  #creditLimitsModalClose,#dataManagementModalClose{display:none !important;}
+  main.more-split #view-settings .desktop-only-block{display:none;}
+  main.more-split > .view.active:not(#view-more) > .modal-header{margin:2px 0 14px;}
+  main.more-split > .view.active:not(#view-more) > .modal-header h3{font-size:22px;font-weight:800;letter-spacing:-.3px;}
+
+  /* ---- popups: bigger, two columns where it helps ---- */
+  .modal{max-width:580px;max-height:88vh;padding:22px 26px 24px;}
+  #notificationsModalOverlay > .modal{max-width:720px;}
+  #recapModalOverlay > .modal{max-width:760px;}
+
+  #entryModalOverlay > .modal,#recurringModalOverlay > .modal{
+    max-width:860px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:24px;align-content:start;
+  }
+  #entryModalOverlay > .modal{
+    grid-template-areas:"head head" "scan scan" "cat cat" "date sub" "amt type" "notes notes" "btn btn";
+  }
+  #entryModalOverlay > .modal > .modal-header{grid-area:head;}
+  #entryModalOverlay > .modal > #receiptScanRow{grid-area:scan;}
+  #entryModalOverlay > .modal > .field:has(#entryDate){grid-area:date;}
+  #entryModalOverlay > .modal > .field:has(#entryCategoryChips){grid-area:cat;}
+  #entryModalOverlay > .modal > .two-col:has(#entrySubcategory){grid-area:sub;}
+  #entryModalOverlay > .modal > .two-col:has(#entryAmount){grid-area:amt;}
+  #entryModalOverlay > .modal > #entryTypeAccountRow{grid-area:type;}
+  #entryModalOverlay > .modal > .field:has(#entryNotes){grid-area:notes;}
+  #entryModalOverlay > .modal > .btn-row{grid-area:btn;}
+  #recurringModalOverlay > .modal{
+    grid-template-areas:"head head" "intro intro" "cat cat" "date sub" "amt type" "notes notes" "rep rep" "freq prev" "btn btn";
+  }
+  #recurringModalOverlay > .modal > .modal-header{grid-area:head;}
+  #recurringModalOverlay > .modal > p.muted{grid-area:intro;}
+  #recurringModalOverlay > .modal > .field:has(#recurringDate){grid-area:date;}
+  #recurringModalOverlay > .modal > .field:has(#recurringCategoryChips){grid-area:cat;}
+  #recurringModalOverlay > .modal > .two-col:has(#recurringSubcategory){grid-area:sub;}
+  #recurringModalOverlay > .modal > .two-col:has(#recurringAmount){grid-area:amt;}
+  #recurringModalOverlay > .modal > #recurringTypeAccountRow{grid-area:type;}
+  #recurringModalOverlay > .modal > .field:has(#recurringNotes){grid-area:notes;}
+  #recurringModalOverlay > .modal > .section-title{grid-area:rep;}
+  #recurringModalOverlay > .modal > .two-col:has(#recurringFrequency){grid-area:freq;}
+  #recurringModalOverlay > .modal > #recurringPreview{grid-area:prev;align-self:center;}
+  #recurringModalOverlay > .modal > .btn-row{grid-area:btn;}
+
+  /* Calendar: month on the left, the selected day + due lists on the right */
+  #calendarModalOverlay > .modal{max-width:1120px;}
+  #calendarSwipeArea{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:28px;align-items:start;}
+  .cal-pane-day{max-height:calc(88vh - 120px);overflow-y:auto;padding-right:4px;}
+  .cal-pane-day .cal-day-head{margin-top:0;}
+  #calendarModalOverlay .cal-cell{min-height:74px;}
+  #calendarModalOverlay .cal-cell .d{font-size:13px;}
+  #calendarModalOverlay .cal-net{font-size:10.5px;}
+
+  /* Money Trends: both charts side by side */
+  #moneyTrendsModalOverlay > .modal{max-width:1100px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:20px;align-content:start;}
+  #moneyTrendsModalOverlay > .modal > .modal-header,#moneyTrendsModalOverlay > .modal > .summary-grid{grid-column:1 / -1;}
+  #moneyTrendsModalOverlay .summary-grid{grid-template-columns:minmax(0,1fr);}
+  #moneyTrendsModalOverlay .chart-wrap{height:320px !important;}
+  #moneyTrendsModalOverlay > .modal > .card{margin-bottom:0 !important;}
+
+  /* Account detail: figures + chart left, entries right */
+  #accountDetailModalOverlay > .modal{
+    max-width:1100px;display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);column-gap:24px;align-content:start;
+    grid-template-rows:auto auto auto auto 1fr;
+    grid-template-areas:"head head" "sum ttl" "sum list" "chart list" ". list";
+  }
+  #accountDetailModalOverlay > .modal > .modal-header{grid-area:head;}
+  #accountDetailModalOverlay > .modal > .summary-grid{grid-area:sum;}
+  #accountDetailModalOverlay > .modal > .card{grid-area:chart;margin-bottom:0 !important;}
+  #accountDetailModalOverlay > .modal > .card-title{grid-area:ttl;}
+  #accountDetailModalOverlay > .modal > #accountDetailList{grid-area:list;margin:0;}
+  #accountDetailModalOverlay .chart-wrap{height:280px !important;}
+
+  /* ---- Insights: wide popup, Summary and Spending side by side ---- */
+  .insights-sheet{max-width:min(1440px,95vw);height:92vh;padding:0 26px 26px;}
+  #insightsContainer{grid-template-columns:repeat(2,minmax(0,1fr));gap:22px;}
+  .ins-col{min-width:0;}
+  .ins-col-head{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;color:var(--slate);margin:0 2px 10px;}
+  .ins-col-head::before{content:"";width:9px;height:9px;border-radius:50%;background:#0A8FE8;box-shadow:0 0 0 3px rgba(10,143,232,.18);}
+  .ins-col[data-sec="spending"] .ins-col-head::before{background:#E0674A;box-shadow:0 0 0 3px rgba(224,103,74,.2);}
+  #insightsContainer .summary-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+  #insightsContainer .ins-tiles{grid-template-columns:repeat(4,minmax(0,1fr));}
+  .ins-col .ins-hero{margin-bottom:14px;}
+}
+
+/* Side panels and two-column pages need a little more room */
+@media (min-width:1100px){
+  #view-transactions.active,#view-debts.active{
+    display:grid;grid-template-columns:minmax(0,1fr) 350px;column-gap:26px;align-items:start;
+  }
+  /* Activity: status switch, period switch and filter tools share one toolbar row */
+  #view-transactions.active{grid-template-columns:auto minmax(0,1fr) auto 350px;grid-template-rows:repeat(8,auto) 1fr;}
+  #view-transactions.active > *{grid-column:1 / 4 !important;}
+  #view-transactions.active > .page-head{grid-column:1 !important;grid-row:1;align-self:center;margin:0 14px 10px 0;}
+  #view-transactions.active > #txPeriodSeg{grid-column:2 !important;grid-row:1;align-self:center;margin:0 14px 10px 0 !important;}
+  #view-transactions.active > div:has(#txSavePresetBtn){grid-column:3 !important;grid-row:1;align-self:center;max-width:440px;margin:0 0 10px !important;}
+  #view-transactions.active > .desk-side{grid-column:4 !important;}
+  #view-debts.active{grid-template-rows:repeat(3,auto) 1fr;}
+  #view-transactions.active > *,#view-debts.active > *{grid-column:1;min-width:0;}
+  #view-transactions.active > .desk-side,#view-debts.active > .desk-side{
+    display:block;grid-column:-2;grid-row:1 / -1;align-self:start;
+    position:sticky;top:calc(var(--desk-top) + 18px);
+  }
+  #debtTypePager,#debtList > .debt-hero{display:none !important;}
+  #debtList{margin-top:0 !important;}
+  .desk-side .balance-hero{margin-bottom:14px;}
+  .desk-side-card .card-title{font-size:15px;font-weight:700;}
+  .desk-count{font-size:13px;margin:-4px 0 12px;}
+  .desk-count b{font-size:20px;font-weight:800;margin-right:2px;}
+  .desk-mini-grid{grid-template-columns:repeat(2,minmax(0,1fr)) !important;margin-bottom:0;}
+  .desk-mini-grid .summary-card .value{font-size:17px;}
+  .desk-empty{font-size:12.5px;padding:6px 2px 4px;}
+  .desk-due-row,.desk-type-row{
+    display:flex;align-items:center;gap:10px;width:100%;text-align:left;
+    border:none;background:transparent;cursor:pointer;font:inherit;color:var(--navy);
+    padding:9px 8px;border-radius:12px;transition:background .15s;
+  }
+  .desk-due-row:hover,.desk-type-row:hover{background:color-mix(in srgb,var(--skin-blue) 8%,transparent);}
+  .desk-due-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+  .desk-due-main{display:flex;flex-direction:column;min-width:0;flex:1;}
+  .desk-due-main .t{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .desk-due-main .d{font-size:11.5px;color:var(--slate);font-weight:600;}
+  .desk-due-row.late .d{color:var(--terracotta);}
+  .desk-due-amt{font-size:13px;font-weight:800;white-space:nowrap;}
+  .desk-type-row{justify-content:space-between;font-size:13.5px;font-weight:600;}
+  .desk-type-row b{font-weight:800;}
+  .desk-type-row.active{background:linear-gradient(135deg,color-mix(in srgb,#C3283A 16%,transparent),color-mix(in srgb,#C3283A 6%,transparent));color:#A11E30;}
+  [data-theme="dark"] .desk-type-row.active{color:#FF9A85;}
+  .desk-type-total{display:flex;justify-content:space-between;font-size:13px;font-weight:700;color:var(--slate);border-top:1px solid var(--line);margin-top:6px;padding:10px 8px 2px;}
+  .desk-type-total b{color:var(--navy);font-weight:800;}
+
+  #moneyPages{grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) !important;align-items:start;gap:22px !important;}
+
+  /* Category Detail popup: picker + trend on the left, entries on the right */
+  #detailModalOverlay > .modal{
+    max-width:1100px;display:grid;column-gap:24px;align-content:start;
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+    grid-template-rows:auto auto auto auto 1fr;
+    grid-template-areas:"head head" "nav nav" "sel lists" "trend lists" ". lists";
+  }
+  #detailModalOverlay > .modal > .modal-header{grid-area:head;}
+  #detailModalOverlay > .modal > .month-nav{grid-area:nav;}
+  #detailModalOverlay > .modal > .card:not(#detailTrendCard){grid-area:sel;}
+  #detailModalOverlay > .modal > #detailTrendCard{grid-area:trend;margin-bottom:0;}
+  #detailModalOverlay > .modal > #detailLists{grid-area:lists;min-width:0;}
+}
 </style>
 
 </head>
@@ -1841,7 +2138,23 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
         <div class="logo-note"><span class="dot"></span>Saved on this device</div>
       </div>
     </div>
-    <div style="display:flex;gap:8px;align-items:center;position:relative;">
+    <!-- Desktop only (900px+): page title, shared month picker and search. Hidden on phones. -->
+    <div class="desk-head desk-only">
+      <h1 class="desk-title" id="deskTitle">Home</h1>
+      <div class="logo-note desk-sub"><span class="dot"></span><span id="deskSubText">Saved on this device</span></div>
+    </div>
+    <div class="desk-month desk-only" id="deskMonth">
+      <button type="button" id="deskPrev" aria-label="Previous month">&#8249;</button>
+      <div class="lbl" id="deskMonthLabel">June 2026</div>
+      <button type="button" id="deskNext" aria-label="Next month">&#8250;</button>
+    </div>
+    <div class="topbar-tools" style="display:flex;gap:8px;align-items:center;position:relative;">
+      <label class="desk-search desk-only" id="deskSearchWrap">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="deskSearchInput" placeholder="Search" autocomplete="off" aria-label="Search">
+        <button type="button" class="desk-search-clear" id="deskSearchClear" aria-label="Clear search" style="display:none;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+        <kbd id="deskSearchKbd">Ctrl K</kbd>
+      </label>
       <div id="syncBadge" class="sync-badge sheets-sync-ui" title="Cloud Sync Active" style="display:none;width:8px;height:8px;border-radius:50%;background:var(--sage);flex-shrink:0;"></div>
       <button class="icon-btn theme-toggle-btn" id="themeToggleBtn" title="Toggle dark mode" aria-label="Toggle dark mode">
         <span class="icon-sun"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="6.34" y2="17.66"/><line x1="17.66" y1="6.34" x2="19.07" y2="4.93"/></svg></span>
@@ -1918,7 +2231,7 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
         </div>
       </div>
 
-      <div class="card">
+      <div class="card" id="homeCashflowCard">
         <div class="card-title">Daily Cashflow<button type="button" class="cal-open-btn" id="homeCalendarBtn" title="Open calendar" aria-label="Open calendar"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></button></div>
         <div class="chart-wrap"><canvas id="lineChart" role="img" aria-label="Daily cashflow chart for the selected month"></canvas></div>
       </div>
@@ -1948,7 +2261,7 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
         </div>
       </div>
 
-      <div class="card">
+      <div class="card" id="homeBreakdownCard">
         <div class="card-title">
           <span>Breakdown</span>
           <div class="segmented seg-colour" id="donutSeg" style="width:auto;">
@@ -1962,43 +2275,6 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
       </div>
     </section>
 
-    <!-- ============ SUBCATEGORY DETAIL VIEW ============ -->
-    <section class="view" id="view-detail">
-      <div class="month-nav" style="justify-content:flex-start;gap:10px;">
-        <button id="detailBack">&#8249;</button>
-        <div class="label" id="detailBackLabel" style="text-align:left;min-width:auto;">Category Detail</div>
-      </div>
-      <div class="month-nav">
-        <button id="detailPrev">&#8249;</button>
-        <div class="label" id="detailMonthLabel">June 2026</div>
-        <button id="detailNext">&#8250;</button>
-      </div>
-      <div class="card">
-        <div class="field">
-          <label id="detailCategoryLabel">Category</label>
-          <div class="cat-chips" id="detailCategoryChips" role="radiogroup" aria-labelledby="detailCategoryLabel"></div>
-        </div>
-        <div class="two-col">
-          <div class="field cat-hidden">
-            <label for="detailCategorySel">Category</label>
-            <select id="detailCategorySel" tabindex="-1"></select>
-          </div>
-          <div class="field" style="margin-bottom:0;">
-            <label>Subcategory</label>
-            <select id="detailSubcatSel"></select>
-          </div>
-        </div>
-      </div>
-      <!-- Category trendline chart (% of Net Income; Taxes % of Gross Income) -->
-      <div class="card" id="detailTrendCard">
-        <div class="card-title">
-          <span id="detailTrendTitle">Trend</span>
-        </div>
-        <div class="chart-wrap"><canvas id="detailTrendChart" role="img" aria-label="Category detail trend chart"></canvas></div>
-      </div>
-
-      <div id="detailLists"></div>
-    </section>
 
     <!-- ============ TRANSACTIONS VIEW ============ -->
     <section class="view" id="view-transactions">
@@ -2070,6 +2346,8 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
         <button class="btn btn-danger" id="txBulkDeleteBtn" style="flex:1;">Delete Selected</button>
       </div>
       <div id="txList" style="margin-top:4px;"></div>
+      <!-- Desktop only (1100px+): selection totals and what's due soon -->
+      <aside class="desk-side" id="txSidePanel" aria-label="Activity summary"></aside>
     </section>
 
     <!-- ============ DEBTS VIEW ============ -->
@@ -2096,6 +2374,8 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
       <div id="debtSwipeArea" class="debt-swipe-area">
         <div id="debtList" style="margin-top:14px;"></div>
       </div>
+      <!-- Desktop only (1100px+): outstanding total and debt types -->
+      <aside class="desk-side" id="debtSidePanel" aria-label="Debts summary"></aside>
     </section>
 
     <!-- ============ MONEY VIEW ============ -->
@@ -2235,7 +2515,7 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
         </button>
       </div>
       <div id="refreshStatus" class="muted" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 266</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 268</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -2276,7 +2556,7 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 266</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 268</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -2931,6 +3211,7 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
         </button>
       </div>
       <div id="calendarSwipeArea">
+        <div class="cal-pane-month">
         <div class="month-nav">
           <button id="calPrev" aria-label="Previous month">&#8249;</button>
           <div class="label" id="calMonthLabel">June 2026</div>
@@ -2944,6 +3225,8 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
           <span><i class="cal-dot" style="background:#D4A24E"></i>Investment</span>
           <span><i class="cal-dot open" style="color:#5C6B7A"></i>Planned</span>
         </div>
+        </div>
+        <div class="cal-pane-day">
         <div class="cal-day-head">
           <div class="t" id="calDayTitle"></div>
           <div style="display:flex;align-items:center;gap:10px;">
@@ -2962,6 +3245,7 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
           <div class="cal-up-head"><div class="t">Upcoming</div></div>
           <div id="calUpcomingList"></div>
           <div class="muted cal-up-note" id="calUpcomingNote"></div>
+        </div>
         </div>
       </div>
     </div>
@@ -3291,6 +3575,49 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
     </div>
   </div>
 
+  <!-- ===== Category Detail Popup (opens over whichever page you are on) ===== -->
+  <div class="modal-overlay" id="detailModalOverlay">
+    <div class="modal detail-modal" id="view-detail" role="dialog" aria-modal="true" aria-labelledby="detailModalTitle">
+      <div class="modal-header">
+        <h3 id="detailModalTitle">Category Detail</h3>
+        <button class="icon-btn" id="detailModalClose" aria-label="Close Category Detail">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+
+        <div class="month-nav">
+          <button id="detailPrev">&#8249;</button>
+          <div class="label" id="detailMonthLabel">June 2026</div>
+          <button id="detailNext">&#8250;</button>
+        </div>
+        <div class="card">
+          <div class="field">
+            <label id="detailCategoryLabel">Category</label>
+            <div class="cat-chips" id="detailCategoryChips" role="radiogroup" aria-labelledby="detailCategoryLabel"></div>
+          </div>
+          <div class="two-col">
+            <div class="field cat-hidden">
+              <label for="detailCategorySel">Category</label>
+              <select id="detailCategorySel" tabindex="-1"></select>
+            </div>
+            <div class="field" style="margin-bottom:0;">
+              <label>Subcategory</label>
+              <select id="detailSubcatSel"></select>
+            </div>
+          </div>
+        </div>
+        <!-- Category trendline chart (% of Net Income; Taxes % of Gross Income) -->
+        <div class="card" id="detailTrendCard">
+          <div class="card-title">
+            <span id="detailTrendTitle">Trend</span>
+          </div>
+          <div class="chart-wrap"><canvas id="detailTrendChart" role="img" aria-label="Category detail trend chart"></canvas></div>
+        </div>
+
+        <div id="detailLists"></div>
+    </div>
+  </div>
+
   <!-- ===== Insights popup (opens over whichever page you are on) ===== -->
   <div class="insights-popup" id="view-insights" role="dialog" aria-modal="true" aria-label="Insights">
     <div class="insights-sheet" id="insightsSheet">
@@ -3400,7 +3727,7 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 266;
+const APP_VERSION = 268;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -4490,8 +4817,9 @@ function renderInsightsView(){
   };
   let cardsHtml;
   if(insightsWide.matches){
-    // Desktop: the whole report, stacked.
-    cardsHtml = [...sections.summary, ...sections.spending].map(k=>card[k]()).join('');
+    // Desktop: the whole report, Summary and Spending side by side.
+    cardsHtml = `<div class="ins-col" data-sec="summary"><div class="ins-col-head">Summary</div>${sections.summary.map(k=>card[k]()).join('')}</div>`
+              + `<div class="ins-col" data-sec="spending"><div class="ins-col-head">Spending</div>${sections.spending.map(k=>card[k]()).join('')}</div>`;
   } else {
     // Phones: one section at a time, swipe to change.
     cardsHtml = (sections[insightsPage] || sections.summary).map(k=>card[k]()).join('');
@@ -5649,25 +5977,23 @@ function closeInsightsPopup(){
   document.body.style.overflow = '';
 }
 
+// Every view change also refreshes the desktop layout (top bar title, month
+// picker, search, More split view) - see the DESKTOP LAYOUT block at the end.
 function switchView(viewName){
+  switchViewCore(viewName);
+  if(typeof deskSync === 'function') deskSync(viewName);
+}
+function switchViewCore(viewName){
+  if(viewName === 'detail'){ openDetail(detailCategory, detailSubcategory); return; }   // popup, like Insights
   if(viewName === 'calendar'){ openCalendarModal(); return; }   // popup, like Insights
   if(viewName === 'insights'){ openInsightsPopup(); return; }   // overlay: the page underneath stays put
   closeInsightsPopup();
+  closeDetailPopup(true);
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   document.querySelectorAll('.navtab').forEach(t=>t.classList.remove('active'));
 
   const topbar = document.querySelector('.topbar');
 
-  if(viewName === 'detail'){
-    document.getElementById('view-detail').classList.add('active');
-    // Desktop has its own dedicated Category Detail sidebar tab; on
-    // mobile it's reached by double-tapping the Home donut chart, so
-    // highlight the bottom bar's More tab anyway rather than leaving
-    // nothing active there.
-    document.getElementById('sidebarCategoryDetailBtn')?.classList.add('active');
-    document.querySelector('.navtab[data-view="more"]')?.classList.add('active');
-    return;
-  }
 
   if(viewName === 'help' || viewName === 'settings' || viewName === 'dataManagement' || viewName === 'privacy' || viewName === 'appearance' || viewName === 'budgets' || viewName === 'creditLimits'){
     document.getElementById('view-'+viewName).classList.add('active');
@@ -5688,8 +6014,8 @@ function switchView(viewName){
 
 function renderCurrentView(viewName){
   if(insightsPopupOpen()) renderInsightsView();   // data changed while the popup is open
+  if(detailPopupOpen()) renderDetail();           // same for Category Detail
   if(viewName === 'home') renderHome();
-  else if(viewName === 'detail') renderDetail();
   else if(viewName === 'transactions') renderTransactions();
   else if(viewName === 'debts') renderDebts();
   else if(viewName === 'money') renderMoney();
@@ -5700,7 +6026,6 @@ document.querySelectorAll('.navtab[data-view]').forEach(tab=>{
   tab.addEventListener('click', ()=> switchView(tab.dataset.view));
 });
 
-document.getElementById('detailBack').addEventListener('click', ()=> switchView('home'));
 
 // Bell button — mobile topbar and desktop sidebar-brand both wire to the
 // same handler. A popup rather than a page, so it floats on top of
@@ -10746,6 +11071,7 @@ function renderDebts(){
 
   document.getElementById('debtList').innerHTML = html;
   attachEntryRowHandlers(document.getElementById('debtList'));
+  if(typeof renderDebtSidePanel === 'function') renderDebtSidePanel();
 }
 function renderTransactions(){
   renderTxPresets();
@@ -10802,6 +11128,7 @@ function renderTransactions(){
     document.getElementById('txList').innerHTML = `<div class="empty-state"><div class="big">📋</div>${msg}</div>`;
     document.getElementById('txSelectAllChk').checked = false;
     updateTxSelectedCount();
+    if(typeof renderTxSidePanel === 'function') renderTxSidePanel(list);
     return;
   }
 
@@ -10835,6 +11162,7 @@ function renderTransactions(){
   attachEntryRowHandlers(document.getElementById('txList'));
   document.getElementById('txSelectAllChk').checked = false;
   updateTxSelectedCount();
+  if(typeof renderTxSidePanel === 'function') renderTxSidePanel(list);
 }
 function syncDetailCategoryChips(){
   const box = document.getElementById('detailCategoryChips');
@@ -10864,13 +11192,34 @@ function populateDetailSelectors(){
   subSel.innerHTML = CATEGORY_MAP[detailCategory].map(s=>`<option value="${s}" ${s===detailSubcategory?'selected':''}>${s}</option>`).join('');
 }
 
+// Category Detail is a popup over the current page (phones and desktop),
+// opened from the Home donut (double-tap / press and hold) and Breakdown rows.
+function detailPopupOpen(){ return document.getElementById('detailModalOverlay').classList.contains('active'); }
 function openDetail(category, subcategory){
   detailCategory = category;
   detailSubcategory = subcategory;
   populateDetailSelectors();
+  document.getElementById('detailModalOverlay').classList.add('active');
   renderDetail();
-  switchView('detail');
+  document.getElementById('view-detail').scrollTop = 0;
 }
+function closeDetailPopup(skipRefresh){
+  const ov = document.getElementById('detailModalOverlay');
+  if(!ov.classList.contains('active')) return;
+  ov.classList.remove('active');
+  // The popup's month arrows change the shared month, so redraw the page underneath.
+  if(skipRefresh !== true) renderCurrentView(getActiveViewName());
+}
+document.getElementById('detailModalClose').addEventListener('click', ()=> closeDetailPopup());
+document.getElementById('detailModalOverlay').addEventListener('click', (e)=>{
+  if(e.target.id === 'detailModalOverlay') closeDetailPopup();
+});
+// Escape closes it, unless a dialog opened from it (an entry) is on top
+document.addEventListener('keydown', (e)=>{
+  if(e.key !== 'Escape' || !detailPopupOpen()) return;
+  const others = [...document.querySelectorAll('.modal-overlay.active')].filter(o=> o.id !== 'detailModalOverlay');
+  if(others.length === 0) closeDetailPopup();
+});
 
 function renderDetail(){
   document.getElementById('detailMonthLabel').textContent = fmtMonthYear(homeDate);
@@ -11966,9 +12315,15 @@ const TOUR_STEPS = [
 let tourIndex = 0;
 let tourActive = false;
 
+// On desktop some controls live in the top bar or side panels instead.
+const TOUR_DESK_ALIAS = { '#homeMonthLabel':'#deskMonth', '#txSearchToggle':'#deskSearchWrap', '#debtTypePager':'#debtSidePanel' };
 function tourResolveTarget(step){
   if(!step.target) return null;
   let el = document.querySelector(step.target);
+  if(TOUR_DESK_ALIAS[step.target] && window.matchMedia('(min-width:900px)').matches){
+    const alt = document.querySelector(TOUR_DESK_ALIAS[step.target]);
+    if(alt && alt.getClientRects().length) el = alt;
+  }
   if(!el) return null;
   // Highlighting a whole card reads better than a bare canvas.
   if(el.tagName === 'CANVAS' && el.closest('.card')) el = el.closest('.card');
@@ -12085,6 +12440,208 @@ document.getElementById('tourPromptDismissBtn')?.addEventListener('click', ()=>{
   try{ localStorage.setItem('wealthme_tour_prompt_seen', '1'); }catch(e){}
 });
 document.getElementById('tourBlocker')?.addEventListener('click', e=>{ e.preventDefault(); e.stopPropagation(); });
+
+
+/* =========================================================
+   DESKTOP LAYOUT (v267) - 900px and wider only. Phones are untouched:
+   every element used here is hidden below 900px and every function
+   returns early there.
+   - Top bar: page title, one month picker (shared month), search, theme, bell
+   - Activity / Debts: side panel with totals and what is due (1100px+)
+   - More: settings screen with the menu on the left, section on the right
+   ========================================================= */
+var DESK_MQ = window.matchMedia('(min-width:900px)');
+var DESK_WIDE = window.matchMedia('(min-width:1100px)');
+var DESK_MORE_SUBS = { help:'helpBtn', settings:'settingsBtn', budgets:'budgetsBtn', creditLimits:'creditLimitsBtn',
+                       dataManagement:'dataManagementBtn', appearance:'appearanceBtn', privacy:'privacyBtn' };
+var DESK_TITLES = { home:'Home', transactions:'Activity', debts:'Debts', money:'Money', more:'More',
+                    help:'More', settings:'More', budgets:'More', creditLimits:'More', dataManagement:'More', appearance:'More', privacy:'More' };
+var deskLastMoreSub = 'settings';
+var DESK_READY = false;
+
+function deskEsc(v){
+  return String(v == null ? '' : v).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function deskCurrentView(){
+  const v = document.querySelector('#main > .view.active');
+  return v ? v.id.replace('view-', '') : 'home';
+}
+function deskMonthViews(v){ return v === 'home' || v === 'money'; }
+function deskUpdateMonth(){
+  const lbl = document.getElementById('deskMonthLabel');
+  if(lbl && typeof homeDate !== 'undefined') lbl.textContent = fmtMonthYear(homeDate);
+}
+function deskSearchKind(v){ return v === 'transactions' ? 'tx' : v === 'debts' ? 'debt' : null; }
+function deskSyncSearch(v){
+  const input = document.getElementById('deskSearchInput');
+  if(!input) return;
+  const kind = deskSearchKind(v);
+  input.placeholder = kind === 'tx' ? 'Search activity' : kind === 'debt' ? 'Search debts' : 'Search';
+  input.value = kind ? document.getElementById(kind + 'SearchInput').value : '';
+  document.getElementById('deskSearchClear').style.display = input.value ? 'flex' : 'none';
+  document.getElementById('deskSearchKbd').style.display = (kind || input.value) ? 'none' : '';
+}
+function deskSync(viewName){
+  if(!DESK_READY) return;
+  const v = viewName || deskCurrentView();
+  if(v === 'calendar' || v === 'insights' || v === 'detail') return;   // popups: the page underneath stays as it is
+  const main = document.getElementById('main');
+  const isMore = v === 'more' || !!DESK_MORE_SUBS[v];
+  main.classList.toggle('more-split', DESK_MQ.matches && isMore);
+  if(DESK_MORE_SUBS[v]) deskLastMoreSub = v;
+  document.querySelectorAll('#view-more .more-row').forEach(r=> r.classList.toggle('desk-current', DESK_MORE_SUBS[v] === r.id));
+  // On desktop the More page is a settings screen: open the last section beside the menu.
+  if(DESK_MQ.matches && v === 'more'){
+    const row = document.getElementById(DESK_MORE_SUBS[deskLastMoreSub] || 'settingsBtn');
+    if(row){ row.click(); return; }
+  }
+  document.getElementById('deskTitle').textContent = DESK_TITLES[v] || 'WealthMe';
+  document.getElementById('deskMonth').classList.toggle('off', !deskMonthViews(v));
+  deskUpdateMonth();
+  deskSyncSearch(v);
+}
+
+// Month picker: works on Home and Money (they share one month).
+function deskChangeMonth(delta){
+  const v = deskCurrentView();
+  if(v === 'home') homeChangeMonth(delta);
+  else if(v === 'money') moneyChangeMonth(delta);
+  deskUpdateMonth();
+}
+document.getElementById('deskPrev').addEventListener('click', ()=> deskChangeMonth(-1));
+document.getElementById('deskNext').addEventListener('click', ()=> deskChangeMonth(1));
+// Keep the label right however the month changes (calendar, budgets, insights...).
+(function(){
+  const mo = new MutationObserver(deskUpdateMonth);
+  ['homeMonthLabel','moneyLabel','detailMonthLabel','insightsMonthLabel'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) mo.observe(el, { childList:true, characterData:true, subtree:true });
+  });
+})();
+
+// Search: filters Activity / Debts as you type; on other pages it opens the
+// command palette (pages + entries) with what was typed.
+(function(){
+  const input = document.getElementById('deskSearchInput');
+  const clearBtn = document.getElementById('deskSearchClear');
+  input.addEventListener('input', ()=>{
+    const kind = deskSearchKind(deskCurrentView());
+    if(kind){
+      const target = document.getElementById(kind + 'SearchInput');
+      target.value = input.value;
+      target.dispatchEvent(new Event('input', { bubbles:true }));
+      clearBtn.style.display = input.value ? 'flex' : 'none';
+    } else {
+      const q = input.value;
+      input.value = '';
+      input.blur();
+      openCommandPalette();
+      const ci = document.getElementById('cmdPaletteInput');
+      ci.value = q;
+      renderCmdResults(q);
+    }
+  });
+  input.addEventListener('keydown', (e)=>{
+    if(e.key === 'Escape' && input.value){ e.preventDefault(); clearBtn.click(); }
+  });
+  clearBtn.addEventListener('click', (e)=>{
+    e.preventDefault();
+    input.value = '';
+    input.dispatchEvent(new Event('input', { bubbles:true }));
+    input.focus();
+  });
+})();
+
+// Activity side panel: totals of what the list is showing, and Planned entries due soon.
+function deskDueSoonHtml(maxRows){
+  const today = new Date(); today.setHours(0,0,0,0);
+  const horizon = new Date(today); horizon.setDate(horizon.getDate() + 14);
+  const due = entries.filter(e=> e.status === 'Open' && parseLocalDate(e.date) <= horizon)
+                     .sort((a,b)=> parseLocalDate(a.date) - parseLocalDate(b.date));
+  if(due.length === 0) return `<div class="muted desk-empty">Nothing planned for the next 14 days.</div>`;
+  const rows = due.slice(0, maxRows).map(e=>{
+    const d = parseLocalDate(e.date);
+    const late = d < today;
+    const col = CATEGORY_COLORS[e.category] || 'var(--slate)';
+    return `<button type="button" class="desk-due-row${late ? ' late' : ''}" data-id="${e.id}">
+      <span class="desk-due-dot" style="background:${col};"></span>
+      <span class="desk-due-main"><span class="t">${deskEsc(e.subcategory || e.category)}</span>
+        <span class="d">${late ? 'Past due · ' : ''}${d.toLocaleDateString(undefined,{month:'short', day:'numeric'})}</span></span>
+      <span class="desk-due-amt">${fmtMoney(Number(e.amount))}</span>
+    </button>`;
+  }).join('');
+  const more = due.length > maxRows ? `<button type="button" class="ins-more desk-open-cal">+${due.length - maxRows} more in the calendar</button>` : '';
+  return rows + more;
+}
+function deskWireSide(el){
+  el.querySelectorAll('.desk-due-row').forEach(b=> b.addEventListener('click', ()=> openEntryModal(Number(b.dataset.id))));
+  el.querySelectorAll('.desk-open-cal').forEach(b=> b.addEventListener('click', ()=> openCalendarModal()));
+}
+function renderTxSidePanel(list){
+  const el = document.getElementById('txSidePanel');
+  if(!el || !DESK_WIDE.matches) return;
+  const sum = c => list.filter(e=> e.category === c).reduce((a,e)=> a + Number(e.amount), 0);
+  const planned = list.filter(e=> e.status === 'Open').length;
+  const periodBtn = document.querySelector('#txPeriodSeg button.active');
+  const statusBtn = document.querySelector('#txFilterSeg button.active');
+  const tile = (label, val, cls, tint)=> `<div class="summary-card" style="--t:${tint};"><div class="label">${label}</div><div class="value ${cls}">${fmtMoney(val)}</div></div>`;
+  el.innerHTML = `
+    <div class="card desk-side-card">
+      <div class="card-title"><span>Showing</span><span class="tile-badge tint">${deskEsc(periodBtn ? periodBtn.textContent : '')}${statusBtn ? ' · ' + deskEsc(statusBtn.textContent) : ''}</span></div>
+      <div class="desk-count"><b>${list.length}</b> ${list.length === 1 ? 'entry' : 'entries'}<span class="muted"> · ${planned} planned, ${list.length - planned} actual</span></div>
+      <div class="summary-grid desk-mini-grid">
+        ${tile('Income', sum('Income'), 'pos', '#22A06B')}
+        ${tile('Expenses', sum('Expense'), 'neg', '#E0674A')}
+        ${tile('Investment', sum('Investment'), 'gold', '#D4A24E')}
+        ${tile('Capital', sum('Capital'), '', '#7B8794')}
+      </div>
+    </div>
+    <div class="card desk-side-card">
+      <div class="card-title"><span>Due soon</span><button type="button" class="pill-btn desk-open-cal">Calendar &#8250;</button></div>
+      ${deskDueSoonHtml(6)}
+    </div>`;
+  deskWireSide(el);
+}
+
+// Debts side panel: the outstanding card plus every debt type, click to switch.
+function renderDebtSidePanel(){
+  const el = document.getElementById('debtSidePanel');
+  if(!el || !DESK_WIDE.matches) return;
+  const owed = t => entries.filter(e=> e.category === 'Expense' && e.status === 'Open' && (e.type || 'Other') === t
+                                      && !((e.type || 'Other') === 'Other' && !e.account))
+                           .reduce((a,e)=> a + Number(e.amount), 0);
+  const types = debtTypePages();
+  const total = types.reduce((a,t)=> a + owed(t), 0);
+  const cur = owed(debtTypeFilter);
+  el.innerHTML = `
+    <div class="balance-hero debt-hero">
+      <div class="eyebrow">${deskEsc(debtTypeFilter)}</div>
+      <div class="figure${cur < 0 ? ' negative' : ''}">${fmtMoney(cur)}</div>
+      <div class="underline"></div>
+      <div class="sub">Outstanding</div>
+    </div>
+    <div class="card desk-side-card">
+      <div class="card-title"><span>Debt types</span><span class="tile-badge tint" style="--t:#C3283A;">Planned</span></div>
+      ${types.map(t=>`<button type="button" class="desk-type-row${t === debtTypeFilter ? ' active' : ''}" data-type="${deskEsc(t)}">
+          <span>${deskEsc(t)}</span><b>${fmtMoney(owed(t))}</b></button>`).join('')}
+      <div class="desk-type-total"><span>All debts</span><b>${fmtMoney(total)}</b></div>
+    </div>`;
+  el.querySelectorAll('.desk-type-row').forEach(b=> b.addEventListener('click', ()=>{
+    if(b.dataset.type !== debtTypeFilter){ debtTypeFilter = b.dataset.type; renderDebts(); }
+  }));
+}
+
+// Crossing a breakpoint: refresh the layout and the page so its panels fill in.
+function deskOnBreakpoint(){
+  const v = deskCurrentView();
+  deskSync(v);
+  if(v === 'transactions') renderTransactions();
+  else if(v === 'debts') renderDebts();
+}
+DESK_MQ.addEventListener('change', deskOnBreakpoint);
+DESK_WIDE.addEventListener('change', deskOnBreakpoint);
+DESK_READY = true;
+deskSync(deskCurrentView());
 
 // Show the "new here?" banner once, only for a genuinely first-ever,
 // still-empty install (never shown again after it's dismissed/started,
