@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v302 -->
+<!-- WEALTH.ME — v303 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -2184,20 +2184,24 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
   .bottomnav .navtab .more-caret{display:block;width:16px !important;height:16px !important;margin-left:auto;opacity:0;transition:transform .22s ease,opacity .18s ease;}
   .bottomnav:hover .navtab .more-caret,.bottomnav:focus-within .navtab .more-caret{opacity:.8;}
   .bottomnav.more-open .navtab .more-caret{transform:rotate(180deg);}
-  .bottomnav .sidebar-footer-btn:not(#sidebarCalendarBtn){
+  .bottomnav .sidebar-footer-btn:not(#sidebarCalendarBtn):not(#sidebarHelpBtn):not(#sidebarContactBtn){
     order:10;min-height:0;max-height:0;padding-top:0;padding-bottom:0;margin-top:-3px;
     opacity:0;overflow:hidden;pointer-events:none;visibility:hidden;
     transition:max-height .24s ease,padding .24s ease,margin .24s ease,opacity .18s ease,visibility 0s linear .24s;
   }
-  .bottomnav.more-open .sidebar-footer-btn:not(#sidebarCalendarBtn){
+  .bottomnav.more-open .sidebar-footer-btn:not(#sidebarCalendarBtn):not(#sidebarHelpBtn):not(#sidebarContactBtn){
     min-height:40px;max-height:46px;padding-top:10px;padding-bottom:10px;margin-top:0;
     opacity:1;pointer-events:auto;visibility:visible;
     transition:max-height .24s ease,padding .24s ease,margin .24s ease,opacity .2s ease .06s,visibility 0s;
   }
-  .bottomnav.more-open .sidebar-footer-btn:not(#sidebarCalendarBtn) svg{width:18px;height:18px;opacity:.85;}
-  .bottomnav:hover .sidebar-footer-btn:not(#sidebarCalendarBtn),
-  .bottomnav:focus-within .sidebar-footer-btn:not(#sidebarCalendarBtn){padding-left:26px;font-size:13px;}
+  .bottomnav.more-open .sidebar-footer-btn:not(#sidebarCalendarBtn):not(#sidebarHelpBtn):not(#sidebarContactBtn) svg{width:18px;height:18px;opacity:.85;}
+  .bottomnav:hover .sidebar-footer-btn:not(#sidebarCalendarBtn):not(#sidebarHelpBtn):not(#sidebarContactBtn),
+  .bottomnav:focus-within .sidebar-footer-btn:not(#sidebarCalendarBtn):not(#sidebarHelpBtn):not(#sidebarContactBtn){padding-left:26px;font-size:13px;}
   .bottomnav.more-open .sidebar-footer-btn.side-current{background:rgba(255,255,255,.10);color:#fff;}
+  /* v303: Help and Contact stand on their own under More (and its list) */
+  .bottomnav #sidebarHelpBtn{order:11;}
+  .bottomnav #sidebarContactBtn{order:12;}
+  .bottomnav #sidebarHelpBtn.side-current{background:linear-gradient(135deg,rgba(10,143,232,.34),rgba(124,77,255,.22));color:#fff;box-shadow:inset 3px 0 0 var(--accent-blue);}
   .sidebar-footer-btn{font-weight:600;}
 
   /* ---- page frame: fills the screen beside the rail ---- */
@@ -2961,7 +2965,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         <div id="refreshStatus" class="more-refresh-status"></div>
       </div>
 
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 302</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 303</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -3004,7 +3008,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 302</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 303</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -4230,7 +4234,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 302;
+const APP_VERSION = 303;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -13242,7 +13246,7 @@ function deskSyncSearch(v){
   document.getElementById('deskSearchClear').style.display = input.value ? 'flex' : 'none';
   document.getElementById('deskSearchKbd').style.display = (kind || input.value) ? 'none' : '';
 }
-var DESK_SIDE_SUBS = { help:'sidebarHelpBtn', settings:'sidebarSettingsBtn', budgets:'sidebarBudgetsBtn', creditLimits:'sidebarCreditLimitsBtn',
+var DESK_SIDE_SUBS = { settings:'sidebarSettingsBtn', budgets:'sidebarBudgetsBtn', creditLimits:'sidebarCreditLimitsBtn',
                        dataManagement:'sidebarDataManagementBtn', appearance:'sidebarAppearanceBtn', privacy:'sidebarPrivacyBtn' };
 document.getElementById('sidebarRefreshBtn')?.addEventListener('click', ()=>{
   // Status shows in the More menu beside the section, so open a More section first if needed.
@@ -13253,8 +13257,9 @@ function deskSync(viewName){
   if(!DESK_READY) return;
   const v = viewName || deskCurrentView();
   if(v === 'calendar' || v === 'insights' || v === 'detail') return;   // popups: the page underneath stays as it is
-  document.querySelectorAll('.bottomnav .sidebar-footer-btn').forEach(b=> b.classList.toggle('side-current', DESK_SIDE_SUBS[v] === b.id));
-  if(DESK_MQ.matches && DESK_SIDE_SUBS[v]) toggleSidebarMore(true);   // keep the list open while in a More section
+  document.querySelectorAll('.bottomnav .sidebar-footer-btn').forEach(b=> b.classList.toggle('side-current', DESK_SIDE_SUBS[v] === b.id || (v === 'help' && b.id === 'sidebarHelpBtn')));
+  if(DESK_MQ.matches && DESK_SIDE_SUBS[v]) toggleSidebarMore(true);
+  if(DESK_MQ.matches && v === 'help') document.querySelector('.navtab[data-view="more"]')?.classList.remove('active');   // Help has its own sidebar button   // keep the list open while in a More section
   const main = document.getElementById('main');
   const isMore = v === 'more' || !!DESK_MORE_SUBS[v];
   main.classList.toggle('more-split', DESK_MQ.matches && isMore);
