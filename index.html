@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v268 -->
+<!-- WEALTH.ME — v275 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1726,6 +1726,234 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
 .ins-more{display:block;width:100%;background:none;border:none;color:var(--skin-blue-ink,#0A6FD0);font-weight:700;font-size:12.5px;padding:10px 0 0;cursor:pointer;text-align:center;font-family:'Inter',sans-serif;}
 .tile-badge.watch{background:color-mix(in srgb,#F5A623 20%,transparent);color:#B86E00;margin-left:4px;vertical-align:1px;}
 [data-theme="dark"] .tile-badge.watch{color:#F6B64C;}
+/* More page (v275): app card, tinted icon tiles with a short description, chevrons */
+.balance-hero.more-hero{margin-bottom:14px;padding:16px;text-align:left;}
+.more-hero-row{display:flex;align-items:center;gap:12px;}
+.more-hero-logo{width:46px;height:46px;border-radius:14px;overflow:hidden;flex-shrink:0;box-shadow:0 6px 16px rgba(0,20,50,.35);border:1px solid rgba(255,255,255,.25);}
+.more-hero-logo img{width:100%;height:100%;object-fit:cover;display:block;}
+.more-hero-id{flex:1;min-width:0;}
+.more-hero-name{font-size:19px;font-weight:800;letter-spacing:-.3px;color:#fff;}
+.more-hero-note{display:flex;align-items:center;gap:6px;margin-top:2px;font-size:11.5px;font-weight:600;color:rgba(255,255,255,.8);white-space:nowrap;}
+.more-hero-note .dot{width:7px;height:7px;border-radius:50%;background:#34C98B;box-shadow:0 0 0 3px rgba(52,201,139,.25);}
+.more-hero .more-refresh{flex-shrink:0;background:linear-gradient(135deg,#FFFFFF 0%,#DDEBFA 100%) !important;color:#0B2545 !important;font-weight:800;box-shadow:0 6px 16px rgba(0,20,50,.3);border:none;}
+.more-hero-status{font-size:12px;font-weight:600;color:rgba(255,255,255,.9);text-align:left;margin-top:0;min-height:0;}
+.more-hero-status:not(:empty){margin-top:10px;}
+#view-more .more-card{padding:6px 8px;}
+#view-more .more-row{gap:12px;padding:10px 8px;border-radius:14px;border-bottom:none;transition:background .15s;}
+#view-more .more-row + .more-row{box-shadow:0 -1px 0 color-mix(in srgb,var(--line) 70%,transparent);}
+#view-more .more-row:active{background:color-mix(in srgb,var(--skin-blue) 8%,transparent);}
+#view-more .more-row .acc-ico{width:38px;height:38px;border-radius:12px;}
+#view-more .more-row .acc-ico svg{width:19px;height:19px;color:var(--c);}
+.more-txt{display:flex;flex-direction:column;min-width:0;flex:1;}
+.more-txt > span{font-size:15px;font-weight:700;color:var(--navy);}
+.more-txt small{font-size:11.5px;font-weight:500;color:var(--slate);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+#view-more .more-row svg.more-chev{width:16px;height:16px;color:color-mix(in srgb,var(--slate) 70%,transparent);flex-shrink:0;}
+@media (min-width:900px){
+  main.more-split #view-more .more-card{padding:6px;}
+  main.more-split .more-row{padding:8px 8px !important;}
+  main.more-split .more-row + .more-row{box-shadow:none !important;}
+  main.more-split .more-row .acc-ico{width:34px;height:34px;border-radius:11px;}
+  main.more-split .more-txt small{display:none;}
+  main.more-split .more-txt > span{font-size:14px;}
+  main.more-split .more-row.desk-current .more-txt > span{color:var(--skin-blue-ink);}
+  main.more-split .more-hero{padding:14px;}
+  main.more-split .more-hero-row{flex-wrap:wrap;}
+  main.more-split .more-hero .more-refresh{width:100%;justify-content:center;}
+}
+
+/* Help + Accounts Settings (v274): hero card, one card per topic, icon tiles instead of emojis */
+.acc-ico{
+  --c:#0A8FE8;flex-shrink:0;width:32px;height:32px;border-radius:10px;
+  display:inline-flex;align-items:center;justify-content:center;
+  color:var(--c);background:color-mix(in srgb,var(--c) 14%,var(--card));
+}
+.acc-ico svg{width:17px;height:17px;}
+.acc-ico svg[fill="#3DDC84"]{width:22px;height:22px;}
+.acc-num{font-size:14px;font-weight:800;}
+.acc-title{display:flex;align-items:center;gap:11px;min-width:0;}
+#view-help .accordion{border:none;border-radius:16px;margin-bottom:8px;background:var(--card);box-shadow:0 2px 10px rgba(0,36,72,.06),inset 0 0 0 1px color-mix(in srgb,var(--line) 80%,transparent);}
+[data-theme="dark"] #view-help .accordion{box-shadow:0 2px 10px rgba(0,0,0,.3),inset 0 0 0 1px var(--line);}
+#view-help .accordion-header{padding:10px 12px;font-size:14px;font-weight:700;border-radius:16px;transition:background .15s;}
+#view-help .accordion-header.open{background:color-mix(in srgb,var(--skin-blue) 7%,var(--card));border-radius:16px 16px 0 0;}
+#view-help .accordion-arrow{width:26px;height:26px;padding:5px;box-sizing:border-box;border-radius:50%;background:color-mix(in srgb,var(--slate) 10%,transparent);}
+#view-help .accordion-header.open .accordion-arrow{background:var(--skin-grad-primary);color:#fff;}
+#view-help .accordion-body{border-top:1px solid color-mix(in srgb,var(--line) 70%,transparent);padding:14px 16px;}
+#view-help .accordion-body li{margin-bottom:4px;}
+.help-sec{display:flex;align-items:center;gap:10px;margin:0 0 4px !important;font-size:17px !important;font-weight:800 !important;letter-spacing:-.2px;}
+.help-sec::before{content:"";width:10px;height:10px;border-radius:50%;background:var(--c);box-shadow:0 0 0 4px color-mix(in srgb,var(--c) 20%,transparent);flex-shrink:0;}
+.help-card > p.muted{margin-top:4px;}
+.help-card > .section-title + .accordion{margin-top:12px;}
+.help-note{display:flex;gap:8px;align-items:flex-start;padding:9px 11px;border-radius:12px;background:color-mix(in srgb,#F5A623 12%,var(--card));color:var(--navy) !important;}
+.help-note::before{content:"";flex-shrink:0;width:8px;height:8px;margin-top:4px;border-radius:50%;background:#F5A623;}
+.balance-hero.help-hero{margin-bottom:14px;padding-top:22px;}
+.help-hero-ico{width:52px;height:52px;margin:0 auto 10px;border-radius:16px;display:flex;align-items:center;justify-content:center;color:#fff;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.26);}
+.help-hero .card-title{color:#fff;font-size:22px;font-weight:800;margin:2px 0 6px;}
+.help-hero-text{font-size:13px;line-height:1.5;color:rgba(255,255,255,.85);margin:0 auto 16px;max-width:420px;}
+#startTourBtn{background:linear-gradient(135deg,#FFFFFF 0%,#DDEBFA 100%);color:#0B2545;box-shadow:0 10px 24px rgba(0,20,50,.28);border-radius:14px;display:block;width:min(100%,380px);margin:0 auto;}
+/* Accounts Settings */
+.set-head{display:flex;gap:12px;align-items:flex-start;margin-bottom:12px;}
+.set-head .acc-ico{width:40px;height:40px;border-radius:12px;}
+.set-head .acc-ico svg{width:20px;height:20px;}
+.set-head .section-title{margin:0 0 2px !important;font-size:17px;font-weight:800;letter-spacing:-.2px;}
+.set-head p.muted{margin:0;font-size:12.5px;line-height:1.45;}
+#view-settings .account-chip{
+  --c:var(--skin-blue);gap:5px;padding:5px 5px 5px 12px;border-radius:999px;font-weight:700;
+  color:color-mix(in srgb,var(--c) 75%,var(--navy));
+  background:color-mix(in srgb,var(--c) 11%,var(--card));
+  border:1px solid color-mix(in srgb,var(--c) 26%,transparent);
+}
+#subcategoryManager[data-cat="Income"] .account-chip{--c:#22A06B;}
+#subcategoryManager[data-cat="Expense"] .account-chip{--c:#E0674A;}
+#subcategoryManager[data-cat="Investment"] .account-chip{--c:#C99525;}
+#subcategoryManager[data-cat="Capital"] .account-chip{--c:#5C6B7A;}
+[data-theme="dark"] #view-settings .account-chip{color:color-mix(in srgb,var(--c) 70%,#fff);}
+#view-settings .account-chip button{width:22px;height:22px;background:var(--card);box-shadow:0 1px 3px rgba(0,36,72,.12);}
+#view-settings .account-chip .edit-btn{color:var(--slate);}
+#view-settings .account-chip-list{gap:7px;margin-bottom:10px;}
+#view-settings .account-add-row input{
+  border-radius:12px;height:40px;box-sizing:border-box;font-weight:600;
+  background:color-mix(in srgb,var(--skin-blue) 6%,var(--card));
+  border:1px solid color-mix(in srgb,var(--skin-blue) 20%,var(--line));
+}
+#view-settings .account-add-row input:focus{outline:none;border-color:var(--skin-blue);box-shadow:0 0 0 3px color-mix(in srgb,var(--skin-blue) 18%,transparent);}
+#view-settings .account-add-row button{border-radius:12px;padding:0 18px;height:40px;background:var(--skin-grad-primary);color:#fff;box-shadow:0 6px 14px rgba(10,111,208,.28);}
+#view-settings .segmented{margin:2px 0 4px;}
+#view-settings .debt-type-group{
+  --c:#0A8FE8;padding:12px;border-radius:16px;margin-bottom:10px;
+  background:color-mix(in srgb,var(--c) 5%,var(--card));
+  border:1px solid color-mix(in srgb,var(--c) 16%,var(--line));
+}
+#view-settings .debt-type-group:last-child{margin-bottom:0;}
+#view-settings .debt-type-group[data-type="Credit Card"]{--c:#0A8FE8;}
+#view-settings .debt-type-group[data-type="Financing"]{--c:#7C4DFF;}
+#view-settings .debt-type-group[data-type="Other"]{--c:#5C6B7A;}
+#view-settings .debt-type-group .type-label{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12px;font-weight:800;letter-spacing:.8px;color:color-mix(in srgb,var(--c) 70%,var(--navy));}
+#view-settings .debt-type-group .type-label .tile-badge{--t:var(--c);letter-spacing:0;text-transform:none;}
+#view-settings .debt-type-group .account-chip-list > .muted{font-size:12px;}
+@media (min-width:1100px){
+  main.more-split > #view-help.active{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:20px;align-items:start;}
+  #view-help > .modal-header,#view-help > .help-hero{grid-column:1 / -1;}
+  main.more-split > #view-help.active{
+    grid-template-rows:auto auto auto auto auto 1fr;
+    grid-template-areas:"head head" "hero hero" "tips inst" "tips data" "tips cloud" "tips .";
+  }
+  #view-help > .modal-header{grid-area:head;}
+  #view-help > .help-hero{grid-area:hero;}
+  #view-help > .help-card{margin-bottom:14px;}
+  #view-help > .help-card:has(#acc-first-step){grid-area:tips;}
+  #view-help > .help-card:has(#acc-iphone){grid-area:inst;}
+  #view-help > .help-card:has(#acc-data){grid-area:data;}
+  #view-help > .help-card.sheets-sync-ui{grid-area:cloud;}
+  main.more-split > #view-settings.active{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);column-gap:20px;align-items:start;}
+  #view-settings > .modal-header,#view-settings > .desktop-only-block{grid-column:1 / -1;}
+}
+
+/* Budgets (v272): same look as the other pages — gradient hero, tinted controls, coloured rows */
+.balance-hero.budget-hero{margin-bottom:14px;background:linear-gradient(135deg,#2A1458 0%,#5B34C4 50%,#0A8FE8 100%);box-shadow:0 16px 34px rgba(91,52,196,.30);transition:background .3s;}
+.balance-hero.budget-hero::after{background:radial-gradient(circle,rgba(176,107,255,.40),rgba(176,107,255,0) 68%);}
+.balance-hero.budget-hero.over{background:linear-gradient(135deg,#3A0710 0%,#7A1020 46%,#C3283A 100%);box-shadow:0 16px 34px rgba(122,16,32,.32);}
+.budget-hero .eyebrow{color:#E6DBFF;}
+.budget-hero.over .eyebrow{color:#FFD3D0;}
+.budget-hero #budgetPlannerTotalPct{color:#fff !important;}
+.budget-hero .bh-sub{font-size:12px;font-weight:600;color:rgba(255,255,255,.78);margin-top:-2px;}
+.budget-hero .bh-track{position:relative;overflow:visible;height:10px;margin:14px 6px 0;background:rgba(255,255,255,.22);}
+.budget-hero .bh-track .progress-fill{box-shadow:0 0 12px rgba(255,255,255,.35);}
+.budget-hero.over .bh-track .progress-fill{background:linear-gradient(90deg,#FFD3D0,#fff) !important;}
+.budget-hero .bh-limit{position:absolute;top:-4px;width:3px;height:18px;margin-left:-1.5px;border-radius:2px;background:#fff;box-shadow:0 0 0 2px rgba(0,0,0,.12);}
+.budget-hero .sub{margin-top:14px;font-size:12px;font-weight:700;color:#fff;background:rgba(10,8,40,.26);border-color:rgba(255,255,255,.22);}
+#budgetPlannerIncome,.budget-pct-input{
+  font-family:'Inter',sans-serif !important;font-weight:800 !important;font-size:14px !important;color:var(--navy) !important;
+  background:color-mix(in srgb,var(--skin-blue) 8%,var(--card)) !important;
+  border:1px solid color-mix(in srgb,var(--skin-blue) 22%,var(--line)) !important;border-radius:12px !important;
+  height:36px;box-sizing:border-box;padding:4px 10px !important;
+}
+#budgetPlannerIncome:focus,.budget-pct-input:focus{outline:none;border-color:var(--skin-blue) !important;box-shadow:0 0 0 3px color-mix(in srgb,var(--skin-blue) 18%,transparent);}
+#budgetPlannerIncome{width:104px !important;}
+#budgetPlannerIncomeAutoBtn{background:var(--skin-grad-primary) !important;color:#fff !important;border:none;box-shadow:0 4px 10px rgba(10,111,208,.28);padding:4px 10px !important;}
+.budget-plan-card .section-title,.budget-cat-card .section-title{font-size:17px;font-weight:800;letter-spacing:-.2px;color:var(--navy);text-transform:none;}
+#budgetPlannerLimitWarning{display:flex;align-items:flex-start;gap:8px;}
+#budgetPlannerLimitWarning::before{content:"";flex-shrink:0;width:9px;height:9px;margin-top:3px;border-radius:50%;background:#E0674A;box-shadow:0 0 0 3px rgba(224,103,74,.2);}
+#budgetPlannerLimitWarning[style*="none"]{display:none !important;}
+.budget-view-toggle{background:var(--segmented-bg,var(--slate-light));border-radius:13px;padding:3px;margin-top:12px;}
+.budget-view-btn{padding:8px;border-radius:10px;font-weight:700;transition:background .15s,color .15s;}
+.budget-view-btn.active{background:var(--skin-grad-primary);color:#fff;box-shadow:0 6px 14px rgba(10,111,208,.28);}
+#budgetPlannerList .budget-row{padding:12px 0 !important;border-bottom:1px solid color-mix(in srgb,var(--line) 70%,transparent) !important;}
+.bp-name{display:flex;align-items:center;gap:9px;min-width:0;}
+.bp-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0;}
+#budgetPlannerList .budget-row .muted[style*="margin-top:2px"]{padding-left:19px;}
+#budgetPlannerList .progress-track{height:8px;}
+#budgetPlannerList .budget-row > .muted{padding-left:0;}
+.budget-pct-btn{
+  width:32px;height:32px;border-radius:50%;border:none !important;cursor:pointer;
+  font-size:17px;font-weight:800;line-height:1;display:inline-flex;align-items:center;justify-content:center;
+  color:var(--skin-blue-ink);background:color-mix(in srgb,var(--skin-blue) 12%,var(--card));
+  box-shadow:0 2px 6px rgba(0,36,72,.08);
+}
+.budget-pct-btn[data-dir="1"]{background:var(--skin-grad-primary);color:#fff;box-shadow:0 4px 10px rgba(10,111,208,.28);}
+.budget-pct-btn:active{transform:scale(.92);}
+.budget-pct-input{width:58px !important;height:32px;text-align:center !important;padding:4px 4px !important;-moz-appearance:textfield;appearance:textfield;}
+.budget-pct-input::-webkit-outer-spin-button,.budget-pct-input::-webkit-inner-spin-button,
+#budgetPlannerIncome::-webkit-outer-spin-button,#budgetPlannerIncome::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+#budgetPlannerIncome{-moz-appearance:textfield;appearance:textfield;text-align:center !important;}
+/* v273: expense-limit slider (drag like a volume bar) */
+.bp-limit-val{flex-shrink:0;min-width:58px;text-align:center;padding:5px 10px;border-radius:12px;font-size:15px;font-weight:800;color:#fff;background:var(--skin-grad-primary);box-shadow:0 6px 14px rgba(10,111,208,.28);font-variant-numeric:tabular-nums;}
+.bp-range{
+  --p:90%;
+  -webkit-appearance:none;appearance:none;display:block;width:100%;height:28px;margin:12px 0 2px;background:transparent;cursor:pointer;touch-action:none;
+}
+.bp-range:focus{outline:none;}
+.bp-range::-webkit-slider-runnable-track{height:10px;border-radius:999px;background:linear-gradient(90deg,#0B2545 0%,#0A8FE8 var(--p),color-mix(in srgb,var(--slate) 18%,transparent) var(--p));}
+.bp-range::-moz-range-track{height:10px;border-radius:999px;background:color-mix(in srgb,var(--slate) 18%,transparent);}
+.bp-range::-moz-range-progress{height:10px;border-radius:999px;background:linear-gradient(90deg,#0B2545,#0A8FE8);}
+.bp-range::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:26px;height:26px;margin-top:-8px;border-radius:50%;background:#fff;border:3px solid #0A8FE8;box-shadow:0 4px 12px rgba(10,60,110,.35);transition:transform .12s;}
+.bp-range::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:#fff;border:3px solid #0A8FE8;box-shadow:0 4px 12px rgba(10,60,110,.35);}
+.bp-range:active::-webkit-slider-thumb{transform:scale(1.15);}
+.bp-range:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 5px color-mix(in srgb,#0A8FE8 25%,transparent),0 4px 12px rgba(10,60,110,.35);}
+.bp-range-scale{display:flex;justify-content:space-between;font-size:10.5px;font-weight:600;color:var(--slate);padding:0 2px;}
+.budget-more-btn{border-radius:12px;font-weight:700;color:var(--skin-blue-ink);background:color-mix(in srgb,var(--skin-blue) 9%,var(--card));border:1px dashed color-mix(in srgb,var(--skin-blue) 35%,transparent);}
+#budgetPlannerSaveBtn{border-radius:16px;padding:15px;font-size:15px;box-shadow:0 12px 26px rgba(10,111,208,.28);}
+@media (min-width:1100px){
+  main.more-split > #view-budgets.active{
+    display:grid;column-gap:22px;align-items:start;
+    grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);
+    grid-template-rows:auto auto auto auto auto auto 1fr;
+    grid-template-areas:"head head" "nav nav" "hero cat" "plan cat" "sugg cat" "save cat" ". cat";
+  }
+  #view-budgets > .modal-header{grid-area:head;}
+  #view-budgets > .month-nav{grid-area:nav;}
+  #view-budgets > #budgetHero{grid-area:hero;}
+  #view-budgets > .budget-plan-card{grid-area:plan;}
+  #view-budgets > #budgetPlannerInsightsCard{grid-area:sugg;}
+  #view-budgets > .budget-cat-card{grid-area:cat;}
+  #view-budgets > #budgetPlannerSaveBtn{grid-area:save;}
+}
+
+/* Home Breakdown (v271): category switch centred under the donut */
+.donut-seg-row{display:flex;justify-content:center;margin:12px 0 6px;}
+.donut-seg-row .segmented{display:inline-flex;}
+
+/* Money (v269): Accounts opens from the Net Position card on phones; no section pager */
+.money-pager{display:none !important;}
+#moneyHeroCard{cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform .15s ease,box-shadow .15s ease;}
+#moneyHeroCard:active{transform:scale(.98);}
+#moneyHeroCard:focus-visible{outline:3px solid #FFE08A;outline-offset:3px;}
+.balance-hero > .hero-tap-hint{
+  position:absolute;top:12px;right:12px;z-index:2;
+  display:inline-flex;align-items:center;
+  padding:6px 14px;border-radius:999px;
+  font-size:12px;font-weight:800;letter-spacing:.2px;line-height:1.2;
+  color:#8A5A0C;background:#FFF4D6;
+  box-shadow:0 4px 12px rgba(60,35,0,.35);
+}
+#moneyAccountsModalOverlay .modal-header h3{font-weight:800;letter-spacing:-.3px;}
+#moneyAccountsBody > .card{margin-bottom:0;}
+#moneyAccountsBody > .card > .card-title{display:none;}
+@media (min-width:900px){
+  #moneyHeroCard{cursor:default;}
+  #moneyHeroCard:active{transform:none;}
+  .balance-hero > .hero-tap-hint{display:none;}
+}
+
 /* Category Detail popup (v268): gradient month bar like the calendar popup */
 #detailModalOverlay .modal-header h3{font-weight:800;letter-spacing:-.3px;}
 #detailModalOverlay .month-nav{background:var(--skin-grad-hero);border-radius:18px;padding:8px 10px;margin-bottom:12px;box-shadow:0 12px 26px rgba(10,60,110,.28);}
@@ -2264,13 +2492,16 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
       <div class="card" id="homeBreakdownCard">
         <div class="card-title">
           <span>Breakdown</span>
+        </div>
+        <div class="donut-wrap" id="donutWrap"><canvas id="donutChart" role="img" aria-label="Breakdown donut chart by subcategory"></canvas></div>
+        <!-- Income / Expense / Investment switch: centred under the donut (v271) -->
+        <div class="donut-seg-row">
           <div class="segmented seg-colour" id="donutSeg" style="width:auto;">
             <button data-cat="Income">Income</button>
             <button class="active" data-cat="Expense">Expense</button>
             <button data-cat="Investment">Investment</button>
           </div>
         </div>
-        <div class="donut-wrap" id="donutWrap"><canvas id="donutChart" role="img" aria-label="Breakdown donut chart by subcategory"></canvas></div>
         <div id="donutBreakdownList"></div>
       </div>
     </section>
@@ -2402,7 +2633,9 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
       <div id="moneyPages">
       <div class="money-page active" data-page="overview">
       <!-- Summary cards -->
-      <div class="balance-hero money-hero">
+      <!-- Phones: tap this card to open Investment Accounts (popup). The "View" pill shows it can be tapped. -->
+      <div class="balance-hero money-hero" id="moneyHeroCard">
+        <span class="hero-tap-hint" aria-hidden="true">View</span>
         <div class="eyebrow">Net Position</div>
         <div class="figure" id="moneyCardNetPosition">$0</div>
         <div class="underline"></div>
@@ -2472,50 +2705,67 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
          #donutWrap). -->
     <section class="view" id="view-more">
       <h2 class="card-title" style="margin:10px 0 14px;">More</h2>
-      <div class="card">
-        <ul class="entry-list">
-          <li class="more-row" id="helpBtn">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-            <span>Help</span>
-          </li>
-          <li class="more-row" id="settingsBtn">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-            <span>Accounts Settings</span>
-          </li>
-          <li class="more-row" id="budgetsBtn">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
-            <span>Budgets</span>
-          </li>
-          <li class="more-row" id="creditLimitsBtn">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
-            <span>Credit Limits</span>
-          </li>
-          <li class="more-row" id="dataManagementBtn">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
-            <span>Data Management</span>
-          </li>
-          <li class="more-row" id="appearanceBtn">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-            <span>Appearance</span>
-          </li>
-          <li class="more-row" id="privacyBtn">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-            <span>Privacy</span>
-          </li>
-          <li class="more-row" id="contactBtn">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-            <span>Contact</span>
-          </li>
-        </ul>
-      </div>
-      <div style="text-align:center;margin-top:14px;">
-        <button class="pill-btn" id="refreshAppBtn">
+<!-- v275: app card (logo is copied from the top bar by script) -->
+      <div class="balance-hero more-hero">
+        <div class="more-hero-row">
+          <div class="more-hero-logo" id="moreHeroLogo"></div>
+          <div class="more-hero-id">
+            <div class="more-hero-name">WealthMe</div>
+            <div class="more-hero-note"><span class="dot"></span>Saved on this device</div>
+          </div>
+          <button class="pill-btn more-refresh" id="refreshAppBtn">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
           Refresh App
         </button>
+        </div>
+        <div id="refreshStatus" class="more-hero-status"></div>
       </div>
-      <div id="refreshStatus" class="muted" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 268</p>
+      <div class="card more-card">
+        <ul class="entry-list">
+          <li class="more-row" id="helpBtn">
+            <span class="acc-ico" style="--c:#0A8FE8;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span>
+            <span class="more-txt"><span>Help</span><small>Guided tour, tips and how-tos</small></span>
+            <svg class="more-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+          </li>
+          <li class="more-row" id="settingsBtn">
+            <span class="acc-ico" style="--c:#7C4DFF;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>
+            <span class="more-txt"><span>Accounts Settings</span><small>Subcategories and debt accounts</small></span>
+            <svg class="more-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+          </li>
+          <li class="more-row" id="budgetsBtn">
+            <span class="acc-ico" style="--c:#22A06B;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg></span>
+            <span class="more-txt"><span>Budgets</span><small>Plan and track monthly spending</small></span>
+            <svg class="more-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+          </li>
+          <li class="more-row" id="creditLimitsBtn">
+            <span class="acc-ico" style="--c:#C3283A;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></span>
+            <span class="more-txt"><span>Credit Limits</span><small>Card limits and available credit</small></span>
+            <svg class="more-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+          </li>
+          <li class="more-row" id="dataManagementBtn">
+            <span class="acc-ico" style="--c:#14B8C8;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg></span>
+            <span class="more-txt"><span>Data Management</span><small>Import, export and backups</small></span>
+            <svg class="more-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+          </li>
+          <li class="more-row" id="appearanceBtn">
+            <span class="acc-ico" style="--c:#F5A623;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></span>
+            <span class="more-txt"><span>Appearance</span><small>Light and dark mode</small></span>
+            <svg class="more-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+          </li>
+          <li class="more-row" id="privacyBtn">
+            <span class="acc-ico" style="--c:#5C6B7A;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+            <span class="more-txt"><span>Privacy</span><small>Password lock and license</small></span>
+            <svg class="more-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+          </li>
+          <li class="more-row" id="contactBtn">
+            <span class="acc-ico" style="--c:#EC5BA0;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></span>
+            <span class="more-txt"><span>Contact</span><small>Send us a message</small></span>
+            <svg class="more-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+          </li>
+        </ul>
+      </div>
+
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 275</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -2527,9 +2777,9 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
         </button>
       </div>
 
-      <div class="card">
-      <div class="section-title">Subcategories</div>
-      <p class="muted">Add, rename, or remove subcategories for each category. Renaming or removing updates existing entries.</p>
+      <div class="card set-card">
+      <div class="set-head"><span class="acc-ico" style="--c:#7C4DFF;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></span><div><div class="section-title">Subcategories</div>
+      <p class="muted">Add, rename, or remove subcategories for each category. Renaming or removing updates existing entries.</p></div></div>
       <div class="segmented seg-colour" id="subcatCategorySeg">
         <button class="active" data-cat="Income">Income</button>
         <button data-cat="Expense">Expense</button>
@@ -2538,8 +2788,10 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
       </div>
       <div id="subcategoryManager" style="margin-top:10px;"></div>
 
-      <div class="section-title">Debt Accounts</div>
-      <p class="muted">Add specific accounts under each debt type (e.g. card names) so you can tag entries with them.</p>
+      </div>
+      <div class="card set-card">
+      <div class="set-head"><span class="acc-ico" style="--c:#C3283A;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></span><div><div class="section-title">Debt Accounts</div>
+      <p class="muted">Add specific accounts under each debt type (e.g. card names) so you can tag entries with them.</p></div></div>
       <div id="debtAccountsManager"></div>
       </div>
 
@@ -2556,7 +2808,7 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 268</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 275</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -2655,7 +2907,15 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
         <div class="label" id="budgetsMonthLabel">June 2026</div>
         <button id="budgetsNext">&#8250;</button>
       </div>
-      <div class="card">
+      <!-- v272: total planned as a gradient hero card (same ids, so the script is unchanged) -->
+      <div class="balance-hero budget-hero" id="budgetHero">
+        <div class="eyebrow">Total Planned</div>
+        <div class="figure" id="budgetPlannerTotalPct">0%</div>
+        <div class="bh-sub">of your monthly income</div>
+        <div class="progress-track bh-track"><div class="progress-fill" id="budgetPlannerTotalFill" style="width:0%;"></div><span class="bh-limit" id="budgetHeroLimit" style="left:90%;"></span></div>
+        <div class="sub" id="budgetPlannerTotalAmt">$0 of your income allocated</div>
+      </div>
+      <div class="card budget-plan-card">
         <div class="section-title" style="margin-top:0;">Budget Planning</div>
         <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:16px;">
           <div style="font-size:13px;font-weight:600;">What is your monthly Income?</div>
@@ -2666,28 +2926,24 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
           </div>
         </div>
         <div class="muted" id="budgetPlannerIncomeHint" style="display:none;font-size:11px;margin-top:-10px;margin-bottom:16px;"></div>
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding-top:14px;border-top:1px solid var(--line);">
-          <div style="font-size:13px;font-weight:600;">How much do you want to set as a limit for your expenses?</div>
-          <div style="display:flex;align-items:center;gap:4px;flex-shrink:0;">
-            <input type="number" id="budgetPlannerMaxPct" min="1" max="100" step="1" value="90" aria-label="Maximum expected expenses, percent of income" style="width:56px;text-align:right;border:1px solid var(--line);border-radius:8px;padding:6px;font-size:14px;font-family:'Fraunces',serif;font-weight:600;color:var(--navy);background:var(--card);">
-            <span class="muted" style="font-size:14px;">%</span>
+        <!-- v273: the maximum is set with a slider (drag to adjust, like a volume bar). Same id, so saving is unchanged. -->
+        <div class="bp-limit" style="padding-top:14px;border-top:1px solid var(--line);">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+            <div style="font-size:13px;font-weight:600;">How much do you want to set as a limit for your expenses?</div>
+            <output class="bp-limit-val" id="budgetPlannerMaxPctVal" for="budgetPlannerMaxPct">90%</output>
           </div>
+          <input type="range" id="budgetPlannerMaxPct" class="bp-range" min="1" max="100" step="1" value="90" aria-label="Maximum expected expenses, percent of income">
+          <div class="bp-range-scale" aria-hidden="true"><span>1%</span><span>50%</span><span>100%</span></div>
         </div>
-        <div class="progress-track" style="margin-top:14px;"><div class="progress-fill" id="budgetPlannerTotalFill" style="width:0%;"></div></div>
-        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:8px;">
-          <span style="font-weight:700;font-size:14px;">Total planned</span>
-          <span id="budgetPlannerTotalPct" style="font-family:'Fraunces',serif;font-weight:700;font-size:18px;">0%</span>
-        </div>
-        <div class="muted" id="budgetPlannerTotalAmt" style="font-size:12px;margin-top:4px;">$0 of your income allocated</div>
         <div id="budgetPlannerLimitWarning" style="display:none;font-size:12px;font-weight:600;color:var(--terracotta);margin-top:10px;padding-top:10px;border-top:1px solid var(--line);"></div>
       </div>
 
       <div class="card" id="budgetPlannerInsightsCard" style="display:none;">
-        <div class="card-title" style="margin-bottom:8px;">💡 Suggestions</div>
+        <div class="card-title" style="margin-bottom:8px;justify-content:flex-start;gap:9px;"><span class="ins-dot watch" style="margin-top:0;"></span>Suggestions</div>
         <div id="budgetPlannerInsightsList" class="muted" style="font-size:13px;line-height:1.7;"></div>
       </div>
 
-      <div class="card">
+      <div class="card budget-cat-card">
         <div style="display:flex;justify-content:space-between;align-items:center;">
           <div class="section-title" style="margin:0;">By Category</div>
           <button type="button" class="pill-btn" id="budgetPlannerResetBtn" style="font-size:11.5px;">Reset to Suggested</button>
@@ -2774,21 +3030,22 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
         </button>
       </div>
 
-      <div class="card" style="text-align:center;">
-        <div style="font-size:28px;margin-bottom:6px;">🧭</div>
+      <div class="balance-hero help-hero">
+        <div class="help-hero-ico"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg></div>
+        <div class="eyebrow">New to WealthMe?</div>
         <div class="card-title" style="justify-content:center;">Guided Tour</div>
-        <p class="muted" style="font-size:13px;margin-bottom:14px;">A 2-minute walkthrough of every page and the main things you can do — arrows point at what's being explained, step by step.</p>
+        <p class="help-hero-text">A 2-minute walkthrough of every page and the main things you can do — arrows point at what's being explained, step by step.</p>
         <button class="btn btn-primary btn-block" id="startTourBtn">Take the Guided Tour</button>
       </div>
 
-      <div class="card">
-      <div class="section-title">✨ Tips &amp; Features</div>
+      <div class="card help-card">
+      <div class="section-title help-sec" style="--c:#7C4DFF;">Tips &amp; Features</div>
       <p class="muted" style="font-size:13px;margin-bottom:10px;">A few things that aren't obvious just from looking at the app.</p>
 
       <!-- First step accordion -->
       <div class="accordion">
         <div class="accordion-header" data-target="acc-first-step">
-          <span>🚀 First Steps</span>
+          <span class="acc-title"><span class="acc-ico" style="--c:#22A06B;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg></span>First Steps</span>
           <svg class="accordion-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
         <div class="accordion-body" id="acc-first-step">
@@ -2801,7 +3058,7 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
       <!-- Gestures accordion -->
       <div class="accordion">
         <div class="accordion-header" data-target="acc-gestures">
-          <span>🖐️ Gestures &amp; shortcuts</span>
+          <span class="acc-title"><span class="acc-ico" style="--c:#0A8FE8;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 11V6a2 2 0 0 0-4 0v5"/><path d="M14 10V4a2 2 0 0 0-4 0v6"/><path d="M10 10.5V6a2 2 0 0 0-4 0v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/></svg></span>Gestures &amp; shortcuts</span>
           <svg class="accordion-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
         <div class="accordion-body" id="acc-gestures">
@@ -2811,7 +3068,7 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
             <li><strong>Press and hold a Transaction row</strong> to enter bulk-select mode — checkboxes appear on every row, and the held one gets checked. Tap any row to toggle it while in this mode; deselecting everything exits it automatically.</li>
             <li><strong>Swipe a row left or right</strong> to mark it Actual or delete it, with a 5-second Undo.</li>
             <li><strong>Scan a receipt</strong>: in New Financial Entry tap Scan receipt, then take a photo or choose a PDF from your phone. The store, total, date and a suggested subcategory are filled in for you to check before saving. You can also open an existing expense (for example an upcoming one with an estimated amount) and scan the receipt there: it updates the amount and date and marks it paid, and leaves your category, subcategory and notes alone. Entries on a card or financing stay Planned. Files are read on your device and never uploaded. The first photo scan downloads the reader (about 10 MB) and the first PDF a small PDF reader, so each needs a connection that one time.</li>
-            <li><strong>Swipe a page left or right</strong> to move to the next or previous month on Home, Budgets and Category Detail (touch screens). On Money and Insights, swipe the month bar to change month, and swipe the page to switch sections.</li>
+            <li><strong>Swipe a page left or right</strong> to move to the next or previous month on Home, Budgets and Category Detail (touch screens). On Money and Insights, swipe the month bar to change month; on Insights, swipe the page to switch between Summary and Spending.</li>
             <li><strong>Ctrl/Cmd+K</strong> opens the command palette to search pages and transactions from anywhere.</li>
           </ul>
         </div>
@@ -2820,7 +3077,7 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
       <!-- Budgets & goals accordion -->
       <div class="accordion">
         <div class="accordion-header" data-target="acc-budgets-goals">
-          <span>🎯 Budgets, debt goals &amp; net worth</span>
+          <span class="acc-title"><span class="acc-ico" style="--c:#7C4DFF;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></span>Budgets, debt goals &amp; net worth</span>
           <svg class="accordion-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
         <div class="accordion-body" id="acc-budgets-goals">
@@ -2837,12 +3094,12 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
       <!-- Notifications accordion -->
       <div class="accordion">
         <div class="accordion-header" data-target="acc-notif-help">
-          <span>🔔 Notifications &amp; the bell icon</span>
+          <span class="acc-title"><span class="acc-ico" style="--c:#F5A623;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></span>Notifications &amp; the bell icon</span>
           <svg class="accordion-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
         <div class="accordion-body" id="acc-notif-help">
           <ul style="font-size:13px;line-height:1.8;margin:0;padding-left:18px;">
-            <li>The bell (top right on mobile, top of the sidebar on desktop) shows a red count of Planned entries that are Past Due or Due Today. Tap it for the list, grouped into those two sections — tap any entry to edit it.</li>
+            <li>The bell (top right on mobile and on desktop) shows a red count of Planned entries that are Past Due or Due Today. Tap it for the list, grouped into those two sections — tap any entry to edit it.</li>
             <li>On supported browsers (Chrome/Edge, not Safari or Firefox), the same count also appears as a badge on the app's home-screen/dock icon.</li>
             <li>Once a day, if anything's past due or due today, you'll also get a system notification when you open the app (not true push — it only fires because you opened it).</li>
           </ul>
@@ -2852,7 +3109,7 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
       <!-- Recap & filters accordion -->
       <div class="accordion">
         <div class="accordion-header" data-target="acc-recap-filters">
-          <span>📊 Monthly recap &amp; saved filters</span>
+          <span class="acc-title"><span class="acc-ico" style="--c:#14B8C8;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span>Monthly recap &amp; saved filters</span>
           <svg class="accordion-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
         <div class="accordion-body" id="acc-recap-filters">
@@ -2863,15 +3120,14 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
         </div>
       </div>
 
-      <div class="section-title" style="margin-top:16px;">📱 Install as a Home Screen App</div>
+      </div>
+      <div class="card help-card">
+      <div class="section-title help-sec" style="--c:#0A8FE8;">Install as a Home Screen App</div>
 
       <!-- iPhone accordion -->
       <div class="accordion">
         <div class="accordion-header" data-target="acc-iphone">
-          <span style="display:flex;align-items:center;gap:8px;">
-            <svg width="16" height="16" viewBox="0 0 814 1000" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M788.1 340.9c-5.8 4.5-108.2 62.2-108.2 190.5 0 148.4 130.3 200.9 134.2 202.2-.6 3.2-20.7 71.9-68.7 141.9-42.8 61.6-87.5 123.1-155.5 123.1s-85.5-39.5-164-39.5c-76 0-103.7 40.8-165.9 40.8s-105-57.8-155.5-127.4C46 790.9 0 663.8 0 541.5c0-3.6.1-7.2.2-10.7 0-183.2 116.7-300.9 231.5-300.9 61.7 0 113 40.8 151.7 40.8 37 0 95.3-43.2 164.7-43.2 24.4 0 108.1 2.6 168.6 75.4zm-170.9-121.2c31.1-36.9 53.1-88.1 53.1-139.3 0-7.1-.6-14.3-1.9-20.1-50.6 1.9-110.8 33.7-147.1 75.8-28.5 32.4-55.1 83.6-55.1 135.5 0 7.8 1.3 15.6 1.9 18.1 3.2.6 8.4 1.3 13.6 1.3 45.4 0 102.5-30.4 135.5-71.3z"/></svg>
-            iPhone (Safari)
-          </span>
+          <span class="acc-title"><span class="acc-ico" style="--c:#5C6B7A;"><svg width="16" height="16" viewBox="0 0 814 1000" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M788.1 340.9c-5.8 4.5-108.2 62.2-108.2 190.5 0 148.4 130.3 200.9 134.2 202.2-.6 3.2-20.7 71.9-68.7 141.9-42.8 61.6-87.5 123.1-155.5 123.1s-85.5-39.5-164-39.5c-76 0-103.7 40.8-165.9 40.8s-105-57.8-155.5-127.4C46 790.9 0 663.8 0 541.5c0-3.6.1-7.2.2-10.7 0-183.2 116.7-300.9 231.5-300.9 61.7 0 113 40.8 151.7 40.8 37 0 95.3-43.2 164.7-43.2 24.4 0 108.1 2.6 168.6 75.4zm-170.9-121.2c31.1-36.9 53.1-88.1 53.1-139.3 0-7.1-.6-14.3-1.9-20.1-50.6 1.9-110.8 33.7-147.1 75.8-28.5 32.4-55.1 83.6-55.1 135.5 0 7.8 1.3 15.6 1.9 18.1 3.2.6 8.4 1.3 13.6 1.3 45.4 0 102.5-30.4 135.5-71.3z"/></svg></span>iPhone (Safari)</span>
           <svg class="accordion-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
         <div class="accordion-body" id="acc-iphone">
@@ -2882,17 +3138,14 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
             <li>Tap <strong>"Add"</strong> in the top right corner</li>
             <li>WealthMe will appear on your home screen like a native app, opening fullscreen with no browser bar</li>
           </ol>
-          <p class="muted" style="font-size:12px;margin-top:10px;margin-bottom:0;">⚠️ Must use Safari — Chrome on iPhone does not support Add to Home Screen as a PWA.</p>
+          <p class="muted help-note" style="font-size:12px;margin-top:10px;margin-bottom:0;">Must use Safari — Chrome on iPhone does not support Add to Home Screen as a PWA.</p>
         </div>
       </div>
 
       <!-- Android accordion -->
       <div class="accordion">
         <div class="accordion-header" data-target="acc-android">
-          <span style="display:flex;align-items:center;gap:8px;">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="#3DDC84" xmlns="http://www.w3.org/2000/svg"><path d="M17.523 15.341a.673.673 0 0 1-.67-.671.673.673 0 0 1 .67-.671.673.673 0 0 1 .67.671.673.673 0 0 1-.67.671m-11.046 0a.673.673 0 0 1-.67-.671.673.673 0 0 1 .67-.671.673.673 0 0 1 .67.671.673.673 0 0 1-.67.671m11.4-6.177l1.338-2.317a.278.278 0 0 0-.101-.38.278.278 0 0 0-.38.101l-1.354 2.347a8.334 8.334 0 0 0-3.432-.733 8.334 8.334 0 0 0-3.431.733L9.163 6.568a.278.278 0 0 0-.38-.101.278.278 0 0 0-.101.38l1.338 2.317C7.49 10.338 5.886 12.488 5.886 15h12.228c0-2.512-1.604-4.662-4.237-5.836"/></svg>
-            Android (Chrome)
-          </span>
+          <span class="acc-title"><span class="acc-ico" style="--c:#3DDC84;"><svg width="16" height="16" viewBox="0 0 24 24" fill="#3DDC84" xmlns="http://www.w3.org/2000/svg"><path d="M17.523 15.341a.673.673 0 0 1-.67-.671.673.673 0 0 1 .67-.671.673.673 0 0 1 .67.671.673.673 0 0 1-.67.671m-11.046 0a.673.673 0 0 1-.67-.671.673.673 0 0 1 .67-.671.673.673 0 0 1 .67.671.673.673 0 0 1-.67.671m11.4-6.177l1.338-2.317a.278.278 0 0 0-.101-.38.278.278 0 0 0-.38.101l-1.354 2.347a8.334 8.334 0 0 0-3.432-.733 8.334 8.334 0 0 0-3.431.733L9.163 6.568a.278.278 0 0 0-.38-.101.278.278 0 0 0-.101.38l1.338 2.317C7.49 10.338 5.886 12.488 5.886 15h12.228c0-2.512-1.604-4.662-4.237-5.836"/></svg></span>Android (Chrome)</span>
           <svg class="accordion-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
         <div class="accordion-body" id="acc-android">
@@ -2903,16 +3156,18 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
             <li>Tap <strong>"Add"</strong> to confirm</li>
             <li>WealthMe will appear on your home screen like a native app, opening fullscreen</li>
           </ol>
-          <p class="muted" style="font-size:12px;margin-top:10px;margin-bottom:0;">💡 Tip: If you host the app on GitHub Pages (<strong>diego-veloso.github.io/wealthme</strong>), Chrome will show an automatic install banner at the bottom of the screen.</p>
+          <p class="muted help-note" style="font-size:12px;margin-top:10px;margin-bottom:0;">Tip: If you host the app on GitHub Pages (<strong>diego-veloso.github.io/wealthme</strong>), Chrome will show an automatic install banner at the bottom of the screen.</p>
         </div>
       </div>
 
-      <div class="section-title" style="margin-top:16px;">💾 Keeping Your Data Safe</div>
+      </div>
+      <div class="card help-card">
+      <div class="section-title help-sec" style="--c:#22A06B;">Keeping Your Data Safe</div>
 
       <!-- Data safety accordion -->
       <div class="accordion">
         <div class="accordion-header" data-target="acc-data">
-          <span>Backing up &amp; updating</span>
+          <span class="acc-title"><span class="acc-ico" style="--c:#0A6FD0;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg></span>Backing up &amp; updating</span>
           <svg class="accordion-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
         <div class="accordion-body" id="acc-data">
@@ -2924,7 +3179,7 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
       <!-- CSV import accordion -->
       <div class="accordion">
         <div class="accordion-header" data-target="acc-csv">
-          <span>📊 Importing your data</span>
+          <span class="acc-title"><span class="acc-ico" style="--c:#2FBF8F;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></span>Importing your data</span>
           <svg class="accordion-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
         <div class="accordion-body" id="acc-csv">
@@ -2937,14 +3192,15 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
         </div>
       </div>
 
-      <div class="sheets-sync-ui">
-<div class="section-title" style="margin-top:16px;">☁️ Cloud Sync Setup (Google Sheets)</div>
+      </div>
+      <div class="card help-card sheets-sync-ui">
+<div class="section-title help-sec" style="--c:#14B8C8;">Cloud Sync Setup (Google Sheets)</div>
       <p class="muted" style="font-size:13px;margin-bottom:10px;">Connect to your own free Google Sheet to sync data across devices. Each person sets up their own — data is always private.</p>
 
       <!-- Step 1 -->
       <div class="accordion">
         <div class="accordion-header" data-target="acc-gs1">
-          <span>Step 1 — Create a Google Sheet</span>
+          <span class="acc-title"><span class="acc-ico acc-num" style="--c:#0A8FE8;">1</span>Create a Google Sheet</span>
           <svg class="accordion-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
         <div class="accordion-body" id="acc-gs1">
@@ -2963,7 +3219,7 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
       <!-- Step 2 -->
       <div class="accordion">
         <div class="accordion-header" data-target="acc-gs2">
-          <span>Step 2 — Add the Script</span>
+          <span class="acc-title"><span class="acc-ico acc-num" style="--c:#0A8FE8;">2</span>Add the Script</span>
           <svg class="accordion-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
         <div class="accordion-body" id="acc-gs2">
@@ -2989,7 +3245,7 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
       <!-- Step 3 -->
       <div class="accordion">
         <div class="accordion-header" data-target="acc-gs3">
-          <span>Step 3 — Deploy as Web App</span>
+          <span class="acc-title"><span class="acc-ico acc-num" style="--c:#0A8FE8;">3</span>Deploy as Web App</span>
           <svg class="accordion-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
         <div class="accordion-body" id="acc-gs3">
@@ -3010,7 +3266,7 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
       <!-- Step 4 -->
       <div class="accordion">
         <div class="accordion-header" data-target="acc-gs4">
-          <span>Step 4 — Connect to WealthMe</span>
+          <span class="acc-title"><span class="acc-ico acc-num" style="--c:#0A8FE8;">4</span>Connect to WealthMe</span>
           <svg class="accordion-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
         <div class="accordion-body" id="acc-gs4">
@@ -3026,7 +3282,6 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
       </div>
 </div>
 
-      </div>
     </section>
 
   </main>
@@ -3487,6 +3742,24 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
     </div>
   </div>
 
+  <!-- ===== Investment Accounts Popup (phones: tap the Net Position card on Money) =====
+       The Investment Accounts card is moved in here while the popup is open and moved
+       back when it closes, so desktop keeps showing it beside the Overview. -->
+  <div class="modal-overlay" id="moneyAccountsModalOverlay">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="moneyAccountsTitle">
+      <div class="modal-header">
+        <div style="display:flex;align-items:center;gap:8px;min-width:0;">
+          <h3 id="moneyAccountsTitle">Investment Accounts</h3>
+          <span class="tile-badge tint">All time</span>
+        </div>
+        <button class="icon-btn" id="moneyAccountsClose" aria-label="Close Investment Accounts">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div id="moneyAccountsBody"></div>
+    </div>
+  </div>
+
   <!-- ===== Trends Modal (Money > Investment Accounts > Total) ===== -->
   <div class="modal-overlay" id="moneyTrendsModalOverlay">
     <div class="modal">
@@ -3727,7 +4000,7 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 268;
+const APP_VERSION = 275;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -5989,6 +6262,7 @@ function switchViewCore(viewName){
   if(viewName === 'insights'){ openInsightsPopup(); return; }   // overlay: the page underneath stays put
   closeInsightsPopup();
   closeDetailPopup(true);
+  if(typeof closeMoneyAccountsPopup === 'function' && moneyAccountsPopupOpen()) closeMoneyAccountsPopup();
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   document.querySelectorAll('.navtab').forEach(t=>t.classList.remove('active'));
 
@@ -6672,9 +6946,10 @@ function makeSwipeable(area, opts){
 }
 
 /* Money sections: Overview <-> Accounts (swipe the content). The old Trends section is now a popup (tap Total in Investment Accounts). */
+// v269: Accounts is no longer a swipe section. Phones open it as a popup from the Net Position
+// card; desktop shows it beside the Overview. Only Overview is left here, so the swipe does nothing.
 const MONEY_PAGES = [
-  { id:'overview', label:'Overview' },
-  { id:'accounts', label:'Accounts' }
+  { id:'overview', label:'Overview' }
 ];
 let moneyPage = 'overview';
 function moneyPageIndex(){ return Math.max(0, MONEY_PAGES.findIndex(p => p.id === moneyPage)); }
@@ -6723,6 +6998,45 @@ makeSwipeable(document.getElementById('moneySwipeArea'), {
   onSwipe: (dir)=>{ setMoneyPage(MONEY_PAGES[moneyPageIndex() + dir].id); ensureMoneyHeaderVisible(); }
 });
 renderMoneyPager();
+
+/* Investment Accounts popup (phones): tap the Net Position card */
+const moneyWide = window.matchMedia('(min-width:900px)');
+function moneyAccountsPopupOpen(){ return document.getElementById('moneyAccountsModalOverlay').classList.contains('active'); }
+function openMoneyAccountsPopup(){
+  if(moneyWide.matches) return;   // desktop already shows the accounts beside the Overview
+  const card = document.querySelector('#moneyPages .money-page[data-page="accounts"] > .card');
+  if(card) document.getElementById('moneyAccountsBody').appendChild(card);
+  renderMoneyAllTimeBreakdown();
+  document.getElementById('moneyAccountsModalOverlay').classList.add('active');
+  document.querySelector('#moneyAccountsModalOverlay > .modal').scrollTop = 0;
+}
+function closeMoneyAccountsPopup(){
+  const card = document.querySelector('#moneyAccountsBody > .card');
+  const home = document.querySelector('#moneyPages .money-page[data-page="accounts"]');
+  if(card && home) home.appendChild(card);
+  document.getElementById('moneyAccountsModalOverlay').classList.remove('active');
+}
+(function(){
+  const hero = document.getElementById('moneyHeroCard');
+  const syncA11y = ()=>{
+    if(moneyWide.matches){ hero.removeAttribute('role'); hero.removeAttribute('tabindex'); hero.removeAttribute('aria-label'); }
+    else { hero.setAttribute('role','button'); hero.setAttribute('tabindex','0'); hero.setAttribute('aria-label','Net Position. Tap to see your investment accounts'); }
+  };
+  syncA11y();
+  hero.addEventListener('click', openMoneyAccountsPopup);
+  hero.addEventListener('keydown', (e)=>{ if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); openMoneyAccountsPopup(); } });
+  document.getElementById('moneyAccountsClose').addEventListener('click', closeMoneyAccountsPopup);
+  document.getElementById('moneyAccountsModalOverlay').addEventListener('click', (e)=>{
+    if(e.target.id === 'moneyAccountsModalOverlay') closeMoneyAccountsPopup();
+  });
+  document.addEventListener('keydown', (e)=>{
+    if(e.key !== 'Escape' || !moneyAccountsPopupOpen()) return;
+    const others = [...document.querySelectorAll('.modal-overlay.active')].filter(o=> o.id !== 'moneyAccountsModalOverlay');
+    if(others.length === 0) closeMoneyAccountsPopup();
+  });
+  // Growing to desktop width: put the card back in its column
+  moneyWide.addEventListener('change', ()=>{ syncA11y(); if(moneyWide.matches && moneyAccountsPopupOpen()) closeMoneyAccountsPopup(); });
+})();
 /* Money month: swipe the month bar (left = next month, right = previous) */
 makeSwipeable(document.getElementById('moneyMonthNav'), {
   el: document.getElementById('moneyLabel'),
@@ -8623,6 +8937,7 @@ function renderBudgetsView(){
   incomeHint.style.display = 'block';
   document.getElementById('budgetPlannerIncome').value = income || '';
   document.getElementById('budgetPlannerMaxPct').value = BUDGET_PLANNER_MAX_PCT;
+  budgetLimitSliderPaint(BUDGET_PLANNER_MAX_PCT);
 
   const subs = budgetPlannerSubcats();
   const totalPct = budgetPlannerTotalPct(income);
@@ -8643,7 +8958,7 @@ function renderBudgetsView(){
   // when the plan goes over the maximum.
   const limitWarningEl = document.getElementById('budgetPlannerLimitWarning');
   if(overLimit){
-    limitWarningEl.textContent = `\u26a0\ufe0f Planning ${fmtPlanPct(totalPct)} of income \u2014 over your ${BUDGET_PLANNER_MAX_PCT}% maximum.`;
+    limitWarningEl.textContent = `Planning ${fmtPlanPct(totalPct)} of income \u2014 over your ${BUDGET_PLANNER_MAX_PCT}% maximum.`;
     limitWarningEl.style.display = '';
   } else {
     limitWarningEl.style.display = 'none';
@@ -8651,7 +8966,10 @@ function renderBudgetsView(){
 
   const totalPctEl = document.getElementById('budgetPlannerTotalPct');
   totalPctEl.textContent = fmtPlanPct(totalPct);
-  totalPctEl.style.color = overLimit ? 'var(--terracotta)' : 'var(--navy)';
+  // Hero card turns red over the maximum; the white tick on its bar marks the maximum
+  document.getElementById('budgetHero')?.classList.toggle('over', overLimit);
+  const limitTick = document.getElementById('budgetHeroLimit');
+  if(limitTick) limitTick.style.left = Math.min(100, Math.max(0, BUDGET_PLANNER_MAX_PCT)) + '%';
   const fill = document.getElementById('budgetPlannerTotalFill');
   fill.style.width = Math.min(100, totalPct) + '%';
   fill.style.background = overLimit ? 'var(--terracotta)' : (totalPct >= BUDGET_PLANNER_MAX_PCT*0.85 ? 'var(--gold)' : 'var(--sage)');
@@ -8701,6 +9019,7 @@ function renderBudgetsView(){
   }
 
   container.innerHTML = rowSubs.map(sub=>{
+    const dotColor = PALETTE[Math.max(0, CATEGORY_MAP.Expense.indexOf(sub)) % PALETTE.length];
     const suggested = budgetPlannerSuggested(sub);
     const amount = budgetPlannerAmount(sub, income);
     const pct = budgetPlannerPctOf(amount, sub, income);
@@ -8737,7 +9056,7 @@ function renderBudgetsView(){
       return `
       <div class="${rowCls}" style="${rowStyle}">
         <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:8px;">
-          <span style="font-size:14px;font-weight:600;">${sub}</span>
+          <span class="bp-name" style="font-size:14px;font-weight:600;"><i class="bp-dot" style="background:${dotColor};"></i>${sub}</span>
           <span class="muted" style="font-size:12.5px;white-space:nowrap;">${budgetLabel}</span>
         </div>
         <div class="progress-track" style="margin:0;"><div class="progress-fill" style="width:${trackPct.toFixed(1)}%;background:${barColor};"></div></div>
@@ -8757,7 +9076,7 @@ function renderBudgetsView(){
       <div class="${rowCls}" style="${rowStyle}">
         <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
           <div style="min-width:0;">
-            <div style="font-size:14px;font-weight:600;">${sub}</div>
+            <div class="bp-name" style="font-size:14px;font-weight:600;"><i class="bp-dot" style="background:${dotColor};"></i>${sub}</div>
             ${subLine ? `<div class="muted" style="font-size:11px;margin-top:2px;">${subLine}</div>` : ''}
           </div>
           <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
@@ -9062,6 +9381,11 @@ document.getElementById('sidebarHelpBtn')?.addEventListener('click', ()=>{
 // Sidebar branding: clone the topbar's logo image mark (rather than
 // duplicating the embedded base64 image in the HTML markup) into the
 // sidebar-brand header, ahead of its "Wealth.Me" text.
+(function initMoreHeroLogo(){
+  const box = document.getElementById('moreHeroLogo');
+  const img = document.querySelector('.topbar .logo-mark img');
+  if(box && img) box.appendChild(img.cloneNode(true));
+})();
 (function initSidebarBrand(){
   const brand = document.getElementById('sidebarBrand');
   const mark = document.querySelector('.topbar .logo-mark');
@@ -9382,6 +9706,18 @@ document.getElementById('budgetPlannerIncomeAutoBtn').addEventListener('click', 
   renderBudgetsView();
   showToast(`Income set to ${fmtMonthYear(homeDate)}'s Net Income`);
 });
+// v273: the expense limit is a slider. While dragging, only the % bubble, the slider fill and
+// the tick on the Budgets top card follow the finger; letting go saves it (the 'change' handler below).
+function budgetLimitSliderPaint(v){
+  const n = Math.max(1, Math.min(100, Number(v) || 0));
+  const el = document.getElementById('budgetPlannerMaxPct');
+  if(el) el.style.setProperty('--p', ((n - 1) / 99 * 100) + '%');
+  const out = document.getElementById('budgetPlannerMaxPctVal');
+  if(out) out.textContent = n + '%';
+  const tick = document.getElementById('budgetHeroLimit');
+  if(tick) tick.style.left = n + '%';
+}
+document.getElementById('budgetPlannerMaxPct').addEventListener('input', (e)=> budgetLimitSliderPaint(e.target.value));
 document.getElementById('budgetPlannerMaxPct').addEventListener('change', (e)=>{
   const val = Math.max(1, Math.min(100, Number(e.target.value) || BUDGET_PLANNER_WARN_PCT));
   BUDGET_PLANNER_MAX_PCT = val;
@@ -9435,7 +9771,7 @@ document.getElementById('budgetsNext').addEventListener('click', ()=> budgetsCha
 // Swipe left / right for next / previous month.
 makeSwipeable(document.getElementById('view-budgets'), {
   el: document.getElementById('view-budgets'),
-  ignore: 'canvas',
+  ignore: 'canvas, .bp-range',   // dragging the limit slider must not change the month
   touchOnly: true,
   canGo: ()=> true,
   onSwipe: (dir)=> budgetsChangeMonth(dir)
@@ -9683,8 +10019,8 @@ function renderDebtAccountsManager(){
       </div>
     `).join('');
     html += `
-      <div class="debt-type-group">
-        <div class="type-label">${type}</div>
+      <div class="debt-type-group" data-type="${type}">
+        <div class="type-label"><span>${type}</span><span class="tile-badge tint">${accounts.length} ${accounts.length === 1 ? 'account' : 'accounts'}</span></div>
         <div class="account-chip-list">${chips || `<span class="muted">No accounts added yet.</span>`}</div>
         <div class="account-add-row">
           <input type="text" placeholder="e.g. Tangerine 7177" data-type="${type}" class="new-account-input">
@@ -9839,6 +10175,7 @@ document.getElementById('subcatCategorySeg').querySelectorAll('button').forEach(
 function renderSubcategoryManager(){
   const container = document.getElementById('subcategoryManager');
   const cat = subcatManagerCategory;
+  container.dataset.cat = cat;   // chips are tinted in the category's colour
   const subs = CATEGORY_MAP[cat];
 
   const chips = subs.map(sub=>`
@@ -12302,7 +12639,7 @@ const TOUR_STEPS = [
   { view:'transactions', target:'#txPeriodSeg', title:'Filter by time', text:'Narrow the list to this month, next month, this year, or your own custom date range.' },
   { view:'transactions', target:'#txFilterSeg', title:'Planned vs. Actual', text:'Show everything, just what\u2019s still planned, or just what\u2019s already happened. The sort button beside it flips oldest/newest first.' },
   { view:'debts', target:'#debtTypePager', title:'Track what you owe', text:'Swipe left or right to switch between Credit Cards, Financing, and Other debts, grouped by account \u2014 each shows a payoff-progress bar, and Credit Cards also show their credit limit usage if you\u2019ve set one (More \u2192 Credit Limits).' },
-  { view:'money', moneyPage:'overview', target:'#view-money .summary-grid', title:'Money, at a glance', text:'Swipe the page left or right for Accounts, and swipe the month bar to change month. What you\u2019ve invested, what\u2019s planned, your cumulative total, capital gains/losses, and your overall net position.' },
+  { view:'money', moneyPage:'overview', target:'#view-money .summary-grid', title:'Money, at a glance', text:'Tap the Net Position card to see your investment accounts (on a computer they sit beside it), and swipe the month bar to change month. What you\u2019ve invested, what\u2019s planned, your cumulative total, capital gains/losses, and your overall net position.' },
   { view:'money', moneyPage:'overview', target:'#moneyProgressFill', title:'Plan progress', text:'How much of this month\u2019s planned investing is actually done (Actual) versus still Planned.' },
   { view:'more', target:'#budgetsBtn', title:'Budgets', text:'A beginner-friendly planner: enter your income, get a split per category suggested from your 12-month average, type or nudge the % for each category until it fits, and track actual spend against the plan each month.' },
   { view:'more', target:'#creditLimitsBtn', title:'Credit Limits', text:'Set the total limit on each credit card to see available credit and usage \u2014 shown here and on the Debts page.' },
