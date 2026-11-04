@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v295 -->
+<!-- WEALTH.ME — v296 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1749,6 +1749,18 @@ html.show-saved .topbar{padding-bottom:8px;}
 .debt-acct-head.tone-light .cl-sw-label{color:rgba(11,37,69,.7);}
 .debt-acct-head.tone-light .cl-swatch.on{border-color:#0B2545;}
 
+/* v296: video tutorial button + popup */
+.tut-video-btn{margin-top:10px;display:flex;align-items:center;justify-content:center;gap:10px;width:min(100%,380px);margin-left:auto;margin-right:auto;border-radius:14px;color:#fff;background:rgba(255,255,255,.14);border:1.5px solid rgba(255,255,255,.32);}
+.tut-video-btn span{font-size:11px;font-weight:800;padding:2px 8px;border-radius:999px;background:rgba(255,255,255,.2);}
+.tut-video-btn:active{transform:scale(.98);}
+#tutorialModalOverlay{z-index:160;}
+.tut-modal .modal-header h3{font-weight:800;letter-spacing:-.3px;}
+.tut-frame{position:relative;width:100%;max-width:400px;margin:0 auto;aspect-ratio:9/16;max-height:68vh;border-radius:20px;overflow:hidden;background:#0B2545;box-shadow:0 14px 30px rgba(0,36,72,.25);}
+.tut-frame video{width:100%;height:100%;display:block;background:#0B2545;object-fit:contain;}
+.tut-msg{position:absolute;inset:0;align-items:center;justify-content:center;text-align:center;padding:30px;color:#fff;font-size:14px;font-weight:600;line-height:1.5;background:#0B2545;}
+.tut-note{font-size:12px;text-align:center;margin:12px 0 0;}
+@media (min-width:900px){ #tutorialModalOverlay > .modal{max-width:480px;} .tut-frame{max-height:72vh;} }
+
 /* v295: entry lists everywhere get the same right-hand spacing as Activity:
    amount above the status badge, and lists that sat flush (calendar day / past due / upcoming,
    account detail) are now inside a card with inner padding. */
@@ -2558,6 +2570,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
             <div class="muted" style="font-size:12.5px;">Take a 2-minute guided tour of the app.</div>
           </div>
           <div style="display:flex;gap:6px;flex-shrink:0;">
+            <button class="btn btn-secondary" id="tourPromptVideoBtn" type="button" style="padding:8px 12px;font-size:12.5px;">Video</button>
             <button class="btn btn-primary" id="tourPromptStartBtn" style="padding:8px 14px;font-size:12.5px;">Start</button>
             <button class="icon-btn" id="tourPromptDismissBtn" style="width:32px;height:32px;" aria-label="Dismiss">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -2858,7 +2871,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         <ul class="entry-list">
           <li class="more-row" id="helpBtn">
             <span class="acc-ico" style="--c:#0A8FE8;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span>
-            <span class="more-txt"><span>Help</span><small>Guided tour, tips and how-tos</small></span>
+            <span class="more-txt"><span>Help</span><small>Video tutorial, guided tour and tips</small></span>
             <svg class="more-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
           </li>
           <li class="more-row" id="settingsBtn">
@@ -2910,7 +2923,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         <div id="refreshStatus" class="more-refresh-status"></div>
       </div>
 
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 295</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 296</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -2953,7 +2966,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 295</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 296</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -3187,6 +3200,8 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         <div class="card-title" style="justify-content:center;">Guided Tour</div>
         <p class="help-hero-text">A 2-minute walkthrough of every page and the main things you can do — arrows point at what's being explained, step by step.</p>
         <button class="btn btn-primary btn-block" id="startTourBtn">Take the Guided Tour</button>
+        <!-- v296: video tutorial (tutorial.mp4 next to the app; loaded only when tapped) -->
+        <button class="btn btn-block tut-video-btn" id="watchTutorialBtn" type="button"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg>Watch the video tutorial <span>2 min</span></button>
       </div>
 
       <div class="card help-card">
@@ -4042,6 +4057,21 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
     </div>
   </div>
 
+  <!-- ===== Video tutorial popup (v296) ===== -->
+  <div class="modal-overlay" id="tutorialModalOverlay">
+    <div class="modal tut-modal" role="dialog" aria-modal="true" aria-labelledby="tutorialTitle">
+      <div class="modal-header">
+        <h3 id="tutorialTitle">How to use WealthMe</h3>
+        <button class="icon-btn" id="tutorialClose" aria-label="Close video tutorial"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      </div>
+      <div class="tut-frame">
+        <video id="tutorialVideo" controls playsinline preload="none"></video>
+        <div class="tut-msg" id="tutorialMsg" style="display:none;"></div>
+      </div>
+      <p class="muted tut-note">2-minute walkthrough of every page. Needs an internet connection.</p>
+    </div>
+  </div>
+
   <!-- ===== Insights popup (opens over whichever page you are on) ===== -->
   <div class="insights-popup" id="view-insights" role="dialog" aria-modal="true" aria-label="Insights">
     <div class="insights-sheet" id="insightsSheet">
@@ -4144,7 +4174,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 295;
+const APP_VERSION = 296;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -13266,6 +13296,49 @@ DESK_READY = true;
 deskSync(deskCurrentView());
 updateSavedNote();
 DESK_MQ.addEventListener('change', updateSavedNote);
+
+/* =========================================================
+   VIDEO TUTORIAL (v296). The video is a separate file (TUTORIAL_VIDEO_URL,
+   uploaded next to this HTML file) and is only downloaded when the person
+   taps "Watch the video tutorial" — it never slows down opening the app.
+   ========================================================= */
+const TUTORIAL_VIDEO_URL = 'tutorial.mp4';
+function tutorialShowMsg(text){
+  const m = document.getElementById('tutorialMsg');
+  m.textContent = text; m.style.display = text ? 'flex' : 'none';
+}
+function openTutorialVideo(){
+  const v = document.getElementById('tutorialVideo');
+  document.getElementById('tutorialModalOverlay').classList.add('active');
+  if(navigator.onLine === false && !v.getAttribute('src')){
+    tutorialShowMsg('You\u2019re offline. Connect to the internet to watch the tutorial.');
+    return;
+  }
+  tutorialShowMsg('');
+  if(!v.getAttribute('src')){ v.src = TUTORIAL_VIDEO_URL; }
+  const p = v.play(); if(p && p.catch) p.catch(()=>{});   // autoplay can be refused; the controls stay available
+}
+function closeTutorialVideo(){
+  const v = document.getElementById('tutorialVideo');
+  try{ v.pause(); }catch(e){}
+  document.getElementById('tutorialModalOverlay').classList.remove('active');
+}
+document.getElementById('tutorialVideo').addEventListener('error', ()=>{
+  const v = document.getElementById('tutorialVideo');
+  v.removeAttribute('src'); v.load();
+  tutorialShowMsg(navigator.onLine === false
+    ? 'You\u2019re offline. Connect to the internet to watch the tutorial.'
+    : 'The video couldn\u2019t be loaded right now. Please try again later.');
+});
+document.getElementById('watchTutorialBtn').addEventListener('click', openTutorialVideo);
+document.getElementById('tourPromptVideoBtn')?.addEventListener('click', openTutorialVideo);
+document.getElementById('tutorialClose').addEventListener('click', closeTutorialVideo);
+document.getElementById('tutorialModalOverlay').addEventListener('click', (e)=>{
+  if(e.target.id === 'tutorialModalOverlay') closeTutorialVideo();
+});
+document.addEventListener('keydown', (e)=>{
+  if(e.key === 'Escape' && document.getElementById('tutorialModalOverlay').classList.contains('active')) closeTutorialVideo();
+});
 
 // Show the "new here?" banner once, only for a genuinely first-ever,
 // still-empty install (never shown again after it's dismissed/started,
