@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v301 -->
+<!-- WEALTH.ME — v302 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -634,6 +634,7 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
 .sidebar-brand,
 .sidebar-footer,
 .sidebar-only-tab{display:none;}
+.navtab .more-caret{display:none;}
 /* Generic desktop-only content block (not a nav tab) — e.g. the Settings
    page's Refresh App/version footer, which mobile keeps on the More
    page exclusively. */
@@ -2173,9 +2174,30 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
   .bottomnav .navtab[data-view="money"]{order:5;}
   /* Category Detail (Home donut) and Insights (sparkles button) open as popups, not from the sidebar */
   .bottomnav #sidebarCategoryDetailBtn,.bottomnav #sidebarInsightsBtn{display:none;}
-  .bottomnav .sidebar-footer{order:8;margin-top:auto;padding-top:10px;gap:3px;}
-  .bottomnav .sidebar-footer-btn:not(#sidebarCalendarBtn){display:none;}
-  .bottomnav .navtab.mobile-only-tab{display:flex;order:9;}
+  /* v302: Calendar + More pinned to the bottom; More expands its options underneath */
+  .bottomnav{overflow-x:hidden;overflow-y:auto;scrollbar-width:none;}
+  .bottomnav::-webkit-scrollbar{display:none;}
+  .bottomnav .sidebar-footer{display:contents;}
+  .bottomnav #sidebarCalendarBtn{order:8;margin-top:auto;position:relative;}
+  .bottomnav #sidebarCalendarBtn::before{content:"";position:absolute;left:4px;right:4px;top:-8px;height:1px;background:rgba(255,255,255,.14);}
+  .bottomnav .navtab.mobile-only-tab{display:flex;order:9;align-items:center;}
+  .bottomnav .navtab .more-caret{display:block;width:16px !important;height:16px !important;margin-left:auto;opacity:0;transition:transform .22s ease,opacity .18s ease;}
+  .bottomnav:hover .navtab .more-caret,.bottomnav:focus-within .navtab .more-caret{opacity:.8;}
+  .bottomnav.more-open .navtab .more-caret{transform:rotate(180deg);}
+  .bottomnav .sidebar-footer-btn:not(#sidebarCalendarBtn){
+    order:10;min-height:0;max-height:0;padding-top:0;padding-bottom:0;margin-top:-3px;
+    opacity:0;overflow:hidden;pointer-events:none;visibility:hidden;
+    transition:max-height .24s ease,padding .24s ease,margin .24s ease,opacity .18s ease,visibility 0s linear .24s;
+  }
+  .bottomnav.more-open .sidebar-footer-btn:not(#sidebarCalendarBtn){
+    min-height:40px;max-height:46px;padding-top:10px;padding-bottom:10px;margin-top:0;
+    opacity:1;pointer-events:auto;visibility:visible;
+    transition:max-height .24s ease,padding .24s ease,margin .24s ease,opacity .2s ease .06s,visibility 0s;
+  }
+  .bottomnav.more-open .sidebar-footer-btn:not(#sidebarCalendarBtn) svg{width:18px;height:18px;opacity:.85;}
+  .bottomnav:hover .sidebar-footer-btn:not(#sidebarCalendarBtn),
+  .bottomnav:focus-within .sidebar-footer-btn:not(#sidebarCalendarBtn){padding-left:26px;font-size:13px;}
+  .bottomnav.more-open .sidebar-footer-btn.side-current{background:rgba(255,255,255,.10);color:#fff;}
   .sidebar-footer-btn{font-weight:600;}
 
   /* ---- page frame: fills the screen beside the rail ---- */
@@ -2939,7 +2961,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         <div id="refreshStatus" class="more-refresh-status"></div>
       </div>
 
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 301</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 302</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -2982,7 +3004,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 301</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 302</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -3540,6 +3562,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
     <button class="navtab mobile-only-tab" data-view="more">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
       More
+      <svg class="more-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
     </button>
     <!-- Desktop-only nav tab for Insights, kept in the DOM (reused by
          switchView()'s generic .navtab highlighting) but hidden via
@@ -3589,6 +3612,10 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
       <button class="sidebar-footer-btn" id="sidebarContactBtn" title="Contact">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
         Contact
+      </button>
+      <button class="sidebar-footer-btn" id="sidebarRefreshBtn" title="Refresh App">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+        Refresh App
       </button>
     </div>
   </nav>
@@ -4203,7 +4230,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 301;
+const APP_VERSION = 302;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -6587,8 +6614,21 @@ function renderCurrentView(viewName){
 }
 
 document.querySelectorAll('.navtab[data-view]').forEach(tab=>{
-  tab.addEventListener('click', ()=> switchView(tab.dataset.view));
+  tab.addEventListener('click', ()=>{
+    // v302: on desktop, More expands its options in the sidebar instead of opening a page
+    if(tab.dataset.view === 'more' && window.matchMedia('(min-width:900px)').matches){ toggleSidebarMore(); return; }
+    switchView(tab.dataset.view);
+  });
 });
+function toggleSidebarMore(open){
+  const nav = document.querySelector('.bottomnav');
+  if(!nav) return;
+  const was = nav.classList.contains('more-open');
+  const on = nav.classList.toggle('more-open', open === undefined ? !was : !!open);
+  const tab = document.querySelector('.navtab[data-view="more"]');
+  if(tab) tab.setAttribute('aria-expanded', on ? 'true' : 'false');
+  if(on && !was) setTimeout(()=>{ if(nav.scrollHeight > nav.clientHeight) nav.scrollTo({top:nav.scrollHeight, behavior:'smooth'}); }, 260);
+}
 
 
 // Bell button — mobile topbar and desktop sidebar-brand both wire to the
@@ -13202,10 +13242,19 @@ function deskSyncSearch(v){
   document.getElementById('deskSearchClear').style.display = input.value ? 'flex' : 'none';
   document.getElementById('deskSearchKbd').style.display = (kind || input.value) ? 'none' : '';
 }
+var DESK_SIDE_SUBS = { help:'sidebarHelpBtn', settings:'sidebarSettingsBtn', budgets:'sidebarBudgetsBtn', creditLimits:'sidebarCreditLimitsBtn',
+                       dataManagement:'sidebarDataManagementBtn', appearance:'sidebarAppearanceBtn', privacy:'sidebarPrivacyBtn' };
+document.getElementById('sidebarRefreshBtn')?.addEventListener('click', ()=>{
+  // Status shows in the More menu beside the section, so open a More section first if needed.
+  if(!DESK_MORE_SUBS[deskCurrentView()]) switchView(deskLastMoreSub || 'settings');
+  setTimeout(()=> document.getElementById('refreshAppBtn')?.click(), 60);
+});
 function deskSync(viewName){
   if(!DESK_READY) return;
   const v = viewName || deskCurrentView();
   if(v === 'calendar' || v === 'insights' || v === 'detail') return;   // popups: the page underneath stays as it is
+  document.querySelectorAll('.bottomnav .sidebar-footer-btn').forEach(b=> b.classList.toggle('side-current', DESK_SIDE_SUBS[v] === b.id));
+  if(DESK_MQ.matches && DESK_SIDE_SUBS[v]) toggleSidebarMore(true);   // keep the list open while in a More section
   const main = document.getElementById('main');
   const isMore = v === 'more' || !!DESK_MORE_SUBS[v];
   main.classList.toggle('more-split', DESK_MQ.matches && isMore);
