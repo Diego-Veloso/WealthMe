@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v299 -->
+<!-- WEALTH.ME — v301 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1749,6 +1749,17 @@ html.show-saved .topbar{padding-bottom:8px;}
 .debt-acct-head.tone-light .cl-sw-label{color:rgba(11,37,69,.7);}
 .debt-acct-head.tone-light .cl-swatch.on{border-color:#0B2545;}
 
+/* v300: highlight Export CSV when coming from the backup reminder */
+@keyframes backupPulse{0%,100%{box-shadow:0 0 0 0 rgba(10,143,232,0);}50%{box-shadow:0 0 0 6px rgba(10,143,232,.35);}}
+.backup-pulse{animation:backupPulse 1.2s ease-in-out 3;}
+.backup-card .backup-head{display:flex;align-items:center;gap:12px;}
+.backup-card .backup-ico{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex:none;background:rgba(34,160,90,.14);color:#1f9d55;}
+.backup-card.due .backup-ico{background:rgba(230,150,20,.16);color:#d98a00;}
+.backup-card .backup-title{font-weight:700;font-size:15px;}
+.backup-card .backup-status{font-size:13px;margin-top:2px;color:#1f9d55;font-weight:600;}
+.backup-card.due .backup-status{color:#d98a00;}
+.backup-card .backup-note{margin:12px 0;font-size:13px;}
+
 /* v297: "Watch how" buttons in the Help install sections */
 .install-video-btn{display:inline-flex;align-items:center;gap:8px;margin:0 0 12px;padding:9px 16px;border:none;border-radius:12px;cursor:pointer;font:inherit;font-size:13.5px;font-weight:700;color:#fff;background:var(--skin-grad-primary);box-shadow:0 6px 14px rgba(10,111,208,.28);}
 .install-video-btn span{font-size:11px;font-weight:800;padding:1px 8px;border-radius:999px;background:rgba(255,255,255,.22);}
@@ -2928,7 +2939,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         <div id="refreshStatus" class="more-refresh-status"></div>
       </div>
 
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 299</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 301</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -2971,7 +2982,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 299</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 301</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -3150,6 +3161,18 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         <button class="icon-btn" id="dataManagementModalClose" aria-label="Close Data Management">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
+      </div>
+
+      <div class="card backup-card" id="backupCard">
+        <div class="backup-head">
+          <span class="backup-ico" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg></span>
+          <div class="backup-txt">
+            <div class="backup-title">Backup</div>
+            <div class="backup-status" id="backupStatusText"></div>
+          </div>
+        </div>
+        <p class="muted backup-note">Your entries are saved only on this device. Back them up whenever it suits you — save, share or copy a CSV file.</p>
+        <button class="btn btn-primary" id="backupNowBtn" style="width:100%;">Back up now</button>
       </div>
 
       <div class="card">
@@ -4180,7 +4203,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 299;
+const APP_VERSION = 301;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -4564,6 +4587,7 @@ function saveState(){
   invalidateFinancialsCache();
   invalidateInsightsCache();
   updateNotificationsBadge();
+  try{ renderBackupStatus(); }catch(e){}
   if(document.getElementById('calendarModalOverlay')?.classList.contains('active') && typeof renderCalendar === 'function') renderCalendar();
   // Keep the popup's list live if it's open — e.g. editing or swiping an
   // entry from within it should update/remove that row immediately
@@ -8477,6 +8501,7 @@ document.getElementById('csvTextSaveBtn').addEventListener('click', async ()=>{
   try{
     const file = new File([_pendingCsv.content], _pendingCsv.filename || 'wealthme.csv', {type:'text/csv'});
     await navigator.share({ files:[file], title: _pendingCsv.filename || 'wealthme.csv' });
+    markBackupIfExport();
   }catch(err){
     if(err && err.name === 'AbortError') return; // user cancelled the share sheet
     showToast('Share failed — try Save to Device or copy the text');
@@ -8499,6 +8524,7 @@ document.getElementById('csvTextCopyBtn').addEventListener('click', async ()=>{
       document.body.removeChild(ta);
     }
     showToast('Copied to clipboard');
+    markBackupIfExport();
   }catch(err){
     showToast('Copy failed \u2014 try Save to Device instead');
   }
@@ -8507,6 +8533,7 @@ document.getElementById('csvTextCopyBtn').addEventListener('click', async ()=>{
 document.getElementById('csvTextDownloadBtn').addEventListener('click', ()=>{
   attemptDirectDownload(_pendingCsv.content, _pendingCsv.filename);
   showToast('Download attempted — check your downloads folder');
+  markBackupIfExport();
 });
 
 document.getElementById('downloadTemplateBtn').addEventListener('click', ()=>{
@@ -9497,6 +9524,7 @@ function closeCreditLimitsModal(){
 
 function openDataManagementModal(){
   document.getElementById('syncUrlInput').value = syncUrl || '';
+  if(typeof renderBackupStatus === 'function') renderBackupStatus();
   setSyncStatus('');
   switchView('dataManagement');
 }
@@ -10882,6 +10910,7 @@ function init(){
   populateDetailSelectors();
   switchView('home');
   maybeShowTourPrompt();
+  scheduleBackupReminder();
   updateNotificationsBadge();
   maybeShowDueNotification();
   updateSyncBadge();
@@ -13390,6 +13419,82 @@ document.getElementById('tutorialModalOverlay').addEventListener('click', (e)=>{
 document.addEventListener('keydown', (e)=>{
   if(e.key === 'Escape' && document.getElementById('tutorialModalOverlay').classList.contains('active')) closeTutorialVideo();
 });
+
+/* =========================================================
+   BACKUP REMINDER (v300). Every 30 days a popup shows when the data was
+   last backed up (an Export CSV that was saved, shared or copied) and asks
+   whether to back up now. Yes opens Data Management at Export CSV; No closes it.
+   The 30 days count from the later of: the last backup, the last reminder,
+   or the first time this version ran (so a new install isn't nagged at once).
+   ========================================================= */
+const BACKUP_REMIND_DAYS = 30;
+const LS_LAST_BACKUP = 'wealthme_last_backup';
+const LS_BACKUP_REMINDED = 'wealthme_backup_reminded';
+function lsNum(k){ try{ return Number(localStorage.getItem(k)) || 0; }catch(e){ return 0; } }
+function lsSet(k,v){ try{ localStorage.setItem(k, String(v)); }catch(e){} }
+function markBackupIfExport(){
+  if(_pendingCsv && /wealthme_export/.test(_pendingCsv.filename || '')){ lsSet(LS_LAST_BACKUP, Date.now()); renderBackupStatus(); }
+}
+// Backup card at the top of Data Management: last backup + "Back up now".
+function renderBackupStatus(){
+  const card = document.getElementById('backupCard'), txt = document.getElementById('backupStatusText'), btn = document.getElementById('backupNowBtn');
+  if(!card || !txt || !btn) return;
+  const last = lsNum(LS_LAST_BACKUP);
+  const has = entries && entries.length > 0;
+  const due = has && (!last || (Date.now() - last) >= BACKUP_REMIND_DAYS * 86400000);
+  txt.textContent = has ? backupAgeText() : 'Nothing to back up yet.';
+  card.classList.toggle('due', !!due);
+  btn.disabled = !has;
+  btn.style.opacity = has ? '' : '.5';
+}
+function backupAgeText(){
+  const last = lsNum(LS_LAST_BACKUP);
+  if(!last) return 'You haven\u2019t backed up your data yet.';
+  const d = new Date(last);
+  const days = Math.floor((Date.now() - last) / 86400000);
+  const when = d.toLocaleDateString(undefined, {month:'long', day:'numeric', year:'numeric'});
+  return `Your last backup was on ${when} (${days === 0 ? 'today' : days === 1 ? '1 day ago' : days + ' days ago'}).`;
+}
+function backupReminderDue(){
+  if(!entries || entries.length === 0) return false;            // nothing to back up yet
+  let since = Math.max(lsNum(LS_LAST_BACKUP), lsNum(LS_BACKUP_REMINDED));
+  if(!since){ lsSet(LS_BACKUP_REMINDED, Date.now()); return false; }   // start the 30-day clock
+  return (Date.now() - since) >= BACKUP_REMIND_DAYS * 86400000;
+}
+function showBackupReminder(){
+  lsSet(LS_BACKUP_REMINDED, Date.now());
+  showConfirm('Time to back up your data',
+    backupAgeText() + ' Your entries are saved only on this device. Do you want to back them up now?',
+    openBackupNow,
+    { confirmLabel:'Back up now', cancelLabel:'Not now', confirmClass:'primary' });
+}
+function openBackupNow(){
+  openDataManagementModal();
+  setTimeout(()=>{
+    const b = document.getElementById('exportCsvBtn');
+    if(!b) return;
+    b.scrollIntoView({block:'center', behavior:'smooth'});
+    b.classList.add('backup-pulse');
+    setTimeout(()=> b.classList.remove('backup-pulse'), 3600);
+    if(entries.length) b.click();   // opens the Export CSV options (save / share / copy)
+  }, 250);
+}
+document.getElementById('backupNowBtn').addEventListener('click', ()=>{
+  if(!entries.length) return;
+  document.getElementById('exportCsvBtn').click();   // Export CSV options (save / share / copy)
+});
+// Waits until the app is actually visible (no license / password screen, no other popup, no tour).
+function scheduleBackupReminder(tries){
+  tries = tries || 0;
+  if(tries > 90) return;
+  setTimeout(()=>{
+    const hidden = id => { const el = document.getElementById(id); return !el || getComputedStyle(el).display === 'none'; };
+    const busy = !hidden('licenseScreen') || !hidden('lockScreen') || document.querySelector('.modal-overlay.active')
+                 || (typeof tourActive !== 'undefined' && tourActive) || (typeof insightsPopupOpen === 'function' && insightsPopupOpen());
+    if(busy){ scheduleBackupReminder(tries + 1); return; }
+    if(backupReminderDue()) showBackupReminder();
+  }, tries === 0 ? 1500 : 2000);
+}
 
 // Show the "new here?" banner once, only for a genuinely first-ever,
 // still-empty install (never shown again after it's dismissed/started,
