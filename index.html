@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v280 -->
+<!-- WEALTH.ME — v282 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1738,6 +1738,17 @@ html.show-saved .topbar{padding-bottom:8px;}
   .topbar-saved{margin-top:3px;}
 }
 
+/* v282: Debts type chips with counts */
+#view-debts .debt-type-pager{padding:2px 0 4px;}
+.debt-chips{display:flex;gap:8px;justify-content:flex-start;overflow-x:auto;scrollbar-width:none;padding:4px 8px 16px;margin:-4px -8px -8px;}
+.debt-chips::-webkit-scrollbar{display:none;}
+.debt-chip{flex-shrink:0;display:inline-flex;align-items:center;gap:7px;padding:8px 10px 8px 14px;border-radius:999px;border:none;cursor:pointer;font:inherit;font-size:13px;font-weight:700;color:var(--navy);background:var(--card);box-shadow:0 2px 8px rgba(0,36,72,.08);transition:background .15s,color .15s,box-shadow .15s,transform .12s;}
+[data-theme="dark"] .debt-chip{box-shadow:0 2px 8px rgba(0,0,0,.35);}
+.debt-chip:active{transform:scale(.96);}
+.debt-chip i{font-style:normal;font-size:11px;font-weight:800;min-width:20px;text-align:center;padding:2px 7px;border-radius:999px;box-sizing:border-box;background:color-mix(in srgb,var(--slate) 14%,transparent);color:var(--slate);}
+.debt-chip.active{color:#fff;background:linear-gradient(135deg,#7A1020,#C3283A);box-shadow:0 6px 14px rgba(160,20,40,.3);}
+.debt-chip.active i{background:rgba(255,255,255,.25);color:#fff;}
+
 /* v280: per-card colour on Credit Limits (used on Debts and Accounts Settings too) */
 
 .cl-name{display:inline-flex;align-items:center;gap:8px;min-width:0;}
@@ -1769,7 +1780,7 @@ html.show-saved .topbar{padding-bottom:8px;}
 #debtList .card.debt-acct-card + .card.debt-acct-card{margin-top:0;}
 
 /* v279: Privacy + Appearance in the Accounts Settings style */
-.priv-card .toggle-row,.appear-row{border-radius:14px;height:50px;background:color-mix(in srgb,var(--skin-blue) 5%,var(--card));border:1px solid color-mix(in srgb,var(--skin-blue) 16%,var(--line));padding:11px 14px;}
+.priv-card .toggle-row{border-radius:14px;height:50px;background:color-mix(in srgb,var(--skin-blue) 5%,var(--card));border:1px solid color-mix(in srgb,var(--skin-blue) 16%,var(--line));padding:11px 14px;}
 #view-privacy .toggle-switch input:checked + .toggle-thumb{background:var(--skin-grad-primary);}
 .priv-card .toggle-row:has(+ #passwordFieldsWrap[style*="none"]){margin-bottom:0 !important;}
 #view-privacy .field label{font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--slate);}
@@ -1793,7 +1804,6 @@ html.show-saved .topbar{padding-bottom:8px;}
 .theme-prev.dark b{background:#22272E;}
 .theme-prev em{display:block;height:6px;width:60%;border-radius:3px;margin-top:6px;background:#C9D2DC;}
 .theme-prev.dark em{background:#39424D;}
-#darkModeToggle{box-shadow:inset 0 0 0 1px rgba(0,0,0,.04);}
 @media (min-width:1100px){
   main.more-split > #view-privacy.active{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:20px;align-items:start;}
   #view-privacy > .modal-header{grid-column:1 / -1;}
@@ -2663,13 +2673,9 @@ html.show-saved .topbar{padding-bottom:8px;}
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
       </div>
-      <!-- Debt type: swipe the list (or this bar) left / right to change it; the dots show where you are -->
-      <div class="debt-type-pager" id="debtTypePager" style="touch-action:pan-y;padding:2px 0 6px;">
-        <div class="debt-type-title">
-          <span class="debt-type-arrow" id="debtTypeArrowPrev" aria-hidden="true">&#8249;</span>
-          <div class="debt-type-dots" id="debtTypeDots" role="tablist" aria-label="Debt type"></div>
-          <span class="debt-type-arrow" id="debtTypeArrowNext" aria-hidden="true">&#8250;</span>
-        </div>
+      <!-- v282: debt type chips with the number of planned debts (tap one, or swipe the list) -->
+      <div class="debt-type-pager" id="debtTypePager">
+        <div class="debt-chips" id="debtTypeChips" role="tablist" aria-label="Debt type"></div>
       </div>
       <div id="debtSwipeArea" class="debt-swipe-area">
         <div id="debtList" style="margin-top:14px;"></div>
@@ -2824,14 +2830,14 @@ html.show-saved .topbar{padding-bottom:8px;}
         <ul class="entry-list">
           <li class="more-row more-refresh-row" id="refreshAppBtn" role="button" tabindex="0">
             <span class="acc-ico" style="--c:#0A6FD0;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg></span>
-            <span class="more-txt"><span>Refresh App</span><small id="refreshAppDesc">Check for updates · version 280</small></span>
+            <span class="more-txt"><span>Refresh App</span><small id="refreshAppDesc">Check for updates · version 282</small></span>
             <svg class="more-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
           </li>
         </ul>
         <div id="refreshStatus" class="more-refresh-status"></div>
       </div>
 
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 280</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 282</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -2874,7 +2880,7 @@ html.show-saved .topbar{padding-bottom:8px;}
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 280</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 282</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -2954,19 +2960,13 @@ html.show-saved .topbar{padding-bottom:8px;}
       <div class="card set-card appear-card">
       <div class="set-head"><span class="acc-ico" style="--c:#F5A623;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9z"/></svg></span><div><div class="section-title">Theme</div>
       <p class="muted">Pick how WealthMe looks. The sun / moon button at the top does the same.</p></div></div>
-      <!-- v279: theme preview tiles (same action as the Dark Mode switch below) -->
-      <div class="theme-pick" role="radiogroup" aria-label="Theme">
+      <!-- v279: theme preview tiles (v281: the old Dark Mode switch was removed; these are the only control here) -->
+      <div class="theme-pick" role="radiogroup" aria-label="Theme" style="margin-bottom:0;">
         <button type="button" class="theme-tile" data-theme-pick="light" role="radio" aria-checked="true">
           <span class="theme-prev light"><i></i><b></b><b></b><em></em></span><span class="theme-name">Light</span>
         </button>
         <button type="button" class="theme-tile" data-theme-pick="dark" role="radio" aria-checked="false">
           <span class="theme-prev dark"><i></i><b></b><b></b><em></em></span><span class="theme-name">Dark</span>
-        </button>
-      </div>
-      <div class="csv-row appear-row" style="align-items:center;margin-bottom:0;">
-        <span style="flex:1;font-size:14px;font-weight:600;">Dark Mode</span>
-        <button id="darkModeToggle" role="switch" aria-checked="false" aria-label="Toggle dark mode" style="width:48px;height:28px;border-radius:14px;border:none;cursor:pointer;position:relative;background:var(--slate-light);transition:background .2s ease;">
-          <span id="darkModeToggleKnob" style="position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:var(--card);box-shadow:0 1px 3px rgba(0,0,0,0.3);transition:transform .2s ease;"></span>
         </button>
       </div>
       </div>
@@ -4078,7 +4078,7 @@ html.show-saved .topbar{padding-bottom:8px;}
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 280;
+const APP_VERSION = 282;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -4264,19 +4264,14 @@ function setTheme(theme){
   // changes automatically — re-render whatever chart is currently visible.
   renderCurrentView(getActiveViewName());
 }
+// v281: the old Dark Mode switch was removed; this now only marks the selected Light / Dark tile.
 function updateDarkModeToggleUI(){
-  const toggle = document.getElementById('darkModeToggle');
-  const knob = document.getElementById('darkModeToggleKnob');
-  if(!toggle || !knob) return;
   const isDark = currentTheme === 'dark';
-  toggle.style.background = isDark ? 'var(--skin-grad-primary)' : 'var(--slate-light)';
   document.querySelectorAll('[data-theme-pick]').forEach(b=>{
     const on = b.dataset.themePick === (isDark ? 'dark' : 'light');
     b.classList.toggle('active', on);
     b.setAttribute('aria-checked', on ? 'true' : 'false');
   });
-  knob.style.transform = isDark ? 'translateX(20px)' : 'translateX(0)';
-  toggle.setAttribute('aria-checked', String(isDark));
 }
 // Literal hex values for anything Chart.js needs (canvas rendering can't
 // use CSS variables directly). Mirrors the :root / [data-theme="dark"]
@@ -6930,21 +6925,28 @@ debtSearchClear.addEventListener('click', ()=>{
 /* Debts type: swipe left / right across the list to change type
    (Credit Card <-> Financing <-> Other). */
 function debtTypePages(){ return DEBT_TYPES.slice(); }
+// v282: chips with counts replace the arrows + dots. The count is the number of Planned
+// debts of that type (same rule as the list: "Other" entries without an account are left out).
+function debtTypeCount(t){
+  return entries.filter(e=> e.category === 'Expense' && e.status === 'Open' && (e.type || 'Other') === t
+                         && !((e.type || 'Other') === 'Other' && !e.account)).length;
+}
 function renderDebtTypePager(){
   const pages = debtTypePages();
   const idx = Math.max(0, pages.indexOf(debtTypeFilter));
-  document.getElementById('debtTypeArrowPrev').classList.toggle('off', idx === 0);
-  document.getElementById('debtTypeArrowNext').classList.toggle('off', idx === pages.length - 1);
-  const dots = document.getElementById('debtTypeDots');
-  dots.innerHTML = pages.map((t, i)=>
-    `<button type="button" class="debt-type-dot${i === idx ? ' active' : ''}" data-type="${t}" role="tab" aria-selected="${i === idx}" aria-label="${t}"></button>`
-  ).join('');
-  dots.querySelectorAll('.debt-type-dot').forEach(dot=>{
-    dot.addEventListener('click', ()=>{
-      const target = pages.indexOf(dot.dataset.type);
-      if(target !== idx) switchDebtType(dot.dataset.type, target > idx ? 1 : -1);
+  const box = document.getElementById('debtTypeChips');
+  box.innerHTML = pages.map((t, i)=>{
+    const n = debtTypeCount(t);
+    return `<button type="button" class="debt-chip${i === idx ? ' active' : ''}" data-type="${t}" role="tab" aria-selected="${i === idx}" aria-label="${t}, ${n} planned">${t}<i>${n}</i></button>`;
+  }).join('');
+  box.querySelectorAll('.debt-chip').forEach(chip=>{
+    chip.addEventListener('click', ()=>{
+      const target = pages.indexOf(chip.dataset.type);
+      if(target !== idx) switchDebtType(chip.dataset.type, target > idx ? 1 : -1);
     });
   });
+  const act = box.querySelector('.debt-chip.active');
+  if(act && box.scrollWidth > box.clientWidth) act.scrollIntoView({block:'nearest', inline:'nearest'});
 }
 // dir: 1 = moving to a later type (the new list slides in from the right), -1 = earlier.
 function switchDebtType(type, dir){
@@ -6963,7 +6965,7 @@ function debtSwipeOptions(){
   };
 }
 makeSwipeable(document.getElementById('debtSwipeArea'), debtSwipeOptions());
-makeSwipeable(document.getElementById('debtTypePager'), debtSwipeOptions());
+// v282: the chip row is tapped (and scrolls sideways if it ever overflows), so it is no longer a swipe area.
 
 /* Money month navigation */
 function moneyChangeMonth(delta){
@@ -10638,10 +10640,6 @@ document.querySelectorAll('[data-theme-pick]').forEach(b=> b.addEventListener('c
   if(currentTheme !== b.dataset.themePick){ setTheme(b.dataset.themePick); }
   updateDarkModeToggleUI();
 }));
-document.getElementById('darkModeToggle').addEventListener('click', ()=>{
-  setTheme(currentTheme === 'dark' ? 'light' : 'dark');
-  updateDarkModeToggleUI();
-});
 
 // Shared by both Refresh App buttons — the mobile one on the More page
 // and the desktop one at the bottom of Settings — each passes its own
@@ -12804,7 +12802,7 @@ const TOUR_STEPS = [
   { view:'transactions', target:'#txSearchToggle', title:'Find any transaction', text:'Tap the magnifier, then search by category, subcategory, notes, or account \u2014 this list covers every entry you\u2019ve ever made.' },
   { view:'transactions', target:'#txPeriodSeg', title:'Filter by time', text:'Narrow the list to this month, next month, this year, or your own custom date range.' },
   { view:'transactions', target:'#txFilterSeg', title:'Planned vs. Actual', text:'Show everything, just what\u2019s still planned, or just what\u2019s already happened. The sort button beside it flips oldest/newest first.' },
-  { view:'debts', target:'#debtTypePager', title:'Track what you owe', text:'Swipe left or right to switch between Credit Cards, Financing, and Other debts, grouped by account \u2014 each shows a payoff-progress bar, and Credit Cards also show their credit limit usage if you\u2019ve set one (More \u2192 Credit Limits).' },
+  { view:'debts', target:'#debtTypePager', title:'Track what you owe', text:'Tap a chip (or swipe the list) to switch between Credit Cards, Financing, and Other debts \u2014 the number shows how many are planned \u2014 grouped by account \u2014 each shows a payoff-progress bar, and Credit Cards also show their credit limit usage if you\u2019ve set one (More \u2192 Credit Limits).' },
   { view:'money', moneyPage:'overview', target:'#view-money .summary-grid', title:'Money, at a glance', text:'Tap the Net Position card to see your investment accounts (on a computer they sit beside it), and swipe the month bar to change month. What you\u2019ve invested, what\u2019s planned, your cumulative total, capital gains/losses, and your overall net position.' },
   { view:'money', moneyPage:'overview', target:'#moneyProgressFill', title:'Plan progress', text:'How much of this month\u2019s planned investing is actually done (Actual) versus still Planned.' },
   { view:'more', target:'#budgetsBtn', title:'Budgets', text:'A beginner-friendly planner: enter your income, get a split per category suggested from your 12-month average, type or nudge the % for each category until it fits, and track actual spend against the plan each month.' },
