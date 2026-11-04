@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v292 -->
+<!-- WEALTH.ME — v293 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1749,6 +1749,18 @@ html.show-saved .topbar{padding-bottom:8px;}
 .debt-acct-head.tone-light .cl-sw-label{color:rgba(11,37,69,.7);}
 .debt-acct-head.tone-light .cl-swatch.on{border-color:#0B2545;}
 
+/* v293: Insights section tabs (underline style) */
+.ins-tabs{display:flex;gap:26px;margin:0 2px 12px;padding:0 4px;border-bottom:2px solid color-mix(in srgb,var(--slate) 22%,transparent);}
+.ins-tab{position:relative;display:inline-flex;align-items:center;gap:7px;border:none;background:transparent;cursor:pointer;font:inherit;font-size:14.5px;font-weight:700;color:var(--slate);padding:6px 0 9px;}
+.ins-tab-dot{width:8px;height:8px;border-radius:50%;background:#0A8FE8;opacity:.55;}
+.ins-tab[data-page="spending"] .ins-tab-dot{background:#E0674A;}
+.ins-tab.active{color:var(--skin-blue-ink);}
+.ins-tab[data-page="spending"].active{color:#C2412A;}
+[data-theme="dark"] .ins-tab[data-page="spending"].active{color:#FF9A85;}
+.ins-tab.active .ins-tab-dot{opacity:1;box-shadow:0 0 0 3px color-mix(in srgb,currentColor 20%,transparent);}
+.ins-tab.active::after{content:"";position:absolute;left:0;right:0;bottom:-2px;height:3px;border-radius:3px;background:linear-gradient(90deg,#0B2545,#0A8FE8);}
+.ins-tab[data-page="spending"].active::after{background:linear-gradient(90deg,#7A1020,#E0674A);}
+
 /* v284: light card colours + very light "Unassigned" heading on Debts */
 
 .cl-sw-label{font-size:10.5px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:rgba(255,255,255,.85);margin:0 0 6px;}
@@ -2877,7 +2889,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         <div id="refreshStatus" class="more-refresh-status"></div>
       </div>
 
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 292</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 293</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -2920,7 +2932,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 292</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 293</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -4024,15 +4036,8 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         <div class="label" id="insightsMonthLabel">June 2026</div>
         <button id="insightsNext">&#8250;</button>
       </div>
-      <!-- Swipe the report left / right to change section (dots show where you are) -->
-      <div class="debt-type-pager insights-pager" id="insightsPager" style="margin-top:0;margin-bottom:12px;display:none;">
-        <div class="debt-type-title">
-          <span class="debt-type-arrow" id="insightsArrowPrev" aria-hidden="true">&#8249;</span>
-          <span id="insightsPageTitle">Summary</span>
-          <span class="debt-type-arrow" id="insightsArrowNext" aria-hidden="true">&#8250;</span>
-        </div>
-        <div class="debt-type-dots" id="insightsDots" role="tablist" aria-label="Insights section"></div>
-      </div>
+      <!-- v293: section tabs (underline style); swiping the report still changes section -->
+      <div class="insights-pager ins-tabs" id="insightsPager" role="tablist" aria-label="Insights section" style="display:none;"></div>
       <div id="insightsSwipeArea" class="insights-swipe-area">
         <div id="insightsContainer"></div>
       </div>
@@ -4118,7 +4123,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 292;
+const APP_VERSION = 293;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -6592,14 +6597,10 @@ function renderInsightsPager(){
   const pager = document.getElementById('insightsPager');
   pager.style.display = insightsPagerActive ? '' : 'none';
   const idx = insightsPageIndex();
-  document.getElementById('insightsPageTitle').textContent = INSIGHTS_PAGES[idx].label;
-  document.getElementById('insightsArrowPrev').classList.toggle('off', idx === 0);
-  document.getElementById('insightsArrowNext').classList.toggle('off', idx === INSIGHTS_PAGES.length - 1);
-  const dots = document.getElementById('insightsDots');
-  dots.innerHTML = INSIGHTS_PAGES.map((p, i)=>
-    `<button type="button" class="debt-type-dot${i === idx ? ' active' : ''}" data-page="${p.id}" role="tab" aria-selected="${i === idx}" aria-label="${p.label}"></button>`
+  pager.innerHTML = INSIGHTS_PAGES.map((p, i)=>
+    `<button type="button" class="ins-tab${i === idx ? ' active' : ''}" data-page="${p.id}" role="tab" aria-selected="${i === idx}"><i class="ins-tab-dot"></i>${p.label}</button>`
   ).join('');
-  dots.querySelectorAll('.debt-type-dot').forEach(dot=>{
+  pager.querySelectorAll('.ins-tab').forEach(dot=>{
     dot.addEventListener('click', ()=>{
       const target = INSIGHTS_PAGES.findIndex(p => p.id === dot.dataset.page);
       if(target !== insightsPageIndex()) goToInsightsPage(dot.dataset.page, target > insightsPageIndex() ? 1 : -1);
