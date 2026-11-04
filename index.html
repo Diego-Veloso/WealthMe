@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v284 -->
+<!-- WEALTH.ME — v285 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1756,7 +1756,6 @@ html.show-saved .topbar{padding-bottom:8px;}
 .budget-row.tone-light .cl-swatches{border-top-color:rgba(11,37,69,.14);}
 .budget-row.tone-light .cl-sw-label{color:rgba(11,37,69,.7);}
 .budget-row.tone-light .cl-swatch.on{border-color:#0B2545;}
-.debt-acct-head.dbt-gx.tone-light{background:linear-gradient(135deg,#F7F9FB 0%,#EEF2F6 55%,#E3E8EE 100%);}
 .debt-acct-head.tone-light{color:#0B2545;}
 .debt-acct-head.tone-light::before{background:radial-gradient(circle,rgba(255,255,255,.6),rgba(255,255,255,0) 68%);}
 .debt-acct-head.tone-light .muted{color:rgba(11,37,69,.7) !important;}
@@ -2851,14 +2850,14 @@ html.show-saved .topbar{padding-bottom:8px;}
         <ul class="entry-list">
           <li class="more-row more-refresh-row" id="refreshAppBtn" role="button" tabindex="0">
             <span class="acc-ico" style="--c:#0A6FD0;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg></span>
-            <span class="more-txt"><span>Refresh App</span><small id="refreshAppDesc">Check for updates · version 284</small></span>
+            <span class="more-txt"><span>Refresh App</span><small id="refreshAppDesc">Check for updates · version 285</small></span>
             <svg class="more-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
           </li>
         </ul>
         <div id="refreshStatus" class="more-refresh-status"></div>
       </div>
 
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 284</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 285</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -2901,7 +2900,7 @@ html.show-saved .topbar{padding-bottom:8px;}
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 284</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 285</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -4099,7 +4098,7 @@ html.show-saved .topbar{padding-bottom:8px;}
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 284;
+const APP_VERSION = 285;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -4187,16 +4186,48 @@ const ACCOUNT_TONES = [
   { name:'Rose',     grad:'linear-gradient(135deg,#FFE4EE 0%,#FBC7DA 55%,#F4A3C2 100%)', glow:'rgba(236,91,160,.18)', dot:'#F4A3C2', light:true },
   { name:'Lemon',    grad:'linear-gradient(135deg,#FFF6D6 0%,#FBE7A6 55%,#F5D574 100%)', glow:'rgba(212,162,78,.20)', dot:'#F5D574', light:true },
   { name:'Aqua',     grad:'linear-gradient(135deg,#DDF8FA 0%,#B4ECF1 55%,#84DCE5 100%)', glow:'rgba(20,184,200,.18)', dot:'#84DCE5', light:true },
-  { name:'Cloud',    grad:'linear-gradient(135deg,#F4F6F9 0%,#E3E8EE 55%,#CBD3DC 100%)', glow:'rgba(30,40,55,.12)',   dot:'#CBD3DC', light:true }
+  { name:'Cloud',    grad:'linear-gradient(135deg,#F4F6F9 0%,#E3E8EE 55%,#CBD3DC 100%)', glow:'rgba(30,40,55,.12)',   dot:'#CBD3DC', light:true },
+  { name:'Blush',    grad:'linear-gradient(135deg,#FFE3E6 0%,#FBC3CA 55%,#F49AA6 100%)', glow:'rgba(195,40,58,.18)',  dot:'#F49AA6', light:true }
 ];
+/* v285: account colours follow the theme. Each colour is a hue with a light shade (light theme)
+   and a dark shade (dark theme). ACCOUNT_COLORS stores the hue index (0-8, same numbers as the
+   bold tones); older saved light-tone numbers (9-16) are mapped back to their hue. */
+const ACCOUNT_HUES = [
+  { name:'Blue',     dark:0, light:9  },
+  { name:'Violet',   dark:1, light:10 },
+  { name:'Green',    dark:2, light:11 },
+  { name:'Orange',   dark:3, light:12 },
+  { name:'Red',      dark:4, light:17 },
+  { name:'Teal',     dark:5, light:15 },
+  { name:'Pink',     dark:6, light:13 },
+  { name:'Yellow',   dark:7, light:14 },
+  { name:'Graphite', dark:8, light:16 }
+];
+const HUE_UNASSIGNED = 7;                          // Unassigned accounts are yellow
+const HUE_DEFAULT_ORDER = [0, 1, 2, 3, 6, 7, 5, 8]; // Financing / Other defaults by position
+function hueOfTone(t){
+  const h = ACCOUNT_HUES.findIndex(x=> x.dark === t || x.light === t);
+  return h >= 0 ? h : -1;
+}
+function hueShade(h){
+  const x = ACCOUNT_HUES[h] || ACCOUNT_HUES[0];
+  return currentTheme === 'dark' ? x.dark : x.light;
+}
 // Colour index for an account: the one picked on Credit Limits, else the default for its position.
-function accountToneIndex(type, account){
+// Hue of an account: the one picked on Credit Limits, else the default for its position.
+function accountHue(type, account){
   if(type === 'Credit Card'){
     const picked = Number(ACCOUNT_COLORS[account]);
-    if(Number.isInteger(picked) && picked >= 0 && picked < ACCOUNT_TONES.length) return picked;
+    if(Number.isInteger(picked) && picked >= 0){ const h = hueOfTone(picked); if(h >= 0) return h; }
   }
   const i = (DEBT_ACCOUNTS[type] || []).indexOf(account);
-  return i >= 0 ? i % 4 : -1;
+  if(i < 0) return -1;
+  return type === 'Credit Card' ? (i % 4) : HUE_DEFAULT_ORDER[i % HUE_DEFAULT_ORDER.length];
+}
+// Tone (shade) to draw: light shade in the light theme, dark shade in the dark theme.
+function accountToneIndex(type, account){
+  const h = accountHue(type, account);
+  return h >= 0 ? hueShade(h) : -1;
 }
 
 /* ---------- Budget Planner (beginner income-% tool, feeds BUDGETS) ----------
@@ -4293,6 +4324,10 @@ function setTheme(theme){
   // Chart.js draws to a canvas bitmap, so it doesn't pick up CSS variable
   // changes automatically — re-render whatever chart is currently visible.
   renderCurrentView(getActiveViewName());
+  // v285: account colours change shade with the theme
+  const av = getActiveViewName();
+  if(av === 'creditLimits' && typeof renderCreditLimitsView === 'function') renderCreditLimitsView();
+  if(av === 'settings' && typeof renderDebtAccountsManager === 'function') renderDebtAccountsManager();
 }
 // v281: the old Dark Mode switch was removed; this now only marks the selected Light / Dark tile.
 function updateDarkModeToggleUI(){
@@ -9329,9 +9364,11 @@ function renderCreditLimitsView(){
     const tone = ACCOUNT_TONES[accountToneIndex('Credit Card', account)] || ACCOUNT_TONES[0];
     const toneIdx = accountToneIndex('Credit Card', account);
     const open = CL_COLOR_OPEN === account;
-    const sw = (t, i)=>`<button type="button" class="cl-swatch${t.light ? ' lt' : ''}${i === toneIdx ? ' on' : ''}" data-account="${account}" data-tone="${i}" style="background:${t.grad};" aria-label="${t.name}" aria-pressed="${i === toneIdx}"></button>`;
-    const swatches = `<div class="cl-sw-label">Bold</div><div class="cl-sw-row">${ACCOUNT_TONES.map((t, i)=> t.light ? '' : sw(t, i)).join('')}</div>`
-                   + `<div class="cl-sw-label">Light</div><div class="cl-sw-row">${ACCOUNT_TONES.map((t, i)=> t.light ? sw(t, i) : '').join('')}</div>`;
+    const curHue = accountHue('Credit Card', account);
+    const swatches = `<div class="cl-sw-label">Colour (shade follows light / dark mode)</div><div class="cl-sw-row">${ACCOUNT_HUES.map((h, i)=>{
+      const t = ACCOUNT_TONES[hueShade(i)];
+      return `<button type="button" class="cl-swatch${t.light ? ' lt' : ''}${i === curHue ? ' on' : ''}" data-account="${account}" data-tone="${i}" style="background:${t.grad};" aria-label="${h.name}" aria-pressed="${i === curHue}"></button>`;
+    }).join('')}</div>`;
 
     let progressHtml = '';
     if(stats.limit > 0){
@@ -11567,9 +11604,10 @@ function renderDebts(){
         }
 
         // v279: each account is its own card; the heading uses that account's Credit Limits card colour
-        const toneI = accountToneIndex(type, key);
-        const tone = toneI >= 0 ? (ACCOUNT_TONES[toneI].light ? 'tone-light' : '') : 'dbt-gx tone-light';   // v284: Unassigned is very light
-        const toneStyle = toneI >= 0 ? `style="background:${ACCOUNT_TONES[toneI].grad};"` : '';
+        // v285: Unassigned is yellow; every shade follows the theme
+        const toneI = accountToneIndex(type, key) >= 0 ? accountToneIndex(type, key) : hueShade(HUE_UNASSIGNED);
+        const tone = ACCOUNT_TONES[toneI].light ? 'tone-light' : '';
+        const toneStyle = `style="background:${ACCOUNT_TONES[toneI].grad};"`;
         return `
           <div class="card debt-acct-card">
             <div class="debt-acct-head ${tone}" ${toneStyle}>
@@ -11587,7 +11625,7 @@ function renderDebts(){
       const typeTotal = rows.reduce((a,e)=>a+Number(e.amount),0);
       html += `
       <div class="card debt-acct-card">
-        <div class="debt-acct-head dbt-g0">
+        <div class="debt-acct-head${ACCOUNT_TONES[hueShade(0)].light ? ' tone-light' : ''}" style="background:${ACCOUNT_TONES[hueShade(0)].grad};">
           <div class="dah-row"><span class="dah-name">${type}</span><span class="dah-amt">${fmtMoney(typeTotal)}</span></div>
         </div>
         <ul class="entry-list">${rows.map(e=>renderEntryRow(e)).join('')}</ul>
