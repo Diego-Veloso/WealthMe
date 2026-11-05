@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v305 -->
+<!-- WEALTH.ME — v306 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -857,6 +857,9 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
 }
 .field textarea{resize:vertical;min-height:60px;}
 .two-col{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+/* v306: Investment sign hint under the amount */
+.two-col > .amt-hint{grid-column:1 / -1;margin:-6px 0 10px;font-size:12px;line-height:1.4;font-weight:600;color:#9A6B12;}
+[data-theme="dark"] .two-col > .amt-hint{color:#F0BC45;}
 
 /* ===== Progress bar ===== */
 .progress-track{
@@ -2969,7 +2972,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         <div id="refreshStatus" class="more-refresh-status"></div>
       </div>
 
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 305</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 306</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -3012,7 +3015,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 305</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 306</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -3818,6 +3821,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
             </label>
           </div>
         </div>
+        <p class="amt-hint" id="entryAmountHint" style="display:none;">Investing: positive amount (100). Withdrawing: negative amount (-100).</p>
       </div>
       <div class="field">
         <label>Description (optional)</label>
@@ -4241,7 +4245,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 305;
+const APP_VERSION = 306;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -7423,6 +7427,7 @@ function populateEntryCategorySelectors(selectedCategory, selectedSub){
 
   catSel.dataset.prev = selectedCategory;
   syncEntryCategoryChips();
+  document.getElementById('entryAmountHint').style.display = (selectedCategory === 'Investment') ? '' : 'none';
   document.getElementById('entryTypeField').style.display = (selectedCategory === 'Expense') ? 'block' : 'none';
   if(selectedCategory === 'Expense'){
     populateEntryAccountSelector(document.getElementById('entryType').value, null);
