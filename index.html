@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v306 -->
+<!-- WEALTH.ME — v307 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -2972,7 +2972,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         <div id="refreshStatus" class="more-refresh-status"></div>
       </div>
 
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 306</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 307</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -3015,7 +3015,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 306</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 307</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -3893,6 +3893,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
             </label>
           </div>
         </div>
+        <p class="amt-hint" id="recurringAmountHint" style="display:none;">Investing: positive amount (100). Withdrawing: negative amount (-100).</p>
       </div>
       <div class="field">
         <label>Description (optional)</label>
@@ -4245,7 +4246,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 306;
+const APP_VERSION = 307;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -8225,6 +8226,7 @@ function populateRecurringCategorySelectors(selectedCategory, selectedSub){
 
   catSel.dataset.prev = selectedCategory;
   syncRecurringCategoryChips();
+  document.getElementById('recurringAmountHint').style.display = (selectedCategory === 'Investment') ? '' : 'none';
   document.getElementById('recurringTypeField').style.display = (selectedCategory === 'Expense') ? 'block' : 'none';
   if(selectedCategory === 'Expense'){
     populateRecurringAccountSelector(document.getElementById('recurringType').value, null);
