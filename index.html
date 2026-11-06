@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v316 -->
+<!-- WEALTH.ME — v317 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1858,6 +1858,20 @@ html.show-byline .app-byline{display:block;}
 #creditLimitsList .budget-row.tone-light .progress-track{background:rgba(11,37,69,.12);}
 #creditLimitsList .budget-row.tone-light .credit-limit-input{background:rgba(255,255,255,.65) !important;color:#0B2545 !important;border:1px solid rgba(11,37,69,.18) !important;}
 #creditLimitsList .budget-row.tone-light .credit-limit-input::placeholder{color:rgba(11,37,69,.45);}
+/* v317: limit slider on each credit card (white on the coloured cards, navy on light ones) */
+.cl-range{-webkit-appearance:none;appearance:none;width:100%;height:28px;margin:10px 0 2px;background:transparent;cursor:pointer;touch-action:pan-y;}
+.cl-range:focus{outline:none;}
+.cl-range::-webkit-slider-runnable-track{height:8px;border-radius:999px;background:linear-gradient(90deg,rgba(255,255,255,.95) 0%,rgba(255,255,255,.95) var(--p,0%),rgba(255,255,255,.22) var(--p,0%));}
+.cl-range::-moz-range-track{height:8px;border-radius:999px;background:rgba(255,255,255,.22);}
+.cl-range::-moz-range-progress{height:8px;border-radius:999px;background:rgba(255,255,255,.95);}
+.cl-range::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:24px;height:24px;margin-top:-8px;border-radius:50%;background:#fff;border:3px solid #0B2545;box-shadow:0 4px 12px rgba(0,0,0,.3);transition:transform .12s;}
+.cl-range::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:#fff;border:3px solid #0B2545;box-shadow:0 4px 12px rgba(0,0,0,.3);}
+.cl-range:active::-webkit-slider-thumb{transform:scale(1.15);}
+.cl-range-scale{display:flex;justify-content:space-between;font-size:10.5px;font-weight:700;color:rgba(255,255,255,.75);margin-bottom:6px;}
+#creditLimitsList .budget-row.tone-light .cl-range::-webkit-slider-runnable-track{background:linear-gradient(90deg,#0B2545 0%,#0B2545 var(--p,0%),rgba(11,37,69,.14) var(--p,0%));}
+#creditLimitsList .budget-row.tone-light .cl-range::-moz-range-track{background:rgba(11,37,69,.14);}
+#creditLimitsList .budget-row.tone-light .cl-range::-moz-range-progress{background:#0B2545;}
+#creditLimitsList .budget-row.tone-light .cl-range-scale{color:rgba(11,37,69,.6);}
 #creditLimitsList .budget-row.tone-light::before{background:radial-gradient(circle,rgba(255,255,255,.6),rgba(255,255,255,0) 68%);}
 .budget-row.tone-light .cl-color-btn{color:#0B2545;background:rgba(255,255,255,.55);border-color:rgba(11,37,69,.18);}
 .budget-row.tone-light .cl-color-btn.on{background:#0B2545;color:#fff;}
@@ -3003,7 +3017,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         <div id="refreshStatus" class="more-refresh-status"></div>
       </div>
 
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 316</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 317</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -3046,7 +3060,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 316</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 317</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -4335,7 +4349,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 316;
+const APP_VERSION = 317;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -9780,6 +9794,9 @@ function renderCreditLimitsView(){
     const tone = ACCOUNT_TONES[accountToneIndex('Credit Card', account)] || ACCOUNT_TONES[0];
     const toneIdx = accountToneIndex('Credit Card', account);
     // v287: colours are picked on the Debts page; this card just shows the same colour
+    // v317: slider range — at least $5,000, room above the current limit and balance, rounded
+    const slMax = clSliderMax(stats.limit || 0, stats.openUsage || 0);
+    const slStep = slMax <= 10000 ? 50 : slMax <= 50000 ? 100 : 500;
 
     let progressHtml = '';
     if(stats.limit > 0){
@@ -9801,11 +9818,26 @@ function renderCreditLimitsView(){
             <input type="number" class="credit-limit-input" data-account="${account}" value="${stats.limit || ''}" placeholder="0" min="0" step="1" inputmode="decimal" aria-label="Credit limit for ${account}" style="width:80px;text-align:right;border:1px solid var(--line);border-radius:6px;padding:4px 6px;font-size:13px;">
           </div>
         </div>
+        <input type="range" class="cl-range" data-account="${account}" min="0" max="${slMax}" step="${slStep}" value="${Math.min(stats.limit || 0, slMax)}" aria-label="Slide to set the credit limit for ${account}" style="--p:${(Math.min(stats.limit || 0, slMax) / slMax * 100).toFixed(2)}%;">
+        <div class="cl-range-scale" aria-hidden="true"><span>$0</span><span>${clShortMoney(slMax / 2)}</span><span>${clShortMoney(slMax)}</span></div>
         ${progressHtml}
       </div>
     `;
   }).join('');
 
+  // v317: slider and typed amount stay in step; the limit is saved when the slider is released
+  container.querySelectorAll('.cl-range').forEach(range=>{
+    const row = range.closest('.budget-row');
+    const field = row.querySelector('.credit-limit-input');
+    const paint = ()=> range.style.setProperty('--p', (Number(range.value) / Number(range.max) * 100) + '%');
+    range.addEventListener('input', ()=>{ paint(); field.value = Number(range.value) > 0 ? range.value : ''; });
+    range.addEventListener('change', ()=>{ field.value = Number(range.value) > 0 ? range.value : ''; field.dispatchEvent(new Event('change')); });
+    field.addEventListener('input', ()=>{
+      const v = Number(field.value) || 0;
+      range.value = Math.min(v, Number(range.max));
+      paint();
+    });
+  });
   container.querySelectorAll('.credit-limit-input').forEach(input=>{
     input.addEventListener('change', (e)=>{
       const account = e.target.dataset.account;
@@ -9819,6 +9851,14 @@ function renderCreditLimitsView(){
       if(getActiveViewName() === 'debts'){ renderDebts(); }
     });
   });
+}
+function clSliderMax(limit, usage){
+  const want = Math.max(5000, limit * 1.5, usage * 1.5);
+  const unit = want <= 10000 ? 1000 : want <= 50000 ? 5000 : 10000;
+  return Math.ceil(want / unit) * unit;
+}
+function clShortMoney(n){
+  return n >= 1000 ? '$' + (n / 1000).toLocaleString(undefined, {maximumFractionDigits:1}) + 'k' : '$' + n;
 }
 function openCreditLimitsModal(){
   renderCreditLimitsView();
