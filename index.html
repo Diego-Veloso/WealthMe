@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v308 -->
+<!-- WEALTH.ME — v309 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -764,6 +764,9 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
 }
 .receipt-note.warn{background:color-mix(in srgb, var(--gold) 20%, transparent);}
 #receiptProgressOverlay{z-index:160;align-items:center;}
+/* v309: + stays visible over the Investment Accounts and account popups (not over anything opened on top of them) */
+html:has(#moneyAccountsModalOverlay.active, #accountDetailModalOverlay.active):not(:has(.modal-overlay.active:not(#moneyAccountsModalOverlay):not(#accountDetailModalOverlay))) #addFab{z-index:120;}
+@media (max-width:899px){ #moneyAccountsModalOverlay > .modal,#accountDetailModalOverlay > .modal{padding-bottom:160px;} }   /* room to scroll the last row clear of + */
 #receiptProgressOverlay .modal.receipt-progress-modal{
   width:calc(100% - 32px);max-width:380px;border-radius:20px;padding:20px;
   box-shadow:0 24px 60px rgba(15,27,45,0.28);
@@ -2972,7 +2975,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         <div id="refreshStatus" class="more-refresh-status"></div>
       </div>
 
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 308</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 309</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -3015,7 +3018,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 308</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 309</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -4246,7 +4249,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 308;
+const APP_VERSION = 309;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -4631,6 +4634,10 @@ function saveState(){
   invalidateInsightsCache();
   updateNotificationsBadge();
   try{ renderBackupStatus(); }catch(e){}
+  // v309: keep an open account popup up to date after adding / editing / deleting an entry
+  try{
+    if(document.getElementById('accountDetailModalOverlay').classList.contains('active')) setTimeout(()=> openAccountDetail(document.getElementById('accountDetailTitle').textContent), 0);
+  }catch(e){}
   if(document.getElementById('calendarModalOverlay')?.classList.contains('active') && typeof renderCalendar === 'function') renderCalendar();
   // Keep the popup's list live if it's open — e.g. editing or swiping an
   // entry from within it should update/remove that row immediately
@@ -8186,7 +8193,17 @@ function scheduleUndoableStatusChange(entry, id, previousStatus){
   pendingStatusChanges.set(id, timer);
 }
 
-document.getElementById('addFab').addEventListener('click', ()=> openEntryModal(null));
+document.getElementById('addFab').addEventListener('click', ()=>{
+  // v309: from the investment popups, start the new entry as Investment (in that account when one is open)
+  const acctOpen = document.getElementById('accountDetailModalOverlay').classList.contains('active');
+  const listOpen = document.getElementById('moneyAccountsModalOverlay').classList.contains('active');
+  openEntryModal(null);
+  if(acctOpen || listOpen){
+    const subs = CATEGORY_MAP['Investment'] || [];
+    const sub = acctOpen ? document.getElementById('accountDetailTitle').textContent : '';
+    if(subs.length) populateEntryCategorySelectors('Investment', subs.includes(sub) ? sub : subs.slice().sort((a,b)=>a.localeCompare(b))[0]);
+  }
+});
 document.getElementById('insightsFab').addEventListener('click', ()=> switchView('insights'));
 document.getElementById('insightsClose').addEventListener('click', closeInsightsPopup);
 // tapping the dimmed area above the sheet closes it
