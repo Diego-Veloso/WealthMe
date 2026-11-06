@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v315 -->
+<!-- WEALTH.ME — v316 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -709,6 +709,13 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
 #valueUpdateOverlay input[type="date"]::-webkit-date-and-time-value{text-align:left;margin:0;}
 #valueUpdateOverlay input[type="number"]{-moz-appearance:textfield;appearance:textfield;}
 #valueUpdateOverlay input[type="number"]::-webkit-inner-spin-button,#valueUpdateOverlay input[type="number"]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
+#policyModalOverlay{z-index:3000;}
+#policyModalOverlay > .modal.policy-modal{display:flex;flex-direction:column;height:calc(100dvh - 48px);max-height:calc(100dvh - 48px);overflow:hidden;padding-bottom:calc(env(safe-area-inset-bottom,0) + 10px);}
+@media (min-width:900px){ #policyModalOverlay > .modal.policy-modal{max-width:780px;height:86vh;max-height:86vh;} }
+.policy-frame-wrap{position:relative;flex:1;min-height:0;border-radius:14px;overflow:hidden;background:var(--card-bg, #fff);}
+[data-theme="dark"] .policy-frame-wrap{background:#1A222D;}
+.policy-frame-wrap iframe{position:absolute;inset:0;width:100%;height:100%;border:0;background:transparent;}
+.policy-loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--slate);font-size:14px;}
 a.pp-link.btn{display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;box-sizing:border-box;}
 .vu-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;}
 .vu-current{font-size:13px;line-height:1.5;padding:10px 12px;border-radius:12px;background:color-mix(in srgb,var(--skin-blue, #0A8FE8) 8%,transparent);margin-bottom:12px;}
@@ -2996,7 +3003,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         <div id="refreshStatus" class="more-refresh-status"></div>
       </div>
 
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 315</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 316</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -3039,7 +3046,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 315</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 316</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -3109,8 +3116,8 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
       <div class="card set-card priv-card" id="privacyPolicyCard" style="margin-top:14px;">
         <div class="set-head"><span class="acc-ico" style="--c:#1F9D55;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span><div><div class="section-title">Your data</div>
         <p class="muted">Your financial entries stay on this device. They&rsquo;re never sent to us, so we can&rsquo;t see, access or recover them &mdash; back them up regularly.</p></div></div>
-        <a class="btn btn-secondary btn-block pp-link" id="privacyPolicyBtn" href="privacy.html" target="_blank" rel="noopener">Read the Privacy Policy <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a>
-        <p class="muted" style="font-size:12px;margin:10px 0 0;" id="privacyPolicyNote">Opens in your browser (needs an internet connection).</p>
+        <a class="btn btn-secondary btn-block pp-link" id="privacyPolicyBtn" href="privacy.html" target="_blank" rel="noopener">Read the Privacy Policy </a>
+        <p class="muted" style="font-size:12px;margin:10px 0 0;" id="privacyPolicyNote">Needs an internet connection.</p>
       </div>
 
     </section>
@@ -4139,6 +4146,22 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
     </div>
   </div>
 
+  <!-- ===== v316: Privacy Policy popup (shows privacy.html inside the app) ===== -->
+  <div class="modal-overlay" id="policyModalOverlay">
+    <div class="modal policy-modal">
+      <div class="modal-header">
+        <h3>Privacy Policy</h3>
+        <button class="icon-btn" id="policyModalClose" aria-label="Close Privacy Policy">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="policy-frame-wrap">
+        <div class="policy-loading" id="policyLoading">Loading&hellip;</div>
+        <iframe id="policyFrame" title="Privacy Policy"></iframe>
+      </div>
+    </div>
+  </div>
+
   <div class="modal-overlay" id="confirmModalOverlay">
     <div class="modal" style="max-width:440px;">
       <div class="modal-header">
@@ -4312,7 +4335,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 315;
+const APP_VERSION = 316;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -6740,14 +6763,29 @@ document.getElementById('accountDetailUpdateBtn').addEventListener('click', ()=>
 
 /* v315: Privacy Policy links — hosted next to the app; offline, say so instead of opening a dead page */
 const PRIVACY_POLICY_URL = 'privacy.html';
+// v316: open it in a popup inside the app (no leaving the app), following the app's theme
+function openPolicyPopup(){
+  if(navigator.onLine === false){ showToast('Connect to the internet to open the Privacy Policy.'); return; }
+  const frame = document.getElementById('policyFrame');
+  const loading = document.getElementById('policyLoading');
+  const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+  const url = PRIVACY_POLICY_URL + '?embed=1&theme=' + theme;
+  loading.style.display = '';
+  loading.textContent = 'Loading\u2026';
+  frame.style.visibility = 'hidden';
+  frame.onload = ()=>{ loading.style.display = 'none'; frame.style.visibility = ''; };
+  if(frame.getAttribute('src') !== url) frame.setAttribute('src', url);
+  else { loading.style.display = 'none'; frame.style.visibility = ''; }
+  document.getElementById('policyModalOverlay').classList.add('active');
+}
+function closePolicyPopup(){ document.getElementById('policyModalOverlay').classList.remove('active'); }
+document.getElementById('policyModalClose').addEventListener('click', closePolicyPopup);
+document.getElementById('policyModalOverlay').addEventListener('click', (e)=>{ if(e.target.id === 'policyModalOverlay') closePolicyPopup(); });
+document.addEventListener('keydown', (e)=>{ if(e.key === 'Escape' && document.getElementById('policyModalOverlay').classList.contains('active')) closePolicyPopup(); });
 document.querySelectorAll('a.pp-link').forEach(a=>{
   a.href = PRIVACY_POLICY_URL;
-  a.addEventListener('click', (e)=>{
-    if(navigator.onLine === false){
-      e.preventDefault();
-      showToast('Connect to the internet to open the Privacy Policy.');
-    }
-  });
+  a.removeAttribute('target');
+  a.addEventListener('click', (e)=>{ e.preventDefault(); openPolicyPopup(); });
 });
 
 /* Insights is a popup over the current page rather than a page of its own. */
