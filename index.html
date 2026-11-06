@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v313 -->
+<!-- WEALTH.ME — v315 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -709,6 +709,7 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
 #valueUpdateOverlay input[type="date"]::-webkit-date-and-time-value{text-align:left;margin:0;}
 #valueUpdateOverlay input[type="number"]{-moz-appearance:textfield;appearance:textfield;}
 #valueUpdateOverlay input[type="number"]::-webkit-inner-spin-button,#valueUpdateOverlay input[type="number"]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
+a.pp-link.btn{display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;box-sizing:border-box;}
 .vu-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;}
 .vu-current{font-size:13px;line-height:1.5;padding:10px 12px;border-radius:12px;background:color-mix(in srgb,var(--skin-blue, #0A8FE8) 8%,transparent);margin-bottom:12px;}
 .vu-current b{font-weight:800;}
@@ -2506,6 +2507,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
     <div id="licenseHelp" style="max-width:320px;margin-top:26px;text-align:center;font-size:13px;line-height:1.55;color:#8fa3b0;">
       <p style="margin:0 0 12px;">Your key is in the receipt email from your purchase. Each key can be used on a limited number of devices.</p>
       <p style="margin:0 0 12px;">Don&rsquo;t have a key yet? <a id="licenseBuyLink" href="https://priscila.lemonsqueezy.com/checkout/buy/9775fcae-9663-4d16-be07-e00bd2e9d014" target="_blank" rel="noopener noreferrer" style="color:#F7F4EF;font-weight:600;text-decoration:underline;">Get WealthMe</a></p>
+      <p style="margin:0 0 10px;"><a id="licensePrivacyLink" class="pp-link" href="privacy.html" target="_blank" rel="noopener" style="color:#F7F4EF;font-weight:600;text-decoration:underline;">Privacy Policy</a></p>
       <p style="margin:0;">Need help? Email<br><a id="licenseMailLink" href="mailto:priscila.support@gmail.com" style="color:#F7F4EF;font-weight:600;text-decoration:underline;">priscila.support@gmail.com</a></p>
     </div>
   </div>
@@ -2994,7 +2996,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         <div id="refreshStatus" class="more-refresh-status"></div>
       </div>
 
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 313</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 315</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -3037,7 +3039,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 313</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 315</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -3101,6 +3103,14 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         <p class="muted" id="licenseInfo"></p></div></div>
         <button class="btn btn-secondary btn-block" id="licenseDeactivateBtn">Deactivate this device</button>
         <p class="muted" style="font-size:12px;margin:10px 0 0;">Use this before you switch to a new phone or computer, so your key can be activated there. Your entries aren&rsquo;t deleted, but you&rsquo;ll need your key to open WealthMe on this device again.</p>
+      </div>
+
+      <!-- v315: Privacy Policy (hosted next to the app as privacy.html) -->
+      <div class="card set-card priv-card" id="privacyPolicyCard" style="margin-top:14px;">
+        <div class="set-head"><span class="acc-ico" style="--c:#1F9D55;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span><div><div class="section-title">Your data</div>
+        <p class="muted">Your financial entries stay on this device. They&rsquo;re never sent to us, so we can&rsquo;t see, access or recover them &mdash; back them up regularly.</p></div></div>
+        <a class="btn btn-secondary btn-block pp-link" id="privacyPolicyBtn" href="privacy.html" target="_blank" rel="noopener">Read the Privacy Policy <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a>
+        <p class="muted" style="font-size:12px;margin:10px 0 0;" id="privacyPolicyNote">Opens in your browser (needs an internet connection).</p>
       </div>
 
     </section>
@@ -4302,7 +4312,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 313;
+const APP_VERSION = 315;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -6605,7 +6615,7 @@ function openAccountDetail(sub){
 
   const listEl = document.getElementById('accountDetailList');
   listEl.innerHTML = matching.length
-    ? matching.map(e=>renderEntryRow(e)).join('')
+    ? matching.map(e=>renderEntryRow(e, false, false, true)).join('')
     : `<div class="empty-state" style="padding:20px;"><span class="muted">No actual entries yet.</span></div>`;
   attachEntryRowHandlers(listEl);
 
@@ -6727,6 +6737,18 @@ document.getElementById('valueUpdateCancel').addEventListener('click', closeValu
 document.getElementById('valueUpdateClose').addEventListener('click', closeValueUpdate);
 document.getElementById('valueUpdateOverlay').addEventListener('click', (e)=>{ if(e.target.id === 'valueUpdateOverlay') closeValueUpdate(); });
 document.getElementById('accountDetailUpdateBtn').addEventListener('click', ()=> openValueUpdate(document.getElementById('accountDetailTitle').textContent));
+
+/* v315: Privacy Policy links — hosted next to the app; offline, say so instead of opening a dead page */
+const PRIVACY_POLICY_URL = 'privacy.html';
+document.querySelectorAll('a.pp-link').forEach(a=>{
+  a.href = PRIVACY_POLICY_URL;
+  a.addEventListener('click', (e)=>{
+    if(navigator.onLine === false){
+      e.preventDefault();
+      showToast('Connect to the internet to open the Privacy Policy.');
+    }
+  });
+});
 
 /* Insights is a popup over the current page rather than a page of its own. */
 function insightsPopupOpen(){ return document.getElementById('view-insights').classList.contains('open'); }
@@ -12383,7 +12405,7 @@ function renderDetailTrendChart(){
 }
 
 /* shared entry row renderer (used in detail + transactions + debts) */
-function renderEntryRow(e, selectable, isTransactionsPage){
+function renderEntryRow(e, selectable, isTransactionsPage, accountView){
   const isExpense = e.category === 'Expense';
   const amt = Number(e.amount);
   const dotColor = CATEGORY_COLORS[e.category];
@@ -12409,6 +12431,10 @@ function renderEntryRow(e, selectable, isTransactionsPage){
       displayAmt = '+' + fmtMoney(Math.abs(amt)) + ' ↩';
       amtClass = 'pos';
     }
+  } else if(e.category === 'Investment' && accountView){
+    // v314: account popup shows the entry as entered — money into the account +, withdrawal -
+    displayAmt = (amt >= 0 ? '+' : '') + fmtMoney(amt);
+    amtClass = amt >= 0 ? 'pos' : 'neg';
   } else if(e.category === 'Investment'){
     if(amt >= 0){
       displayAmt = '-' + fmtMoney(amt);
