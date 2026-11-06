@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v309 -->
+<!-- WEALTH.ME — v313 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -699,6 +699,25 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
   justify-content:center;
   z-index:100;
 }
+#valueUpdateOverlay{z-index:150;align-items:center;}
+/* v313: Date and Real value the same height, side by side (iOS draws date inputs its own size) */
+#valueUpdateOverlay .two-col{align-items:end;}
+#valueUpdateOverlay .two-col > .field{margin-bottom:12px;}
+#valueUpdateOverlay .two-col input{box-sizing:border-box;width:100%;height:48px;min-height:48px;margin:0;padding:0 12px;line-height:48px;font-size:15px;display:block;}
+#valueUpdateOverlay .two-col input:focus{outline:none;border-color:var(--skin-blue);box-shadow:0 0 0 3px color-mix(in srgb,var(--skin-blue) 18%,transparent);}
+#valueUpdateOverlay input[type="date"]{-webkit-appearance:none;appearance:none;text-align:left;}
+#valueUpdateOverlay input[type="date"]::-webkit-date-and-time-value{text-align:left;margin:0;}
+#valueUpdateOverlay input[type="number"]{-moz-appearance:textfield;appearance:textfield;}
+#valueUpdateOverlay input[type="number"]::-webkit-inner-spin-button,#valueUpdateOverlay input[type="number"]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
+.vu-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;}
+.vu-current{font-size:13px;line-height:1.5;padding:10px 12px;border-radius:12px;background:color-mix(in srgb,var(--skin-blue, #0A8FE8) 8%,transparent);margin-bottom:12px;}
+.vu-current b{font-weight:800;}
+.vu-preview{font-size:13.5px;font-weight:700;padding:10px 12px;border-radius:12px;margin:2px 0 4px;background:rgba(120,130,145,.12);color:var(--slate);}
+.vu-preview.gain{background:rgba(62,124,89,.12);color:#2F7A52;}
+.vu-preview.loss{background:rgba(193,88,63,.12);color:#B5432A;}
+[data-theme="dark"] .vu-preview.gain{color:#5FD39A;}
+[data-theme="dark"] .vu-preview.loss{color:#F08A6E;}
+.vu-pill{border:none;cursor:pointer;font:inherit;font-size:11.5px;font-weight:700;padding:5px 10px;border-radius:999px;background:var(--skin-grad-primary);color:#fff;white-space:nowrap;flex-shrink:0;}
 #confirmModalOverlay{
   z-index:150;
   align-items:center;
@@ -2975,7 +2994,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         <div id="refreshStatus" class="more-refresh-status"></div>
       </div>
 
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 309</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 313</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -3018,7 +3037,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 309</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 313</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -3318,6 +3337,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
             <li><strong>Budgets</strong> (More → Budgets): enter your monthly income (or tap Autofill to use the selected month's Net Income) and get a suggested split across your expense categories, based on your average spending over the last 12 months (or a standard split where there is no history). Type a % of income for any category, or nudge it with +/-, and its $ amount updates alongside. Set a maximum expected expenses % (90% by default) and amounts automatically scale down proportionally to fit within it. Going over that maximum highlights a warning and suggests which categories to trim. Each category also shows a progress bar tracking actual spend against that plan for whichever month you've selected. "Save as My Budgets" turns the result into $ targets the rest of the app (like the Monthly Recap's over-budget count) uses.</li>
             <li><strong>Debt payoff goals</strong> (Debts page): each account shows a progress bar (% ever charged that's now paid off) and a projected payoff date based on your trailing 3-month average payment pace — no manual goal to set up.</li>
             <li><strong>Net Worth</strong> (Money page): a summary card and 12-month trend chart, calculated as your investments and capital minus whatever debt is currently Planned (unpaid).</li>
+            <li><strong>Updating an investment account&rsquo;s value</strong>: open the account (Money &rarr; Investment Accounts) and tap <strong>Update value</strong>. Enter what it&rsquo;s worth today; the app adds the difference as a Capital gain or loss (&ldquo;Value update&rdquo;), so you don&rsquo;t have to work it out yourself. Updating again on the same date replaces the earlier update. On the first day of each month the app reminds you to update your accounts (or the first time you open it that month).</li>
             <li><strong>Withdrawing from an investment account</strong>: add a negative Investment entry for that account. It still adds to your cash flow, and on the Money page it comes out of that account&rsquo;s Capital first, then from what you invested. Example: 100 invested + 30 capital, withdraw 50 &rarr; 80 invested, 0 capital.</li>
             <li>Paying off a debt account or staying on budget for every category in a month triggers a little celebration 🎉.</li>
           </ul>
@@ -4059,6 +4079,10 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
           <div class="value" id="accountDetailTotal">$0</div>
           <div class="muted" style="font-size:11px;margin-top:2px;" id="accountDetailReturn"></div>
         </div>
+        <button type="button" class="btn btn-primary vu-btn" id="accountDetailUpdateBtn" style="grid-column:span 2;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+          Update value
+        </button>
       </div>
       <div class="card" style="margin-bottom:16px;">
         <div class="card-title">
@@ -4067,7 +4091,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         </div>
         <div class="chart-wrap" style="height:220px;"><canvas id="accountDetailChart" role="img" aria-label="12-month projection chart for this investment account"></canvas></div>
       </div>
-      <div class="card-title" style="margin-bottom:6px;">All Entries</div>
+      <div class="card-title" style="margin-bottom:6px;">Actual Entries</div>
       <ul class="entry-list" id="accountDetailList"></ul>
     </div>
   </div>
@@ -4076,6 +4100,35 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <!-- ===== Custom Confirm Modal (replaces window.confirm, which can be blocked in sandboxed iframes) ===== -->
+  <!-- ===== v310: Update an investment account's value ===== -->
+  <div class="modal-overlay" id="valueUpdateOverlay">
+    <div class="modal" style="max-width:440px;">
+      <div class="modal-header">
+        <h3 id="valueUpdateTitle">Update value</h3>
+        <button class="icon-btn" id="valueUpdateClose" aria-label="Close Update value">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <p class="muted" style="margin:0 0 12px;font-size:13px;">Enter what this account is worth now (invested + gains). The app adds the difference as a Capital gain or loss.</p>
+      <div class="vu-current" id="valueUpdateCurrent"></div>
+      <div class="two-col">
+        <div class="field">
+          <label for="valueUpdateDate">Date</label>
+          <input type="date" id="valueUpdateDate">
+        </div>
+        <div class="field">
+          <label for="valueUpdateAmount">Real value</label>
+          <input type="number" id="valueUpdateAmount" step="0.01" inputmode="decimal" placeholder="0.00">
+        </div>
+      </div>
+      <div class="vu-preview" id="valueUpdatePreview" style="display:none;"></div>
+      <div class="btn-row">
+        <button class="btn btn-secondary btn-block" id="valueUpdateCancel">Cancel</button>
+        <button class="btn btn-primary btn-block" id="valueUpdateSave">Save</button>
+      </div>
+    </div>
+  </div>
+
   <div class="modal-overlay" id="confirmModalOverlay">
     <div class="modal" style="max-width:440px;">
       <div class="modal-header">
@@ -4249,7 +4302,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 309;
+const APP_VERSION = 313;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -6444,7 +6497,10 @@ function renderMoneyAllTimeBreakdown(){
               <div class="muted" style="font-size:11px;">${alloc}% of total</div>
             </div>
           </div>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--slate);flex-shrink:0;"><polyline points="9 18 15 12 9 6"/></svg>
+          <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
+            <button type="button" class="vu-pill" data-vu="${r.sub}" title="Update value" aria-label="Update value of ${r.sub}">Update value</button>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--slate);flex-shrink:0;"><polyline points="9 18 15 12 9 6"/></svg>
+          </div>
         </div>
         <div class="progress-track" style="height:4px;margin:8px 0 10px;">
           <div class="progress-fill" style="width:${barWidth.toFixed(1)}%;height:100%;background:${color};"></div>
@@ -6505,6 +6561,7 @@ function renderMoneyAllTimeBreakdown(){
   container.innerHTML = html + totalRow;
 
   container.querySelectorAll('.money-account-row[data-sub]').forEach(row=>{
+    row.querySelector('.vu-pill')?.addEventListener('click', (e)=>{ e.stopPropagation(); openValueUpdate(row.dataset.sub); });
     row.addEventListener('click', ()=> openAccountDetail(row.dataset.sub));
   });
   const totalEl = document.getElementById('moneyTotalRow');
@@ -6530,7 +6587,7 @@ document.getElementById('moneyTrendsModalOverlay').addEventListener('click', (e)
 
 function openAccountDetail(sub){
   const matching = entries
-    .filter(e => (e.category === 'Investment' || e.category === 'Capital') && e.subcategory === sub)
+    .filter(e => (e.category === 'Investment' || e.category === 'Capital') && e.subcategory === sub && e.status === 'Closed')   // v313: Actual only
     .slice()
     .sort((a,b)=> b.date < a.date ? -1 : b.date > a.date ? 1 : 0);
 
@@ -6549,7 +6606,7 @@ function openAccountDetail(sub){
   const listEl = document.getElementById('accountDetailList');
   listEl.innerHTML = matching.length
     ? matching.map(e=>renderEntryRow(e)).join('')
-    : `<div class="empty-state" style="padding:20px;"><span class="muted">No entries found.</span></div>`;
+    : `<div class="empty-state" style="padding:20px;"><span class="muted">No actual entries yet.</span></div>`;
   attachEntryRowHandlers(listEl);
 
   document.getElementById('accountDetailModalOverlay').classList.add('active');
@@ -6565,6 +6622,111 @@ document.getElementById('accountDetailClose').addEventListener('click', closeAcc
 document.getElementById('accountDetailModalOverlay').addEventListener('click', (e)=>{
   if(e.target.id === 'accountDetailModalOverlay') closeAccountDetail();
 });
+
+/* =========================================================
+   v310: UPDATE VALUE — enter an investment account's real value; the
+   difference from what the app has recorded (invested + capital, Actual
+   entries up to that date) is saved as an Actual Capital entry
+   "Value update". A second update for the same account and date replaces
+   the first one (removed if it becomes 0). Normal entries, so Net Position,
+   charts, CSV and Sheets sync all keep working.
+   ========================================================= */
+const VU_NOTE = 'Value update';
+let _vuSub = null;
+function vuRound(n){ return Math.round(n * 100) / 100; }
+function vuSameDay(sub, dateStr){
+  return entries.find(e => e.category === 'Capital' && e.subcategory === sub && e.date === dateStr && e.notes === VU_NOTE) || null;
+}
+// What the app has for this account on that date (same rules as investmentSplit), leaving out one entry.
+// Today (or later): everything the account shows now. An earlier date: only entries up to that date.
+function vuRecorded(sub, dateStr, excludeId){
+  const cutoff = dateStr < formatLocalDate(new Date()) ? parseLocalDate(dateStr) : null;
+  let dep = 0, wd = 0, cap = 0;
+  entries.forEach(e=>{
+    if(e.subcategory !== sub || e.id === excludeId) return;
+    if(cutoff && parseLocalDate(e.date) > cutoff) return;
+    const a = Number(e.amount) || 0;
+    if(e.category === 'Investment'){
+      if(e.status !== 'Closed') return;
+      if(a >= 0) dep += a; else wd -= a;
+    } else if(e.category === 'Capital'){
+      cap += a;
+    }
+  });
+  const fromCapital = cap > 0 ? Math.min(wd, cap) : 0;
+  const invested = dep - (wd - fromCapital), capital = cap - fromCapital;
+  return { invested, capital, total: invested + capital };
+}
+function openValueUpdate(sub){
+  _vuSub = sub;
+  document.getElementById('valueUpdateTitle').textContent = 'Update value \u00b7 ' + sub;
+  document.getElementById('valueUpdateDate').value = formatLocalDate(new Date());
+  document.getElementById('valueUpdateAmount').value = '';
+  renderValueUpdate();
+  document.getElementById('valueUpdateOverlay').classList.add('active');
+  setTimeout(()=>{ try{ document.getElementById('valueUpdateAmount').focus(); }catch(e){} }, 80);
+}
+function closeValueUpdate(){
+  document.getElementById('valueUpdateOverlay').classList.remove('active');
+}
+function fmtDateShortVU(d){ return parseLocalDate(d).toLocaleDateString(undefined, {month:'short', day:'numeric', year:'numeric'}); }
+function vuSigned(n){ return (n > 0 ? '+' : n < 0 ? '\u2212' : '') + fmtMoney(Math.abs(n)); }
+function renderValueUpdate(){
+  const dateStr = document.getElementById('valueUpdateDate').value;
+  const cur = document.getElementById('valueUpdateCurrent');
+  const prev = document.getElementById('valueUpdatePreview');
+  if(!_vuSub || !dateStr){ cur.textContent = ''; prev.style.display = 'none'; return; }
+  const same = vuSameDay(_vuSub, dateStr);
+  const rec = vuRecorded(_vuSub, dateStr, same ? same.id : null);
+  const past = dateStr < formatLocalDate(new Date());
+  cur.innerHTML = `${past ? 'In the app on ' + fmtDateShortVU(dateStr) : 'In the app now'}: <b>${fmtMoney(rec.total)}</b> <span class="muted">(invested ${fmtMoney(rec.invested)} ${rec.capital < 0 ? '\u2212' : '+'} capital ${fmtMoney(Math.abs(rec.capital))})</span>`;
+  const raw = document.getElementById('valueUpdateAmount').value;
+  const real = parseFloat(raw);
+  if(raw === '' || isNaN(real)){ prev.style.display = 'none'; return; }
+  const diff = vuRound(real - rec.total);
+  prev.style.display = '';
+  prev.className = 'vu-preview' + (diff > 0 ? ' gain' : diff < 0 ? ' loss' : '');
+  prev.textContent = (diff > 0 ? `Gain ${vuSigned(diff)} will be added as Capital.`
+                    : diff < 0 ? `Loss ${vuSigned(diff)} will be added as Capital.`
+                    : 'Same as the app \u2014 nothing to add.')
+                    + (same ? ' Replaces the earlier update on this date.' : '');
+}
+function saveValueUpdate(){
+  const dateStr = document.getElementById('valueUpdateDate').value;
+  const real = parseFloat(document.getElementById('valueUpdateAmount').value);
+  if(!dateStr || isNaN(real)){ showToast('Please enter a date and the real value.'); return; }
+  const sub = _vuSub;
+  const same = vuSameDay(sub, dateStr);
+  const rec = vuRecorded(sub, dateStr, same ? same.id : null);
+  const diff = vuRound(real - rec.total);
+  if(same){
+    if(diff === 0){
+      entries = entries.filter(e => e.id !== same.id);
+      autoSyncDelete(same.id);
+    } else {
+      same.amount = diff;
+      same.status = 'Closed';
+      autoSyncEntry(same);
+    }
+  } else if(diff !== 0){
+    const ne = { id: uid(), date: dateStr, category: 'Capital', subcategory: sub, amount: diff, status: 'Closed', notes: VU_NOTE };
+    entries.push(ne);
+    autoSyncEntry(ne);
+  }
+  lsSet(LS_VALUE_REMINDED, Date.now());   // v311: an update (even "nothing to add") restarts the monthly reminder
+  closeValueUpdate();
+  saveState();
+  renderCurrentView(getActiveViewName());
+  showToast(diff > 0 ? `${sub} updated: gain ${vuSigned(diff)}` : diff < 0 ? `${sub} updated: loss ${vuSigned(diff)}` : `${sub} is up to date`);
+}
+document.getElementById('valueUpdateDate').addEventListener('change', renderValueUpdate);
+document.getElementById('valueUpdateAmount').addEventListener('input', renderValueUpdate);
+document.getElementById('valueUpdateAmount').addEventListener('keydown', (e)=>{ if(e.key === 'Enter'){ e.preventDefault(); saveValueUpdate(); } });
+document.getElementById('valueUpdateSave').addEventListener('click', saveValueUpdate);
+document.getElementById('valueUpdateCancel').addEventListener('click', closeValueUpdate);
+document.getElementById('valueUpdateClose').addEventListener('click', closeValueUpdate);
+document.getElementById('valueUpdateOverlay').addEventListener('click', (e)=>{ if(e.target.id === 'valueUpdateOverlay') closeValueUpdate(); });
+document.getElementById('accountDetailUpdateBtn').addEventListener('click', ()=> openValueUpdate(document.getElementById('accountDetailTitle').textContent));
 
 /* Insights is a popup over the current page rather than a page of its own. */
 function insightsPopupOpen(){ return document.getElementById('view-insights').classList.contains('open'); }
@@ -10995,6 +11157,7 @@ function init(){
   switchView('home');
   maybeShowTourPrompt();
   scheduleBackupReminder();
+  scheduleValueReminder();
   updateNotificationsBadge();
   maybeShowDueNotification();
   updateSyncBadge();
@@ -13556,6 +13719,7 @@ function backupReminderDue(){
   return (Date.now() - since) >= BACKUP_REMIND_DAYS * 86400000;
 }
 function showBackupReminder(){
+  _reminderShownThisRun = true;
   lsSet(LS_BACKUP_REMINDED, Date.now());
   showConfirm('Time to back up your data',
     backupAgeText() + ' Your entries are saved only on this device. Do you want to back them up now?',
@@ -13588,6 +13752,76 @@ function scheduleBackupReminder(tries){
     if(busy){ scheduleBackupReminder(tries + 1); return; }
     if(backupReminderDue()) showBackupReminder();
   }, tries === 0 ? 1500 : 2000);
+}
+
+/* =========================================================
+   v311/v312: MONTHLY "UPDATE YOUR INVESTMENTS" REMINDER
+   From the 1st of each month (first open of the month), unless the accounts
+   were already updated or reminded this month; only when there are investment
+   accounts with money in them. Only one reminder per app open: if the
+   backup reminder showed, this one waits for the next open.
+   ========================================================= */
+const VALUE_REMIND_DAYS = 30;
+const LS_VALUE_REMINDED = 'wealthme_value_reminded';
+var _reminderShownThisRun = false;
+function activeInvestmentAccounts(){
+  const acc = investmentSplit({ includeOpen: false }).accounts;
+  return (CATEGORY_MAP.Investment || []).filter(s => acc[s] && Math.abs(acc[s].invested + acc[s].capital) >= 0.005);
+}
+function lastValueUpdateTime(){
+  let t = 0;
+  entries.forEach(e=>{ if(e.category === 'Capital' && e.notes === VU_NOTE){ const d = parseLocalDate(e.date).getTime(); if(d > t) t = d; } });
+  return Math.min(t, Date.now());
+}
+// v312: once a month — from the 1st, on the first app open of a month in which the
+// accounts haven't been updated and the reminder hasn't shown yet (opening the app
+// later in the month still gets it, so a missed 1st isn't skipped).
+function valueReminderDue(){
+  if(!activeInvestmentAccounts().length) return false;
+  const since = Math.max(lastValueUpdateTime(), lsNum(LS_VALUE_REMINDED));
+  if(!since){ lsSet(LS_VALUE_REMINDED, Date.now()); return false; }   // new install: start next month
+  const now = new Date(), s = new Date(since);
+  return now.getFullYear() * 12 + now.getMonth() > s.getFullYear() * 12 + s.getMonth();
+}
+function valueAgeText(){
+  const last = lastValueUpdateTime();
+  if(!last) return 'You haven\u2019t updated your investment account values yet.';
+  const days = Math.floor((Date.now() - last) / 86400000);
+  const when = new Date(last).toLocaleDateString(undefined, {month:'long', day:'numeric', year:'numeric'});
+  return `Your last value update was on ${when} (${days === 0 ? 'today' : days === 1 ? '1 day ago' : days + ' days ago'}).`;
+}
+function showValueReminder(){
+  _reminderShownThisRun = true;
+  lsSet(LS_VALUE_REMINDED, Date.now());
+  showConfirm('Time to update your investments',
+    valueAgeText() + ' Enter what each account is worth today so your Net Position stays accurate. Update them now?',
+    openValueUpdateNow,
+    { confirmLabel:'Update now', cancelLabel:'Not now', confirmClass:'primary' });
+}
+function openValueUpdateNow(){
+  const subs = activeInvestmentAccounts();
+  switchView('money');
+  setTimeout(()=>{
+    if(subs.length === 1){ openValueUpdate(subs[0]); return; }     // one account: straight to it
+    openMoneyAccountsPopup();                                       // phones: the accounts popup (desktop shows them already)
+    setTimeout(()=>{
+      const pills = document.querySelectorAll('#moneyAllTimeBreakdown .vu-pill');
+      if(pills[0]) pills[0].scrollIntoView({block:'center', behavior:'smooth'});
+      pills.forEach(b=>{ b.classList.add('backup-pulse'); setTimeout(()=> b.classList.remove('backup-pulse'), 3600); });
+    }, 200);
+  }, 250);
+}
+function scheduleValueReminder(tries){
+  tries = tries || 0;
+  if(tries > 90) return;
+  setTimeout(()=>{
+    if(_reminderShownThisRun) return;    // one reminder per app open
+    const hidden = id => { const el = document.getElementById(id); return !el || getComputedStyle(el).display === 'none'; };
+    const busy = !hidden('licenseScreen') || !hidden('lockScreen') || document.querySelector('.modal-overlay.active')
+                 || (typeof tourActive !== 'undefined' && tourActive) || (typeof insightsPopupOpen === 'function' && insightsPopupOpen());
+    if(busy){ scheduleValueReminder(tries + 1); return; }
+    if(valueReminderDue()) showValueReminder();
+  }, tries === 0 ? 2600 : 2000);
 }
 
 // Show the "new here?" banner once, only for a genuinely first-ever,
