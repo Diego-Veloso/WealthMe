@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v319 -->
+<!-- WEALTH.ME — v320 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -736,7 +736,7 @@ a.pp-link.btn{display:flex;align-items:center;justify-content:center;gap:8px;tex
 .eb-legend i.s{background:repeating-linear-gradient(135deg,var(--eb-c,var(--sage)) 0 3px,color-mix(in srgb,var(--eb-c,var(--sage)) 40%,transparent) 3px 6px);}
 .eb-legend i.k{width:3px;border-radius:1px;background:var(--navy);}
 [data-theme="dark"] .eb-legend i.k{background:#F1F5F9;}
-.eb-left{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px;font-size:13.5px;font-weight:700;color:var(--navy);}
+.eb-left{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-top:4px;font-size:13.5px;font-weight:700;color:var(--navy);}
 [data-theme="dark"] .eb-left{color:#F1F5F9;}
 .eb-left .neg{color:var(--terracotta);}
 .eb-pace-pill{flex:none;font-size:11px;font-weight:800;padding:3px 9px;border-radius:999px;white-space:nowrap;}
@@ -746,6 +746,8 @@ a.pp-link.btn{display:flex;align-items:center;justify-content:center;gap:8px;tex
 [data-theme="dark"] .eb-pace-pill.warn{color:#F0BC45;}
 .eb-pace-pill.bad{background:color-mix(in srgb,var(--terracotta) 16%,transparent);color:var(--terracotta);}
 .eb-over{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
+.eb-of{flex:none;font-size:11.5px;font-weight:600;color:var(--slate);}
+.eb-actions{display:flex;justify-content:center;gap:8px;margin-top:12px;flex-wrap:wrap;}
 .eb-over:empty{display:none;}
 .eb-chip{border:none;cursor:pointer;font:inherit;font-size:11.5px;font-weight:700;padding:5px 10px;border-radius:999px;background:color-mix(in srgb,var(--terracotta) 13%,transparent);color:var(--terracotta);}
 .eb-chip b{font-weight:800;}
@@ -2766,27 +2768,25 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
       <div class="card" id="homeExpenseBudgetBar" style="padding:12px 14px;">
         <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px;">
           <span class="muted" style="font-size:11px;text-transform:uppercase;letter-spacing:.5px;font-weight:700;">Expenses vs Budget</span>
-          <div style="display:flex;align-items:center;gap:8px;">
-            <span class="muted" id="homeExpenseBudgetPct" style="font-size:11px;font-weight:700;"></span>
-            <button type="button" class="pill-btn" id="homeBudgetsLinkBtn" aria-label="Open the Budgets page">Budgets &#8250;</button>
-          </div>
+          <span class="eb-pace-pill" id="homeExpenseBudgetPacePill"></span>
         </div>
         <div id="homeExpenseBudgetContent" style="display:none;">
-          <!-- v319: paid (solid) + still coming (striped), pace marker for today -->
+          <!-- v319/v320: paid (solid) + planned (striped), tick = where spending should be today -->
           <div class="eb-bar" id="homeExpenseBudgetTrack">
             <div class="eb-paid" id="homeExpenseBudgetFill"></div>
             <div class="eb-planned" id="homeExpenseBudgetPlanned"></div>
             <div class="eb-pace" id="homeExpenseBudgetPace" title="Where spending should be by today"></div>
           </div>
-          <div class="eb-legend" id="homeExpenseBudgetText"></div>
           <div class="eb-left">
             <span id="homeExpenseBudgetLeft"></span>
-            <span class="eb-pace-pill" id="homeExpenseBudgetPacePill"></span>
+            <span class="eb-of" id="homeExpenseBudgetPct"></span>
           </div>
           <div class="eb-over" id="homeExpenseBudgetOver"></div>
         </div>
-        <div style="text-align:center;margin-top:10px;" id="homeRecapBtnWrap">
-          <button class="pill-btn" id="viewRecapBtn">View Month in Review</button>
+        <!-- v320: buttons together at the bottom -->
+        <div class="eb-actions" id="homeRecapBtnWrap">
+          <button class="pill-btn" id="viewRecapBtn">Month in Review</button>
+          <button type="button" class="pill-btn" id="homeBudgetsLinkBtn" aria-label="Open the Budgets page">Budgets &#8250;</button>
         </div>
       </div>
 
@@ -3059,7 +3059,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         <div id="refreshStatus" class="more-refresh-status"></div>
       </div>
 
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 319</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 320</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -3102,7 +3102,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 319</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 320</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -3440,7 +3440,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         </div>
         <div class="accordion-body" id="acc-recap-filters">
           <ul style="font-size:13px;line-height:1.8;margin:0;padding-left:18px;">
-            <li><strong>View Month in Review</strong> (Home page, below the balance): a quick recap — income, expenses, net savings, top category, biggest transaction, and net worth change — with a Share button.</li>
+            <li><strong>Month in Review</strong> (Home page, Expenses vs Budget card): a quick recap — income, expenses, net savings, top category, biggest transaction, and net worth change — with a Share button.</li>
             <li><strong>Saved filter presets</strong> (Activity page): tap <strong>+ Save Filter</strong> to name and save your current status/period/search/sort combination as a chip you can re-apply with one tap. The × on a chip removes it.</li>
           </ul>
         </div>
@@ -4392,7 +4392,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 319;
+const APP_VERSION = 320;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -13107,6 +13107,11 @@ function renderHome(){
 // BUDGETS target. The bar hides until at least one budget is saved
 // (More \u2192 Budgets \u2192 Save as My Budgets), since a 0-budget bar has
 // nothing meaningful to show; the Month in Review button below it stays.
+// v320: whole dollars for the compact budget card ($2,360)
+function fmtMoneyShort(n){
+  const sign = n < 0 ? '-' : '';
+  return sign + '$' + Math.round(Math.abs(n)).toLocaleString();
+}
 function renderHomeExpenseBudgetBar(){
   // The card itself always stays (it holds the Month in Review button);
   // only the bar content hides until a budget is saved.
@@ -13117,6 +13122,7 @@ function renderHomeExpenseBudgetBar(){
   if(savedBudgetTotal <= 0){
     container.style.display = 'none';
     pctEl.textContent = '';
+    const pp = document.getElementById('homeExpenseBudgetPacePill'); pp.className = 'eb-pace-pill'; pp.textContent = '';
     linkBtn.innerHTML = 'Set up budget &#8250;';
     return;
   }
@@ -13139,7 +13145,7 @@ function renderHomeExpenseBudgetBar(){
 
   container.style.display = 'block';
   container.style.setProperty('--eb-c', color);   // bar and legend share the colour
-  document.getElementById('homeExpenseBudgetPct').textContent = rawPct.toFixed(0) + '%';
+  document.getElementById('homeExpenseBudgetPct').textContent = `${rawPct.toFixed(0)}% of ${fmtMoneyShort(totalBudget)}`;
   const paidW = Math.max(0, Math.min(100, paid / totalBudget * 100));
   const planW = Math.max(0, Math.min(100 - paidW, planned / totalBudget * 100));
   const fill = document.getElementById('homeExpenseBudgetFill');
@@ -13166,7 +13172,6 @@ function renderHomeExpenseBudgetBar(){
     paceEl.style.display = 'block';
     paceEl.style.left = (frac * 100).toFixed(1) + '%';
     paceEl.title = `By today: ${fmtMoney(expected)}`;
-    paceTxt = '<span><i class="k"></i>Today\u2019s pace</span>';
     if(overBudget){ pill.classList.add('bad'); pill.textContent = 'Over budget'; }
     else if(paid <= expected + 0.005){ pill.classList.add('ok'); pill.textContent = 'On pace'; pill.title = `${fmtMoney(paid)} paid \u00b7 ${fmtMoney(expected)} expected by today`; }
     else { pill.classList.add('warn'); pill.textContent = 'Ahead of pace'; pill.title = `${fmtMoney(paid - expected)} more than expected by today`; }
@@ -13174,29 +13179,30 @@ function renderHomeExpenseBudgetBar(){
     paceEl.style.display = 'none';
     if(overBudget){ pill.classList.add('bad'); pill.textContent = 'Over budget'; }
   }
-  document.getElementById('homeExpenseBudgetText').innerHTML =
-    `<span><i class="p"></i>Paid ${fmtMoney(paid)}</span><span><i class="s"></i>Planned ${fmtMoney(planned)}</span>${paceTxt}<span>Budget ${fmtMoney(totalBudget)}</span>`;
+  document.getElementById('homeExpenseBudgetTrack').title = `Paid ${fmtMoney(paid)} \u00b7 Planned ${fmtMoney(planned)} (striped) \u00b7 Budget ${fmtMoney(totalBudget)}`;
 
   // What's left, and per day for the rest of this month
   const left = totalBudget - totalSpent;
   const leftEl = document.getElementById('homeExpenseBudgetLeft');
+  leftEl.title = '';
   if(left < -0.005){
-    leftEl.innerHTML = `<span class="neg">Over by ${fmtMoney(-left)}</span>`;
+    leftEl.innerHTML = `<span class="neg">Over by ${fmtMoneyShort(-left)}</span>`;
   } else if(isThisMonth){
     const daysLeft = daysInMonth - today.getDate() + 1;
-    leftEl.textContent = `${fmtMoney(left)} left \u00b7 about ${fmtMoney(left / daysLeft)}/day for ${daysLeft} day${daysLeft === 1 ? '' : 's'}`;
+    leftEl.textContent = `${fmtMoneyShort(left)} left \u00b7 ${fmtMoneyShort(left / daysLeft)}/day`;
+    leftEl.title = `About ${fmtMoney(left / daysLeft)} a day for the ${daysLeft} day${daysLeft === 1 ? '' : 's'} left this month`;
   } else {
     const past = homeDate < new Date(today.getFullYear(), today.getMonth(), 1);
-    leftEl.textContent = past ? `Finished ${fmtMoney(left)} under budget` : `${fmtMoney(left)} left to plan`;
+    leftEl.textContent = past ? `${fmtMoneyShort(left)} under budget` : `${fmtMoneyShort(left)} left to plan`;
   }
 
   // Up to 3 categories over their budget (tap to open them)
   const bySub = {};
   monthExp.forEach(e => { bySub[e.subcategory] = (bySub[e.subcategory] || 0) + Number(e.amount); });
   const overs = Object.keys(bySub).map(sub => ({ sub, over: bySub[sub] - homeBudgetTarget(sub), target: homeBudgetTarget(sub) }))
-    .filter(r => r.target > 0 && r.over > 0.005).sort((x, y) => y.over - x.over).slice(0, 3);
+    .filter(r => r.target > 0 && r.over > 0.005).sort((x, y) => y.over - x.over).slice(0, 2);
   const overEl = document.getElementById('homeExpenseBudgetOver');
-  overEl.innerHTML = overs.map(r => `<button type="button" class="eb-chip" data-sub="${r.sub}" title="Open ${r.sub}">${r.sub} <b>+${fmtMoney(r.over)}</b></button>`).join('');
+  overEl.innerHTML = overs.map(r => `<button type="button" class="eb-chip" data-sub="${r.sub}" title="Open ${r.sub}">${r.sub} <b>+${fmtMoneyShort(r.over)}</b></button>`).join('');
   overEl.querySelectorAll('.eb-chip').forEach(btn => btn.addEventListener('click', ()=> openDetail('Expense', btn.dataset.sub)));
 }
 
