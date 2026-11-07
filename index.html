@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v320 -->
+<!-- WEALTH.ME — v321 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -2781,7 +2781,6 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
             <span id="homeExpenseBudgetLeft"></span>
             <span class="eb-of" id="homeExpenseBudgetPct"></span>
           </div>
-          <div class="eb-over" id="homeExpenseBudgetOver"></div>
         </div>
         <!-- v320: buttons together at the bottom -->
         <div class="eb-actions" id="homeRecapBtnWrap">
@@ -3059,7 +3058,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         <div id="refreshStatus" class="more-refresh-status"></div>
       </div>
 
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 320</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 321</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -3102,7 +3101,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 320</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 321</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -4392,7 +4391,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 320;
+const APP_VERSION = 321;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -13196,14 +13195,7 @@ function renderHomeExpenseBudgetBar(){
     leftEl.textContent = past ? `${fmtMoneyShort(left)} under budget` : `${fmtMoneyShort(left)} left to plan`;
   }
 
-  // Up to 3 categories over their budget (tap to open them)
-  const bySub = {};
-  monthExp.forEach(e => { bySub[e.subcategory] = (bySub[e.subcategory] || 0) + Number(e.amount); });
-  const overs = Object.keys(bySub).map(sub => ({ sub, over: bySub[sub] - homeBudgetTarget(sub), target: homeBudgetTarget(sub) }))
-    .filter(r => r.target > 0 && r.over > 0.005).sort((x, y) => y.over - x.over).slice(0, 2);
-  const overEl = document.getElementById('homeExpenseBudgetOver');
-  overEl.innerHTML = overs.map(r => `<button type="button" class="eb-chip" data-sub="${r.sub}" title="Open ${r.sub}">${r.sub} <b>+${fmtMoneyShort(r.over)}</b></button>`).join('');
-  overEl.querySelectorAll('.eb-chip').forEach(btn => btn.addEventListener('click', ()=> openDetail('Expense', btn.dataset.sub)));
+  // v321: over-budget subcategory chips removed from this card (Breakdown still marks them)
 }
 
 function renderLineChart(){
