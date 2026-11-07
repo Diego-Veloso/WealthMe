@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v317 -->
+<!-- WEALTH.ME — v318 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -717,6 +717,12 @@ html.sheets-sync-off .sheets-sync-ui{display:none !important;}
 .policy-frame-wrap iframe{position:absolute;inset:0;width:100%;height:100%;border:0;background:transparent;}
 .policy-loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--slate);font-size:14px;}
 a.pp-link.btn{display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;box-sizing:border-box;}
+/* v318: Category Detail average for the chart's period */
+.detail-avg{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;margin:-2px 0 12px;padding:10px 12px;border-radius:12px;background:color-mix(in srgb,var(--slate) 9%,transparent);font-size:13px;}
+.detail-avg .da-label{font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:var(--slate);width:100%;}
+.detail-avg .da-amt{font-size:18px;font-weight:800;color:var(--navy);}
+.detail-avg .da-pct{font-weight:700;color:var(--slate);}
+[data-theme="dark"] .detail-avg .da-amt{color:#F1F5F9;}
 .vu-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;}
 .vu-current{font-size:13px;line-height:1.5;padding:10px 12px;border-radius:12px;background:color-mix(in srgb,var(--skin-blue, #0A8FE8) 8%,transparent);margin-bottom:12px;}
 .vu-current b{font-weight:800;}
@@ -3017,7 +3023,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         <div id="refreshStatus" class="more-refresh-status"></div>
       </div>
 
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 317</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 318</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -3036,7 +3042,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         <button class="active" data-cat="Income">Income</button>
         <button data-cat="Expense">Expense</button>
         <button data-cat="Investment">Investment</button>
-        <button data-cat="Capital">Capital</button>
+        <button data-cat="Capital" style="display:none;" aria-hidden="true" tabindex="-1">Capital</button><!-- v318: hidden here; Capital shares Investment's accounts -->
       </div>
       <div id="subcategoryManager" style="margin-top:10px;"></div>
 
@@ -3060,7 +3066,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 317</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 318</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -4225,6 +4231,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
           <div class="card-title">
             <span id="detailTrendTitle">Trend</span>
           </div>
+          <div class="detail-avg" id="detailAvg"></div>
           <div class="chart-wrap"><canvas id="detailTrendChart" role="img" aria-label="Category detail trend chart"></canvas></div>
         </div>
 
@@ -4349,7 +4356,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 317;
+const APP_VERSION = 318;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -10856,6 +10863,7 @@ document.getElementById('subcatCategorySeg').querySelectorAll('button').forEach(
 
 function renderSubcategoryManager(){
   const container = document.getElementById('subcategoryManager');
+  if(subcatManagerCategory === 'Capital') subcatManagerCategory = 'Investment';   // v318: Capital isn't shown here
   const cat = subcatManagerCategory;
   container.dataset.cat = cat;   // chips are tinted in the category's colour
   const subs = CATEGORY_MAP[cat];
@@ -10871,7 +10879,7 @@ function renderSubcategoryManager(){
   `).join('');
 
   const mirrorNote = isMirroredCat(cat)
-    ? `<div class="muted" style="font-size:12px;margin:0 0 10px;">Investment and Capital share the same subcategories. Changes made here apply to both.</div>` : '';
+    ? `<div class="muted" style="font-size:12px;margin:0 0 10px;">These accounts are also used for Capital (gains and losses), so changes here apply to both.</div>` : '';
   container.innerHTML = `
     ${mirrorNote}
     <div class="account-chip-list">${chips || `<span class="muted">No subcategories yet.</span>`}</div>
@@ -12412,6 +12420,16 @@ function renderDetailTrendChart(){
     rawBase.push(base);
   });
 
+  // v318: average over the same 13 months the chart shows (months with nothing count as 0)
+  const avgAmt = rawExp.reduce((a, v) => a + v, 0) / monthPoints.length;
+  const avgPct = values.reduce((a, v) => a + v, 0) / monthPoints.length;
+  const avgEl = document.getElementById('detailAvg');
+  if(avgEl){
+    const span = `${monthPoints[0].toLocaleString(undefined,{month:'short', year:'numeric'})} \u2013 ${monthPoints[monthPoints.length-1].toLocaleString(undefined,{month:'short', year:'numeric'})}`;
+    avgEl.innerHTML = `<span class="da-label">Monthly average \u00b7 ${span}</span>`
+      + `<span class="da-amt">${fmtMoney(avgAmt)}</span><span class="da-pct">${avgPct.toFixed(1)}% of ${baseLabel}</span>`;
+  }
+
   if(detailTrendChartInstance){ detailTrendChartInstance.destroy(); }
 
   // Use same style as daily cashflow chart
@@ -12444,6 +12462,17 @@ function renderDetailTrendChart(){
             return (y0 === 0 && y1 === 0) ? 'rgba(128,128,128,0.15)' : catColor;
           }
         }
+      }, {
+        // v318: dashed line at the period average
+        label: 'Average',
+        data: values.map(() => avgPct),
+        borderColor: catColor,
+        borderDash: [6, 5],
+        borderWidth: 1.5,
+        pointRadius: 0,
+        pointHoverRadius: 0,
+        fill: false,
+        tension: 0
       }]
     },
     options: {
@@ -12465,6 +12494,7 @@ function renderDetailTrendChart(){
             title: (items) => items[0].label,
             label: (ctx2) => {
               const i = ctx2.dataIndex;
+              if(ctx2.datasetIndex === 1) return `Average: ${avgPct.toFixed(1)}% \u00b7 ${fmtMoney(avgAmt)}/mo`;
               return [
                 `${ctx2.parsed.y.toFixed(1)}% of ${baseIsGross ? 'gross' : 'net'}`,
                 `Amount: ${fmtMoney(rawExp[i])}`,
