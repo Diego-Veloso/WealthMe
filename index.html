@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v321 -->
+<!-- WEALTH.ME — v322 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -746,6 +746,19 @@ a.pp-link.btn{display:flex;align-items:center;justify-content:center;gap:8px;tex
 [data-theme="dark"] .eb-pace-pill.warn{color:#F0BC45;}
 .eb-pace-pill.bad{background:color-mix(in srgb,var(--terracotta) 16%,transparent);color:var(--terracotta);}
 .eb-over{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
+/* v322: tap the bar for details (same look as the Daily Cashflow chart's box) */
+#homeExpenseBudgetBar{position:relative;}
+.eb-hit{position:relative;padding:8px 0;margin:-6px 0 -2px;cursor:pointer;-webkit-tap-highlight-color:transparent;outline:none;}
+.eb-tip{position:absolute;bottom:calc(100% - 2px);left:0;z-index:20;min-width:190px;max-width:260px;padding:10px 12px;border-radius:8px;
+  font-family:'Inter',sans-serif;font-size:12px;line-height:1.55;box-shadow:0 8px 24px rgba(0,0,0,.22);pointer-events:none;
+  opacity:0;transform:translateY(4px);transition:opacity .15s,transform .15s;visibility:hidden;}
+.eb-tip.show{opacity:1;transform:translateY(0);visibility:visible;}
+.eb-tip .t{font-size:13px;font-weight:600;margin-bottom:4px;}
+.eb-tip .r{display:flex;justify-content:space-between;gap:14px;white-space:nowrap;}
+.eb-tip .r span:first-child{display:inline-flex;align-items:center;gap:6px;}
+.eb-tip i{display:inline-block;width:10px;height:10px;border-radius:3px;}
+.eb-tip i.k{width:3px;border-radius:1px;}
+.eb-tip .sep{height:1px;margin:5px 0;opacity:.25;background:currentColor;}
 .eb-of{flex:none;font-size:11.5px;font-weight:600;color:var(--slate);}
 .eb-actions{display:flex;justify-content:center;gap:8px;margin-top:12px;flex-wrap:wrap;}
 .eb-over:empty{display:none;}
@@ -2772,10 +2785,13 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         </div>
         <div id="homeExpenseBudgetContent" style="display:none;">
           <!-- v319/v320: paid (solid) + planned (striped), tick = where spending should be today -->
-          <div class="eb-bar" id="homeExpenseBudgetTrack">
-            <div class="eb-paid" id="homeExpenseBudgetFill"></div>
-            <div class="eb-planned" id="homeExpenseBudgetPlanned"></div>
-            <div class="eb-pace" id="homeExpenseBudgetPace" title="Where spending should be by today"></div>
+          <div class="eb-hit" id="homeExpenseBudgetHit" role="button" tabindex="0" aria-label="Show budget details">
+            <div class="eb-bar" id="homeExpenseBudgetTrack">
+              <div class="eb-paid" id="homeExpenseBudgetFill"></div>
+              <div class="eb-planned" id="homeExpenseBudgetPlanned"></div>
+              <div class="eb-pace" id="homeExpenseBudgetPace"></div>
+            </div>
+            <div class="eb-tip" id="homeExpenseBudgetTip" role="tooltip"></div>
           </div>
           <div class="eb-left">
             <span id="homeExpenseBudgetLeft"></span>
@@ -3058,7 +3074,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         <div id="refreshStatus" class="more-refresh-status"></div>
       </div>
 
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 321</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 322</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -3101,7 +3117,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 321</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 322</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -3385,6 +3401,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         <div class="accordion-body" id="acc-gestures">
           <ul style="font-size:13px;line-height:1.8;margin:0;padding-left:18px;">
             <li><strong>Double-tap the donut chart</strong> on Home (double-click on a computer) to open Category Detail for whatever's selected there.</li>
+            <li><strong>Tap the Expenses vs Budget bar</strong> on Home (hover on a computer) to see paid, planned, budget, what you should have spent by today and what&rsquo;s left per day.</li>
             <li><strong>Press and hold a slice</strong> of the donut chart to open Category Detail for that subcategory. A quick tap does nothing on purpose, so brushing the chart never takes you away.</li>
             <li><strong>Swipe an entry left</strong> to Mark Actual, or <strong>right</strong> to Delete, with a 5-second Undo. Works in every entry list: Activity, Debts, Category Detail, the Calendar and Notifications (touch screens).</li>
             <li><strong>Press and hold an entry on Activity</strong> to start selecting: checkboxes appear and the held entry is ticked. Tap entries to add or remove them; untick everything to stop.</li>
@@ -4391,7 +4408,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 321;
+const APP_VERSION = 322;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -13106,6 +13123,61 @@ function renderHome(){
 // BUDGETS target. The bar hides until at least one budget is saved
 // (More \u2192 Budgets \u2192 Save as My Budgets), since a 0-budget bar has
 // nothing meaningful to show; the Month in Review button below it stays.
+// v322: box with the numbers behind the Expenses vs Budget bar
+var _ebInfo = null;
+function hideBudgetTip(){ const t = document.getElementById('homeExpenseBudgetTip'); if(t) t.classList.remove('show'); }
+function showBudgetTip(clientX){
+  const tip = document.getElementById('homeExpenseBudgetTip');
+  const hit = document.getElementById('homeExpenseBudgetHit');
+  if(!tip || !hit || !_ebInfo) return;
+  const c = chartColors(), d = _ebInfo;
+  const left = d.totalBudget - d.paid - d.planned;
+  const stripe = `repeating-linear-gradient(135deg,${d.color} 0 3px,transparent 3px 6px)`;
+  let html = `<div class="t">${d.monthLabel}</div>`
+    + `<div class="r"><span><i style="background:${d.color}"></i>Paid</span><span>${fmtMoney(d.paid)}</span></div>`
+    + `<div class="r"><span><i style="background:${stripe};box-shadow:inset 0 0 0 1px ${d.color}"></i>Planned</span><span>${fmtMoney(d.planned)}</span></div>`
+    + `<div class="r"><span>Budget</span><span>${fmtMoney(d.totalBudget)}</span></div>`
+    + `<div class="sep"></div>`
+    + `<div class="r"><span>Used</span><span>${d.rawPct.toFixed(0)}%</span></div>`;
+  if(d.isThisMonth){
+    html += `<div class="r"><span><i class="k" style="background:${c.tooltipText}"></i>Expected by today</span><span>${fmtMoney(d.expected)}</span></div>`;
+  }
+  html += left < -0.005
+    ? `<div class="r"><span>Over by</span><span>${fmtMoney(-left)}</span></div>`
+    : `<div class="r"><span>Left</span><span>${fmtMoney(left)}</span></div>`;
+  if(d.isThisMonth && left > 0.005){
+    html += `<div class="r"><span>Per day (${d.daysLeft} left)</span><span>${fmtMoney(left / d.daysLeft)}</span></div>`;
+  }
+  tip.innerHTML = html;
+  tip.style.background = c.tooltipBg;
+  tip.style.color = c.tooltipText;
+  tip.classList.add('show');
+  // place it over the tapped point, kept inside the card
+  const hr = hit.getBoundingClientRect();
+  const w = tip.offsetWidth;
+  const x = (clientX == null ? hr.left + hr.width / 2 : clientX) - hr.left - w / 2;
+  tip.style.left = Math.max(0, Math.min(hr.width - w, x)) + 'px';
+}
+(function(){
+  const hit = document.getElementById('homeExpenseBudgetHit');
+  if(!hit) return;
+  // Touch: tap shows / tap again hides. Mouse: shows while hovering.
+  let lastPointer = 'mouse';
+  hit.addEventListener('pointerdown', (e)=>{ lastPointer = e.pointerType || 'mouse'; });
+  hit.addEventListener('click', (e)=>{
+    e.stopPropagation();
+    const tip = document.getElementById('homeExpenseBudgetTip');
+    if(lastPointer !== 'mouse' && tip.classList.contains('show')){ hideBudgetTip(); return; }
+    showBudgetTip(e.clientX);
+  });
+  hit.addEventListener('pointermove', (e)=>{ if(e.pointerType === 'mouse') showBudgetTip(e.clientX); });
+  hit.addEventListener('pointerleave', (e)=>{ if(e.pointerType === 'mouse') hideBudgetTip(); });
+  hit.addEventListener('keydown', (e)=>{ if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); showBudgetTip(null); } if(e.key === 'Escape') hideBudgetTip(); });
+  hit.addEventListener('blur', hideBudgetTip);
+  document.addEventListener('click', (e)=>{ if(!e.target.closest('#homeExpenseBudgetHit')) hideBudgetTip(); });
+  window.addEventListener('scroll', hideBudgetTip, {passive:true});
+})();
+
 // v320: whole dollars for the compact budget card ($2,360)
 function fmtMoneyShort(n){
   const sign = n < 0 ? '-' : '';
@@ -13170,7 +13242,6 @@ function renderHomeExpenseBudgetBar(){
     const expected = totalBudget * frac;
     paceEl.style.display = 'block';
     paceEl.style.left = (frac * 100).toFixed(1) + '%';
-    paceEl.title = `By today: ${fmtMoney(expected)}`;
     if(overBudget){ pill.classList.add('bad'); pill.textContent = 'Over budget'; }
     else if(paid <= expected + 0.005){ pill.classList.add('ok'); pill.textContent = 'On pace'; pill.title = `${fmtMoney(paid)} paid \u00b7 ${fmtMoney(expected)} expected by today`; }
     else { pill.classList.add('warn'); pill.textContent = 'Ahead of pace'; pill.title = `${fmtMoney(paid - expected)} more than expected by today`; }
@@ -13178,7 +13249,11 @@ function renderHomeExpenseBudgetBar(){
     paceEl.style.display = 'none';
     if(overBudget){ pill.classList.add('bad'); pill.textContent = 'Over budget'; }
   }
-  document.getElementById('homeExpenseBudgetTrack').title = `Paid ${fmtMoney(paid)} \u00b7 Planned ${fmtMoney(planned)} (striped) \u00b7 Budget ${fmtMoney(totalBudget)}`;
+  // v322: details for the tap/hover box
+  _ebInfo = { paid, planned, totalBudget, rawPct, color, isThisMonth, monthLabel: fmtMonthYear(homeDate),
+              expected: isThisMonth ? totalBudget * (today.getDate() / daysInMonth) : null,
+              daysLeft: isThisMonth ? daysInMonth - today.getDate() + 1 : null, pace: pill.textContent };
+  hideBudgetTip();
 
   // What's left, and per day for the rest of this month
   const left = totalBudget - totalSpent;
