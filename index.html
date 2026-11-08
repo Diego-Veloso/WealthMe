@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v322 -->
+<!-- WEALTH.ME — v323 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -3074,7 +3074,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         <div id="refreshStatus" class="more-refresh-status"></div>
       </div>
 
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 322</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 323</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -3117,7 +3117,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 322</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 323</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -3424,7 +3424,6 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         <div class="accordion-body" id="acc-budgets-goals">
           <ul style="font-size:13px;line-height:1.8;margin:0;padding-left:18px;">
             <li><strong>Budgets</strong> (More → Budgets): enter your monthly income (or tap Autofill to use the selected month's Net Income) and get a suggested split across your expense categories, based on your average spending over the last 12 months (or a standard split where there is no history). Type a % of income for any category, or nudge it with +/-, and its $ amount updates alongside. Set a maximum expected expenses % (90% by default) and amounts automatically scale down proportionally to fit within it. Going over that maximum highlights a warning and suggests which categories to trim. Each category also shows a progress bar tracking actual spend against that plan for whichever month you've selected. "Save as My Budgets" turns the result into $ targets the rest of the app (like the Monthly Recap's over-budget count) uses.</li>
-            <li><strong>Debt payoff goals</strong> (Debts page): each account shows a progress bar (% ever charged that's now paid off) and a projected payoff date based on your trailing 3-month average payment pace — no manual goal to set up.</li>
             <li><strong>Net Worth</strong> (Money page): a summary card and 12-month trend chart, calculated as your investments and capital minus whatever debt is currently Planned (unpaid).</li>
             <li><strong>Updating an investment account&rsquo;s value</strong>: open the account (Money &rarr; Investment Accounts) and tap <strong>Update value</strong>. Enter what it&rsquo;s worth today; the app adds the difference as a Capital gain or loss (&ldquo;Value update&rdquo;), so you don&rsquo;t have to work it out yourself. Updating again on the same date replaces the earlier update. On the first day of each month the app reminds you to update your accounts (or the first time you open it that month).</li>
             <li><strong>Withdrawing from an investment account</strong>: add a negative Investment entry for that account. It still adds to your cash flow, and on the Money page it comes out of that account&rsquo;s Capital first, then from what you invested. Example: 100 invested + 30 capital, withdraw 50 &rarr; 80 invested, 0 capital.</li>
@@ -4408,7 +4407,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 322;
+const APP_VERSION = 323;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -12138,11 +12137,7 @@ function renderDebts(){
       bodyHtml = orderedKeys.map(key=>{
         const acctRows = acctGroups[key];
         const acctTotal = acctRows.reduce((a,e)=>a+Number(e.amount),0);
-        const goal = goalStatsFor(type, key);
-        const goalHtml = goal.everCharged > 0 ? `
-          <div class="progress-track" style="margin:6px 0 4px;"><div class="progress-fill" style="width:${goal.progressPct.toFixed(1)}%;background:var(--sage);"></div></div>
-          <div class="muted" style="font-size:11px;margin-bottom:8px;">${goal.progressPct.toFixed(0)}% paid off${goal.projectionText ? ' · ' + goal.projectionText : ''}</div>
-        ` : '';
+        const goalHtml = '';   // v323: paid-off progress bar removed from the Debts page (the "paid off" celebration still works)
 
         // Credit limit usage — only for Credit Card accounts with a limit
         // set (in More → Credit Limits). Shows available headroom and
@@ -13567,7 +13562,7 @@ const TOUR_STEPS = [
   { view:'transactions', target:'#txSearchToggle', title:'Find any transaction', text:'Tap the magnifier, then search by category, subcategory, notes, or account \u2014 this list covers every entry you\u2019ve ever made.' },
   { view:'transactions', target:'#txPeriodSeg', title:'Filter by time', text:'Narrow the list to this month, next month, this year, or your own custom date range.' },
   { view:'transactions', target:'#txFilterSeg', title:'Planned vs. Actual', text:'Show everything, just what\u2019s still planned, or just what\u2019s already happened. The sort button beside it flips oldest/newest first.' },
-  { view:'debts', target:'#debtTypePager', title:'Track what you owe', text:'Tap a type in the switch (or swipe the list) to move between Credit Cards, Financing, and Other debts \u2014 grouped by account \u2014 each shows a payoff-progress bar, and Credit Cards also show their credit limit usage if you\u2019ve set one (More \u2192 Credit Limits).' },
+  { view:'debts', target:'#debtTypePager', title:'Track what you owe', text:'Tap a type in the switch (or swipe the list) to move between Credit Cards, Financing, and Other debts \u2014 grouped by account \u2014 Credit Cards also show their credit limit usage if you\u2019ve set one (More \u2192 Credit Limits).' },
   { view:'money', moneyPage:'overview', target:'#view-money .summary-grid', title:'Money, at a glance', text:'Tap the Net Position card to see your investment accounts (on a computer they sit beside it), and swipe the month bar to change month. What you\u2019ve invested, what\u2019s planned, your cumulative total, capital gains/losses, and your overall net position.' },
   { view:'money', moneyPage:'overview', target:'#moneyProgressFill', title:'Plan progress', text:'How much of this month\u2019s planned investing is actually done (Actual) versus still Planned.' },
   { view:'more', target:'#budgetsBtn', title:'Budgets', text:'A beginner-friendly planner: enter your income, get a split per category suggested from your 12-month average, type or nudge the % for each category until it fits, and track actual spend against the plan each month.' },
