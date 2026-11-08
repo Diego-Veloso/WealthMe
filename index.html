@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v323 -->
+<!-- WEALTH.ME — v324 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1693,6 +1693,10 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
 #view-debts .debt-type-pager{margin-top:0;}
 .icon-btn.search-toggle.active{background:var(--skin-grad-primary);color:#fff;border-color:transparent;box-shadow:0 6px 14px rgba(10,111,208,.3);}
 .burn-strip{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:9px 14px;margin-bottom:14px;box-shadow:var(--shadow-sm,0 2px 8px rgba(15,27,45,.05));}
+.burn-strip.in-card .burn-main{flex-wrap:nowrap;min-width:0;}
+.burn-strip.in-card .burn-label,.burn-strip.in-card .burn-val{white-space:nowrap;}
+@media (max-width:420px){ .burn-strip.in-card{flex-wrap:wrap;row-gap:6px;} .burn-strip.in-card .burn-label{font-size:10.5px;} }
+.burn-strip.in-card{background:transparent;border:none;box-shadow:none;border-radius:0;margin:12px 0 0;padding:12px 2px 0;border-top:1px solid var(--line);}
 .burn-main{display:flex;align-items:baseline;gap:8px;min-width:0;}
 .burn-label{font-size:11px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:var(--slate);}
 .burn-val{font-size:16px;font-weight:800;color:var(--terracotta,#C1583F);}
@@ -2362,12 +2366,11 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
   #view-home.active{
     display:grid;gap:18px 20px;align-items:start;
     grid-template-columns:repeat(3,minmax(0,1fr));
-    grid-template-rows:auto auto auto auto auto 1fr;
+    grid-template-rows:auto auto auto auto 1fr;
     grid-template-areas:
       "tour tour tour"
       "hero tiles tiles"
       "cash cash brk"
-      "burn burn brk"
       "bud  bud  brk"
       ".    .    brk";
   }
@@ -2380,7 +2383,6 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
   #homeSummaryGrid .summary-card{display:flex;flex-direction:column;justify-content:center;min-height:74px;}
   #homeCashflowCard{grid-area:cash;}
   #homeCashflowCard .chart-wrap{height:290px;}
-  #burnRateCard{grid-area:burn;}
   #homeExpenseBudgetBar{grid-area:bud;}
   #homeBreakdownCard{grid-area:brk;}
   #homeBreakdownCard .card-title{flex-wrap:wrap;gap:8px;}
@@ -2768,14 +2770,14 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
       <div class="card" id="homeCashflowCard">
         <div class="card-title">Daily Cashflow<button type="button" class="cal-open-btn" id="homeCalendarBtn" title="Open calendar" aria-label="Open calendar"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></button></div>
         <div class="chart-wrap"><canvas id="lineChart" role="img" aria-label="Daily cashflow chart for the selected month"></canvas></div>
-      </div>
-
-      <div class="burn-strip" id="burnRateCard">
-        <div class="burn-main">
-          <span class="burn-label">Burn Rate</span>
-          <span class="burn-val" id="burnRateValue">$0.00<span class="burn-unit"> / day</span></span>
+        <!-- v324: Daily Expenses (was the Burn Rate card) now sits under the chart -->
+        <div class="burn-strip in-card" id="burnRateCard">
+          <div class="burn-main">
+            <span class="burn-label">Daily Expenses</span>
+            <span class="burn-val" id="burnRateValue">$0.00<span class="burn-unit"> / day</span></span>
+          </div>
+          <span class="tile-badge" id="burnRateBadge" style="display:none;"></span>
         </div>
-        <span class="tile-badge" id="burnRateBadge" style="display:none;"></span>
       </div>
 
       <div class="card" id="homeExpenseBudgetBar" style="padding:12px 14px;">
@@ -3074,7 +3076,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         <div id="refreshStatus" class="more-refresh-status"></div>
       </div>
 
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 323</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 324</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -3117,7 +3119,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 323</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 324</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -4407,7 +4409,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 323;
+const APP_VERSION = 324;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -13035,7 +13037,7 @@ function renderHome(){
     }
   }
 
-  // Burn Rate: the month's expenses (same figure as the Expenses card, taxes
+  // Daily Expenses (was "Burn Rate"): the month's expenses (same figure as the Expenses card, taxes
   // excluded) per day, against the daily average of the 12 months before it.
   (function renderBurnRate(){
     const dim = (y, m)=> new Date(y, m + 1, 0).getDate();
