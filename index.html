@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v324 -->
+<!-- WEALTH.ME — v325 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -962,6 +962,13 @@ html:has(#moneyAccountsModalOverlay.active, #accountDetailModalOverlay.active):n
   border:1px solid var(--line);border-radius:14px;
   padding:12px;margin-bottom:10px;background:var(--card);
 }
+
+
+/* ===== Calendar reminder (Add/Edit Entry) ===== */
+.cal-remind-field{margin-bottom:14px;}
+.cal-remind-field .cal-remind-when{margin-top:8px;display:none;}
+.cal-remind-field.on .cal-remind-when{display:block;}
+.cal-remind-field .cal-remind-sub{font-size:12px;line-height:1.4;color:var(--slate);margin:6px 2px 0;font-weight:500;}
 
 /* ===== Toggle switch ===== */
 .toggle-row{
@@ -2424,7 +2431,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
     max-width:860px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:24px;align-content:start;
   }
   #entryModalOverlay > .modal{
-    grid-template-areas:"head head" "scan scan" "cat cat" "date sub" "amt type" "notes notes" "btn btn";
+    grid-template-areas:"head head" "scan scan" "cat cat" "date sub" "amt type" "notes notes" "cal ." "btn btn";
   }
   #entryModalOverlay > .modal > .modal-header{grid-area:head;}
   #entryModalOverlay > .modal > #receiptScanRow{grid-area:scan;}
@@ -2434,6 +2441,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
   #entryModalOverlay > .modal > .two-col:has(#entryAmount){grid-area:amt;}
   #entryModalOverlay > .modal > #entryTypeAccountRow{grid-area:type;}
   #entryModalOverlay > .modal > .field:has(#entryNotes){grid-area:notes;}
+  #entryModalOverlay > .modal > #entryCalRemindField{grid-area:cal;}
   #entryModalOverlay > .modal > .btn-row{grid-area:btn;}
   #recurringModalOverlay > .modal{
     grid-template-areas:"head head" "intro intro" "cat cat" "date sub" "amt type" "notes notes" "rep rep" "freq prev" "btn btn";
@@ -3076,7 +3084,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         <div id="refreshStatus" class="more-refresh-status"></div>
       </div>
 
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 324</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 325</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -3119,7 +3127,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 324</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 325</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -3954,6 +3962,23 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
           <select id="entryAccount"></select>
         </div>
       </div>
+      <div class="field cal-remind-field" id="entryCalRemindField">
+        <div class="toggle-row">
+          <span class="toggle-label" id="entryCalRemindLabel">Remind me in my calendar</span>
+          <label class="toggle-switch">
+            <input type="checkbox" id="entryCalRemindToggle" aria-labelledby="entryCalRemindLabel">
+            <span class="toggle-thumb"></span>
+          </label>
+        </div>
+        <div class="cal-remind-when" id="entryCalRemindWhen">
+          <select id="entryCalRemindOffset" aria-label="When to remind me">
+            <option value="1" selected>1 day before, 9:00 AM</option>
+            <option value="0">On the day, 9:00 AM</option>
+            <option value="3">3 days before, 9:00 AM</option>
+          </select>
+          <p class="cal-remind-sub">After you tap Save, your device will offer to add it to Calendar.</p>
+        </div>
+      </div>
       <div class="btn-row">
         <button class="btn btn-danger" id="entryDeleteBtn" style="display:none;">Delete</button>
         <button class="btn btn-primary btn-block" id="entrySaveBtn">Save Entry</button>
@@ -4409,7 +4434,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 324;
+const APP_VERSION = 325;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -7794,6 +7819,107 @@ document.getElementById('entryStatusToggle').addEventListener('change', (e)=>{
   document.getElementById('entryStatusLabel').textContent = e.target.checked ? 'Actual' : 'Planned';
 });
 
+
+/* =========================================================
+   CALENDAR REMINDER — builds a small .ics file for one entry so the
+   phone's own Calendar app can save it. Nothing is sent anywhere.
+   ========================================================= */
+function calRemindReset(){
+  const t = document.getElementById('entryCalRemindToggle');
+  if(!t) return;
+  t.checked = false;
+  document.getElementById('entryCalRemindOffset').value = '1';
+  document.getElementById('entryCalRemindField').classList.remove('on');
+}
+document.getElementById('entryCalRemindToggle').addEventListener('change', (e)=>{
+  document.getElementById('entryCalRemindField').classList.toggle('on', e.target.checked);
+});
+
+function icsEscape(t){
+  return String(t == null ? '' : t).replace(/\\/g,'\\\\').replace(/;/g,'\\;').replace(/,/g,'\\,').replace(/\r?\n/g,'\\n');
+}
+function icsFold(line){
+  // lines may be at most 75 octets: fold longer ones with CRLF + space
+  const enc = new TextEncoder();
+  if(enc.encode(line).length <= 75) return line;
+  const out = []; let cur = ''; let curBytes = 0; let limit = 75;
+  for(const ch of line){
+    const b = enc.encode(ch).length;
+    if(curBytes + b > limit){ out.push(cur); cur = ''; curBytes = 0; limit = 74; }
+    cur += ch; curBytes += b;
+  }
+  out.push(cur);
+  return out.join('\r\n ');
+}
+function icsDateCompact(iso){ return iso.replace(/-/g,''); }
+function icsNextDay(iso){
+  const [y,m,d] = iso.split('-').map(Number);
+  const dt = new Date(Date.UTC(y, m-1, d + 1));
+  return dt.getUTCFullYear() + String(dt.getUTCMonth()+1).padStart(2,'0') + String(dt.getUTCDate()).padStart(2,'0');
+}
+function buildEntryIcs(entry, daysBefore){
+  const firstLine = (entry.notes || '').split(/\r?\n/)[0].trim();
+  const label = (firstLine || entry.subcategory || entry.category || 'Entry').slice(0, 60);
+  const title = label + ' \u00B7 ' + fmtMoney(entry.amount);
+  const statusTxt = entry.status === 'Closed' ? 'Actual' : 'Planned';
+  const descParts = [
+    entry.category + (entry.subcategory ? ' \u203A ' + entry.subcategory : ''),
+    statusTxt
+  ];
+  if(entry.account) descParts.push(entry.account);
+  if(entry.notes && entry.notes.trim() && entry.notes.trim() !== firstLine) descParts.push(entry.notes.trim());
+  descParts.push('Added from WealthMe');
+  // Alerts are relative to the start of the all-day event (00:00 of the entry date):
+  // 9:00 AM on the day = +9h; 9:00 AM N days before = -(N*24 - 9)h
+  const trigger = daysBefore === 0 ? 'PT9H' : '-PT' + (daysBefore * 24 - 9) + 'H';
+  const now = new Date();
+  const stamp = now.getUTCFullYear() + String(now.getUTCMonth()+1).padStart(2,'0') + String(now.getUTCDate()).padStart(2,'0')
+    + 'T' + String(now.getUTCHours()).padStart(2,'0') + String(now.getUTCMinutes()).padStart(2,'0') + String(now.getUTCSeconds()).padStart(2,'0') + 'Z';
+  const lines = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//WealthMe//Entry Reminder//EN',
+    'CALSCALE:GREGORIAN',
+    'METHOD:PUBLISH',
+    'BEGIN:VEVENT',
+    'UID:wealthme-' + entry.id + '-' + icsDateCompact(entry.date) + '@wealthme',
+    'DTSTAMP:' + stamp,
+    'DTSTART;VALUE=DATE:' + icsDateCompact(entry.date),
+    'DTEND;VALUE=DATE:' + icsNextDay(entry.date),
+    'SUMMARY:' + icsEscape(title),
+    'DESCRIPTION:' + icsEscape(descParts.join('\n')),
+    'TRANSP:TRANSPARENT',
+    'BEGIN:VALARM',
+    'ACTION:DISPLAY',
+    'DESCRIPTION:' + icsEscape(title),
+    'TRIGGER:' + trigger,
+    'END:VALARM',
+    'END:VEVENT',
+    'END:VCALENDAR'
+  ];
+  return lines.map(icsFold).join('\r\n') + '\r\n';
+}
+function offerCalendarFile(ics, filename){
+  try{
+    const blob = new Blob([ics], {type:'text/calendar;charset=utf-8'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    // iPhone/iPad: opening the file (no "download") brings up the Add to Calendar sheet.
+    const apple = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    if(!apple) a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(()=>URL.revokeObjectURL(url), 60000);
+  }catch(err){ showToast('Could not create the calendar reminder.'); }
+}
+function calRemindAfterSave(entry){
+  if(!document.getElementById('entryCalRemindToggle').checked) return;
+  const days = parseInt(document.getElementById('entryCalRemindOffset').value, 10) || 0;
+  offerCalendarFile(buildEntryIcs(entry, days), 'wealthme-reminder.ics');
+}
+
 function openEntryModal(id, presetDate){
   const overlay = document.getElementById('entryModalOverlay');
   const title = document.getElementById('entryModalTitle');
@@ -7832,6 +7958,7 @@ function openEntryModal(id, presetDate){
     document.getElementById('entryNotes').value = '';
     document.getElementById('entryType').value = 'Other';
   }
+  calRemindReset();
   overlay.classList.add('active');
 }
 
@@ -8400,6 +8527,7 @@ document.getElementById('entrySaveBtn').addEventListener('click', ()=>{
     }
     showToast('Entry updated');
     saveState();
+    calRemindAfterSave(entry);
     closeEntryModal();
     renderCurrentView(getActiveViewName());
     // Sync only the changed entry
@@ -8421,6 +8549,7 @@ document.getElementById('entrySaveBtn').addEventListener('click', ()=>{
     receiptLearnFromSave(category, subcategory);
     showToast('Entry added');
     saveState();
+    calRemindAfterSave(newEntry);
     closeEntryModal();
     renderCurrentView(getActiveViewName());
     // Sync only the new entry
