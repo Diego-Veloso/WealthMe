@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v334 -->
+<!-- WEALTH.ME — v335 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1682,7 +1682,7 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
 .balance-hero.debt-hero .sub{color:#FFE6E3;}
 
 /* ===== v258 tweaks ===== */
-#txSortBtn{width:40px;height:40px;border-radius:13px;flex-shrink:0;}
+#txSortBtn,#txSearchToggle{width:40px;height:40px;border-radius:13px;flex-shrink:0;}
 .tile-badge{font-size:9.5px;font-weight:700;text-transform:none;letter-spacing:0;background:var(--slate-light);color:var(--slate);padding:1px 7px;border-radius:999px;white-space:nowrap;flex-shrink:0;}
 .tile-badge.bad{background:color-mix(in srgb,#E0674A 16%,transparent);color:#C2412A;}
 .tile-badge.good{background:color-mix(in srgb,#22A06B 16%,transparent);color:#1B8A5A;}
@@ -2833,7 +2833,6 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
       <div class="page-head">
         <h2 class="card-title">Activity</h2>
         <div class="page-head-tools">
-          <button type="button" class="icon-btn search-toggle" id="txSearchToggle" title="Search" aria-label="Search" aria-expanded="false"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button>
           <div class="segmented seg-sm" id="txFilterSeg">
             <button data-filter="Both">All</button>
             <button class="active" data-filter="Open">Planned</button>
@@ -2859,6 +2858,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         <button class="icon-btn" id="txSortBtn" title="Sort order" style="flex-shrink:0;" aria-label="Sort order">
           <svg id="txSortIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
         </button>
+        <button type="button" class="icon-btn search-toggle" id="txSearchToggle" title="Search" aria-label="Search" aria-expanded="false" style="flex-shrink:0;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button>
       </div>
       <div id="txSavePresetForm" style="display:none;gap:8px;margin-bottom:8px;">
         <input type="text" id="txPresetNameInput" placeholder="Preset name" style="flex:1;border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-size:13px;">
@@ -3097,7 +3097,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         <div id="refreshStatus" class="more-refresh-status"></div>
       </div>
 
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 334</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 335</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -3140,7 +3140,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 334</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 335</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -4412,7 +4412,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 334;
+const APP_VERSION = 335;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
