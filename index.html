@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v333 -->
+<!-- WEALTH.ME — v334 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -3097,7 +3097,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         <div id="refreshStatus" class="more-refresh-status"></div>
       </div>
 
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 333</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 334</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -3140,7 +3140,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 333</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 334</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -4412,7 +4412,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 333;
+const APP_VERSION = 334;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -5716,7 +5716,7 @@ function renderOverviewCard(data){
     </div>`;
   return `
     <div class="summary-grid ins-tiles">
-      ${tile('Income', o.totalIncome12mo, 'var(--sage)', '#22A06B')}
+      ${tile('Gross Income', o.totalIncome12mo, 'var(--sage)', '#22A06B')}
       ${tile('Taxes', o.totalTaxes12mo, 'var(--slate)', '#7B8794')}
       ${tile('Expenses', o.totalExpensesNoTaxes12mo, 'var(--terracotta)', '#E0674A')}
       ${tile('Investments', o.totalInvestment12mo, 'var(--gold)', '#D4A24E')}
