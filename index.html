@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v335 -->
+<!-- WEALTH.ME — v336 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1682,7 +1682,7 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
 .balance-hero.debt-hero .sub{color:#FFE6E3;}
 
 /* ===== v258 tweaks ===== */
-#txSortBtn,#txSearchToggle{width:40px;height:40px;border-radius:13px;flex-shrink:0;}
+#txSortBtn{width:40px;height:40px;border-radius:13px;flex-shrink:0;}
 .tile-badge{font-size:9.5px;font-weight:700;text-transform:none;letter-spacing:0;background:var(--slate-light);color:var(--slate);padding:1px 7px;border-radius:999px;white-space:nowrap;flex-shrink:0;}
 .tile-badge.bad{background:color-mix(in srgb,#E0674A 16%,transparent);color:#C2412A;}
 .tile-badge.good{background:color-mix(in srgb,#22A06B 16%,transparent);color:#1B8A5A;}
@@ -1694,6 +1694,11 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
 .tile-head > span:first-child{flex:1;min-width:0;}
 .tile-head .tile-badge{margin-top:-1px;}
 .search-bar.collapsed{display:none;}
+#view-transactions .page-head{margin-bottom:2px;}
+#view-transactions .search-bar{margin-top:6px;}
+.tx-status-pager{margin:0 0 10px;padding:2px 0 4px;user-select:none;-webkit-user-select:none;}
+#txFilterSeg{width:100%;}
+#txFilterSeg button{flex:1 1 0;}
 #view-debts .page-head{margin-bottom:2px;}
 #view-debts .search-bar{margin-top:6px;}
 #view-debts .debt-type-pager{margin-top:0;}
@@ -2357,13 +2362,12 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
   /* page headings, month bars and search toggles move to the top bar */
   #view-home > .month-nav,#moneyMonthNav,
   #view-money > h2.card-title,#view-more > h2.card-title,
-  #view-transactions .page-head > .card-title,#view-debts .page-head,
+  #view-transactions .page-head,#view-debts .page-head,
   #txSearchToggle,#txSearchBar,#debtSearchBar{display:none !important;}
-  #view-transactions .page-head{justify-content:flex-start;margin-top:0;}
   /* Activity: status switch and filter tools on one row */
   #view-transactions.active{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:start;}
   #view-transactions.active > *{grid-column:1 / -1;min-width:0;}
-  #view-transactions.active > .page-head{grid-column:1;grid-row:1;align-self:center;margin:0 14px 10px 0;}
+  #view-transactions.active > .tx-status-pager{grid-column:1;grid-row:1;align-self:center;margin:0 14px 10px 0;padding:0;}
   #view-transactions.active > div:has(#txSavePresetBtn){grid-column:2;grid-row:1;align-self:center;margin:0 0 10px !important;}
   .view.active{animation:fadeIn .2s ease;}
 
@@ -2503,7 +2507,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
   /* Activity: status switch, period switch and filter tools share one toolbar row */
   #view-transactions.active{grid-template-columns:auto minmax(0,1fr) auto 350px;grid-template-rows:repeat(8,auto) 1fr;}
   #view-transactions.active > *{grid-column:1 / 4 !important;}
-  #view-transactions.active > .page-head{grid-column:1 !important;grid-row:1;align-self:center;margin:0 14px 10px 0;}
+  #view-transactions.active > .tx-status-pager{grid-column:1 !important;grid-row:1;align-self:center;margin:0 14px 10px 0 !important;padding:0;}
   #view-transactions.active > #txPeriodSeg{grid-column:2 !important;grid-row:1;align-self:center;margin:0 14px 10px 0 !important;}
   #view-transactions.active > div:has(#txSavePresetBtn){grid-column:3 !important;grid-row:1;align-self:center;max-width:440px;margin:0 0 10px !important;}
   #view-transactions.active > .desk-side{grid-column:4 !important;}
@@ -2832,13 +2836,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
     <section class="view" id="view-transactions">
       <div class="page-head">
         <h2 class="card-title">Activity</h2>
-        <div class="page-head-tools">
-          <div class="segmented seg-sm" id="txFilterSeg">
-            <button data-filter="Both">All</button>
-            <button class="active" data-filter="Open">Planned</button>
-            <button data-filter="Closed">Actual</button>
-          </div>
-        </div>
+        <button type="button" class="icon-btn search-toggle" id="txSearchToggle" title="Search" aria-label="Search" aria-expanded="false"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button>
       </div>
       <div class="search-bar collapsed" id="txSearchBar">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -2846,6 +2844,14 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         <button id="txSearchClear" class="search-clear" style="display:none;" title="Clear search" aria-label="Clear search">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
+      </div>
+      <!-- v336: Planned/Actual switch sits under the title (like Debts) -->
+      <div class="tx-status-pager" id="txStatusPager">
+        <div class="segmented seg-sm" id="txFilterSeg">
+          <button data-filter="Both">All</button>
+          <button class="active" data-filter="Open">Planned</button>
+          <button data-filter="Closed">Actual</button>
+        </div>
       </div>
 
       <!-- Saved filter presets -->
@@ -2858,7 +2864,6 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         <button class="icon-btn" id="txSortBtn" title="Sort order" style="flex-shrink:0;" aria-label="Sort order">
           <svg id="txSortIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
         </button>
-        <button type="button" class="icon-btn search-toggle" id="txSearchToggle" title="Search" aria-label="Search" aria-expanded="false" style="flex-shrink:0;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button>
       </div>
       <div id="txSavePresetForm" style="display:none;gap:8px;margin-bottom:8px;">
         <input type="text" id="txPresetNameInput" placeholder="Preset name" style="flex:1;border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-size:13px;">
@@ -3097,7 +3102,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         <div id="refreshStatus" class="more-refresh-status"></div>
       </div>
 
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 335</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 336</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -3140,7 +3145,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 335</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 336</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -4412,7 +4417,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 335;
+const APP_VERSION = 336;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -12243,7 +12248,13 @@ function renderDebts(){
         acctGroups[key].push(e);
       });
       // order: defined accounts first (in DEBT_ACCOUNTS order), then Unassigned
-      const orderedKeys = accountsForType.filter(a=>acctGroups[a]).concat(acctOrder.filter(k=>!accountsForType.includes(k)));
+      // v336: cards are ordered by their earliest planned (Open) date; on a tie, by card name
+      const earliest = key => acctGroups[key].reduce((m,e)=> e.date < m ? e.date : m, acctGroups[key][0].date);
+      const orderedKeys = Object.keys(acctGroups).sort((a,b)=>{
+        const da = earliest(a), db = earliest(b);
+        if(da !== db) return da < db ? -1 : 1;
+        return a.localeCompare(b, undefined, {sensitivity:'base', numeric:true});
+      });
       bodyHtml = orderedKeys.map(key=>{
         const acctRows = acctGroups[key];
         const acctTotal = acctRows.reduce((a,e)=>a+Number(e.amount),0);
@@ -13671,7 +13682,7 @@ const TOUR_STEPS = [
   { view:'insights', insightsPage:'summary', title:'Insights, in full', text:'Browse automatic observations about your spending habits here. Swipe the page left or right to move between Summary and Spending, and swipe the month bar to change month. Tap any category to drill in further.' },
   { view:'transactions', target:'#txSearchToggle', title:'Find any transaction', text:'Tap the magnifier, then search by category, subcategory, notes, or account \u2014 this list covers every entry you\u2019ve ever made.' },
   { view:'transactions', target:'#txPeriodSeg', title:'Filter by time', text:'Narrow the list to this month, next month, this year, or your own custom date range.' },
-  { view:'transactions', target:'#txFilterSeg', title:'Planned vs. Actual', text:'Show everything, just what\u2019s still planned, or just what\u2019s already happened. The sort button beside it flips oldest/newest first.' },
+  { view:'transactions', target:'#txFilterSeg', title:'Planned vs. Actual', text:'Show everything, just what\u2019s still planned, or just what\u2019s already happened. The sort arrow flips oldest/newest first.' },
   { view:'debts', target:'#debtTypePager', title:'Track what you owe', text:'Tap a type in the switch (or swipe the list) to move between Credit Cards, Financing, and Other debts \u2014 grouped by account \u2014 Credit Cards also show their credit limit usage if you\u2019ve set one (More \u2192 Credit Limits).' },
   { view:'money', moneyPage:'overview', target:'#view-money .summary-grid', title:'Money, at a glance', text:'Tap the Net Position, Invested or Capital card to see your investment accounts (on a computer they sit beside it), and swipe the month bar to change month. What you\u2019ve invested, what\u2019s planned, your cumulative total, capital gains/losses, and your overall net position.' },
   { view:'money', moneyPage:'overview', target:'#moneyProgressFill', title:'Plan progress', text:'How much of this month\u2019s planned investing is actually done (Actual) versus still Planned.' },
