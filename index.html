@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v336 -->
+<!-- WEALTH.ME — v337 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -964,11 +964,25 @@ html:has(#moneyAccountsModalOverlay.active, #accountDetailModalOverlay.active):n
 }
 
 
-/* ===== Calendar reminder (Add/Edit Entry) ===== */
-.cal-remind-field{margin-bottom:14px;}
-.cal-remind-field .cal-remind-when{margin-top:8px;display:none;}
-.cal-remind-field.on .cal-remind-when{display:block;}
+/* ===== Calendar reminder badge (Add/Edit Entry, on the Date line) ===== */
+.label-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;}
+.field .label-row > label:first-child{margin-bottom:0;}
+.field .cal-badge{display:inline-flex;align-items:center;gap:5px;margin:0;padding:4px 9px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--slate);font-size:11px;font-weight:600;text-transform:none;letter-spacing:0;cursor:pointer;white-space:nowrap;user-select:none;-webkit-user-select:none;}
+.field .cal-badge input{position:absolute;opacity:0;width:1px;height:1px;padding:0;border:0;margin:0;pointer-events:none;}
+.cal-badge svg{width:12px;height:12px;flex-shrink:0;}
+.field .cal-badge:has(input:checked){background:var(--skin-grad-primary);color:#fff;border-color:transparent;box-shadow:0 4px 10px rgba(10,111,208,.25);}
+.field .cal-badge:has(input:focus-visible){outline:2px solid var(--skin-blue,#2F6FDB);outline-offset:2px;}
+.cal-remind-field{display:none;margin-top:8px;}
+.cal-remind-field.on{display:block;}
 .cal-remind-field .cal-remind-sub{font-size:12px;line-height:1.4;color:var(--slate);margin:6px 2px 0;font-weight:500;}
+
+/* ===== Info toggle + popup in a modal header (Add recurring entry) ===== */
+.modal-header{position:relative;}
+.modal-title-wrap{display:flex;align-items:center;gap:8px;min-width:0;}
+.modal-info-btn{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--slate);color:var(--slate);background:none;font:italic 700 13px Georgia,'Times New Roman',serif;line-height:1;padding:0;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;}
+.modal-info-btn[aria-expanded="true"]{background:var(--skin-grad-primary);color:#fff;border-color:transparent;}
+.info-pop{position:absolute;left:0;right:0;top:calc(100% + 2px);z-index:6;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:12.5px;line-height:1.45;color:var(--navy);box-shadow:0 10px 28px rgba(0,36,72,.18);}
+.info-pop[hidden]{display:none;}
 
 /* ===== Toggle switch ===== */
 .toggle-row{
@@ -2436,7 +2450,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
     max-width:860px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:24px;align-content:start;
   }
   #entryModalOverlay > .modal{
-    grid-template-areas:"head head" "scan scan" "cat cat" "date sub" "amt type" "notes notes" "cal ." "btn btn";
+    grid-template-areas:"head head" "scan scan" "cat cat" "date sub" "amt type" "notes notes" "btn btn";
   }
   #entryModalOverlay > .modal > .modal-header{grid-area:head;}
   #entryModalOverlay > .modal > #receiptScanRow{grid-area:scan;}
@@ -2446,13 +2460,11 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
   #entryModalOverlay > .modal > .two-col:has(#entryAmount){grid-area:amt;}
   #entryModalOverlay > .modal > #entryTypeAccountRow{grid-area:type;}
   #entryModalOverlay > .modal > .field:has(#entryNotes){grid-area:notes;}
-  #entryModalOverlay > .modal > #entryCalRemindField{grid-area:cal;}
   #entryModalOverlay > .modal > .btn-row{grid-area:btn;}
   #recurringModalOverlay > .modal{
-    grid-template-areas:"head head" "intro intro" "cat cat" "date sub" "amt type" "notes notes" "rep rep" "freq prev" "btn btn";
+    grid-template-areas:"head head" "cat cat" "date sub" "amt type" "notes notes" "rep rep" "freq prev" "btn btn";
   }
   #recurringModalOverlay > .modal > .modal-header{grid-area:head;}
-  #recurringModalOverlay > .modal > p.muted{grid-area:intro;}
   #recurringModalOverlay > .modal > .field:has(#recurringDate){grid-area:date;}
   #recurringModalOverlay > .modal > .field:has(#recurringCategoryChips){grid-area:cat;}
   #recurringModalOverlay > .modal > .two-col:has(#recurringSubcategory){grid-area:sub;}
@@ -3102,7 +3114,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         <div id="refreshStatus" class="more-refresh-status"></div>
       </div>
 
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 336</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 337</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -3145,7 +3157,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 336</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 337</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -3928,8 +3940,23 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         <div class="receipt-note" id="receiptNote" style="display:none;"></div>
       </div>
       <div class="field">
-        <label>Date</label>
+        <div class="label-row">
+          <label for="entryDate">Date</label>
+          <label class="cal-badge" title="Add a reminder to your calendar">
+            <input type="checkbox" id="entryCalRemindToggle">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+            <span>Remind me in my calendar</span>
+          </label>
+        </div>
         <input type="date" id="entryDate">
+        <div class="cal-remind-field" id="entryCalRemindField">
+          <select id="entryCalRemindOffset" aria-label="When to remind me">
+            <option value="1" selected>1 day before, 9:00 AM</option>
+            <option value="0">On the day, 9:00 AM</option>
+            <option value="3">3 days before, 9:00 AM</option>
+          </select>
+          <p class="cal-remind-sub">After you tap Save, your device will offer to add it to Calendar.</p>
+        </div>
       </div>
       <div class="field">
         <label id="entryCategoryLabel">Category</label>
@@ -3964,7 +3991,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
       </div>
       <div class="field">
         <label>Description (optional)</label>
-        <textarea id="entryNotes" placeholder="Add a description..."></textarea>
+        <input type="text" id="entryNotes" placeholder="Add a description..." autocomplete="off">
       </div>
       <div class="two-col" id="entryTypeAccountRow">
         <div class="field" id="entryTypeField" style="display:none;">
@@ -3980,23 +4007,6 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
           <select id="entryAccount"></select>
         </div>
       </div>
-      <div class="field cal-remind-field" id="entryCalRemindField">
-        <div class="toggle-row">
-          <span class="toggle-label" id="entryCalRemindLabel">Remind me in my calendar</span>
-          <label class="toggle-switch">
-            <input type="checkbox" id="entryCalRemindToggle" aria-labelledby="entryCalRemindLabel">
-            <span class="toggle-thumb"></span>
-          </label>
-        </div>
-        <div class="cal-remind-when" id="entryCalRemindWhen">
-          <select id="entryCalRemindOffset" aria-label="When to remind me">
-            <option value="1" selected>1 day before, 9:00 AM</option>
-            <option value="0">On the day, 9:00 AM</option>
-            <option value="3">3 days before, 9:00 AM</option>
-          </select>
-          <p class="cal-remind-sub">After you tap Save, your device will offer to add it to Calendar.</p>
-        </div>
-      </div>
       <div class="btn-row">
         <button class="btn btn-danger" id="entryDeleteBtn" style="display:none;">Delete</button>
         <button class="btn btn-primary btn-block" id="entrySaveBtn">Save Entry</button>
@@ -4009,12 +4019,15 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
   <div class="modal-overlay" id="recurringModalOverlay">
     <div class="modal">
       <div class="modal-header">
-        <h3>New Recurring Entry</h3>
+        <div class="modal-title-wrap">
+          <h3>New Recurring Entry</h3>
+          <button type="button" class="modal-info-btn" id="recurringInfoBtn" aria-label="About recurring entries" aria-expanded="false" aria-controls="recurringInfoPop">i</button>
+        </div>
         <button class="icon-btn" id="recurringModalClose" aria-label="Close New Recurring Entry">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
+        <div class="info-pop" id="recurringInfoPop" role="note" hidden>Fill in the entry once, choose how often it repeats, and we’ll create every occurrence for you — great for rent, subscriptions, or loan payments.</div>
       </div>
-      <p class="muted" style="margin-bottom:12px;">Fill in the entry once, choose how often it repeats, and we'll create every occurrence for you — great for rent, subscriptions, or loan payments.</p>
 
       <div class="field">
         <label>Start Date</label>
@@ -4053,7 +4066,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
       </div>
       <div class="field">
         <label>Description (optional)</label>
-        <textarea id="recurringNotes" placeholder="e.g. Rent"></textarea>
+        <input type="text" id="recurringNotes" placeholder="e.g. Rent" autocomplete="off">
       </div>
       <div class="two-col" id="recurringTypeAccountRow">
         <div class="field" id="recurringTypeField" style="display:none;">
@@ -4417,7 +4430,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 336;
+const APP_VERSION = 337;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -7922,7 +7935,7 @@ function openEntryModal(id, presetDate){
     populateEntryCategorySelectors(entry.category, entry.subcategory);
     document.getElementById('entryAmount').value = entry.amount;
     setStatusToggle(entry.status);
-    document.getElementById('entryNotes').value = entry.notes || '';
+    document.getElementById('entryNotes').value = (entry.notes || '').replace(/\s*[\r\n]+\s*/g, ' ');
     if(entry.category === 'Expense'){
       const t = entry.type || 'Other';
       document.getElementById('entryType').value = t;
@@ -8737,7 +8750,27 @@ document.getElementById('recurringDate').addEventListener('input', updateRecurri
 document.getElementById('recurringFrequency').addEventListener('change', updateRecurringPreview);
 document.getElementById('recurringCount').addEventListener('input', updateRecurringPreview);
 
+// v337: the (i) beside the New Recurring Entry title opens/closes a small info popup
+function setRecurringInfo(open){
+  const pop = document.getElementById('recurringInfoPop'), btn = document.getElementById('recurringInfoBtn');
+  if(!pop || !btn) return;
+  pop.hidden = !open;
+  btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+}
+document.getElementById('recurringInfoBtn').addEventListener('click', (e)=>{
+  e.stopPropagation();
+  setRecurringInfo(document.getElementById('recurringInfoPop').hidden);
+});
+document.addEventListener('click', (e)=>{
+  const pop = document.getElementById('recurringInfoPop');
+  if(pop && !pop.hidden && !e.target.closest('#recurringInfoPop')) setRecurringInfo(false);
+});
+document.addEventListener('keydown', (e)=>{
+  const pop = document.getElementById('recurringInfoPop');
+  if(e.key === 'Escape' && pop && !pop.hidden){ setRecurringInfo(false); e.stopImmediatePropagation(); }
+}, true);
 function openRecurringModal(){
+  setRecurringInfo(false);
   document.getElementById('recurringDate').value = formatLocalDate(new Date());
   populateRecurringCategorySelectors('Expense', CATEGORY_MAP.Expense[0]);
   document.getElementById('recurringAmount').value = '';
