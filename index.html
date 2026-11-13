@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v337 -->
+<!-- WEALTH.ME — v338 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -3114,7 +3114,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         <div id="refreshStatus" class="more-refresh-status"></div>
       </div>
 
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 337</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 338</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -3157,7 +3157,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 337</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 338</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -4430,7 +4430,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 337;
+const APP_VERSION = 338;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -4730,12 +4730,18 @@ let donutChartRows = []; // kept in sync with the donut's current slices, for th
 let detailTrendChartInstance = null;
 
 /* ---------- UTILITIES ---------- */
+// v338: formatters are built once. toLocaleString(locale, options) makes a brand-new Intl formatter on
+// every call, which is very slow on iPhone Safari when a long list (Activity, search) formats hundreds of rows.
+const _nfMoney = new Intl.NumberFormat(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+const _nfInt = new Intl.NumberFormat(undefined);
+const _dfMonthYear = new Intl.DateTimeFormat(undefined, {month:'long', year:'numeric'});
+const _dfShortDay = new Intl.DateTimeFormat(undefined, {month:'short', day:'numeric'});
 function fmtMoney(n){
   const sign = n < 0 ? "-" : "";
-  return sign + "$" + Math.abs(n).toLocaleString(undefined,{minimumFractionDigits:2, maximumFractionDigits:2});
+  return sign + "$" + _nfMoney.format(Math.abs(n));
 }
 function fmtMonthYear(d){
-  return d.toLocaleString(undefined,{month:'long',year:'numeric'});
+  return _dfMonthYear.format(d);
 }
 function prefersReducedMotion(){ return typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches; }
 function animateValue(el, fromVal, toVal, duration, formatFn){
@@ -7157,15 +7163,19 @@ document.getElementById('txFilterSeg').querySelectorAll('button').forEach(btn=>{
 /* Transactions search */
 const txSearchInput = document.getElementById('txSearchInput');
 const txSearchClear = document.getElementById('txSearchClear');
+let _txSearchTimer = null;
 txSearchInput.addEventListener('input', (e)=>{
   txSearchQuery = e.target.value;
   txSearchClear.style.display = txSearchQuery ? 'flex' : 'none';
-  renderTransactions();
+  // v338: redraw once typing pauses, not on every letter (a long list is slow to rebuild on a phone)
+  clearTimeout(_txSearchTimer);
+  _txSearchTimer = setTimeout(renderTransactions, 160);
 });
 txSearchClear.addEventListener('click', ()=>{
   txSearchQuery = '';
   txSearchInput.value = '';
   txSearchClear.style.display = 'none';
+  clearTimeout(_txSearchTimer);
   renderTransactions();
   txSearchInput.focus();
 });
@@ -12395,9 +12405,11 @@ function renderTransactions(){
   }
 
   // Sort by user-selected direction
+  // v338: each date is parsed once instead of twice per comparison
+  const _ts = new Map(list.map(e=> [e, parseLocalDate(e.date).getTime()]));
   list.sort((a,b)=> txSortAsc
-    ? parseLocalDate(a.date) - parseLocalDate(b.date)   // oldest → newest
-    : parseLocalDate(b.date) - parseLocalDate(a.date)   // newest → oldest
+    ? _ts.get(a) - _ts.get(b)   // oldest → newest
+    : _ts.get(b) - _ts.get(a)   // newest → oldest
   );
 
   if(list.length === 0){
@@ -12430,7 +12442,7 @@ function renderTransactions(){
   let html = '';
   groupOrder.forEach(key=>{
     const [y,m] = key.split('-');
-    const label = new Date(Number(y), Number(m)-1, 1).toLocaleString(undefined,{month:'long', year:'numeric'});
+    const label = _dfMonthYear.format(new Date(Number(y), Number(m)-1, 1));
     const rows = groups[key].map(e=>renderEntryRow(e, true, true)).join('');
     html += `<div class="group-header">${label}</div><div class="card"><ul class="entry-list">${rows}</ul></div>`;
   });
@@ -12718,7 +12730,7 @@ function renderEntryRow(e, selectable, isTransactionsPage, accountView){
   const isExpense = e.category === 'Expense';
   const amt = Number(e.amount);
   const dotColor = CATEGORY_COLORS[e.category];
-  const dateLabel = parseLocalDate(e.date).toLocaleDateString(undefined,{month:'short', day:'numeric'});
+  const dateLabel = _dfShortDay.format(parseLocalDate(e.date));
   let metaText = `${dateLabel}`;
   if(e.notes){ metaText += ` · ${e.notes}`; }
 
@@ -13330,7 +13342,7 @@ function showBudgetTip(clientX){
 // v320: whole dollars for the compact budget card ($2,360)
 function fmtMoneyShort(n){
   const sign = n < 0 ? '-' : '';
-  return sign + '$' + Math.round(Math.abs(n)).toLocaleString();
+  return sign + '$' + _nfInt.format(Math.round(Math.abs(n)));
 }
 function renderHomeExpenseBudgetBar(){
   // The card itself always stays (it holds the Month in Review button);
