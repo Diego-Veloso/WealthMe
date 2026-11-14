@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v342 -->
+<!-- WEALTH.ME — v343 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1962,7 +1962,7 @@ html.show-byline .app-byline{display:block;}
 #view-debts .debt-type-pager{padding:2px 0 4px;}
 .segmented.debt-seg{border-radius:14px;padding:3px;}
 .segmented.debt-seg .debt-chip{flex:1 1 0;border:none;background:transparent;cursor:pointer;font:inherit;font-size:13px;font-weight:700;color:var(--slate);padding:9px 4px;border-radius:11px;white-space:nowrap;transition:background .15s,color .15s,box-shadow .15s;}
-.segmented.debt-seg .debt-chip.active{color:#fff;background:linear-gradient(135deg,#7A1020,#C3283A);box-shadow:0 6px 14px rgba(160,20,40,.3);}
+.segmented.debt-seg .debt-chip.active{color:#fff;background:var(--skin-grad-primary);box-shadow:0 6px 14px rgba(10,111,208,.28);}  /* v343: same blue as the Activity All / Planned / Actual switch */
 
 /* v280: per-card colour on Credit Limits (used on Debts and Accounts Settings too) */
 
@@ -2552,8 +2552,8 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
   .desk-due-amt{font-size:13px;font-weight:800;white-space:nowrap;}
   .desk-type-row{justify-content:space-between;font-size:13.5px;font-weight:600;}
   .desk-type-row b{font-weight:800;}
-  .desk-type-row.active{background:linear-gradient(135deg,color-mix(in srgb,#C3283A 16%,transparent),color-mix(in srgb,#C3283A 6%,transparent));color:#A11E30;}
-  [data-theme="dark"] .desk-type-row.active{color:#FF9A85;}
+  .desk-type-row.active{background:linear-gradient(135deg,color-mix(in srgb,#0A6FD0 16%,transparent),color-mix(in srgb,#0A6FD0 6%,transparent));color:#0A6FD0;}
+  [data-theme="dark"] .desk-type-row.active{color:#6DB8FF;}
   .desk-type-total{display:flex;justify-content:space-between;font-size:13px;font-weight:700;color:var(--slate);border-top:1px solid var(--line);margin-top:6px;padding:10px 8px 2px;}
   .desk-type-total b{color:var(--navy);font-weight:800;}
 
@@ -3114,7 +3114,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         <div id="refreshStatus" class="more-refresh-status"></div>
       </div>
 
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 342</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 343</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -3157,7 +3157,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 342</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 343</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -4430,7 +4430,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 342;
+const APP_VERSION = 343;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
