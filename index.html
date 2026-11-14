@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v341 -->
+<!-- WEALTH.ME — v342 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1645,8 +1645,7 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
 .cat-chip::before{content:var(--ci,"•");font-size:14px;line-height:1;}
 .cat-chip:active{transform:scale(.96);}
 .cat-chip[data-cat="Income"]{--cc:#2F9E6E;--ci:"↑";}
-.cat-chip[data-cat="Expense"]{--cc:#C3283A;--ci:"↓";}
-[data-theme="dark"] .cat-chip[data-cat="Expense"]:not(.active){--cc:#E4566A;}
+.cat-chip[data-cat="Expense"]{--cc:#E0674A;--ci:"↓";}
 .cat-chip[data-cat="Investment"]{--cc:#D4A24E;--ci:"◆";}
 .cat-chip[data-cat="Capital"]{--cc:#5C6B7A;--ci:"●";}
 [data-theme="dark"] .cat-chip[data-cat="Capital"]{--cc:#9AA7B4;}
@@ -1654,7 +1653,7 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
 /* Active chip: the same gradients as the coloured category switch (Insights trend, Home Breakdown, Settings) */
 .cat-chip.active{border-color:transparent;background-origin:border-box;}
 .cat-chip.active[data-cat="Income"]{background-image:linear-gradient(135deg,#1E8A5E,#4FD6A4);}
-.cat-chip.active[data-cat="Expense"]{background-image:linear-gradient(135deg,#3A0710 0%,#7A1020 46%,#C3283A 100%);}
+.cat-chip.active[data-cat="Expense"]{background-image:linear-gradient(135deg,#B5432A,#EE8A66);}
 .cat-chip.active[data-cat="Investment"]{background-image:linear-gradient(135deg,#B7821F,#F0BC45);}
 .cat-chip.active[data-cat="Capital"]{background-image:linear-gradient(135deg,#46525F,#8795A5);color:#fff;}
 .two-col > .field.cat-hidden{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0;padding:0;}
@@ -1686,15 +1685,15 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
 
 /* Debts: Total Outstanding card (the Home balance card in dark red) */
 .balance-hero.debt-hero{
-  background:linear-gradient(135deg,#3A0710 0%,#7A1020 46%,#C3283A 100%);
-  box-shadow:0 16px 34px rgba(122,16,32,.32);
+  background:linear-gradient(135deg,#B5432A,#EE8A66);   /* v342: same orange as the Expense buttons */
+  box-shadow:0 16px 34px rgba(181,67,42,.32);
   margin-bottom:14px;
 }
 .balance-hero.debt-hero::after{background:radial-gradient(circle,rgba(255,110,90,.30),rgba(255,110,90,0) 68%);}
-.balance-hero.debt-hero .eyebrow{color:#FFD3D0;}
+.balance-hero.debt-hero .eyebrow{color:#FFEADF;}
 .balance-hero.debt-hero .figure{color:#fff;}
 .balance-hero.debt-hero .underline{background:linear-gradient(90deg,rgba(255,196,170,0),#FFC4AA,rgba(255,196,170,0));}
-.balance-hero.debt-hero .sub{color:#FFE6E3;}
+.balance-hero.debt-hero .sub{color:#FFF3EC;}
 
 /* ===== v258 tweaks ===== */
 #txSortBtn{width:40px;height:40px;border-radius:13px;flex-shrink:0;}
@@ -1826,7 +1825,7 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
 .segmented.seg-sm.ins-mode button{flex:1 1 0;padding:6px 4px;}
 /* Coloured category switch (Income green, Expense red, Investment gold, Capital slate): Insights trend, Home Breakdown, Accounts Settings subcategories */
 .segmented.seg-colour button.active{color:#fff;}
-.segmented.seg-colour button.active[data-cat="Expense"],.segmented.seg-colour button.active[data-mode="expense"]{background:linear-gradient(135deg,#3A0710 0%,#7A1020 46%,#C3283A 100%);}
+.segmented.seg-colour button.active[data-cat="Expense"],.segmented.seg-colour button.active[data-mode="expense"]{background:linear-gradient(135deg,#B5432A,#EE8A66);}
 .segmented.seg-colour button.active[data-cat="Income"],.segmented.seg-colour button.active[data-mode="income"]{background:linear-gradient(135deg,#1E8A5E,#4FD6A4);}
 .segmented.seg-colour button.active[data-cat="Investment"],.segmented.seg-colour button.active[data-mode="investment"]{background:linear-gradient(135deg,#B7821F,#F0BC45);}
 .segmented.seg-colour button.active[data-cat="Capital"]{background:linear-gradient(135deg,#46525F,#8795A5);}
@@ -3115,7 +3114,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         <div id="refreshStatus" class="more-refresh-status"></div>
       </div>
 
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 341</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 342</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -3158,7 +3157,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 341</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 342</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -4431,7 +4430,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 341;
+const APP_VERSION = 342;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -12647,9 +12646,8 @@ function renderDetailTrendChart(){
   if(detailTrendChartInstance){ detailTrendChartInstance.destroy(); }
 
   // Use same style as daily cashflow chart
-  // v340: Expense uses the red of the Debts "Outstanding" card
-  const catColor = detailCategory === 'Expense' ? '#C3283A' : (CATEGORY_COLORS[detailCategory] || '#0F1B2D');
-  const bgColor  = detailCategory === 'Expense'    ? 'rgba(195,40,58,0.12)'  :
+  const catColor = CATEGORY_COLORS[detailCategory] || '#0F1B2D';
+  const bgColor  = detailCategory === 'Expense'    ? 'rgba(193,88,63,0.12)'  :
                    detailCategory === 'Income'      ? 'rgba(62,124,89,0.12)'  :
                    detailCategory === 'Investment'  ? 'rgba(212,162,78,0.12)' :
                                                      'rgba(92,107,122,0.12)';
