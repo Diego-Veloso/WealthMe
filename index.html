@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v345 -->
+<!-- WEALTH.ME — v346 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -3070,7 +3070,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         <div id="refreshStatus" class="more-refresh-status"></div>
       </div>
 
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 345</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 346</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -3113,7 +3113,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 345</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 346</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -4280,7 +4280,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 345;
+const APP_VERSION = 346;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -6113,10 +6113,10 @@ function renderMoney(){
     .filter(e => e.category === 'Investment' && inMonth(e.date))
     .reduce((a, e) => a + Number(e.amount), 0);
 
-  // Cumulative: all Closed Investment entries up to and including selected month
-  const cutoff = new Date(homeDate.getFullYear(), homeDate.getMonth() + 1, 0);
+  // Cumulative (Invested "All time"): all Closed Investment entries, whatever month is selected,
+  // so Invested, Capital and Net Position are always the current totals (v346).
   // (withdrawals are taken out of Capital first, then Invested — see investmentSplit)
-  const split = investmentSplit({ investCutoff: cutoff, capitalCutoff: null, includeOpen: false });
+  const split = investmentSplit({ investCutoff: null, capitalCutoff: null, includeOpen: false });
   const cumulative = split.invested;
 
   document.getElementById('moneyCardInvested').textContent = fmtMoney(invested);
@@ -6235,7 +6235,7 @@ function buildMoneyProjectionChart(ctx, sub){
     cumulativeNet      += monthInvested + monthCapital; // each month: add newly invested + that month's capital
 
     labels.push(d.toLocaleString(undefined, {month:'short', year:'2-digit'}));
-    investedData.push(investmentSplit({ investCutoff: monthEnd, capitalCutoff: null, includeOpen: false, sub }).invested);   // same basis as the Cumulative card
+    investedData.push(investmentSplit({ investCutoff: monthEnd, capitalCutoff: null, includeOpen: false, sub }).invested);   // value at the end of each month
     plannedData.push(cumulativePlanned);
     netData.push(cumulativeNet);
   }
