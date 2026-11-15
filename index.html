@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v343 -->
+<!-- WEALTH.ME — v345 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -264,8 +264,6 @@ main{
 #insightsContainer.with-headings .card > .insights-sub{padding-bottom:10px;margin-bottom:10px;border-bottom:1px solid var(--line);}
 .view{display:none;}
 .view.active{display:block;animation:fadeIn .25s ease;}
-/* Google Sheets cloud sync is switched off (SHEETS_SYNC_ENABLED in the script). Its UI stays in the page, hidden. */
-html.sheets-sync-off .sheets-sync-ui{display:none !important;}
 /* Insights opens as a popup sheet over the current page */
 .insights-popup{
   position:fixed;inset:0;z-index:90;
@@ -730,12 +728,6 @@ a.pp-link.btn{display:flex;align-items:center;justify-content:center;gap:8px;tex
 .eb-planned{background:repeating-linear-gradient(135deg,var(--eb-c,var(--sage)) 0 5px,color-mix(in srgb,var(--eb-c,var(--sage)) 45%,transparent) 5px 10px);opacity:.75;z-index:1;}
 .eb-pace{position:absolute;top:-4px;bottom:-4px;width:3px;margin-left:-1.5px;border-radius:2px;background:var(--navy);box-shadow:0 0 0 2px var(--card-bg,#fff);z-index:3;display:none;}
 [data-theme="dark"] .eb-pace{background:#F1F5F9;box-shadow:0 0 0 2px #1A222D;}
-.eb-legend{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:11px;color:var(--slate);}
-.eb-legend i{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:4px;vertical-align:-1px;}
-.eb-legend i.p{background:var(--eb-c,var(--sage));}
-.eb-legend i.s{background:repeating-linear-gradient(135deg,var(--eb-c,var(--sage)) 0 3px,color-mix(in srgb,var(--eb-c,var(--sage)) 40%,transparent) 3px 6px);}
-.eb-legend i.k{width:3px;border-radius:1px;background:var(--navy);}
-[data-theme="dark"] .eb-legend i.k{background:#F1F5F9;}
 .eb-left{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-top:4px;font-size:13.5px;font-weight:700;color:var(--navy);}
 [data-theme="dark"] .eb-left{color:#F1F5F9;}
 .eb-left .neg{color:var(--terracotta);}
@@ -745,7 +737,6 @@ a.pp-link.btn{display:flex;align-items:center;justify-content:center;gap:8px;tex
 .eb-pace-pill.warn{background:color-mix(in srgb,var(--gold) 20%,transparent);color:#9A6B12;}
 [data-theme="dark"] .eb-pace-pill.warn{color:#F0BC45;}
 .eb-pace-pill.bad{background:color-mix(in srgb,var(--terracotta) 16%,transparent);color:var(--terracotta);}
-.eb-over{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
 /* v322: tap the bar for details (same look as the Daily Cashflow chart's box) */
 #homeExpenseBudgetBar{position:relative;}
 .eb-hit{position:relative;padding:8px 0;margin:-6px 0 -2px;cursor:pointer;-webkit-tap-highlight-color:transparent;outline:none;}
@@ -761,9 +752,6 @@ a.pp-link.btn{display:flex;align-items:center;justify-content:center;gap:8px;tex
 .eb-tip .sep{height:1px;margin:5px 0;opacity:.25;background:currentColor;}
 .eb-of{flex:none;font-size:11.5px;font-weight:600;color:var(--slate);}
 .eb-actions{display:flex;justify-content:center;gap:8px;margin-top:12px;flex-wrap:wrap;}
-.eb-over:empty{display:none;}
-.eb-chip{border:none;cursor:pointer;font:inherit;font-size:11.5px;font-weight:700;padding:5px 10px;border-radius:999px;background:color-mix(in srgb,var(--terracotta) 13%,transparent);color:var(--terracotta);}
-.eb-chip b{font-weight:800;}
 .vu-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;}
 .vu-current{font-size:13px;line-height:1.5;padding:10px 12px;border-radius:12px;background:color-mix(in srgb,var(--skin-blue, #0A8FE8) 8%,transparent);margin-bottom:12px;}
 .vu-current b{font-weight:800;}
@@ -1015,13 +1003,6 @@ html:has(#moneyAccountsModalOverlay.active, #accountDetailModalOverlay.active):n
 .toast.show{opacity:1;transform:translateX(-50%) translateY(-6px);}
 .toast.with-action{pointer-events:auto;display:flex;align-items:center;gap:14px;}
 .toast-action{background:none;border:none;color:var(--gold);font-weight:700;font-size:13px;font-family:'Inter',sans-serif;cursor:pointer;padding:0;}
-.btn-spinner{
-  display:inline-block;width:12px;height:12px;border-radius:50%;
-  border:2px solid rgba(255,255,255,0.4);border-top-color:currentColor;
-  vertical-align:-2px;margin-right:2px;
-  animation:btnSpin .6s linear infinite;
-}
-@keyframes btnSpin{to{transform:rotate(360deg);}}
 .btn:disabled{opacity:0.7;cursor:default;}
 
 /* Command Palette — top-anchored on both mobile and desktop, ID rules so
@@ -1672,7 +1653,6 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
 /* Page header row: title on the left, small Planned/Actual switch on the right */
 .page-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:10px 0 14px;}
 .page-head .card-title{margin:0;flex-shrink:0;}
-.page-head-tools{display:flex;align-items:center;gap:8px;min-width:0;}
 .segmented.seg-sm{padding:2px;border-radius:11px;gap:1px;flex:0 1 auto;}
 .segmented.seg-sm button{flex:0 0 auto;padding:5px 9px;font-size:11.5px;border-radius:9px;}
 .page-head .icon-btn{width:32px;height:32px;}
@@ -1851,13 +1831,6 @@ html.show-saved .topbar{padding-bottom:8px;}
 
 /* v286: colour picker in the Debts account headings */
 .dah-name{display:inline-flex;align-items:center;gap:8px;min-width:0;}
-.debt-acct-head .cl-color-btn{width:26px;height:26px;}
-.debt-acct-head.tone-light .cl-color-btn{color:#0B2545;background:rgba(255,255,255,.55);border-color:rgba(11,37,69,.18);}
-.debt-acct-head.tone-light .cl-color-btn.on{background:#0B2545;color:#fff;}
-.debt-acct-head .cl-swatches{margin-top:10px;padding-top:10px;}
-.debt-acct-head .cl-sw-label{color:rgba(255,255,255,.85);}
-.debt-acct-head.tone-light .cl-swatches{border-top-color:rgba(11,37,69,.14);}
-.debt-acct-head.tone-light .cl-sw-label{color:rgba(11,37,69,.7);}
 .debt-acct-head.tone-light .cl-swatch.on{border-color:#0B2545;}
 
 /* v300: highlight Export CSV when coming from the backup reminder */
@@ -1921,7 +1894,6 @@ html.show-byline .app-byline{display:block;}
 
 /* v284: light card colours + very light "Unassigned" heading on Debts */
 
-.cl-sw-label{font-size:10.5px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:rgba(255,255,255,.85);margin:0 0 6px;}
 .cl-sw-row{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:10px;}
 .cl-sw-row:last-child{margin-bottom:0;}
 .cl-swatch.lt{border-color:rgba(255,255,255,.9);}
@@ -1946,10 +1918,6 @@ html.show-byline .app-byline{display:block;}
 #creditLimitsList .budget-row.tone-light .cl-range::-moz-range-progress{background:#0B2545;}
 #creditLimitsList .budget-row.tone-light .cl-range-scale{color:rgba(11,37,69,.6);}
 #creditLimitsList .budget-row.tone-light::before{background:radial-gradient(circle,rgba(255,255,255,.6),rgba(255,255,255,0) 68%);}
-.budget-row.tone-light .cl-color-btn{color:#0B2545;background:rgba(255,255,255,.55);border-color:rgba(11,37,69,.18);}
-.budget-row.tone-light .cl-color-btn.on{background:#0B2545;color:#fff;}
-.budget-row.tone-light .cl-swatches{border-top-color:rgba(11,37,69,.14);}
-.budget-row.tone-light .cl-sw-label{color:rgba(11,37,69,.7);}
 .budget-row.tone-light .cl-swatch.on{border-color:#0B2545;}
 .debt-acct-head.tone-light{color:#0B2545;}
 .debt-acct-head.tone-light::before{background:radial-gradient(circle,rgba(255,255,255,.6),rgba(255,255,255,0) 68%);}
@@ -1967,9 +1935,6 @@ html.show-byline .app-byline{display:block;}
 /* v280: per-card colour on Credit Limits (used on Debts and Accounts Settings too) */
 
 .cl-name{display:inline-flex;align-items:center;gap:8px;min-width:0;}
-.cl-color-btn{width:28px;height:28px;border-radius:50%;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.32);padding:0;}
-.cl-color-btn.on{background:#fff;color:#0B2545;}
-.cl-swatches{display:block;margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,.22);}
 .cl-swatch{width:30px;height:30px;border-radius:50%;border:2px solid rgba(255,255,255,.55);cursor:pointer;padding:0;box-shadow:0 3px 8px rgba(0,0,0,.25);transition:transform .12s;}
 .cl-swatch:active{transform:scale(.9);}
 .cl-swatch.on{border:3px solid #fff;box-shadow:0 0 0 2px rgba(0,0,0,.25),0 3px 8px rgba(0,0,0,.25);}
@@ -1990,10 +1955,6 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
 .debt-acct-head{position:relative;overflow:hidden;color:#fff;padding:14px 16px 12px;background:linear-gradient(135deg,#0B2545 0%,#124A88 55%,#0A8FE8 100%);}
 .debt-acct-head::before{content:"";position:absolute;width:190px;height:190px;right:-60px;top:-110px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.24),rgba(255,255,255,0) 68%);pointer-events:none;}
 .debt-acct-head > *{position:relative;z-index:1;}
-.debt-acct-head.dbt-g1{background:linear-gradient(135deg,#3B1F6B 0%,#6C3FD0 55%,#B06BFF 100%);}
-.debt-acct-head.dbt-g2{background:linear-gradient(135deg,#0F4C3A 0%,#188A66 55%,#46D6A2 100%);}
-.debt-acct-head.dbt-g3{background:linear-gradient(135deg,#6B2418 0%,#C2512F 55%,#F2A063 100%);}
-.debt-acct-head.dbt-gx{background:linear-gradient(135deg,#2E3742 0%,#4B5866 55%,#8795A5 100%);}
 .dah-row{display:flex;justify-content:space-between;align-items:baseline;gap:10px;}
 .dah-name{font-size:16px;font-weight:800;letter-spacing:-.2px;}
 .dah-amt{font-size:16px;font-weight:800;white-space:nowrap;}
@@ -2070,7 +2031,6 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
 }
 .acc-ico svg{width:17px;height:17px;}
 .acc-ico svg[fill="#3DDC84"]{width:22px;height:22px;}
-.acc-num{font-size:14px;font-weight:800;}
 .acc-title{display:flex;align-items:center;gap:11px;min-width:0;}
 #view-help .accordion{border:none;border-radius:16px;margin-bottom:8px;background:var(--card);box-shadow:0 2px 10px rgba(0,36,72,.06),inset 0 0 0 1px color-mix(in srgb,var(--line) 80%,transparent);}
 [data-theme="dark"] #view-help .accordion{box-shadow:0 2px 10px rgba(0,0,0,.3),inset 0 0 0 1px var(--line);}
@@ -2136,7 +2096,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
   #view-help > .modal-header,#view-help > .help-hero{grid-column:1 / -1;}
   main.more-split > #view-help.active{
     grid-template-rows:auto auto auto auto auto 1fr;
-    grid-template-areas:"head head" "hero hero" "tips inst" "tips data" "tips cloud" "tips .";
+    grid-template-areas:"head head" "hero hero" "tips inst" "tips data" "tips .";
   }
   #view-help > .modal-header{grid-area:head;}
   #view-help > .help-hero{grid-area:hero;}
@@ -2144,7 +2104,6 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
   #view-help > .help-card:has(#acc-first-step){grid-area:tips;}
   #view-help > .help-card:has(#acc-iphone){grid-area:inst;}
   #view-help > .help-card:has(#acc-data){grid-area:data;}
-  #view-help > .help-card.sheets-sync-ui{grid-area:cloud;}
   main.more-split > #view-settings.active{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);column-gap:20px;align-items:start;}
   #view-settings > .modal-header,#view-settings > .desktop-only-block{grid-column:1 / -1;}
 }
@@ -2348,7 +2307,6 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
   .topbar > .logo{display:none;}
   .topbar .desk-head{display:flex;flex-direction:column;justify-content:center;flex:1 1 0;min-width:0;}
   .desk-title{margin:0;font-size:22px;font-weight:800;letter-spacing:-.4px;line-height:1.15;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .desk-sub{margin-top:2px;}
   .topbar .desk-month{display:flex;align-items:center;gap:6px;flex:0 0 auto;}
   .topbar .desk-month.off{visibility:hidden;}
   .desk-month button{
@@ -2707,7 +2665,6 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         <button type="button" class="desk-search-clear" id="deskSearchClear" aria-label="Clear search" style="display:none;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
         <kbd id="deskSearchKbd">Ctrl K</kbd>
       </label>
-      <div id="syncBadge" class="sync-badge sheets-sync-ui" title="Cloud Sync Active" style="display:none;width:8px;height:8px;border-radius:50%;background:var(--sage);flex-shrink:0;"></div>
       <button class="icon-btn theme-toggle-btn" id="themeToggleBtn" title="Toggle dark mode" aria-label="Toggle dark mode">
         <span class="icon-sun"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="6.34" y2="17.66"/><line x1="17.66" y1="6.34" x2="19.07" y2="4.93"/></svg></span>
         <span class="icon-moon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></span>
@@ -2790,7 +2747,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         <div class="card-title">Daily Cashflow<button type="button" class="cal-open-btn" id="homeCalendarBtn" title="Open calendar" aria-label="Open calendar"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></button></div>
         <div class="chart-wrap"><canvas id="lineChart" role="img" aria-label="Daily cashflow chart for the selected month"></canvas></div>
         <!-- v324: Daily Expenses (was the Burn Rate card) now sits under the chart -->
-        <div class="burn-strip in-card" id="burnRateCard">
+        <div class="burn-strip in-card">
           <div class="burn-main">
             <span class="burn-label">Daily Expenses</span>
             <span class="burn-val" id="burnRateValue">$0.00<span class="burn-unit"> / day</span></span>
@@ -2946,13 +2903,6 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
     <!-- ============ MONEY VIEW ============ -->
     <section class="view" id="view-money">
       <h2 class="card-title" style="margin:10px 0 14px;">Money</h2>
-      <!-- Swipe this bar left / right to change month -->
-      <div class="month-nav" id="moneyMonthNav" style="touch-action:pan-y;">
-        <button id="moneyPrev">&#8249;</button>
-        <div class="label" id="moneyLabel">June 2026</div>
-        <button id="moneyNext">&#8250;</button>
-      </div>
-
       <!-- Swipe the content left / right to change section (dots show where you are) -->
       <div class="debt-type-pager money-pager" id="moneyPager" style="margin-top:0;margin-bottom:12px;">
         <div class="debt-type-title">
@@ -2986,6 +2936,12 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
           <div class="value" id="moneyCardCapital">$0</div>
           <div class="muted" style="font-size:11px;margin-top:2px;">Gains / Losses</div>
         </div>
+      </div>
+      <!-- v345: month bar sits between the all-time tiles and the monthly tiles. Swipe it left / right to change month -->
+      <div class="month-nav" id="moneyMonthNav" style="touch-action:pan-y;margin:2px 0 14px;">
+        <button id="moneyPrev">&#8249;</button>
+        <div class="label" id="moneyLabel">June 2026</div>
+        <button id="moneyNext">&#8250;</button>
       </div>
       <div class="summary-grid">
         <div class="summary-card">
@@ -3114,7 +3070,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         <div id="refreshStatus" class="more-refresh-status"></div>
       </div>
 
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 343</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 345</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -3157,7 +3113,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 343</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 345</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -3337,7 +3293,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
       </div>
     </section>
 
-    <!-- ===== Data Management Page (Local Data, Cloud Sync, Reset) ===== -->
+    <!-- ===== Data Management Page (Backup, Local Data, Reset) ===== -->
     <section class="view" id="view-dataManagement">
       <div class="modal-header">
         <h3>Data Management</h3>
@@ -3370,23 +3326,6 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
       </div>
       <input type="file" id="csvFileInput" class="hidden-input" accept=".csv">
 
-      <div class="sheets-sync-ui">
-<div class="section-title">☁️ Cloud Sync (Google Sheets)</div>
-      <p class="muted">Paste your Google Apps Script Web App URL below to sync your data across devices automatically.</p>
-      <div class="field">
-        <label>Script URL</label>
-        <input type="url" id="syncUrlInput" placeholder="https://script.google.com/macros/s/...">
-      </div>
-      <div class="csv-row">
-        <button class="btn btn-secondary" id="syncTestBtn" style="flex:1;">Test Connection</button>
-        <button class="btn btn-primary" id="syncSaveBtn" style="flex:1;">Save URL</button>
-      </div>
-      <div class="csv-row" style="margin-top:6px;">
-        <button class="btn btn-secondary" id="syncPushBtn" style="flex:1;">↑ Push to Sheet</button>
-        <button class="btn btn-secondary" id="syncPullBtn" style="flex:1;">↓ Pull from Sheet</button>
-      </div>
-      <div id="syncStatus" class="muted" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-</div>
 
 <div class="section-title">Reset</div>
       <div class="csv-row">
@@ -3575,94 +3514,6 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
       </div>
 
       </div>
-      <div class="card help-card sheets-sync-ui">
-<div class="section-title help-sec" style="--c:#14B8C8;">Cloud Sync Setup (Google Sheets)</div>
-      <p class="muted" style="font-size:13px;margin-bottom:10px;">Connect to your own free Google Sheet to sync data across devices. Each person sets up their own — data is always private.</p>
-
-      <!-- Step 1 -->
-      <div class="accordion">
-        <div class="accordion-header" data-target="acc-gs1">
-          <span class="acc-title"><span class="acc-ico acc-num" style="--c:#0A8FE8;">1</span>Create a Google Sheet</span>
-          <svg class="accordion-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-        </div>
-        <div class="accordion-body" id="acc-gs1">
-          <ol>
-            <li>Go to <strong>sheets.google.com</strong> and sign in with your Google account</li>
-            <li>Click the <strong>+ Blank</strong> button to create a new spreadsheet</li>
-            <li>Name it <strong>"WealthMe"</strong> (top left, click "Untitled spreadsheet")</li>
-            <li>Download the template below, then in your new sheet go to <strong>File → Import → Upload</strong>, select the file, and choose <strong>"Replace current sheet"</strong> — this sets up the correct column headers for you</li>
-          </ol>
-          <div style="margin-top:10px;">
-            <button class="btn btn-secondary btn-block" id="downloadSheetsTemplateBtn">Download Sheet Template</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Step 2 -->
-      <div class="accordion">
-        <div class="accordion-header" data-target="acc-gs2">
-          <span class="acc-title"><span class="acc-ico acc-num" style="--c:#0A8FE8;">2</span>Add the Script</span>
-          <svg class="accordion-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-        </div>
-        <div class="accordion-body" id="acc-gs2">
-          <ol>
-            <li>Inside your Google Sheet, click <strong>Extensions</strong> in the top menu</li>
-            <li>Click <strong>Apps Script</strong> — a new tab opens with a code editor</li>
-            <li>Delete all existing code in the editor (Ctrl+A then Delete)</li>
-            <li>Tap the button below to view the script, then copy and paste it into the editor</li>
-            <li>Click the <strong>💾 Save</strong> icon (or Ctrl+S)</li>
-          </ol>
-          <div style="margin-top:10px;">
-            <button class="btn btn-secondary btn-block" id="showScriptBtn">Show Script</button>
-          </div>
-          <div id="scriptBlock" style="display:none;margin-top:10px;">
-            <textarea id="gsScriptText" readonly style="width:100%;height:180px;font-family:monospace;font-size:11px;border:1px solid var(--line);border-radius:10px;padding:10px;background:var(--slate-light);color:var(--navy);resize:none;"></textarea>
-            <div class="csv-row" style="margin-top:8px;">
-              <button class="btn btn-primary btn-block" id="copyScriptBtn">Copy Script</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Step 3 -->
-      <div class="accordion">
-        <div class="accordion-header" data-target="acc-gs3">
-          <span class="acc-title"><span class="acc-ico acc-num" style="--c:#0A8FE8;">3</span>Deploy as Web App</span>
-          <svg class="accordion-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-        </div>
-        <div class="accordion-body" id="acc-gs3">
-          <ol>
-            <li>Click <strong>Deploy</strong> (top right) → <strong>New Deployment</strong></li>
-            <li>Click the gear icon ⚙️ next to "Select type" → choose <strong>Web App</strong></li>
-            <li>Set <strong>"Execute as"</strong> to <strong>Me</strong></li>
-            <li>Set <strong>"Who has access"</strong> to <strong>Anyone</strong></li>
-            <li>Click <strong>Deploy</strong></li>
-            <li>A permissions dialog will appear — click <strong>Authorize access</strong></li>
-            <li>Choose your Google account → click <strong>Advanced</strong> → <strong>Go to project (unsafe)</strong> → <strong>Allow</strong></li>
-            <li><strong>Copy the Web App URL</strong> shown at the end</li>
-          </ol>
-          <p class="muted" style="font-size:12px;margin-top:10px;margin-bottom:0;">⚠️ "Who has access" must be <strong>Anyone</strong> (not "Anyone with Google account") otherwise the sync won't work.</p>
-        </div>
-      </div>
-
-      <!-- Step 4 -->
-      <div class="accordion">
-        <div class="accordion-header" data-target="acc-gs4">
-          <span class="acc-title"><span class="acc-ico acc-num" style="--c:#0A8FE8;">4</span>Connect to WealthMe</span>
-          <svg class="accordion-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-        </div>
-        <div class="accordion-body" id="acc-gs4">
-          <ol>
-            <li>Open WealthMe → tap <strong>Data Management</strong> in the menu</li>
-            <li>Under <strong>☁️ Cloud Sync</strong>, paste your Web App URL into the <strong>Script URL</strong> field</li>
-            <li>Tap <strong>Save URL</strong></li>
-            <li>Tap <strong>Test Connection</strong> — you should see "Connected! ✓"</li>
-            <li>On other devices, repeat steps 1–5 of this section, then tap <strong>↓ Pull from Sheet</strong> to download your data</li>
-          </ol>
-          <p class="muted" style="font-size:12px;margin-top:10px;margin-bottom:0;">💡 Push saves your local data to the sheet. Pull loads the sheet data into this device. Always Push before switching devices.</p>
-        </div>
-      </div>
-</div>
 
     </section>
 
@@ -3685,7 +3536,6 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         
       </div>
       <div style="display:flex;gap:10px;align-items:center;margin-left:auto;">
-        <div id="syncBadgeSidebar" class="sync-badge sheets-sync-ui" title="Cloud Sync Active" style="display:none;width:8px;height:8px;border-radius:50%;background:var(--sage);flex-shrink:0;"></div>
         <button class="sidebar-notif-btn theme-toggle-btn" id="sidebarThemeToggleBtn" title="Toggle dark mode" aria-label="Toggle dark mode">
           <span class="icon-sun"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="6.34" y2="17.66"/><line x1="17.66" y1="6.34" x2="19.07" y2="4.93"/></svg></span>
           <span class="icon-moon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></span>
@@ -4430,7 +4280,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 343;
+const APP_VERSION = 345;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -4796,20 +4646,6 @@ function formatLocalDate(date){
   return `${y}-${m}-${d}`;
 }
 // Normalize any date string to YYYY-MM-DD (handles ISO strings like 2024-01-01T05:00:00.000Z)
-function normalizeDateStr(val){
-  if(!val) return val;
-  const s = String(val);
-  // Already YYYY-MM-DD
-  if(/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
-  // ISO string — take the date part only (first 10 chars)
-  if(s.includes('T')) return s.slice(0,10);
-  // Try parsing and reformatting
-  try{
-    const d = new Date(s);
-    if(!isNaN(d)) return formatLocalDate(d);
-  }catch(e){}
-  return s;
-}
 function isSameMonth(dateStr, refDate){
   const d = parseLocalDate(dateStr);
   return d.getFullYear() === refDate.getFullYear() && d.getMonth() === refDate.getMonth();
@@ -6644,7 +6480,6 @@ function renderMoneyAllTimeBreakdown(){
   }
 
   const grandInvested = rows.reduce((a, r) => a + r.invested, 0);
-  const grandCapital  = rows.reduce((a, r) => a + r.capital,  0);
 
   // Header removed — each account is now a self-labelled card below.
 
@@ -6748,7 +6583,7 @@ document.getElementById('accountDetailModalOverlay').addEventListener('click', (
    entries up to that date) is saved as an Actual Capital entry
    "Value update". A second update for the same account and date replaces
    the first one (removed if it becomes 0). Normal entries, so Net Position,
-   charts, CSV and Sheets sync all keep working.
+   charts and CSV all keep working.
    ========================================================= */
 const VU_NOTE = 'Value update';
 let _vuSub = null;
@@ -6821,16 +6656,13 @@ function saveValueUpdate(){
   if(same){
     if(diff === 0){
       entries = entries.filter(e => e.id !== same.id);
-      autoSyncDelete(same.id);
     } else {
       same.amount = diff;
       same.status = 'Closed';
-      autoSyncEntry(same);
     }
   } else if(diff !== 0){
     const ne = { id: uid(), date: dateStr, category: 'Capital', subcategory: sub, amount: diff, status: 'Closed', notes: VU_NOTE };
     entries.push(ne);
-    autoSyncEntry(ne);
   }
   lsSet(LS_VALUE_REMINDED, Date.now());   // v311: an update (even "nothing to add") restarts the monthly reminder
   closeValueUpdate();
@@ -7389,7 +7221,6 @@ document.getElementById('txBulkApplyBtn').addEventListener('click', ()=>{
   }
 
   let updatedCount = 0;
-  const editedEntries = [];
   selectedIds.forEach(id=>{
     const entry = entries.find(en=>en.id === id);
     if(!entry) return;
@@ -7412,7 +7243,6 @@ document.getElementById('txBulkApplyBtn').addEventListener('click', ()=>{
       }
     }
     updatedCount++;
-    editedEntries.push(entry);
   });
 
   saveState();
@@ -7420,10 +7250,6 @@ document.getElementById('txBulkApplyBtn').addEventListener('click', ()=>{
   renderCurrentView(getActiveViewName());
   showToast(`Updated ${updatedCount} entr${updatedCount===1?'y':'ies'}`);
 
-  if(syncUrl){
-    // Sync only the edited entries — never a full push automatically.
-    autoSyncSequential(editedEntries, autoSyncEntry);
-  }
 });
 
 document.getElementById('txBulkDeleteBtn').addEventListener('click', ()=>{
@@ -7442,12 +7268,7 @@ document.getElementById('txBulkDeleteBtn').addEventListener('click', ()=>{
       entries = entries.filter(e=>!selectedIds.includes(e.id));
       saveState();
       renderCurrentView(getActiveViewName());
-      showToast(`Deleted ${selectedIds.length} entr${selectedIds.length===1?'y':'ies'}`);
-      if(syncUrl){
-        // Sync only the deleted ids — never a full push automatically.
-        autoSyncSequential(selectedIds, autoSyncDelete);
-      }
-    }
+      showToast(`Deleted ${selectedIds.length} entr${selectedIds.length===1?'y':'ies'}`);    }
   );
 });
 
@@ -7641,18 +7462,17 @@ function setMoneyPage(id){
   document.querySelectorAll('#moneyPages .money-page').forEach(pg=>{
     pg.classList.toggle('active', pg.dataset.page === moneyPage);
   });
-  // The month bar only matters for Overview; Accounts is all-time
-  document.getElementById('moneyMonthNav').style.display = moneyPage === 'accounts' ? 'none' : '';
   renderMoneyPager();
 }
-// Sections have different heights; after switching, make sure the month bar
-// and section name are still on screen instead of leaving the new section
-// scrolled partway down.
+// Sections have different heights; after switching, make sure the section
+// name is still on screen instead of leaving the new section scrolled
+// partway down.
 function ensureMoneyHeaderVisible(){
   const topbar = document.querySelector('.topbar');
   const limit = topbar ? topbar.getBoundingClientRect().bottom : 0;
-  const nav = document.getElementById('moneyMonthNav');
-  const r = (nav.style.display === 'none' ? document.getElementById('moneyPager') : nav).getBoundingClientRect();
+  const pager = document.getElementById('moneyPager');
+  if(!pager || pager.offsetParent === null) return;   // pager hidden (single section): nothing to keep in view
+  const r = pager.getBoundingClientRect();
   if(r.top < limit + 4){ window.scrollBy({ top: r.top - limit - 8, behavior: 'auto' }); }
 }
 function goToMoneyPage(id, dir){
@@ -7660,6 +7480,7 @@ function goToMoneyPage(id, dir){
 }
 makeSwipeable(document.getElementById('moneySwipeArea'), {
   el: document.getElementById('moneyPages'),
+  ignore: '#moneyMonthNav',   // the month bar handles its own swipe
   canGo: (dir)=>{ const n = moneyPageIndex() + dir; return n >= 0 && n < MONEY_PAGES.length; },
   onSwipe: (dir)=>{ setMoneyPage(MONEY_PAGES[moneyPageIndex() + dir].id); ensureMoneyHeaderVisible(); }
 });
@@ -8537,8 +8358,6 @@ document.getElementById('entrySaveBtn').addEventListener('click', ()=>{
     calRemindAfterSave(entry);
     closeEntryModal();
     renderCurrentView(getActiveViewName());
-    // Sync only the changed entry
-    autoSyncEntry(entries.find(e=>e.id===Number(idVal)));
     if(status === 'Closed') checkDebtPaidOff(entry);
   } else {
     const newEntry = {
@@ -8559,8 +8378,6 @@ document.getElementById('entrySaveBtn').addEventListener('click', ()=>{
     calRemindAfterSave(newEntry);
     closeEntryModal();
     renderCurrentView(getActiveViewName());
-    // Sync only the new entry
-    autoSyncEntry(newEntry);
     if(status === 'Closed') checkDebtPaidOff(newEntry);
   }
 });
@@ -8583,10 +8400,9 @@ document.getElementById('entryDeleteBtn').addEventListener('click', ()=>{
 
 // Deletes made via the entry edit modal are undoable for a short window:
 // the entry is removed from local state immediately (so the UI feels
-// instant), but the cloud-sheet delete is delayed until the window
-// passes, so an Undo click never has to reverse a sync that already
-// happened. Each pending delete tracks its own timer so rapid
-// successive deletes don't clobber each other's sync commitment.
+// instant) and Undo can bring it back until the window passes. Each
+// pending delete tracks its own timer so rapid successive deletes
+// don't clobber each other.
 const pendingDeletes = new Map(); // id -> timer
 function scheduleUndoableDelete(deletedEntry, deletedId){
   showToast('Entry deleted', 'Undo', ()=>{
@@ -8598,15 +8414,13 @@ function scheduleUndoableDelete(deletedEntry, deletedId){
   });
   const timer = setTimeout(()=>{
     pendingDeletes.delete(deletedId);
-    autoSyncDelete(deletedId);
   }, 5000);
   pendingDeletes.set(deletedId, timer);
 }
 
 // Status changes made via swipe-to-close are undoable the same way as
-// swipe-to-delete: applied immediately locally, but the cloud sync is
-// delayed until the undo window passes, so Undo never has to reverse a
-// sync that already went out. Separate map from pendingDeletes since
+// swipe-to-delete: applied immediately locally, and the change is
+// only finalised once the undo window passes, so Undo never has to reverse anything. Separate map from pendingDeletes since
 // the revert action differs (restore previous status vs. re-add the
 // entry) and an id could in principle have both pending at once.
 const pendingStatusChanges = new Map(); // id -> timer
@@ -8620,7 +8434,6 @@ function scheduleUndoableStatusChange(entry, id, previousStatus){
   });
   const timer = setTimeout(()=>{
     pendingStatusChanges.delete(id);
-    if(syncUrl) autoSyncEntry(entry);
   }, 5000);
   pendingStatusChanges.set(id, timer);
 }
@@ -8822,7 +8635,6 @@ document.getElementById('recurringSaveBtn').addEventListener('click', ()=>{
     return;
   }
 
-  const newEntries = [];
   for(let i = 0; i < count; i++){
     const entry = {
       id: uid(),
@@ -8831,7 +8643,6 @@ document.getElementById('recurringSaveBtn').addEventListener('click', ()=>{
     };
     if(isExpense){ entry.type = type; if(account){ entry.account = account; } }
     entries.push(entry);
-    newEntries.push(entry);
   }
 
   saveState();
@@ -8839,12 +8650,6 @@ document.getElementById('recurringSaveBtn').addEventListener('click', ()=>{
   renderCurrentView(getActiveViewName());
   showToast(`Created ${count} entr${count===1?'y':'ies'}`);
 
-  if(syncUrl){
-    // Always sync only the newly created entries — never trigger a full
-    // push automatically. A full re-push (clear + resend everything) only
-    // happens when the user explicitly clicks "Push to Sheet".
-    autoSyncSequential(newEntries, autoSyncEntry);
-  }
 });
 
 function getActiveViewName(){
@@ -8859,7 +8664,7 @@ function getActiveViewName(){
    (DEBT_ACCOUNTS), Budgets (BUDGETS), and saved Transactions filter
    presets (FILTER_PRESETS) are carried alongside entries as special
    "settings rows" (reserved category "__SETTINGS__"), so they survive
-   CSV export/import and Google Sheets push/pull using the exact same
+   CSV export/import using the exact same
    9-column format as regular entries — no separate file or backend
    changes needed.
    ========================================================= */
@@ -8948,13 +8753,6 @@ function applySettingsRow(e){
     }
   }catch(err){ /* malformed settings row — ignore */ }
   return false;
-}
-// Pushes the current CATEGORY_MAP / DEBT_ACCOUNTS / BUDGETS / FILTER_PRESETS
-// to the connected Google Sheet as upserted rows, without touching the
-// rest of the entries there.
-function syncSettingsNow(){
-  if(!syncUrl) return;
-  buildSettingsRows().forEach(row => autoSyncEntry(row));
 }
 
 /* =========================================================
@@ -9080,9 +8878,6 @@ document.getElementById('downloadTemplateBtn').addEventListener('click', ()=>{
   downloadCsv(entriesToCsv(sample.concat(buildSettingsRows())), 'wealthme_template.csv', 'CSV Template');
 });
 
-document.getElementById('downloadSheetsTemplateBtn').addEventListener('click', ()=>{
-  downloadCsv(entriesToCsv(buildSettingsRows()), 'wealthme_sheet_template.csv', 'Google Sheet Template');
-});
 
 document.getElementById('exportCsvBtn').addEventListener('click', ()=>{
   if(entries.length === 0){
@@ -9181,310 +8976,6 @@ function splitCsvLine(line){
   result.push(cur);
   return result;
 }
-
-/* =========================================================
-   CLOUD SYNC — Google Sheets via Apps Script
-   ========================================================= */
-// Master switch for the Google Sheets cloud sync. While false the sync UI is
-// hidden everywhere (Data Management, Help, tour) and no URL is loaded, so
-// nothing is ever pushed or pulled. A previously saved URL stays in the
-// browser untouched; set this back to true to bring the feature back as-is.
-const SHEETS_SYNC_ENABLED = false;
-document.documentElement.classList.toggle('sheets-sync-off', !SHEETS_SYNC_ENABLED);
-
-let syncUrl = '';
-let syncInProgress = false;
-
-function loadSyncUrl(){
-  if(!SHEETS_SYNC_ENABLED){ syncUrl = ''; return; }
-  try{ syncUrl = localStorage.getItem('wealthme_syncurl') || ''; }catch(e){}
-}
-function saveSyncUrl(url){
-  syncUrl = url;
-  try{ localStorage.setItem('wealthme_syncurl', url); }catch(e){}
-}
-
-function setSyncStatus(msg, color){
-  const el = document.getElementById('syncStatus');
-  if(el){ el.textContent = msg; el.style.color = color || 'var(--slate)'; }
-}
-
-// Disables Push/Pull and shows an inline spinner on them while a sync is
-// running, so there's visual feedback right at the button someone clicked
-// instead of only in the separate status line above.
-function setSyncButtonsBusy(busy){
-  ['syncPushBtn', 'syncPullBtn'].forEach(id=>{
-    const btn = document.getElementById(id);
-    if(!btn) return;
-    if(busy){
-      if(!btn.dataset.originalLabel) btn.dataset.originalLabel = btn.textContent;
-      btn.disabled = true;
-      btn.innerHTML = `<span class="btn-spinner"></span> Syncing…`;
-    }else{
-      btn.disabled = false;
-      if(btn.dataset.originalLabel) btn.textContent = btn.dataset.originalLabel;
-    }
-  });
-}
-
-function updateSyncBadge(){
-  // Show a small cloud icon in topbar (and its desktop sidebar copy) if sync is configured
-  document.querySelectorAll('.sync-badge').forEach(badge=>{
-    badge.style.display = syncUrl ? 'flex' : 'none';
-  });
-}
-
-// Silent background auto-sync — fires after every entry save/delete
-// JSONP — injects a <script> tag to bypass Safari iOS CORS block on Google redirect URLs
-function jsonpFetch(url){
-  return new Promise((resolve, reject)=>{
-    const cbName = '_wm_' + Date.now() + '_' + Math.floor(Math.random()*9999);
-    const timer = setTimeout(()=>{ cleanup(); reject(new Error('Request timed out after 45s')); }, 45000);
-    function cleanup(){ clearTimeout(timer); delete window[cbName]; const el=document.getElementById(cbName); if(el) el.remove(); }
-    window[cbName] = (data)=>{ cleanup(); resolve(data); };
-    const s = document.createElement('script');
-    s.id = cbName;
-    s.src = url + (url.includes('?')?'&':'?') + 'callback=' + cbName;
-    s.onerror = ()=>{ cleanup(); reject(new Error('Load failed — verify Script URL and redeploy as Anyone')); };
-    document.head.appendChild(s);
-  });
-}
-
-// Sync a single entry (add/update) — no chunking, no storage quota issues
-// Small pacing pause + retry-with-backoff, shared by autoSyncEntry/autoSyncDelete.
-function syncSleep(ms){ return new Promise(res => setTimeout(res, ms)); }
-
-async function autoSyncEntry(entry){
-  if(!syncUrl) return;
-  const badges = document.querySelectorAll('.sync-badge');
-  badges.forEach(badge=>{ badge.style.background = 'var(--gold)'; badge.title = 'Syncing…'; });
-  const encoded = encodeURIComponent(JSON.stringify(entry));
-  const url = `${syncUrl}?action=addone&data=${encoded}`;
-  const MAX_RETRIES = 3;
-  for(let attempt = 0; attempt <= MAX_RETRIES; attempt++){
-    try{
-      const json = await jsonpFetch(url);
-      if(json.error) throw new Error(json.error);
-      badges.forEach(badge=>{ badge.style.background = 'var(--sage)'; badge.title = 'Synced to Google Sheet'; });
-      return;
-    }catch(err){
-      if(attempt < MAX_RETRIES){ await syncSleep(500 * Math.pow(2, attempt)); continue; }
-      badges.forEach(badge=>{ badge.style.background = 'var(--terracotta)'; badge.title = 'Sync failed: ' + err.message; });
-      showToast('Sync failed: ' + err.message.slice(0,60));
-    }
-  }
-}
-
-// Sync a deletion
-async function autoSyncDelete(id){
-  if(!syncUrl) return;
-  const badges = document.querySelectorAll('.sync-badge');
-  badges.forEach(badge=>{ badge.style.background = 'var(--gold)'; badge.title = 'Syncing…'; });
-  const url = `${syncUrl}?action=deleteone&id=${id}`;
-  const MAX_RETRIES = 3;
-  for(let attempt = 0; attempt <= MAX_RETRIES; attempt++){
-    try{
-      const json = await jsonpFetch(url);
-      if(json.error) throw new Error(json.error);
-      badges.forEach(badge=>{ badge.style.background = 'var(--sage)'; badge.title = 'Synced to Google Sheet'; });
-      return;
-    }catch(err){
-      if(attempt < MAX_RETRIES){ await syncSleep(500 * Math.pow(2, attempt)); continue; }
-      badges.forEach(badge=>{ badge.style.background = 'var(--terracotta)'; badge.title = 'Sync failed: ' + err.message; });
-      showToast('Sync failed: ' + err.message.slice(0,60));
-    }
-  }
-}
-
-// Sync a list of entries/ids one at a time (never concurrently) via the
-// given per-item sync function, with a brief pacing gap between each.
-// Firing autoSyncEntry/autoSyncDelete concurrently via forEach overwhelms
-// Apps Script with simultaneous requests and silently drops some of them —
-// this keeps them sequential, same approach as the full Push.
-async function autoSyncSequential(items, syncFn){
-  for(const item of items){
-    await syncFn(item);
-    await syncSleep(150);
-  }
-}
-
-async function syncPush(){
-  if(!syncUrl){ setSyncStatus('No URL configured.', 'var(--terracotta)'); return; }
-  if(syncInProgress){ setSyncStatus('Sync in progress...'); return; }
-  syncInProgress = true;
-  setSyncButtonsBusy(true);
-  setSyncStatus('Pushing to Google Sheet…', 'var(--slate)');
-  try{
-    // Batched by entry count (not raw character chunks) — each batch is sent
-    // as a complete small JSON array and appended directly to the Sheet on
-    // arrival. Nothing is staged in PropertiesService, so this scales past
-    // the ~500KB Properties quota regardless of how many entries there are.
-    const allRows = entries.concat(buildSettingsRows());
-    // Capped by actual encoded character length, not a fixed entry count.
-    // A fixed count (previously 15) protects the average case, but a batch
-    // that happens to contain entries with unusually long notes/text can
-    // still produce a URL past Apps Script's practical ~8KB GET URL limit
-    // — which silently hangs the request instead of erroring, and fails
-    // at that exact batch every single time since it's data-dependent,
-    // not a transient throttle. Sizing by real length is safe regardless
-    // of what any individual entry contains.
-    const MAX_BATCH_CHARS = 6000; // safe margin under the ~8KB practical limit
-    const batches = [];
-    let current = [];
-    let currentChars = 0;
-    for(const row of allRows){
-      const rowChars = encodeURIComponent(JSON.stringify(row)).length;
-      if(current.length > 0 && currentChars + rowChars > MAX_BATCH_CHARS){
-        batches.push(current);
-        current = [];
-        currentChars = 0;
-      }
-      current.push(row);
-      currentChars += rowChars;
-    }
-    if(current.length > 0) batches.push(current);
-
-    // Clear the sheet as its own request, separate from writing data — on a
-    // large sheet, clearing thousands of rows can itself take a while, and
-    // combining it with the first batch's write risked exceeding the timeout.
-    setSyncStatus('Clearing existing sheet data…', 'var(--slate)');
-    const clearResult = await jsonpFetch(`${syncUrl}?action=clearsheet`);
-    if(clearResult.error){ setSyncStatus('Push failed: ' + clearResult.error, 'var(--terracotta)'); return; }
-
-    // Small pause between requests + retry-with-backoff on failure. Firing
-    // ~700+ requests back-to-back with zero pacing risks Google throttling
-    // or dropping a connection mid-sequence (surfaces as "Load failed"
-    // rather than a normal error response). A wider pacing gap makes that
-    // less likely to happen in the first place; a longer backoff ceiling
-    // (up to 16s between retries, ~31.5s cumulative) gives a real chance
-    // to ride out a throttle window that needs 30-60s to clear, rather
-    // than giving up after only ~7.5s of total backoff.
-    const sleep = ms => new Promise(res => setTimeout(res, ms));
-    const MAX_RETRIES = 6;
-    for(let i = 0; i < batches.length; i++){
-      const encoded = encodeURIComponent(JSON.stringify(batches[i]));
-      const url = `${syncUrl}?action=batch&index=${i}&total=${batches.length}&data=${encoded}`;
-      let lastErr = null;
-      let succeeded = false;
-      for(let attempt = 0; attempt <= MAX_RETRIES; attempt++){
-        setSyncStatus(attempt === 0
-          ? `Pushing… batch ${i+1}/${batches.length}`
-          : `Pushing… batch ${i+1}/${batches.length} (retry ${attempt}/${MAX_RETRIES})`, 'var(--slate)');
-        try{
-          const json = await jsonpFetch(url);
-          if(json.error){ setSyncStatus('Push failed: ' + json.error, 'var(--terracotta)'); return; }
-          succeeded = true;
-          break;
-        }catch(err){
-          lastErr = err;
-          if(attempt < MAX_RETRIES) await sleep(500 * Math.pow(2, attempt)); // 0.5s, 1s, 2s, 4s, 8s, 16s, 32s
-        }
-      }
-      if(!succeeded){ setSyncStatus(`Push failed at batch ${i+1}/${batches.length}: ` + lastErr.message, 'var(--terracotta)'); return; }
-      await sleep(300); // wider pacing gap between successful requests
-    }
-    setSyncStatus(`✓ Pushed ${entries.length} entries + settings to Sheet`, 'var(--sage)');
-    showToast('Synced to Google Sheet');
-  }catch(err){
-    setSyncStatus('Push failed: ' + err.message, 'var(--terracotta)');
-  }finally{
-    syncInProgress = false;
-    setSyncButtonsBusy(false);
-  }
-}
-
-async function syncPull(){
-  if(!syncUrl){ setSyncStatus('No URL configured.', 'var(--terracotta)'); return; }
-  if(syncInProgress){ setSyncStatus('Sync in progress...'); return; }
-  syncInProgress = true;
-  setSyncButtonsBusy(true);
-  setSyncStatus('Pulling from Google Sheet…', 'var(--slate)');
-  try{
-    const data = await jsonpFetch(`${syncUrl}?action=read`);
-    if(data.entries){
-      const settingsRows = data.entries.filter(isSettingsRow);
-      let settingsApplied = false;
-      settingsRows.forEach(row => { if(applySettingsRow(row)) settingsApplied = true; });
-      entries = data.entries.filter(e=>!isSettingsRow(e)).map(e=>({
-        ...e,
-        id: Number(e.id)||uid(),
-        amount: Number(e.amount)||0,
-        date: normalizeDateStr(e.date)
-      }));
-      const maxId = entries.reduce((a,e)=>Math.max(a,Number(e.id)||0),0);
-      if(maxId >= nextId) nextId = maxId + 1;
-      invalidateFinancialsCache();
-      saveState();
-      setSyncStatus(`✓ Pulled ${entries.length} entries${settingsApplied ? ' + settings' : ''} from Sheet`, 'var(--sage)');
-      showToast(settingsApplied ? 'Pulled entries + settings from Google Sheet' : 'Pulled from Google Sheet');
-      closeDataManagementModal();
-      renderCurrentView(getActiveViewName());
-    } else {
-      setSyncStatus('Pull failed: ' + (data.error||'Unknown error'), 'var(--terracotta)');
-    }
-  }catch(err){
-    setSyncStatus('Pull failed: ' + err.message, 'var(--terracotta)');
-  }finally{
-    syncInProgress = false;
-    setSyncButtonsBusy(false);
-  }
-}
-
-async function syncTest(){
-  const url = document.getElementById('syncUrlInput').value.trim();
-  if(!url){ setSyncStatus('Enter a URL first.', 'var(--terracotta)'); return; }
-  setSyncStatus('Testing connection…', 'var(--slate)');
-  try{
-    // Step 1: ping
-    const ping = await jsonpFetch(`${url}?action=ping`);
-    if(!ping.ok){ setSyncStatus('Ping failed: ' + (ping.error||'No response'), 'var(--terracotta)'); return; }
-    setSyncStatus('Ping OK — testing write…', 'var(--slate)');
-
-    // Step 2: tiny write test
-    const testPayload = JSON.stringify([{id:0,date:'2000-01-01',category:'Income',subcategory:'Other Incomes',amount:0,status:'Open',notes:'__sync_test__'}]);
-    const sessionId = 'test_' + Date.now().toString(36);
-    const writeUrl = `${url}?action=chunk&session=${sessionId}&index=0&total=1&data=${encodeURIComponent(testPayload)}`;
-    setSyncStatus('Sending test chunk…', 'var(--slate)');
-    let write;
-    try{
-      write = await jsonpFetch(writeUrl);
-      setSyncStatus('Write response: ' + JSON.stringify(write), write.error ? 'var(--terracotta)' : 'var(--sage)');
-    }catch(writeErr){
-      setSyncStatus('Write JSONP error: ' + writeErr.message, 'var(--terracotta)');
-      return;
-    }
-    if(write.error){ return; }
-
-    // Step 3: connection confirmed — save the URL, but leave pushing data
-    // to the user via the "Push to Sheet" button. No automatic full push.
-    setSyncStatus('✓ Connected! Use "Push to Sheet" to sync your data.', 'var(--sage)');
-    saveSyncUrl(url);
-    updateSyncBadge();
-  }catch(err){
-    setSyncStatus('Test failed: ' + err.message, 'var(--terracotta)');
-  }
-}
-
-document.getElementById('syncSaveBtn').addEventListener('click', ()=>{
-  const url = document.getElementById('syncUrlInput').value.trim();
-  if(!url){ setSyncStatus('Please enter a URL.', 'var(--terracotta)'); return; }
-  showConfirm('Save Script URL?', 'This will be used for all future cloud sync actions (Test, Push, Pull).', ()=>{
-    saveSyncUrl(url);
-    updateSyncBadge();
-    setSyncStatus('✓ URL saved', 'var(--sage)');
-  });
-});
-
-document.getElementById('syncTestBtn').addEventListener('click', ()=>{
-  showConfirm('Test connection?', 'This will contact your Google Sheet to confirm the Script URL works.', syncTest);
-});
-document.getElementById('syncPushBtn').addEventListener('click', ()=>{
-  showConfirm('Push to Sheet?', 'This will overwrite the Google Sheet\u2019s current data with your local entries.', syncPush);
-});
-document.getElementById('syncPullBtn').addEventListener('click', ()=>{
-  showConfirm('Pull from Sheet?', 'This will replace your local entries with the data currently in the Google Sheet.', syncPull);
-});
-
 
 function openSettingsModal(){
   renderDebtAccountsManager();
@@ -9861,7 +9352,6 @@ function renderBudgetsView(){
     const suggested = budgetPlannerSuggested(sub);
     const amount = budgetPlannerAmount(sub, income);
     const pct = budgetPlannerPctOf(amount, sub, income);
-    const suggestedAmt = income * suggested / 100;
     const spent = spentBySub[sub];
 
     // Spend-tracking vs. this row's plan — same comparison as before
@@ -9883,7 +9373,6 @@ function renderBudgetsView(){
       captionText = `${fmtMoney(spent)} spent this month \u00b7 no budget set`;
     }
 
-    const pctLabel = income > 0 ? fmtPlanPct(pct) : '\u2014';
     const overSuggested = pct > suggested + 0.005;
     const rowCls = `budget-row${overSuggested ? ' over-suggested' : ''}`;
     const rowStyle = 'padding:10px 0;border-bottom:1px solid var(--line);';
@@ -10008,7 +9497,6 @@ function renderCreditLimitsView(){
   container.innerHTML = accounts.map(account=>{
     const stats = creditLimitStatsFor(account);
     const tone = ACCOUNT_TONES[accountToneIndex('Credit Card', account)] || ACCOUNT_TONES[0];
-    const toneIdx = accountToneIndex('Credit Card', account);
     // v287: colours are picked on the Debts page; this card just shows the same colour
     // v317: slider range — at least $5,000, room above the current limit and balance, rounded
     const slMax = clSliderMax(stats.limit || 0, stats.openUsage || 0);
@@ -10060,7 +9548,6 @@ function renderCreditLimitsView(){
       const val = Number(e.target.value) || 0;
       if(val > 0){ CREDIT_LIMITS[account] = val; } else { delete CREDIT_LIMITS[account]; }
       saveState();
-      syncSettingsNow();
       renderCreditLimitsView();
       // Debts page shows the same available/usage figures underneath each
       // card's progress bar — keep it in sync if it's the active view.
@@ -10085,9 +9572,7 @@ function closeCreditLimitsModal(){
 }
 
 function openDataManagementModal(){
-  document.getElementById('syncUrlInput').value = syncUrl || '';
   if(typeof renderBackupStatus === 'function') renderBackupStatus();
-  setSyncStatus('');
   switchView('dataManagement');
 }
 function closeDataManagementModal(){
@@ -10261,275 +9746,6 @@ document.getElementById('helpModalClose').addEventListener('click', ()=>{
   switchView('more');
 });
 
-/* Embedded Apps Script source */
-const GS_SCRIPT = `// ============================================================
-// WEALTH.ME — Google Apps Script Backend v12
-// Bulk pushes: 'clearsheet' wipes existing rows as its own request, then
-// 'batch' appends small JSON-array batches directly to the Sheet as they
-// arrive (no PropertiesService staging) — scales past the ~500KB
-// Properties quota and keeps each request's work small enough to finish
-// well within the client timeout. Plus single-entry add/update/delete for
-// fast auto-sync. The old 'chunk' action (v10) is left in place for
-// backward compatibility but is no longer used by the client.
-// ============================================================
-
-const SHEET_NAME = 'WealthMe';
-
-function getOrCreateSheet() {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  let sheet = ss.getSheetByName(SHEET_NAME);
-  if (!sheet) {
-    sheet = ss.insertSheet(SHEET_NAME);
-    sheet.getRange(1, 1, 1, 9).setValues([[
-      'id', 'date', 'category', 'subcategory', 'amount',
-      'status', 'notes', 'type', 'account'
-    ]]);
-    sheet.getRange(1, 1, 1, 9).setFontWeight('bold');
-    sheet.setFrozenRows(1);
-  }
-  return sheet;
-}
-
-function doGet(e) {
-  try {
-    const action   = e.parameter.action;
-    const callback = e.parameter.callback;
-    let result;
-
-    if (action === 'ping') {
-      result = { ok: true, message: 'WealthMe sync connected!' };
-    }
-    else if (action === 'read') {
-      result = readEntries();
-    }
-    else if (action === 'write') {
-      // All entries sent as a single encoded parameter
-      const data = e.parameter.data;
-      if (!data) { result = { error: 'No data parameter' }; }
-      else {
-        const entries = JSON.parse(decodeURIComponent(data));
-        writeEntries(entries);
-        result = { success: true, count: entries.length };
-      }
-    }
-    else if (action === 'chunk') {
-      // Large payloads arrive split across multiple requests and get
-      // reassembled here using PropertiesService, keyed by session id.
-      const session = e.parameter.session;
-      const index   = parseInt(e.parameter.index, 10);
-      const total   = parseInt(e.parameter.total, 10);
-      const data    = e.parameter.data;
-      if (!session || isNaN(index) || isNaN(total) || data === undefined) {
-        result = { error: 'Missing chunk parameters' };
-      } else {
-        const props = PropertiesService.getScriptProperties();
-        props.setProperty('chunk_' + session + '_' + index, data);
-
-        let allReceived = true;
-        for (let i = 0; i < total; i++) {
-          if (!props.getProperty('chunk_' + session + '_' + i)) { allReceived = false; break; }
-        }
-
-        if (allReceived) {
-          let full = '';
-          for (let i = 0; i < total; i++) {
-            const key = 'chunk_' + session + '_' + i;
-            full += props.getProperty(key);
-            props.deleteProperty(key);
-          }
-          const entries = JSON.parse(decodeURIComponent(full));
-          writeEntries(entries);
-          result = { success: true, count: entries.length, complete: true };
-        } else {
-          result = { success: true, complete: false, received: index + 1, total: total };
-        }
-      }
-    }
-    else if (action === 'clearsheet') {
-      // Wipes existing rows as its own request, separate from writing data.
-      // Kept isolated because on a large sheet, clearing thousands of rows
-      // can itself take a while — combining it with a data write risked
-      // exceeding the client's request timeout.
-      const sheet = getOrCreateSheet();
-      const lastRow = sheet.getLastRow();
-      if (lastRow > 1) sheet.getRange(2, 1, lastRow - 1, 9).clearContent();
-      result = { success: true };
-    }
-    else if (action === 'batch') {
-      // Bulk push arrives as many small batches (whole JSON arrays, not raw
-      // character chunks). Each batch is appended straight to the Sheet on
-      // arrival — nothing is staged in PropertiesService — so this scales
-      // to any number of entries without hitting the Properties quota.
-      const data  = e.parameter.data;
-      const index = parseInt(e.parameter.index, 10);
-      const total = parseInt(e.parameter.total, 10);
-      if (data === undefined || isNaN(index) || isNaN(total)) {
-        result = { error: 'Missing batch parameters' };
-      } else {
-        const batchEntries = JSON.parse(decodeURIComponent(data));
-        appendEntries(batchEntries);
-        result = { success: true, batch: index + 1, total: total, count: batchEntries.length };
-      }
-    }
-    else if (action === 'addone') {
-      // Add or update a single entry — no storage quota needed
-      const data = e.parameter.data;
-      if (!data) { result = { error: 'No data parameter' }; }
-      else {
-        const entry = JSON.parse(decodeURIComponent(data));
-        upsertEntry(entry);
-        result = { success: true };
-      }
-    }
-    else if (action === 'deleteone') {
-      const id = parseInt(e.parameter.id);
-      deleteEntry(id);
-      result = { success: true };
-    }
-    else if (action === 'clearprops') {
-      PropertiesService.getScriptProperties().deleteAllProperties();
-      result = { ok: true, message: 'Properties cleared' };
-    }
-    else {
-      result = { error: 'Unknown action: ' + action };
-    }
-
-    if (callback) {
-      return ContentService
-        .createTextOutput(callback + '(' + JSON.stringify(result) + ')')
-        .setMimeType(ContentService.MimeType.JAVASCRIPT);
-    }
-    return jsonResponse(result);
-
-  } catch (err) {
-    const callback = e.parameter.callback;
-    const errResult = { error: err.toString() };
-    if (callback) {
-      return ContentService
-        .createTextOutput(callback + '(' + JSON.stringify(errResult) + ')')
-        .setMimeType(ContentService.MimeType.JAVASCRIPT);
-    }
-    return jsonResponse(errResult);
-  }
-}
-
-// Add or update a single entry in the sheet by id
-function upsertEntry(entry) {
-  const sheet = getOrCreateSheet();
-  const headers = ['id','date','category','subcategory','amount','status','notes','type','account'];
-  const data = sheet.getDataRange().getValues();
-
-  // Find existing row with this id
-  for (let r = 1; r < data.length; r++) {
-    if (Number(data[r][0]) === Number(entry.id)) {
-      // Update existing row
-      const row = headers.map(h => (entry[h] != null) ? entry[h] : '');
-      sheet.getRange(r + 1, 1, 1, headers.length).setValues([row]);
-      return;
-    }
-  }
-
-  // Not found — append new row
-  const row = headers.map(h => (entry[h] != null) ? entry[h] : '');
-  sheet.appendRow(row);
-}
-
-// Delete a single entry by id
-function deleteEntry(id) {
-  const sheet = getOrCreateSheet();
-  const data = sheet.getDataRange().getValues();
-  for (let r = data.length - 1; r >= 1; r--) {
-    if (Number(data[r][0]) === Number(id)) {
-      sheet.deleteRow(r + 1);
-      return;
-    }
-  }
-}
-
-function readEntries() {
-  const sheet = getOrCreateSheet();
-  const data = sheet.getDataRange().getValues();
-  if (data.length <= 1) return { entries: [] };
-
-  const headers = data[0];
-  const entries = data.slice(1).map(row => {
-    const obj = {};
-    headers.forEach((h, i) => {
-      let value = row[i];
-      if (h === 'date' && value instanceof Date) {
-        value = Utilities.formatDate(value, Session.getScriptTimeZone(), 'yyyy-MM-dd');
-      }
-      if (value !== '') obj[h] = value;
-    });
-    if (obj.amount !== undefined) obj.amount = Number(obj.amount);
-    if (obj.id     !== undefined) obj.id     = Number(obj.id);
-    return obj;
-  }).filter(e => e.id);
-
-  return { entries };
-}
-
-function writeEntries(entries) {
-  const sheet = getOrCreateSheet();
-  const headers = ['id','date','category','subcategory','amount','status','notes','type','account'];
-  const lastRow = sheet.getLastRow();
-  if (lastRow > 1) sheet.getRange(2, 1, lastRow - 1, headers.length).clearContent();
-  if (!entries || entries.length === 0) return;
-  const rows = entries.map(e => headers.map(h => (e[h] != null) ? e[h] : ''));
-  sheet.getRange(2, 1, rows.length, headers.length).setValues(rows);
-}
-
-// Append a batch of entries as new rows at the end of the sheet.
-// Used by the 'batch' action for large pushes — writes directly, no staging.
-function appendEntries(entries) {
-  if (!entries || entries.length === 0) return;
-  const sheet = getOrCreateSheet();
-  const headers = ['id','date','category','subcategory','amount','status','notes','type','account'];
-  const rows = entries.map(en => headers.map(h => (en[h] != null) ? en[h] : ''));
-  const startRow = sheet.getLastRow() + 1;
-  sheet.getRange(startRow, 1, rows.length, headers.length).setValues(rows);
-}
-
-function jsonResponse(data) {
-  return ContentService
-    .createTextOutput(JSON.stringify(data))
-    .setMimeType(ContentService.MimeType.JSON);
-}
-
-function manualClearProps() {
-  PropertiesService.getScriptProperties().deleteAllProperties();
-  Logger.log('All properties cleared.');
-}
-`;
-
-document.getElementById('showScriptBtn').addEventListener('click', ()=>{
-  const block = document.getElementById('scriptBlock');
-  const textarea = document.getElementById('gsScriptText');
-  const btn = document.getElementById('showScriptBtn');
-  const isVisible = block.style.display !== 'none';
-  block.style.display = isVisible ? 'none' : 'block';
-  btn.textContent = isVisible ? 'Show Script' : 'Hide Script';
-  if(!isVisible) textarea.value = GS_SCRIPT;
-});
-
-document.getElementById('copyScriptBtn').addEventListener('click', async ()=>{
-  const textarea = document.getElementById('gsScriptText');
-  textarea.select();
-  textarea.setSelectionRange(0, textarea.value.length);
-  try{
-    if(navigator.clipboard && navigator.clipboard.writeText){
-      await navigator.clipboard.writeText(textarea.value);
-    } else {
-      document.execCommand('copy');
-    }
-    const btn = document.getElementById('copyScriptBtn');
-    btn.textContent = '✓ Copied!';
-    setTimeout(()=>{ btn.textContent = 'Copy Script'; }, 2000);
-  }catch(err){
-    showToast('Copy failed — text is selected, use Ctrl/Cmd+C');
-  }
-});
-
 document.getElementById('settingsBtn').addEventListener('click', openSettingsModal);
 document.getElementById('sidebarSettingsBtn')?.addEventListener('click', openSettingsModal);
 document.getElementById('budgetsBtn').addEventListener('click', openBudgetsModal);
@@ -10548,7 +9764,6 @@ document.getElementById('budgetPlannerIncome').addEventListener('change', (e)=>{
   BUDGET_PLANNER_INCOME = Number(e.target.value) || 0;
   BUDGET_PLANNER_INCOME_CUSTOM = true; // from here on, never auto-overwritten
   saveState();
-  syncSettingsNow();
   renderBudgetsView();
 });
 document.querySelectorAll('#budgetViewToggle .budget-view-btn').forEach(btn=>{
@@ -10565,7 +9780,6 @@ document.getElementById('budgetPlannerIncomeAutoBtn').addEventListener('click', 
   }
   BUDGET_PLANNER_INCOME_CUSTOM = false; // back to following the month's Net Income
   saveState();
-  syncSettingsNow();
   renderBudgetsView();
   showToast(`Income set to ${fmtMonthYear(homeDate)}'s Net Income`);
 });
@@ -10586,7 +9800,6 @@ document.getElementById('budgetPlannerMaxPct').addEventListener('change', (e)=>{
   BUDGET_PLANNER_MAX_PCT = val;
   const scaled = budgetPlannerScaleToFit(val, budgetPlannerIncomeFor(homeDate));
   saveState();
-  syncSettingsNow();
   renderBudgetsView();
   showToast(scaled ? `Categories scaled to fit within ${val}%` : `Maximum set to ${val}%`);
 });
@@ -10598,7 +9811,6 @@ document.getElementById('budgetPlannerResetBtn').addEventListener('click', ()=>{
     budgetPlannerResetVisibility(true);
     budgetPlannerScaleToFit(BUDGET_PLANNER_MAX_PCT, budgetPlannerIncomeFor(homeDate));
     saveState();
-    syncSettingsNow();
     renderBudgetsView();
     showToast('Reset to the suggested split');
   });
@@ -10613,7 +9825,6 @@ document.getElementById('budgetPlannerSaveBtn').addEventListener('click', ()=>{
     if(amount > 0){ BUDGETS[sub] = amount; } else { delete BUDGETS[sub]; }
   });
   saveState();
-  syncSettingsNow();
   showToast('Saved as your Budgets');
 });
 document.getElementById('creditLimitsModalClose').addEventListener('click', closeCreditLimitsModal);
@@ -10915,7 +10126,6 @@ function renderDebtAccountsManager(){
       if(!DEBT_ACCOUNTS[type].includes(name)){
         DEBT_ACCOUNTS[type].push(name);
         saveState();
-        syncSettingsNow();
       }
       input.value = '';
       renderDebtAccountsManager();
@@ -10955,7 +10165,6 @@ function renderDebtAccountsManager(){
     sw.addEventListener('click', ()=>{
       ACCOUNT_COLORS[accountColorKey(sw.dataset.type, sw.dataset.account)] = Number(sw.dataset.tone);
       saveState();
-      syncSettingsNow();
       renderDebtAccountsManager();
     });
   });
@@ -10973,7 +10182,6 @@ function finishDebtAccountDelete(type, name){
   if(type === 'Credit Card'){ delete CREDIT_LIMITS[name]; } // its limit goes with it
   delete ACCOUNT_COLORS[accountColorKey(type, name)];      // and its colour
   saveState();
-  syncSettingsNow();
   renderDebtAccountsManager();
   renderCurrentView(getActiveViewName());
   return true;
@@ -11050,7 +10258,6 @@ function renameDebtAccount(type, oldName, newName){
   }
 
   saveState();
-  syncSettingsNow();
   showToast(updated > 0 ? `Renamed (${updated} entr${updated === 1 ? 'y' : 'ies'} updated)` : 'Account renamed');
   renderDebtAccountsManager();
   renderCurrentView(getActiveViewName());
@@ -11124,7 +10331,6 @@ function addSubcategory(name){
   CATEGORY_MAP[mirrorCats(cat)[0]].push(name);      // Investment is the master list for Investment + Capital
   if(isMirroredCat(cat)) syncCapitalMirror();
   saveState();
-  syncSettingsNow();
   showToast('Subcategory added');
   renderSubcategoryManager();
 }
@@ -11179,7 +10385,6 @@ function renameSubcategory(oldName, newName){
   });
 
   saveState();
-  syncSettingsNow();
   showToast(updated > 0 ? `Renamed (${updated} entries updated)` : 'Subcategory renamed');
   renderSubcategoryManager();
   renderCurrentView(getActiveViewName());
@@ -11207,7 +10412,6 @@ function finishSubcategoryDelete(cat, name){
   if(cats.includes(detailCategory) && detailSubcategory === name){ detailSubcategory = CATEGORY_MAP[detailCategory][0]; }
 
   saveState();
-  syncSettingsNow();
   renderSubcategoryManager();
   renderCurrentView(getActiveViewName());
   return true;
@@ -11463,7 +10667,7 @@ document.getElementById('refreshAppBtnDesktop').addEventListener('click', ()=> c
 function init(){
   currentLang = 'en';
   loadTheme();
-  loadSyncUrl();
+  try{ localStorage.removeItem('wealthme_syncurl'); }catch(e){}   // v344: drop any saved Google Sheets URL left by older versions
   loadState();
   // First-ever open (nothing in storage yet) now starts from a clean,
   // empty file — entries stays [] (its default) rather than being
@@ -11477,11 +10681,6 @@ function init(){
   scheduleValueReminder();
   updateNotificationsBadge();
   maybeShowDueNotification();
-  updateSyncBadge();
-  // Reset badge to neutral on every open — green only means a live successful sync
-  if(syncUrl){
-    document.querySelectorAll('.sync-badge').forEach(badge=>{ badge.style.background = 'var(--slate)'; });
-  }
   const versionEl = document.getElementById('versionFooterText');
   if(versionEl) versionEl.textContent = 'WealthMe · version ' + APP_VERSION;
   const versionElDesktop = document.getElementById('versionFooterTextDesktop');
@@ -12268,7 +11467,7 @@ function renderDebts(){
     .reduce((a,e)=> a + Number(e.amount), 0);
   let html = `
     <div class="balance-hero debt-hero">
-      <div class="figure${outstanding < 0 ? ' negative' : ''}" id="debtOutstandingFig">${fmtMoney(outstanding)}</div>
+      <div class="figure${outstanding < 0 ? ' negative' : ''}">${fmtMoney(outstanding)}</div>
       <div class="underline"></div>
       <div class="sub">Outstanding</div>
     </div>`;
@@ -13734,7 +12933,7 @@ const TOUR_STEPS = [
   { view:'more', target:'#budgetsBtn', title:'Budgets', text:'A beginner-friendly planner: enter your income, get a split per category suggested from your 12-month average, type or nudge the % for each category until it fits, and track actual spend against the plan each month.' },
   { view:'more', target:'#creditLimitsBtn', title:'Credit Limits', text:'Set the total limit on each credit card to see available credit and usage \u2014 shown here and on the Debts page.' },
   { view:'more', target:'#settingsBtn', title:'Accounts Settings', text:'Manage your categories and subcategories, and the specific accounts under each debt type.' },
-  { view:'more', target:'#dataManagementBtn', title: SHEETS_SYNC_ENABLED ? 'Data & Cloud Sync' : 'Your data', text: SHEETS_SYNC_ENABLED ? 'Import or export a CSV, back up or restore your data, and optionally sync across devices with your own Google Sheet.' : 'Import or export a CSV, back up or restore your data, or reset everything.' },
+  { view:'more', target:'#dataManagementBtn', title: 'Your data', text: 'Import or export a CSV, back up or restore your data, or reset everything.' },
   { view:'more', target:'#privacyBtn', title:'Privacy', text:'Turn on a password lock for the app, with a security question in case you ever forget it.' },
   { view:'more', target:'#appearanceBtn', title:'Appearance', text:'Switch between light and dark mode here too \u2014 same as the icon beside the bell.' },
   { view:'home', title:'That\u2019s the tour! \ud83c\udf89', text:'You can replay this any time from Help \u2192 Take the Guided Tour. Now go ahead and add your first entry with the + button.' }
@@ -14220,7 +13419,6 @@ function scheduleBackupReminder(tries){
    accounts with money in them. Only one reminder per app open: if the
    backup reminder showed, this one waits for the next open.
    ========================================================= */
-const VALUE_REMIND_DAYS = 30;
 const LS_VALUE_REMINDED = 'wealthme_value_reminded';
 var _reminderShownThisRun = false;
 function activeInvestmentAccounts(){
