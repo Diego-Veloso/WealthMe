@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v346 -->
+<!-- WEALTH.ME — v347 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -2198,13 +2198,14 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
 #moneyHeroCard:active{transform:scale(.98);}
 #moneyHeroCard:focus-visible{outline:3px solid #FFE08A;outline-offset:3px;}
 .balance-hero > .hero-tap-hint{
-  position:absolute;bottom:12px;right:12px;z-index:2;
+  position:absolute;bottom:10px;right:10px;z-index:2;
   display:inline-flex;align-items:center;
-  padding:6px 14px;border-radius:999px;
-  font-size:12px;font-weight:800;letter-spacing:.2px;line-height:1.2;
+  padding:5px 11px;border-radius:999px;
+  font-size:11.5px;font-weight:800;letter-spacing:.2px;line-height:1.2;
   color:#8A5A0C;background:#FFF4D6;
   box-shadow:0 4px 12px rgba(60,35,0,.35);
 }
+@media (max-width:379px){ .balance-hero > .hero-tap-hint{top:10px;bottom:auto;} }   /* narrow phones: no room beside the % badge */
 #moneyAccountsModalOverlay .modal-header h3{font-weight:800;letter-spacing:-.3px;}
 #moneyAccountsBody > .card{margin-bottom:0;}
 #moneyAccountsBody > .card > .card-title{display:none;}
@@ -2919,7 +2920,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
       <!-- Summary cards -->
       <!-- Phones: tap this card to open Investment Accounts (popup). The "View" pill shows it can be tapped. -->
       <div class="balance-hero money-hero" id="moneyHeroCard">
-        <span class="hero-tap-hint" aria-hidden="true">View</span>
+        <span class="hero-tap-hint" aria-hidden="true">Accounts</span>
         <div class="eyebrow">Net Position</div>
         <div class="figure" id="moneyCardNetPosition">$0</div>
         <div class="underline"></div>
@@ -3070,7 +3071,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         <div id="refreshStatus" class="more-refresh-status"></div>
       </div>
 
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 346</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 347</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -3113,7 +3114,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 346</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 347</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -4280,7 +4281,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 346;
+const APP_VERSION = 347;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
