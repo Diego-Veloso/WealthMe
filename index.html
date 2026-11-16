@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v351 -->
+<!-- WEALTH.ME — v352 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -3082,7 +3082,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         <div id="refreshStatus" class="more-refresh-status"></div>
       </div>
 
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 351</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 352</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -3125,7 +3125,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 351</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 352</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -4299,7 +4299,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 351;
+const APP_VERSION = 352;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -11533,6 +11533,7 @@ function renderDebts(){
     .reduce((a,e)=> a + Number(e.amount), 0);
   let html = `
     <div class="balance-hero debt-hero">
+      <div class="eyebrow">${deskEsc(debtTypeFilter)}</div>
       <div class="figure${outstanding < 0 ? ' negative' : ''}">${fmtMoney(outstanding)}</div>
       <div class="underline"></div>
       <div class="sub">Outstanding</div>
