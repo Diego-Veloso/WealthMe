@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v347 -->
+<!-- WEALTH.ME — v349 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1691,8 +1691,8 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
 #view-transactions .page-head{margin-bottom:2px;}
 #view-transactions .search-bar{margin-top:6px;}
 .tx-status-pager{margin:0 0 10px;padding:2px 0 4px;user-select:none;-webkit-user-select:none;}
-#txFilterSeg{width:100%;}
-#txFilterSeg button{flex:1 1 0;}
+#txFilterSeg,#accountDetailSeg{width:100%;}
+#txFilterSeg button,#accountDetailSeg button{flex:1 1 0;}
 #view-debts .page-head{margin-bottom:2px;}
 #view-debts .search-bar{margin-top:6px;}
 #view-debts .debt-type-pager{margin-top:0;}
@@ -1810,9 +1810,20 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
 .segmented.seg-colour button.active[data-cat="Investment"],.segmented.seg-colour button.active[data-mode="investment"]{background:linear-gradient(135deg,#B7821F,#F0BC45);}
 .segmented.seg-colour button.active[data-cat="Capital"]{background:linear-gradient(135deg,#46525F,#8795A5);}
 /* v305: Activity All / Planned / Actual — bigger, selected one in the app's blue */
-#txFilterSeg{padding:3px;border-radius:13px;gap:2px;}
-#txFilterSeg button{padding:8px 14px;font-size:13.5px;border-radius:10px;}
-#txFilterSeg button.active{background:var(--skin-grad-primary);color:#fff;box-shadow:0 6px 14px rgba(10,111,208,.28);}
+#txFilterSeg,#accountDetailSeg{padding:3px;border-radius:13px;gap:2px;}
+#txFilterSeg button,#accountDetailSeg button{padding:8px 14px;font-size:13.5px;border-radius:10px;}
+#txFilterSeg button.active,#accountDetailSeg button.active{background:var(--skin-grad-primary);color:#fff;box-shadow:0 6px 14px rgba(10,111,208,.28);}
+#accountDetailSeg{margin-bottom:6px;}
+/* v348: account popup — centred Total card with a bigger, colour-coded return */
+.ad-total-card{position:relative;text-align:center;padding:22px 18px 18px;}
+.ad-total-badge{position:absolute;top:12px;right:12px;}
+.ad-eyebrow{font-size:12px;text-transform:uppercase;letter-spacing:1.8px;font-weight:700;color:var(--slate);}
+.ad-figure{font-family:'Inter',sans-serif;font-size:37.26px;font-weight:800;letter-spacing:-1.1px;line-height:1.1;margin:4px 0 6px;color:var(--navy);white-space:nowrap;}
+.ad-underline{width:84px;height:3px;margin:0 auto;border-radius:3px;background:linear-gradient(90deg,rgba(212,162,78,0),#D4A24E,rgba(212,162,78,0));}
+.ad-return{display:inline-flex;align-items:center;gap:6px;margin-top:12px;padding:6px 14px;border-radius:999px;font-size:14px;font-weight:700;letter-spacing:-.1px;color:var(--slate);background:color-mix(in srgb,var(--slate) 12%,transparent);border:1px solid color-mix(in srgb,var(--slate) 22%,transparent);}
+.ad-return:empty{display:none;}
+.ad-return.pos{color:var(--sage);background:color-mix(in srgb,var(--sage) 14%,transparent);border-color:color-mix(in srgb,var(--sage) 32%,transparent);}
+.ad-return.neg{color:var(--terracotta);background:color-mix(in srgb,var(--terracotta) 14%,transparent);border-color:color-mix(in srgb,var(--terracotta) 32%,transparent);}
 .segmented.ins-dir button.active{background:var(--skin-grad-primary);color:#fff;box-shadow:0 6px 14px rgba(10,111,208,.28);}
 .ins-more{display:block;width:100%;background:none;border:none;color:var(--skin-blue-ink,#0A6FD0);font-weight:700;font-size:12.5px;padding:10px 0 0;cursor:pointer;text-align:center;font-family:'Inter',sans-serif;}
 .tile-badge.watch{background:color-mix(in srgb,#F5A623 20%,transparent);color:#B86E00;margin-left:4px;vertical-align:1px;}
@@ -3071,7 +3082,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         <div id="refreshStatus" class="more-refresh-status"></div>
       </div>
 
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 347</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 349</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -3114,7 +3125,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 347</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 349</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -4029,17 +4040,20 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
       </div>
       <div class="summary-grid" style="margin-bottom:16px;">
         <div class="summary-card">
-          <div class="label">Invested</div>
+          <div class="label tile-head"><span>Invested</span><span class="tile-badge tint" style="--t:#D4A24E;">All time</span></div>
           <div class="value gold" id="accountDetailInvested">$0</div>
         </div>
         <div class="summary-card">
-          <div class="label">Capital</div>
+          <div class="label tile-head"><span>Capital</span><span class="tile-badge tint" style="--t:#2F9E6E;">All time</span></div>
           <div class="value" id="accountDetailCapital">$0</div>
         </div>
-        <div class="summary-card" style="grid-column:span 2;">
-          <div class="label">Total (Invested + Capital)</div>
-          <div class="value" id="accountDetailTotal">$0</div>
-          <div class="muted" style="font-size:11px;margin-top:2px;" id="accountDetailReturn"></div>
+        <!-- v349: same layout as the Net Position card on Money (title, big figure, gold underline, pill), on the normal card background -->
+        <div class="summary-card ad-total-card" style="grid-column:span 2;">
+          <span class="tile-badge tint ad-total-badge" style="--t:#0A8FE8;">All time</span>
+          <div class="ad-eyebrow">Total</div>
+          <div class="ad-figure" id="accountDetailTotal">$0</div>
+          <div class="ad-underline"></div>
+          <div class="ad-return" id="accountDetailReturn"></div>
         </div>
         <button type="button" class="btn btn-primary vu-btn" id="accountDetailUpdateBtn" style="grid-column:span 2;">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
@@ -4053,8 +4067,12 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         </div>
         <div class="chart-wrap" style="height:220px;"><canvas id="accountDetailChart" role="img" aria-label="12-month projection chart for this investment account"></canvas></div>
       </div>
-      <div class="card-title" style="margin-bottom:6px;">Actual Entries</div>
-      <ul class="entry-list" id="accountDetailList"></ul>
+      <div class="card-title" style="margin-bottom:8px;">Entries</div>
+      <div class="segmented seg-sm" id="accountDetailSeg" role="group" aria-label="Entries: Planned or Actual">
+        <button type="button" data-status="Open">Planned</button>
+        <button type="button" data-status="Closed" class="active">Actual</button>
+      </div>
+      <div id="accountDetailList"></div>
     </div>
   </div>
 
@@ -4281,7 +4299,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 347;
+const APP_VERSION = 349;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -6540,36 +6558,75 @@ function renderMoneyAllTimeBreakdown(){
   });
 }
 
-function openAccountDetail(sub){
+let accountDetailStatus = 'Closed';   // which Entries tab is showing: 'Closed' (Actual) or 'Open' (Planned)
+let _adSub = null;
+function renderAccountEntries(sub){
+  const status = accountDetailStatus;
+  document.querySelectorAll('#accountDetailSeg button').forEach(b=> b.classList.toggle('active', b.dataset.status === status));
   const matching = entries
-    .filter(e => (e.category === 'Investment' || e.category === 'Capital') && e.subcategory === sub && e.status === 'Closed')   // v313: Actual only
+    .filter(e => (e.category === 'Investment' || e.category === 'Capital') && e.subcategory === sub && e.status === status)
     .slice()
-    .sort((a,b)=> b.date < a.date ? -1 : b.date > a.date ? 1 : 0);
+    .sort((a,b)=> b.date < a.date ? -1 : b.date > a.date ? 1 : 0);   // newest first
+  const listEl = document.getElementById('accountDetailList');
+  if(!matching.length){
+    listEl.innerHTML = `<div class="empty-state" style="padding:20px;"><span class="muted">No ${status === 'Closed' ? 'actual' : 'planned'} entries yet.</span></div>`;
+  }else{
+    // grouped by month, same layout as the Activity page
+    const groups = {};
+    matching.forEach(e=>{ const k = e.date.slice(0,7); (groups[k] = groups[k] || []).push(e); });
+    let html = '';
+    Object.keys(groups).sort().reverse().forEach(key=>{
+      const [y, m] = key.split('-');
+      const label = _dfMonthYear.format(new Date(Number(y), Number(m)-1, 1));
+      const rows = groups[key].map(e=>renderEntryRow(e, false, false, true)).join('');
+      html += `<div class="group-header">${label}</div><div class="card"><ul class="entry-list">${rows}</ul></div>`;
+    });
+    listEl.innerHTML = html;
+  }
+  attachEntryRowHandlers(listEl);
+}
+document.getElementById('accountDetailSeg').addEventListener('click', (e)=>{
+  const btn = e.target.closest('button[data-status]');
+  if(!btn || !_adSub) return;
+  accountDetailStatus = btn.dataset.status;
+  renderAccountEntries(_adSub);
+});
+function openAccountDetail(sub){
+  // opening a different account (or from closed) starts on Actual; refreshing the open popup keeps the tab
+  const overlay = document.getElementById('accountDetailModalOverlay');
+  if(!(overlay.classList.contains('active') && _adSub === sub)) accountDetailStatus = 'Closed';
+  _adSub = sub;
 
   const acct = investmentSplit({ includeOpen: false, sub }).accounts[sub] || { invested: 0, capital: 0 };
   const invested = acct.invested, capital = acct.capital;
   const total = invested + capital;
   const returnPct = invested !== 0 ? (capital / invested * 100) : null;
-  const returnStr = returnPct !== null ? 'Return: ' + (returnPct >= 0 ? '+' : '') + returnPct.toFixed(1) + '%' : '';
 
   document.getElementById('accountDetailTitle').textContent = sub;
   document.getElementById('accountDetailInvested').textContent = moneyOrDash(invested);
   document.getElementById('accountDetailCapital').textContent = moneyOrDash(capital, true);
   document.getElementById('accountDetailTotal').textContent = moneyOrDash(total);
-  document.getElementById('accountDetailReturn').textContent = returnStr;
+  // Return: bigger, green when positive / red when negative, with the same arrows as the Home balance card
+  const retEl = document.getElementById('accountDetailReturn');
+  if(returnPct === null){
+    retEl.textContent = ''; retEl.className = 'ad-return';
+  }else if(Math.abs(returnPct) < 0.05){
+    retEl.textContent = 'Return 0.0%'; retEl.className = 'ad-return';
+  }else{
+    const up = returnPct > 0;
+    retEl.textContent = (up ? '\u25B2' : '\u25BC') + ' Return ' + (up ? '+' : '') + returnPct.toFixed(1) + '%';
+    retEl.className = 'ad-return ' + (up ? 'pos' : 'neg');
+  }
 
-  const listEl = document.getElementById('accountDetailList');
-  listEl.innerHTML = matching.length
-    ? matching.map(e=>renderEntryRow(e, false, false, true)).join('')
-    : `<div class="empty-state" style="padding:20px;"><span class="muted">No actual entries yet.</span></div>`;
-  attachEntryRowHandlers(listEl);
+  renderAccountEntries(sub);
 
-  document.getElementById('accountDetailModalOverlay').classList.add('active');
+  overlay.classList.add('active');
   // draw once the popup is showing, so the chart measures its real width
   if(accountDetailChartInstance){ accountDetailChartInstance.destroy(); accountDetailChartInstance = null; }
   accountDetailChartInstance = buildMoneyProjectionChart(document.getElementById('accountDetailChart'), sub);
 }
 function closeAccountDetail(){
+  _adSub = null;
   document.getElementById('accountDetailModalOverlay').classList.remove('active');
   if(accountDetailChartInstance){ accountDetailChartInstance.destroy(); accountDetailChartInstance = null; }
 }
