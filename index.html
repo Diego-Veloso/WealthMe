@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v353 -->
+<!-- WEALTH.ME — v354 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1842,8 +1842,8 @@ html.show-saved .topbar{padding-bottom:8px;}
 
 /* v286: colour picker in the Debts account headings */
 .dah-name{display:inline-flex;align-items:center;gap:8px;min-width:0;}
-/* v353: number of open entries beside the account name — same look as the bell's notification badge */
-.dah-count{min-width:16px;height:16px;padding:0 4px;border-radius:999px;background:var(--terracotta);color:#fff;font-size:10px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;line-height:1;flex-shrink:0;box-shadow:0 0 0 1.5px rgba(255,255,255,.75);}
+/* v353: number of open entries beside the account name */
+.dah-count{min-width:16px;height:16px;padding:0 5px;border-radius:999px;background:#fff;color:#0B2545;font-size:10px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;line-height:1;flex-shrink:0;box-shadow:0 1px 3px rgba(0,36,72,.28);}   /* v354: white pill, grows with the number */
 .debt-acct-head.tone-light .cl-swatch.on{border-color:#0B2545;}
 
 /* v300: highlight Export CSV when coming from the backup reminder */
@@ -3084,7 +3084,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         <div id="refreshStatus" class="more-refresh-status"></div>
       </div>
 
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 353</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 354</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -3127,7 +3127,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 353</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 354</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -4301,7 +4301,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 353;
+const APP_VERSION = 354;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -11500,7 +11500,7 @@ function checkDebtPaidOff(entry){
 // v353: badge with the number of open (planned) entries, shown beside an account name
 function debtCountBadge(n){
   const label = n === 1 ? '1 open entry' : n + ' open entries';
-  return `<span class="dah-count" title="${label}" aria-label="${label}">${n > 99 ? '99+' : n}</span>`;
+  return `<span class="dah-count" title="${label}" aria-label="${label}">${_nfInt.format(n)}</span>`;   // v354: the real number, with thousands separators
 }
 function renderDebts(){
   if(!DEBT_TYPES.includes(debtTypeFilter)) debtTypeFilter = DEBT_TYPES[0];
