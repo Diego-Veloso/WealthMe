@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v350 -->
+<!-- WEALTH.ME — v351 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -2946,7 +2946,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         <div class="summary-card">
           <div class="label tile-head"><span>Capital</span><span class="tile-badge tint">All time</span></div>
           <div class="value" id="moneyCardCapital">$0</div>
-          <div class="muted" style="font-size:11px;margin-top:2px;">Gains / Losses</div>
+          <div class="muted" id="moneyCardCapitalSub" style="font-size:11px;margin-top:2px;">Gains / Losses</div>
         </div>
       </div>
       <!-- v345: month bar sits between the all-time tiles and the monthly tiles. Swipe it left / right to change month -->
@@ -3082,7 +3082,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         <div id="refreshStatus" class="more-refresh-status"></div>
       </div>
 
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 350</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 351</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -3125,7 +3125,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 350</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 351</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -4299,7 +4299,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 350;
+const APP_VERSION = 351;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -6151,6 +6151,8 @@ function renderMoney(){
   const capitalEl = document.getElementById('moneyCardCapital');
   capitalEl.textContent = fmtMoney(capitalAllTime);
   capitalEl.className = 'value ' + (capitalAllTime >= 0 ? 'pos' : 'neg');
+  // v351: the caption says Gains or Losses to match the sign (both words when it is exactly 0)
+  document.getElementById('moneyCardCapitalSub').textContent = capitalAllTime > 0 ? 'Gains' : capitalAllTime < 0 ? 'Losses' : 'Gains / Losses';
 
   const netEl = document.getElementById('moneyCardNetPosition');
   netEl.textContent = fmtMoney(netPosition);
@@ -6229,13 +6231,14 @@ function buildMoneyProjectionChart(ctx, sub){
 
   // Prior cumulative base: everything before the selected month
   const startCutoff = new Date(homeDate.getFullYear(), homeDate.getMonth(), 0);
-  let cumulativeInvested = entries
+  // (v351: from `src`, so an account's chart starts from that account's own balance, not the total of all accounts)
+  let cumulativeInvested = src
     .filter(e => e.category === 'Investment' && e.status === 'Closed' && parseLocalDate(e.date) <= startCutoff)
     .reduce((a, e) => a + Number(e.amount), 0);
-  let cumulativeCapital = entries
+  let cumulativeCapital = src
     .filter(e => e.category === 'Capital' && parseLocalDate(e.date) <= startCutoff)
     .reduce((a, e) => a + Number(e.amount), 0);
-  let cumulativePlanned = entries
+  let cumulativePlanned = src
     .filter(e => e.category === 'Investment' && parseLocalDate(e.date) <= startCutoff)
     .reduce((a, e) => a + Number(e.amount), 0) + cumulativeCapital;
   let cumulativeNet = cumulativeInvested + cumulativeCapital;
@@ -6508,7 +6511,10 @@ function renderMoneyAllTimeBreakdown(){
     const capColor = r.capital > 0 ? 'color:#3E7C59;' : r.capital < 0 ? 'color:#C1583F;' : 'color:var(--slate);';
     const returnPct = r.invested !== 0 ? (r.capital / r.invested * 100) : null;
     const returnStr = returnPct !== null ? (returnPct >= 0 ? '+' : '') + returnPct.toFixed(1) + '%' : '—';
-    const returnColor = returnPct === null ? 'color:var(--slate);' : returnPct > 0 ? 'color:#3E7C59;' : returnPct < 0 ? 'color:#C1583F;' : 'color:var(--slate);';
+    // v351: the caption says Gains or Losses to match the sign ("Return" when there is nothing to compare or it is 0.0%)
+    const retNeutral = returnPct === null || Math.abs(returnPct) < 0.05;
+    const returnLabel = retNeutral ? 'Return' : returnPct > 0 ? 'Gains' : 'Losses';
+    const returnColor = retNeutral ? 'color:var(--slate);' : returnPct > 0 ? 'color:#3E7C59;' : 'color:#C1583F;';
     const total = r.invested + r.capital;
     const color = PALETTE[r.i % PALETTE.length];
     return `
@@ -6543,7 +6549,7 @@ function renderMoneyAllTimeBreakdown(){
             <div class="breakdown-amt" style="font-size:13px;">${moneyOrDash(total)}</div>
           </div>
           <div>
-            <div class="muted" style="font-size:10px;text-transform:uppercase;letter-spacing:.4px;">Return</div>
+            <div class="muted" style="font-size:10px;text-transform:uppercase;letter-spacing:.4px;">${returnLabel}</div>
             <div class="breakdown-amt" style="${returnColor}font-size:13px;">${returnStr}</div>
           </div>
         </div>
@@ -6604,7 +6610,9 @@ function openAccountDetail(sub){
 
   document.getElementById('accountDetailTitle').textContent = sub;
   document.getElementById('accountDetailInvested').textContent = moneyOrDash(invested);
-  document.getElementById('accountDetailCapital').textContent = moneyOrDash(capital, true);
+  const capEl = document.getElementById('accountDetailCapital');
+  capEl.textContent = moneyOrDash(capital, true);
+  capEl.className = 'value' + (capital > 0 ? ' pos' : capital < 0 ? ' neg' : '');   // v351: green gains / red losses
   document.getElementById('accountDetailTotal').textContent = moneyOrDash(total);
   // Return: bigger, green when positive / red when negative, with the same arrows as the Home balance card
   const retEl = document.getElementById('accountDetailReturn');
@@ -6614,7 +6622,7 @@ function openAccountDetail(sub){
     retEl.textContent = 'Return 0.0%'; retEl.className = 'ad-return';
   }else{
     const up = returnPct > 0;
-    retEl.textContent = (up ? '\u25B2 Gain ' : '\u25BC Loss ') + (up ? '+' : '') + returnPct.toFixed(1) + '%';
+    retEl.textContent = (up ? '\u25B2 Gains ' : '\u25BC Losses ') + (up ? '+' : '') + returnPct.toFixed(1) + '%';
     retEl.className = 'ad-return ' + (up ? 'pos' : 'neg');
   }
 
