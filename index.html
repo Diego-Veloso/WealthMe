@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v354 -->
+<!-- WEALTH.ME — v355 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1663,17 +1663,15 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
 #txList .entry-right .entry-amt{line-height:1.3;}
 #txList .entry-right .status-badge{margin-left:0;}
 
-/* Debts: Total Outstanding card (the Home balance card in dark red) */
+/* Debts: Total Outstanding card — v355: same colours as the "Spent · 12 months" card in Insights */
 .balance-hero.debt-hero{
-  background:linear-gradient(135deg,#B5432A,#EE8A66);   /* v342: same orange as the Expense buttons */
-  box-shadow:0 16px 34px rgba(181,67,42,.32);
+  background:linear-gradient(135deg,#4F1608 0%,#B5432A 50%,#EE8A66 100%);
+  box-shadow:0 16px 34px rgba(181,67,42,.30);
   margin-bottom:14px;
 }
-.balance-hero.debt-hero::after{background:radial-gradient(circle,rgba(255,110,90,.30),rgba(255,110,90,0) 68%);}
-.balance-hero.debt-hero .eyebrow{color:#FFEADF;}
+.balance-hero.debt-hero::after{background:radial-gradient(circle,rgba(255,200,150,.34),rgba(255,200,150,0) 68%);}
+.balance-hero.debt-hero .eyebrow{color:#FFE0D2;}
 .balance-hero.debt-hero .figure{color:#fff;}
-.balance-hero.debt-hero .underline{background:linear-gradient(90deg,rgba(255,196,170,0),#FFC4AA,rgba(255,196,170,0));}
-.balance-hero.debt-hero .sub{color:#FFF3EC;}
 
 /* ===== v258 tweaks ===== */
 #txSortBtn{width:40px;height:40px;border-radius:13px;flex-shrink:0;}
@@ -3084,7 +3082,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         <div id="refreshStatus" class="more-refresh-status"></div>
       </div>
 
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 354</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 355</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -3127,7 +3125,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 354</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 355</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -4301,7 +4299,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 354;
+const APP_VERSION = 355;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
