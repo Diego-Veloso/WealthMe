@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v355 -->
+<!-- WEALTH.ME — v356 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -2879,9 +2879,10 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         </label>
         <span class="muted" id="txSelectedCount" style="font-size:12px;"></span>
       </div>
-      <div class="csv-row" style="display:none;" id="txBulkActionsRow">
+      <div class="csv-row" style="display:none;flex-wrap:wrap;" id="txBulkActionsRow">
         <button class="btn btn-secondary" id="txBulkEditOpenBtn" style="flex:1;">Edit Selected</button>
         <button class="btn btn-danger" id="txBulkDeleteBtn" style="flex:1;">Delete Selected</button>
+        <button class="btn btn-secondary" id="txBulkDuplicateBtn" style="flex:1 1 100%;">Duplicate Selected</button>
       </div>
       <div id="txList" style="margin-top:4px;"></div>
       <!-- Desktop only (1100px+): selection totals and what's due soon -->
@@ -3082,7 +3083,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         <div id="refreshStatus" class="more-refresh-status"></div>
       </div>
 
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 355</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 356</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -3125,7 +3126,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 355</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 356</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -3395,7 +3396,8 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
             <li><strong>Tap the Expenses vs Budget bar</strong> on Home (hover on a computer) to see paid, planned, budget, what you should have spent by today and what&rsquo;s left per day.</li>
             <li><strong>Press and hold a slice</strong> of the donut chart to open Category Detail for that subcategory. A quick tap does nothing on purpose, so brushing the chart never takes you away.</li>
             <li><strong>Swipe an entry left</strong> to Mark Actual, or <strong>right</strong> to Delete, with a 5-second Undo. Works in every entry list: Activity, Debts, Category Detail, the Calendar and Notifications (touch screens).</li>
-            <li><strong>Press and hold an entry on Activity</strong> to start selecting: checkboxes appear and the held entry is ticked. Tap entries to add or remove them; untick everything to stop.</li>
+            <li><strong>Press and hold an entry on Activity</strong> to start selecting: checkboxes appear and the held entry is ticked. Tap entries to add or remove them; untick everything to stop. Tap <strong>Duplicate Selected</strong> to copy the ticked entries (the copies are dated today).</li>
+            <li><strong>Duplicate an entry</strong>: open it and tap Duplicate. A new entry opens with everything copied and today&rsquo;s date; nothing is saved until you tap Save.</li>
             <li><strong>Change month with a swipe</strong> (touch screens): swipe the page on Home, Budgets, Category Detail and the Calendar; on Money and Insights, swipe the month bar.</li>
             <li><strong>Debts:</strong> swipe the list left or right to move between Credit Card, Financing and Other, or tap the switch at the top.</li>
             <li><strong>Insights:</strong> swipe the report, or tap the Summary / Spending tabs, to switch between them.</li>
@@ -3871,6 +3873,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
       </div>
       <div class="btn-row">
         <button class="btn btn-danger" id="entryDeleteBtn" style="display:none;">Delete</button>
+        <button class="btn btn-secondary" id="entryDuplicateBtn" style="display:none;">Duplicate</button>
         <button class="btn btn-primary btn-block" id="entrySaveBtn">Save Entry</button>
       </div>
     </div>
@@ -4299,7 +4302,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 355;
+const APP_VERSION = 356;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -7318,6 +7321,33 @@ document.getElementById('txBulkApplyBtn').addEventListener('click', ()=>{
 
 });
 
+// v356: copies every selected entry, dated today (use Edit Selected afterwards to move the dates)
+document.getElementById('txBulkDuplicateBtn').addEventListener('click', ()=>{
+  const selectedIds = Array.from(document.querySelectorAll('#txList .entry-select:checked'))
+    .map(chk => Number(chk.closest('.entry-row').dataset.id));
+  if(selectedIds.length === 0){
+    showToast('No entries selected');
+    return;
+  }
+  const n = selectedIds.length;
+  showConfirm(
+    'Duplicate selected entries?',
+    `This creates ${n} cop${n===1?'y':'ies'}, dated today. Everything else is copied as it is. You can change the dates afterwards with Edit Selected.`,
+    ()=>{
+      const today = formatLocalDate(new Date());
+      selectedIds.forEach(id=>{
+        const src = entries.find(e=>e.id === id);
+        if(!src) return;
+        entries.push({ ...src, id: uid(), date: today });
+      });
+      saveState();
+      renderCurrentView(getActiveViewName());
+      showToast(`Duplicated ${n} entr${n===1?'y':'ies'} (dated today)`);
+    },
+    { confirmLabel: 'Duplicate', confirmClass: 'btn-primary' }
+  );
+});
+
 document.getElementById('txBulkDeleteBtn').addEventListener('click', ()=>{
   const selectedIds = Array.from(document.querySelectorAll('#txList .entry-select:checked'))
     .map(chk => Number(chk.closest('.entry-row').dataset.id));
@@ -7825,6 +7855,7 @@ function openEntryModal(id, presetDate){
     if(!entry) return;
     title.textContent = 'Edit Entry';
     deleteBtn.style.display = 'block';
+    document.getElementById('entryDuplicateBtn').style.display = 'block';
     addRecurringBtn.style.display = 'none';
     receiptUiReset(entry.category === 'Expense', true);
     document.getElementById('entryId').value = entry.id;
@@ -7841,6 +7872,7 @@ function openEntryModal(id, presetDate){
   } else {
     title.textContent = 'New Financial Entry';
     deleteBtn.style.display = 'none';
+    document.getElementById('entryDuplicateBtn').style.display = 'none';
     addRecurringBtn.style.display = 'inline-flex';
     receiptUiReset(true, false);
     document.getElementById('entryId').value = '';
@@ -7855,6 +7887,29 @@ function openEntryModal(id, presetDate){
   calRemindReset();
   overlay.classList.add('active');
 }
+
+// v356: Duplicate — opens a new-entry form with everything copied from `id`, dated today. Nothing is saved until Save.
+function duplicateEntryToForm(id){
+  const entry = entries.find(e=>e.id === id);
+  if(!entry) return;
+  closeEntryModal();
+  openEntryModal();                                   // blank new entry: date = today, no calendar reminder
+  document.getElementById('entryModalTitle').textContent = 'Duplicate Entry';
+  receiptUiReset(entry.category === 'Expense', false);
+  populateEntryCategorySelectors(entry.category, entry.subcategory);
+  document.getElementById('entryAmount').value = entry.amount;
+  setStatusToggle(entry.status);
+  document.getElementById('entryNotes').value = (entry.notes || '').replace(/\s*[\r\n]+\s*/g, ' ');
+  if(entry.category === 'Expense'){
+    const t = entry.type || 'Other';
+    document.getElementById('entryType').value = t;
+    populateEntryAccountSelector(t, entry.account || null);
+  }
+}
+document.getElementById('entryDuplicateBtn').addEventListener('click', ()=>{
+  const idVal = Number(document.getElementById('entryId').value);
+  if(idVal) duplicateEntryToForm(idVal);
+});
 
 function closeEntryModal(){
   document.getElementById('entryModalOverlay').classList.remove('active');
