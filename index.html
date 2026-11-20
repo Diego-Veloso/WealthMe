@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v356 -->
+<!-- WEALTH.ME — v359 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -882,6 +882,15 @@ html:has(#moneyAccountsModalOverlay.active, #accountDetailModalOverlay.active):n
   flex-shrink:0;
 }
 .pill-btn:hover{background:var(--slate-light);}
+/* v359: selected-entries bar — icon beside a short label, equal widths */
+.bulk-act-btn{flex:1 1 0;min-width:0;display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 6px;font-size:12.5px;font-weight:700;}
+.bulk-act-btn svg{flex-shrink:0;}
+/* v358: Delete is an icon-only red button to the left of Save */
+.entry-del-btn{width:52px;flex:0 0 52px;padding:0;align-items:center;justify-content:center;}
+/* v357: Duplicate icon beside the Edit Entry title */
+.entry-dup-btn{width:30px;height:30px;border-radius:50%;border:none;padding:0;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;background:color-mix(in srgb,var(--skin-blue) 13%,var(--card));color:var(--skin-blue-ink);}
+.entry-dup-btn:hover{background:color-mix(in srgb,var(--skin-blue) 22%,var(--card));}
+.entry-dup-btn:active{transform:scale(.94);}
 .filter-chip{
   display:inline-flex;align-items:center;gap:6px;
   padding:5px 8px 5px 11px;
@@ -2879,10 +2888,11 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         </label>
         <span class="muted" id="txSelectedCount" style="font-size:12px;"></span>
       </div>
-      <div class="csv-row" style="display:none;flex-wrap:wrap;" id="txBulkActionsRow">
-        <button class="btn btn-secondary" id="txBulkEditOpenBtn" style="flex:1;">Edit Selected</button>
-        <button class="btn btn-danger" id="txBulkDeleteBtn" style="flex:1;">Delete Selected</button>
-        <button class="btn btn-secondary" id="txBulkDuplicateBtn" style="flex:1 1 100%;">Duplicate Selected</button>
+      <!-- v359: icon + short label, one row: Delete · Copy · Edit -->
+      <div class="csv-row" style="display:none;gap:8px;" id="txBulkActionsRow">
+        <button type="button" class="btn btn-danger bulk-act-btn" id="txBulkDeleteBtn" title="Delete selected" aria-label="Delete selected"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg><span>Delete</span></button>
+        <button type="button" class="btn btn-secondary bulk-act-btn" id="txBulkDuplicateBtn" title="Duplicate selected" aria-label="Duplicate selected"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/><path d="M15.5 12.5v6M12.5 15.5h6"/></svg><span>Copy</span></button>
+        <button type="button" class="btn btn-secondary bulk-act-btn" id="txBulkEditOpenBtn" title="Edit selected" aria-label="Edit selected"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg><span>Edit</span></button>
       </div>
       <div id="txList" style="margin-top:4px;"></div>
       <!-- Desktop only (1100px+): selection totals and what's due soon -->
@@ -3083,7 +3093,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         <div id="refreshStatus" class="more-refresh-status"></div>
       </div>
 
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 356</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 359</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -3126,7 +3136,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 356</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 359</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -3396,8 +3406,8 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
             <li><strong>Tap the Expenses vs Budget bar</strong> on Home (hover on a computer) to see paid, planned, budget, what you should have spent by today and what&rsquo;s left per day.</li>
             <li><strong>Press and hold a slice</strong> of the donut chart to open Category Detail for that subcategory. A quick tap does nothing on purpose, so brushing the chart never takes you away.</li>
             <li><strong>Swipe an entry left</strong> to Mark Actual, or <strong>right</strong> to Delete, with a 5-second Undo. Works in every entry list: Activity, Debts, Category Detail, the Calendar and Notifications (touch screens).</li>
-            <li><strong>Press and hold an entry on Activity</strong> to start selecting: checkboxes appear and the held entry is ticked. Tap entries to add or remove them; untick everything to stop. Tap <strong>Duplicate Selected</strong> to copy the ticked entries (the copies are dated today).</li>
-            <li><strong>Duplicate an entry</strong>: open it and tap Duplicate. A new entry opens with everything copied and today&rsquo;s date; nothing is saved until you tap Save.</li>
+            <li><strong>Press and hold an entry on Activity</strong> to start selecting: checkboxes appear and the held entry is ticked. Tap entries to add or remove them; untick everything to stop. Then use the buttons that appear: <strong>Delete</strong>, <strong>Copy</strong> (duplicates the ticked entries, dated today) or <strong>Edit</strong>.</li>
+            <li><strong>Duplicate an entry</strong>: open it and tap the Duplicate icon beside the title. A new entry opens with everything copied and today&rsquo;s date; nothing is saved until you tap Save.</li>
             <li><strong>Change month with a swipe</strong> (touch screens): swipe the page on Home, Budgets, Category Detail and the Calendar; on Money and Insights, swipe the month bar.</li>
             <li><strong>Debts:</strong> swipe the list left or right to move between Credit Card, Financing and Other, or tap the switch at the top.</li>
             <li><strong>Insights:</strong> swipe the report, or tap the Summary / Spending tabs, to switch between them.</li>
@@ -3784,6 +3794,9 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
       <div class="modal-header">
         <div style="display:flex;align-items:center;gap:10px;">
           <h3 id="entryModalTitle">New Financial Entry</h3>
+          <button type="button" class="entry-dup-btn" id="entryDuplicateBtn" title="Duplicate entry" aria-label="Duplicate entry" style="display:none;">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/><path d="M15.5 12.5v6M12.5 15.5h6"/></svg>
+          </button>
           <button class="pill-btn" id="entryAddRecurringBtn">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
             Add Recurring
@@ -3872,8 +3885,9 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         </div>
       </div>
       <div class="btn-row">
-        <button class="btn btn-danger" id="entryDeleteBtn" style="display:none;">Delete</button>
-        <button class="btn btn-secondary" id="entryDuplicateBtn" style="display:none;">Duplicate</button>
+        <button type="button" class="btn btn-danger entry-del-btn" id="entryDeleteBtn" title="Delete entry" aria-label="Delete entry" style="display:none;">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+        </button>
         <button class="btn btn-primary btn-block" id="entrySaveBtn">Save Entry</button>
       </div>
     </div>
@@ -4302,7 +4316,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 356;
+const APP_VERSION = 359;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -7321,7 +7335,7 @@ document.getElementById('txBulkApplyBtn').addEventListener('click', ()=>{
 
 });
 
-// v356: copies every selected entry, dated today (use Edit Selected afterwards to move the dates)
+// v356: copies every selected entry, dated today (use Edit afterwards to move the dates)
 document.getElementById('txBulkDuplicateBtn').addEventListener('click', ()=>{
   const selectedIds = Array.from(document.querySelectorAll('#txList .entry-select:checked'))
     .map(chk => Number(chk.closest('.entry-row').dataset.id));
@@ -7332,7 +7346,7 @@ document.getElementById('txBulkDuplicateBtn').addEventListener('click', ()=>{
   const n = selectedIds.length;
   showConfirm(
     'Duplicate selected entries?',
-    `This creates ${n} cop${n===1?'y':'ies'}, dated today. Everything else is copied as it is. You can change the dates afterwards with Edit Selected.`,
+    `This creates ${n} cop${n===1?'y':'ies'}, dated today. Everything else is copied as it is. You can change the dates afterwards with Edit.`,
     ()=>{
       const today = formatLocalDate(new Date());
       selectedIds.forEach(id=>{
@@ -7854,8 +7868,8 @@ function openEntryModal(id, presetDate){
     const entry = entries.find(e=>e.id === id);
     if(!entry) return;
     title.textContent = 'Edit Entry';
-    deleteBtn.style.display = 'block';
-    document.getElementById('entryDuplicateBtn').style.display = 'block';
+    deleteBtn.style.display = 'inline-flex';
+    document.getElementById('entryDuplicateBtn').style.display = 'inline-flex';
     addRecurringBtn.style.display = 'none';
     receiptUiReset(entry.category === 'Expense', true);
     document.getElementById('entryId').value = entry.id;
