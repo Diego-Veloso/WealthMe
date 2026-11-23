@@ -1992,8 +1992,6 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
 #view-privacy .field input{border-radius:12px;height:44px;box-sizing:border-box;background:color-mix(in srgb,var(--skin-blue) 6%,var(--card));border:1px solid color-mix(in srgb,var(--skin-blue) 20%,var(--line));font-weight:600;}
 #view-privacy .field input:focus{outline:none;border-color:var(--skin-blue);box-shadow:0 0 0 3px color-mix(in srgb,var(--skin-blue) 18%,transparent);}
 #changePasswordBtn{background:var(--skin-grad-primary);color:#fff;border-radius:14px;box-shadow:0 10px 22px rgba(10,111,208,.28);}
-#licenseDeactivateBtn{border-radius:14px;color:#C2412A;background:color-mix(in srgb,#E0674A 12%,var(--card));border:1px solid color-mix(in srgb,#E0674A 28%,transparent);}
-[data-theme="dark"] #licenseDeactivateBtn{color:#FF9A85;}
 #passwordDefaultNote{padding:9px 11px;border-radius:12px;background:color-mix(in srgb,#F5A623 12%,var(--card));color:var(--navy) !important;}
 .theme-pick{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:4px 0 14px;}
 .theme-tile{border:2px solid var(--line);background:var(--card);border-radius:18px;padding:10px;cursor:pointer;display:flex;flex-direction:column;gap:8px;align-items:stretch;font:inherit;transition:border-color .15s,box-shadow .15s,transform .12s;}
@@ -2573,8 +2571,9 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
     <div id="licenseError" role="alert" style="color:#E88B73;font-size:13px;min-height:20px;margin-bottom:12px;max-width:320px;text-align:center;line-height:1.4;"></div>
     <button id="licenseBtn" type="button" style="width:100%;max-width:320px;padding:14px;border-radius:12px;border:none;background:#F7F4EF;color:#0F1B2D;font-size:15px;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;">Activate</button>
     <div id="licenseHelp" style="max-width:320px;margin-top:26px;text-align:center;font-size:13px;line-height:1.55;color:#8fa3b0;">
-      <p style="margin:0 0 12px;">Your key is in the receipt email from your purchase. Each key can be used on a limited number of devices.</p>
-      <p style="margin:0 0 12px;">Don&rsquo;t have a key yet? <a id="licenseBuyLink" href="https://priscila.lemonsqueezy.com/checkout/buy/9775fcae-9663-4d16-be07-e00bd2e9d014" target="_blank" rel="noopener noreferrer" style="color:#F7F4EF;font-weight:600;text-decoration:underline;">Get WealthMe</a></p>
+      <p style="margin:0 0 12px;">Your key is on the page you saw right after checkout. If you closed it, you can always find your key in your customer portal. Each key works on up to 3 devices.</p>
+      <p style="margin:0 0 12px;"><a id="licensePortalLink" href="https://polar.sh/priscila-veloso/portal" target="_blank" rel="noopener noreferrer" style="color:#F7F4EF;font-weight:600;text-decoration:underline;">Find my key in the customer portal</a></p>
+      <p style="margin:0 0 12px;">Don&rsquo;t have a key yet? <a id="licenseBuyLink" href="https://buy.polar.sh/polar_cl_eyppQ7r0aHIbDccyuk2dMN4DL0YhgZXqXCvDk2Cw9On" target="_blank" rel="noopener noreferrer" style="color:#F7F4EF;font-weight:600;text-decoration:underline;">Get WealthMe</a></p>
       <p style="margin:0 0 10px;"><a id="licensePrivacyLink" class="pp-link" href="privacy.html" target="_blank" rel="noopener" style="color:#F7F4EF;font-weight:600;text-decoration:underline;">Privacy Policy</a></p>
       <p style="margin:0;">Need help? Email<br><a id="licenseMailLink" href="mailto:priscila.support@gmail.com" style="color:#F7F4EF;font-weight:600;text-decoration:underline;">priscila.support@gmail.com</a></p>
     </div>
@@ -3198,8 +3197,8 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
       <div class="card set-card priv-card" id="licenseCard" style="display:none;margin-top:14px;">
         <div class="set-head"><span class="acc-ico" style="--c:#C99525;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="15.5" r="5.5"/><path d="M21 2l-9.6 9.6"/><path d="M15.5 7.5l3 3L22 7l-3-3"/></svg></span><div><div class="section-title">License</div>
         <p class="muted" id="licenseInfo"></p></div></div>
-        <button class="btn btn-secondary btn-block" id="licenseDeactivateBtn">Deactivate this device</button>
-        <p class="muted" style="font-size:12px;margin:10px 0 0;">Use this before you switch to a new phone or computer, so your key can be activated there. Your entries aren&rsquo;t deleted, but you&rsquo;ll need your key to open WealthMe on this device again.</p>
+        <a class="btn btn-secondary btn-block" id="licenseManageBtn" href="https://polar.sh/priscila-veloso/portal" target="_blank" rel="noopener">Manage your devices</a>
+        <p class="muted" style="font-size:12px;margin:10px 0 0;" id="licenseManageNote">Moving to a new phone or computer, or want to free up a spot? See where your key is active and remove any device you no longer use. You will sign in with the email you used at checkout. Your entries aren&rsquo;t deleted.</p>
       </div>
 
       <!-- v315: Privacy Policy (hosted next to the app as privacy.html) -->
@@ -11146,23 +11145,23 @@ document.addEventListener('click', (e)=>{
 }, true);
 
 /* =========================================================
-   LICENSE GATE (Lemon Squeezy) — OFF until BOTH IDs below are filled in.
-   The key is entered once per device, checked with Lemon Squeezy, and the
-   app only opens if it belongs to THIS store and product. The saved
-   license survives restarts and errors; it is re-checked every 7 days, and
-   a network problem never locks anyone out — only an explicit "no" from
-   Lemon Squeezy (key disabled, expired, refunded, device removed) does.
+   LICENSE GATE (Polar) — OFF until BOTH IDs below are filled in.
+   The key is entered once per device, checked with Polar, and the app only
+   opens if it belongs to THIS product (benefit). The saved license survives
+   restarts and errors; it is re-checked whenever the app opens or comes back
+   to the foreground (at most once a minute), and a network problem never locks
+   anyone out. Only an explicit "no" from Polar (key revoked, device removed
+   in the customer portal, not this product) does.
    ========================================================= */
-const LICENSE_STORE_ID   = '497527';   // your Lemon Squeezy store ID
-const LICENSE_PRODUCT_ID = '1505012,1474344';   // your product ID (several are allowed, comma-separated)
-// Official endpoint. If browsers ever block direct calls to it, point this at the
-// optional license-proxy-worker.js instead (see LICENSE-SETUP.md).
-const LICENSE_API_BASE   = 'https://api.lemonsqueezy.com/v1/licenses';
-// Master key (for the owner): opens the app without Lemon Squeezy and without a device limit.
+const LICENSE_ORG_ID     = '1ba99467-1582-4636-a8ab-51e89de44e60';   // your Polar organization ID
+const LICENSE_BENEFIT_ID = '060d7da3-c3af-4ffb-ac13-cad03e162b4f';   // this app's license-key benefit ID (several are allowed, comma-separated)
+const LICENSE_API_BASE   = 'https://api.polar.sh/v1/customer-portal/license-keys';
+const LICENSE_PORTAL_URL = 'https://polar.sh/priscila-veloso/portal';
+// Master key (for the owner): opens the app without Polar and without a device limit.
 // Only a SHA-256 fingerprint of "salt:key" is stored here, never the key itself. Empty = master key off.
 const LICENSE_MASTER_SALT = 'wealthme-license-v1';
 const LICENSE_MASTER_HASH = '8cd655ae1ce825d0133bedc4cb3793f3cf8932ea2f1c3d280eeb70b1179cd4b8';
-const LICENSE_RECHECK_MS = 7 * 24 * 60 * 60 * 1000;
+const LICENSE_RECHECK_MS = 60 * 1000;
 const LICENSE_TIMEOUT_MS = 10000;
 const LICENSE_KEY_MAIN   = 'wealthme_license';
 const LICENSE_KEY_BACKUP = 'wealthme_license_bak';
@@ -11209,10 +11208,10 @@ function licenseIsMasterKey(key){
 }
 
 function licenseGateEnabled(){
-  return !!(String(LICENSE_STORE_ID).trim() && String(LICENSE_PRODUCT_ID).trim());
+  return !!(String(LICENSE_ORG_ID).trim() && String(LICENSE_BENEFIT_ID).trim());
 }
-function licenseProductIds(){
-  return String(LICENSE_PRODUCT_ID).split(',').map(x=>x.trim()).filter(Boolean);
+function licenseBenefitIds(){
+  return String(LICENSE_BENEFIT_ID).split(',').map(x=>x.trim()).filter(Boolean);
 }
 function licenseRead(){
   for(const k of [LICENSE_KEY_MAIN, LICENSE_KEY_BACKUP]){
@@ -11232,19 +11231,19 @@ function licenseClear(){
   try{ localStorage.removeItem(LICENSE_KEY_MAIN); }catch(e){}
   try{ localStorage.removeItem(LICENSE_KEY_BACKUP); }catch(e){}
 }
-// The saved license only counts for the store/product the app is currently configured for.
+// The saved license only counts for the organization/benefit the app is currently configured for.
 function licenseSavedForThisApp(rec){
   if(rec && rec.master === true){                  // owner's master key: not tied to the store/product IDs,
     // but it only counts while the app still carries the same master-key fingerprint, so changing the key revokes it
     return !!LICENSE_MASTER_HASH && rec.masterFp === LICENSE_MASTER_HASH.slice(0, 16);
   }
-  return !!rec && String(rec.storeId) === String(LICENSE_STORE_ID).trim() &&
-         String(rec.productId) === String(LICENSE_PRODUCT_ID).trim();
+  return !!rec && String(rec.orgId) === String(LICENSE_ORG_ID).trim() &&
+         String(rec.benefitId) === String(LICENSE_BENEFIT_ID).trim();
 }
-function licenseMetaMatches(data){
-  const m = (data && data.meta) || {};
-  return String(m.store_id) === String(LICENSE_STORE_ID).trim() &&
-         licenseProductIds().includes(String(m.product_id));
+// a Polar license key object counts only if it is granted and belongs to this app's benefit
+function licenseKeyMatches(lk){
+  return !!lk && licenseBenefitIds().includes(String(lk.benefit_id)) &&
+         (lk.status === undefined || lk.status === 'granted');
 }
 function licenseDeviceName(){
   const ua = navigator.userAgent || '';
@@ -11255,11 +11254,11 @@ function licenseDeviceName(){
   const tag = Math.floor(Math.random() * 0x10000).toString(16).padStart(4, '0');
   return `WealthMe \u00b7 ${os} \u00b7 ${br} \u00b7 ${tag}`;
 }
-function licenseFriendlyError(msg){
-  const m = String(msg || '').toLowerCase();
-  if(m.includes('activation limit')) return 'This key has already been used on the maximum number of devices. Open WealthMe on a device you no longer use and choose Deactivate this device (More \u2192 Privacy), or contact the seller.';
-  if(m.includes('expired')) return 'This license has expired.';
-  if(m.includes('disabled')) return 'This license has been disabled. Please contact the seller.';
+function licenseFriendlyError(status, detail){
+  const m = String(detail || '').toLowerCase();
+  if(status === 404 || m.includes('not exist') || m.includes('not found')) return 'That key wasn\u2019t recognized. Check it and try again.';
+  if(m.includes('limit') || status === 403) return 'This key has already been used on the maximum number of devices. Tap Manage your devices below to remove one you no longer use, then try again.';
+  if(m.includes('expired') || m.includes('revoked') || m.includes('disabled')) return 'This license is no longer active. Please contact the seller.';
   return 'That key wasn\u2019t recognized. Check it and try again.';
 }
 
@@ -11271,12 +11270,13 @@ async function licenseCall(action, params){
   try{
     const res = await fetch(`${LICENSE_API_BASE.replace(/\/+$/, '')}/${action}`, {
       method: 'POST',
-      headers: { 'Accept': 'application/json', 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams(params).toString(),
+      headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+      body: JSON.stringify(Object.assign({ organization_id: String(LICENSE_ORG_ID).trim() }, params)),
       cache: 'no-store',
       signal: ctrl ? ctrl.signal : undefined
     });
     if(res.status >= 500 || res.status === 429) return { networkError: true, status: res.status };
+    if(res.status === 204) return { ok: true, status: 204, data: {} };
     let data;
     try{ data = await res.json(); }catch(e){ return { networkError: true, status: res.status }; }
     return { ok: true, status: res.status, data };
@@ -11291,28 +11291,30 @@ async function licenseActivate(rawKey){
   const key = String(rawKey || '').trim();
   if(!key) return { ok:false, message:'Please enter your license key.' };
   if(licenseIsMasterKey(key)){
-    // owner's master key: no Lemon Squeezy call, no device limit, works offline, never re-checked
+    // owner's master key: no Polar call, no device limit, works offline, never re-checked
     licenseWrite({ master: true, masterFp: LICENSE_MASTER_HASH.slice(0, 16), key: 'master', instanceId: 'master',
-      storeId: String(LICENSE_STORE_ID).trim(), productId: String(LICENSE_PRODUCT_ID).trim(),
+      orgId: String(LICENSE_ORG_ID).trim(), benefitId: String(LICENSE_BENEFIT_ID).trim(),
       activatedAt: Date.now(), lastCheck: Date.now() });
     return { ok:true };
   }
   if(key.length > 100) return { ok:false, message:'That key wasn\u2019t recognized. Check it and try again.' };
-  const res = await licenseCall('activate', { license_key: key, instance_name: licenseDeviceName() });
+  const pkey = key.replace(/\s+/g, '').toUpperCase();
+  const res = await licenseCall('activate', { key: pkey, label: licenseDeviceName() });
   if(res.networkError) return { ok:false, message:'We couldn\u2019t reach the license server. Check your internet connection and try again.' };
   const d = res.data || {};
-  if(!d.activated || !d.instance || !d.instance.id) return { ok:false, message: licenseFriendlyError(d.error) };
-  if(!licenseMetaMatches(d)){
-    // a key from another store or product: undo the activation it just created, best effort
-    await licenseCall('deactivate', { license_key: key, instance_id: d.instance.id });
+  if(!d.id || !d.license_key){
+    const det = typeof d.detail === 'string' ? d.detail : (d.error || '');
+    return { ok:false, message: licenseFriendlyError(res.status, det) };
+  }
+  if(!licenseKeyMatches(d.license_key)){
+    // a key from another product (or not granted): undo the activation it just created, best effort
+    await licenseCall('deactivate', { key: pkey, activation_id: d.id });
     return { ok:false, message:'This key isn\u2019t valid for this app.' };
   }
-  const lk = d.license_key || {};
   licenseWrite({
-    key, instanceId: d.instance.id,
-    storeId: String(LICENSE_STORE_ID).trim(), productId: String(LICENSE_PRODUCT_ID).trim(),
-    activatedAt: Date.now(), lastCheck: Date.now(),
-    usage: lk.activation_usage, limit: lk.activation_limit
+    key: pkey, instanceId: d.id,
+    orgId: String(LICENSE_ORG_ID).trim(), benefitId: String(LICENSE_BENEFIT_ID).trim(),
+    activatedAt: Date.now(), lastCheck: Date.now()
   });
   return { ok:true };
 }
@@ -11327,20 +11329,20 @@ async function licenseRevalidate(){
   if(!due) return;
   _licCheckBusy = true;
   try{
-    const res = await licenseCall('validate', { license_key: rec.key, instance_id: rec.instanceId });
+    const res = await licenseCall('validate', { key: rec.key, activation_id: rec.instanceId });
     if(res.networkError) return;                    // offline or server trouble: keep working, try again later
     const d = res.data || {};
-    if(d.valid === true && licenseMetaMatches(d)){
+    if(res.status >= 200 && res.status < 300 && licenseKeyMatches(d)){
       rec.lastCheck = Date.now();
       licenseWrite(rec);
       return;
     }
-    if(d.valid === false || (d.valid === true && !licenseMetaMatches(d))){
-      // an explicit "no": disabled, expired or refunded key, removed device, or not this product
+    if(res.status === 404 || (res.status >= 200 && res.status < 300)){
+      // an explicit "no": revoked key, device removed in the customer portal, or not this product
       licenseClear();
       licenseShowScreen('This license is no longer active. If you think that\u2019s a mistake, please contact the seller.');
     }
-    // any other reply shape is inconclusive, so nobody is locked out by it
+    // any other reply is inconclusive, so nobody is locked out by it
   }finally{
     _licCheckBusy = false;
   }
@@ -11382,60 +11384,17 @@ async function licenseSubmit(){
 document.getElementById('licenseBtn').addEventListener('click', licenseSubmit);
 document.getElementById('licenseInput').addEventListener('keydown', (e)=>{ if(e.key === 'Enter') licenseSubmit(); });
 
-/* ---- Privacy page: Deactivate this device ---- */
-let _licDeactArmed = false, _licDeactTimer = null;
-function resetLicenseDeactivateBtn(){
-  _licDeactArmed = false;
-  clearTimeout(_licDeactTimer);
-  const b = document.getElementById('licenseDeactivateBtn');
-  b.disabled = false;
-  b.textContent = 'Deactivate this device';
-}
+/* ---- Privacy page: license card ---- */
 function updateLicenseCard(){
   const card = document.getElementById('licenseCard');
   const rec = licenseGateEnabled() ? licenseRead() : null;
   if(!rec || !licenseSavedForThisApp(rec)){ card.style.display = 'none'; return; }
   document.getElementById('licenseInfo').textContent = rec.master === true ? 'Licensed \u00b7 master key (no device limit)' : `Licensed \u00b7 key ending ${String(rec.key).slice(-4)}`;
+  const isMaster = rec.master === true;
+  document.getElementById('licenseManageBtn').style.display = isMaster ? 'none' : '';
+  document.getElementById('licenseManageNote').style.display = isMaster ? 'none' : '';
   card.style.display = '';
-  resetLicenseDeactivateBtn();
 }
-document.getElementById('licenseDeactivateBtn').addEventListener('click', async ()=>{
-  const b = document.getElementById('licenseDeactivateBtn');
-  if(!_licDeactArmed){
-    _licDeactArmed = true;
-    b.textContent = 'Tap again to confirm';
-    _licDeactTimer = setTimeout(resetLicenseDeactivateBtn, 4000);
-    return;
-  }
-  clearTimeout(_licDeactTimer);
-  b.disabled = true; b.textContent = 'Deactivating\u2026';
-  const rec = licenseRead();
-  if(!rec){ resetLicenseDeactivateBtn(); updateLicenseCard(); return; }
-  if(rec.master === true){          // master key: nothing to release on the server, just sign this device out
-    licenseClear();
-    resetLicenseDeactivateBtn();
-    updateLicenseCard();
-    licenseShowScreen('This device was deactivated. Enter a key to use WealthMe again.');
-    return;
-  }
-  const res = await licenseCall('deactivate', { license_key: rec.key, instance_id: rec.instanceId });
-  if(res.networkError){
-    showToast('Connect to the internet to deactivate this device');
-    resetLicenseDeactivateBtn();
-    return;
-  }
-  const d = res.data || {};
-  const alreadyGone = res.status === 404;      // the device was already removed on the Lemon Squeezy side
-  if(d.deactivated === true || alreadyGone){
-    licenseClear();
-    resetLicenseDeactivateBtn();
-    updateLicenseCard();
-    licenseShowScreen('This device was deactivated. Enter a key to use WealthMe again.');
-    return;
-  }
-  showToast(d.error || 'Couldn\u2019t deactivate this device');
-  resetLicenseDeactivateBtn();
-});
 
 /* ---- start-up ---- */
 let _appStarted = false;
