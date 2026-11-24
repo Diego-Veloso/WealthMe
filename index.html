@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v363 -->
+<!-- WEALTH.ME — v364 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -3101,7 +3101,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         <div id="refreshStatus" class="more-refresh-status"></div>
       </div>
 
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 363</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 364</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -3144,7 +3144,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 363</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 364</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -4343,7 +4343,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 363;
+const APP_VERSION = 364;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -10935,12 +10935,39 @@ function isPasswordEnabled(){
 function setPasswordEnabled(val){
   try{ localStorage.setItem('wealthme_password_enabled', val ? '1' : '0'); }catch(e){}
 }
+// v364: the password and the recovery answer are stored as a salted SHA-256 fingerprint ("h1$salt$hash"),
+// never as plain text. Values saved by older versions are converted once, when the app starts.
+function hashSecret(value){
+  let salt = '';
+  try{ const a = new Uint8Array(8); crypto.getRandomValues(a); salt = Array.from(a, b=> b.toString(16).padStart(2, '0')).join(''); }
+  catch(e){ salt = Math.random().toString(16).slice(2, 10) + Date.now().toString(16); }
+  return 'h1$' + salt + '$' + licenseSha256Hex(salt + ':' + String(value));
+}
+function verifySecret(value, stored){
+  const parts = String(stored || '').split('$');
+  if(parts.length !== 3 || parts[0] !== 'h1') return false;
+  return licenseSha256Hex(parts[1] + ':' + String(value)) === parts[2];
+}
+(function migrateSecretsToHashes(){
+  try{
+    if(localStorage.getItem('wealthme_secrets_hashed') === '1') return;
+    ['wealthme_password', 'wealthme_security_answer'].forEach(k=>{
+      const v = localStorage.getItem(k);
+      if(v) localStorage.setItem(k, hashSecret(v));
+    });
+    localStorage.setItem('wealthme_secrets_hashed', '1');
+  }catch(e){}
+})();
 function getStoredPassword(){
   // '' when the person never set one — nothing but the master code opens it then
   try{ return localStorage.getItem('wealthme_password') || ''; }catch(e){ return ''; }
 }
+function checkPassword(input){
+  const stored = getStoredPassword();
+  return !!stored && verifySecret(input, stored);
+}
 function savePassword(pw){
-  try{ localStorage.setItem('wealthme_password', pw); }catch(e){}
+  try{ localStorage.setItem('wealthme_password', hashSecret(pw)); localStorage.setItem('wealthme_secrets_hashed', '1'); }catch(e){}
 }
 // Security question/answer — the only recovery path for a forgotten
 // password in this app (no backend/email to send a reset link through).
@@ -10956,7 +10983,7 @@ function getSecurityAnswer(){
   try{ return localStorage.getItem('wealthme_security_answer') || ''; }catch(e){ return ''; }
 }
 function setSecurityAnswer(a){
-  try{ localStorage.setItem('wealthme_security_answer', a.trim().toLowerCase()); }catch(e){}
+  try{ localStorage.setItem('wealthme_security_answer', hashSecret(a.trim().toLowerCase())); localStorage.setItem('wealthme_secrets_hashed', '1'); }catch(e){}
 }
 function hasSecurityQuestion(){
   return !!(getSecurityQuestion() && getSecurityAnswer());
@@ -10964,7 +10991,7 @@ function hasSecurityQuestion(){
 function checkSecurityAnswer(input){
   const stored = getSecurityAnswer();
   if(!stored) return false;
-  return String(input).trim().toLowerCase() === stored;
+  return verifySecret(String(input).trim().toLowerCase(), stored);
 }
 function isUnlocked(){
   try{ return sessionStorage.getItem('wealthme_unlocked') === '1'; }catch(e){ return false; }
@@ -10976,8 +11003,7 @@ function setUnlocked(){
 function attemptUnlock(){
   const input = document.getElementById('lockInput').value;
   const error = document.getElementById('lockError');
-  const stored = getStoredPassword();
-  if(input === MASTER_PASSWORD || (stored && input === stored)){
+  if(input === MASTER_PASSWORD || checkPassword(input)){
     setUnlocked();
     document.getElementById('lockScreen').style.display = 'none';
     init();
