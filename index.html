@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v359 -->
+<!-- WEALTH.ME — v363 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -761,7 +761,7 @@ a.pp-link.btn{display:flex;align-items:center;justify-content:center;gap:8px;tex
 [data-theme="dark"] .vu-preview.gain{color:#5FD39A;}
 [data-theme="dark"] .vu-preview.loss{color:#F08A6E;}
 .vu-pill{border:none;cursor:pointer;font:inherit;font-size:11.5px;font-weight:700;padding:5px 10px;border-radius:999px;background:var(--skin-grad-primary);color:#fff;white-space:nowrap;flex-shrink:0;}
-#confirmModalOverlay{
+#confirmModalOverlay,#seriesScopeOverlay{
   z-index:150;
   align-items:center;
 }
@@ -1522,16 +1522,16 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
 
 /* ----- popups / sheets ----- */
 .modal-overlay{background:rgba(10,24,45,.52);-webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px);}
-.modal-overlay:not(#confirmModalOverlay):not(#reassignSubcatOverlay) > .modal{
+.modal-overlay:not(#confirmModalOverlay):not(#seriesScopeOverlay):not(#reassignSubcatOverlay) > .modal{
   border-radius:28px 28px 0 0;box-shadow:0 -14px 44px rgba(0,36,72,.22);
 }
-.modal-overlay:not(#confirmModalOverlay):not(#reassignSubcatOverlay) > .modal::before{
+.modal-overlay:not(#confirmModalOverlay):not(#seriesScopeOverlay):not(#reassignSubcatOverlay) > .modal::before{
   content:"";display:block;width:44px;height:4px;border-radius:4px;
   background:color-mix(in srgb,var(--slate) 38%,transparent);margin:-6px auto 14px;
 }
 @media (min-width:900px){
   .modal-overlay > .modal::before{display:none !important;}
-  .modal-overlay:not(#confirmModalOverlay):not(#reassignSubcatOverlay) > .modal{border-radius:24px;}
+  .modal-overlay:not(#confirmModalOverlay):not(#seriesScopeOverlay):not(#reassignSubcatOverlay) > .modal{border-radius:24px;}
 }
 
 /* ----- Insights sheet ----- */
@@ -2774,6 +2774,15 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
           </div>
           <span class="tile-badge" id="burnRateBadge" style="display:none;"></span>
         </div>
+        <!-- v361: end-of-month forecast (current month only) -->
+        <div class="burn-strip in-card" id="forecastStrip" style="display:none;">
+          <div class="burn-main">
+            <span class="burn-label">Month-end forecast</span>
+            <span class="burn-val" id="forecastValue">$0.00</span>
+          </div>
+          <span class="tile-badge" id="forecastBadge"></span>
+        </div>
+        <div class="muted" id="forecastNote" style="display:none;font-size:11.5px;margin-top:6px;"></div>
       </div>
 
       <div class="card" id="homeExpenseBudgetBar" style="padding:12px 14px;">
@@ -3092,7 +3101,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         <div id="refreshStatus" class="more-refresh-status"></div>
       </div>
 
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 359</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 363</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -3135,7 +3144,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 359</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 363</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -3353,6 +3362,10 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
       <div class="csv-row">
         <button class="btn btn-danger" id="emptyDataBtn" style="flex:1;">Empty All Data</button>
         <button class="btn btn-secondary" id="resetDataBtn" style="flex:1;">Reset to Sample Data</button>
+      </div>
+      <div id="restorePointBox" style="display:none;margin-top:12px;">
+        <p class="muted" id="restorePointText" style="font-size:13px;margin:0 0 8px;"></p>
+        <button class="btn btn-secondary" id="restorePointBtn" style="width:100%;">Restore previous data</button>
       </div>
       </div>
     </section>
@@ -4154,6 +4167,21 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
     </div>
   </div>
 
+  <!-- v362: recurring series — choose how far an edit or delete reaches -->
+  <div class="modal-overlay" id="seriesScopeOverlay">
+    <div class="modal" style="max-width:440px;">
+      <div class="modal-header">
+        <h3 id="seriesScopeTitle">Recurring entry</h3>
+      </div>
+      <p class="muted" id="seriesScopeMsg"></p>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-top:16px;">
+        <button class="btn btn-primary btn-block" id="seriesScopeFuture">This and future entries</button>
+        <button class="btn btn-secondary btn-block" id="seriesScopeThis">Only this entry</button>
+        <button class="btn btn-secondary btn-block" id="seriesScopeCancel">Cancel</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ===== Category Detail Popup (opens over whichever page you are on) ===== -->
   <div class="modal-overlay" id="detailModalOverlay">
     <div class="modal detail-modal" id="view-detail" role="dialog" aria-modal="true" aria-labelledby="detailModalTitle">
@@ -4315,7 +4343,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 359;
+const APP_VERSION = 363;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -7351,7 +7379,7 @@ document.getElementById('txBulkDuplicateBtn').addEventListener('click', ()=>{
       selectedIds.forEach(id=>{
         const src = entries.find(e=>e.id === id);
         if(!src) return;
-        entries.push({ ...src, id: uid(), date: today });
+        const cp = { ...src, id: uid(), date: today }; delete cp.series; entries.push(cp);
       });
       saveState();
       renderCurrentView(getActiveViewName());
@@ -8456,6 +8484,24 @@ document.getElementById('receiptProgressCancel').addEventListener('click', ()=>{
   }
 });
 
+/* ===== v362: recurring series — entries made by "Add Recurring" share a series id ===== */
+function newSeriesId(){ return 's' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+// the other entries of this entry's series dated on or after `fromDate`
+function seriesFuture(entry, fromDate){
+  if(!entry || !entry.series) return [];
+  return entries.filter(x=> x.series === entry.series && x.id !== entry.id && x.date >= fromDate);
+}
+function askSeriesScope(title, message, futureLabel, onFuture, onThis){
+  const ov = document.getElementById('seriesScopeOverlay');
+  document.getElementById('seriesScopeTitle').textContent = title;
+  document.getElementById('seriesScopeMsg').textContent = message;
+  const bF = document.getElementById('seriesScopeFuture'), bT = document.getElementById('seriesScopeThis'), bC = document.getElementById('seriesScopeCancel');
+  bF.textContent = futureLabel;
+  bF.className = 'btn btn-primary btn-block';
+  function done(fn){ return ()=>{ ov.classList.remove('active'); bF.onclick = bT.onclick = bC.onclick = null; if(fn) fn(); }; }
+  bF.onclick = done(onFuture); bT.onclick = done(onThis); bC.onclick = done(null);
+  ov.classList.add('active');
+}
 document.getElementById('entrySaveBtn').addEventListener('click', ()=>{
   const idVal = document.getElementById('entryId').value;
   const date = document.getElementById('entryDate').value;
@@ -8474,25 +8520,43 @@ document.getElementById('entrySaveBtn').addEventListener('click', ()=>{
 
   if(idVal){
     const entry = entries.find(e=>e.id === Number(idVal));
-    entry.date = date;
-    entry.category = category;
-    entry.subcategory = subcategory;
-    entry.amount = amount; // preserve sign: negative = cashback/withdrawal
-    entry.status = status;
-    entry.notes = notes;
-    if(category === 'Expense'){
-      entry.type = type;
-      if(account){ entry.account = account; } else { delete entry.account; }
+    const future = seriesFuture(entry, entry.date);   // v362: later entries of the same recurring series
+    const doSave = (applyFuture)=>{
+      entry.date = date;
+      entry.category = category;
+      entry.subcategory = subcategory;
+      entry.amount = amount; // preserve sign: negative = cashback/withdrawal
+      entry.status = status;
+      entry.notes = notes;
+      if(category === 'Expense'){
+        entry.type = type;
+        if(account){ entry.account = account; } else { delete entry.account; }
+      } else {
+        delete entry.type;
+        delete entry.account;
+      }
+      if(applyFuture){
+        // category, amount, notes and account follow; each entry keeps its own date and Planned/Actual status
+        future.forEach(f=>{
+          f.category = category; f.subcategory = subcategory; f.amount = amount; f.notes = notes;
+          if(category === 'Expense'){ f.type = type; if(account){ f.account = account; } else { delete f.account; } }
+          else { delete f.type; delete f.account; }
+        });
+      }
+      showToast(applyFuture ? `Updated this and ${future.length} future entr${future.length===1?'y':'ies'}` : 'Entry updated');
+      saveState();
+      calRemindAfterSave(entry);
+      closeEntryModal();
+      renderCurrentView(getActiveViewName());
+      if(status === 'Closed') checkDebtPaidOff(entry);
+    };
+    if(future.length){
+      askSeriesScope('Recurring entry',
+        `This entry repeats with ${future.length} later one${future.length===1?'':'s'}. Category, amount and notes can be applied to them too; their dates and Planned/Actual status stay as they are.`,
+        `This and future (${future.length + 1})`, ()=> doSave(true), ()=> doSave(false));
     } else {
-      delete entry.type;
-      delete entry.account;
+      doSave(false);
     }
-    showToast('Entry updated');
-    saveState();
-    calRemindAfterSave(entry);
-    closeEntryModal();
-    renderCurrentView(getActiveViewName());
-    if(status === 'Closed') checkDebtPaidOff(entry);
   } else {
     const newEntry = {
       id: uid(),
@@ -8525,11 +8589,35 @@ document.getElementById('entryDeleteBtn').addEventListener('click', ()=>{
   if(!idVal) return;
   const deletedId = Number(idVal);
   const deletedEntry = entries.find(e=>e.id === deletedId);
-  entries = entries.filter(e=>e.id !== deletedId);
-  saveState();
-  closeEntryModal();
-  renderCurrentView(getActiveViewName());
-  scheduleUndoableDelete(deletedEntry, deletedId);
+  const future = seriesFuture(deletedEntry, deletedEntry.date);   // v362
+  const deleteOne = ()=>{
+    entries = entries.filter(e=>e.id !== deletedId);
+    saveState();
+    closeEntryModal();
+    renderCurrentView(getActiveViewName());
+    scheduleUndoableDelete(deletedEntry, deletedId);
+  };
+  const deleteFuture = ()=>{
+    const gone = [deletedEntry].concat(future);
+    const goneIds = gone.map(e=>e.id);
+    entries = entries.filter(e=>!goneIds.includes(e.id));
+    saveState();
+    closeEntryModal();
+    renderCurrentView(getActiveViewName());
+    showToast(`Deleted ${gone.length} entries`, 'Undo', ()=>{
+      gone.forEach(e=> entries.push(e));
+      saveState();
+      renderCurrentView(getActiveViewName());
+    });
+  };
+  if(future.length){
+    askSeriesScope('Delete recurring entry',
+      `This entry repeats with ${future.length} later one${future.length===1?'':'s'}. Delete only this one, or this and all the ones after it?`,
+      `This and future (${future.length + 1})`, deleteFuture, deleteOne);
+    document.getElementById('seriesScopeFuture').className = 'btn btn-danger btn-block';
+  } else {
+    deleteOne();
+  }
 });
 
 // Deletes made via the entry edit modal are undoable for a short window:
@@ -8769,12 +8857,14 @@ document.getElementById('recurringSaveBtn').addEventListener('click', ()=>{
     return;
   }
 
+  const seriesId = count > 1 ? newSeriesId() : null;
   for(let i = 0; i < count; i++){
     const entry = {
       id: uid(),
       date: recurringOccurrenceDate(startDate, frequency, i),
       category, subcategory, amount, status, notes
     };
+    if(seriesId) entry.series = seriesId;
     if(isExpense){ entry.type = type; if(account){ entry.account = account; } }
     entries.push(entry);
   }
@@ -8892,7 +8982,7 @@ function applySettingsRow(e){
 /* =========================================================
    CSV IMPORT / EXPORT / TEMPLATE
    ========================================================= */
-const CSV_HEADERS = ['id','date','category','subcategory','amount','status','notes','type','account'];
+const CSV_HEADERS = ['id','date','category','subcategory','amount','status','notes','type','account','series'];
 
 function entriesToCsv(rows){
   const lines = [CSV_HEADERS.join(',')];
@@ -9033,8 +9123,10 @@ document.getElementById('csvFileInput').addEventListener('change', (e)=>{
     try{
       const text = evt.target.result;
       const imported = parseCsv(text);
+      makeRestorePoint('Import CSV');
       let count = 0;
       let settingsApplied = false;
+      const seriesMap = {};   // v362: keep recurring series together, under fresh ids
       imported.forEach(row=>{
         if(row.category === '__SETTINGS__'){
           if(applySettingsRow(row)) settingsApplied = true;
@@ -9052,6 +9144,7 @@ document.getElementById('csvFileInput').addEventListener('change', (e)=>{
           status: (row.status === 'Closed') ? 'Closed' : 'Open',
           notes: row.notes || ''
         };
+        if(row.series){ newEntry.series = seriesMap[row.series] || (seriesMap[row.series] = newSeriesId()); }
         if(row.category === 'Expense'){
           newEntry.type = ['Credit Card','Financing','Other'].includes(row.type) ? row.type : 'Other';
           if(row.account){
@@ -9707,6 +9800,7 @@ function closeCreditLimitsModal(){
 
 function openDataManagementModal(){
   if(typeof renderBackupStatus === 'function') renderBackupStatus();
+  try{ renderRestorePoint(); }catch(e){}
   switchView('dataManagement');
 }
 function closeDataManagementModal(){
@@ -10709,7 +10803,8 @@ document.getElementById('confirmModalOverlay').addEventListener('click', (e)=>{
 });
 
 document.getElementById('emptyDataBtn').addEventListener('click', ()=>{
-  showConfirm('Empty all data?', 'This will permanently delete all your entries. This cannot be undone.', ()=>{
+  showConfirm('Empty all data?', 'This will delete all your entries. You can bring them back with Restore previous data in Data Management for 7 days.', ()=>{
+    makeRestorePoint('Empty All Data');
     entries = [];
     nextId = 1;
     saveState();
@@ -10744,7 +10839,8 @@ function openInitialBalanceEntry(){
 }
 
 document.getElementById('resetDataBtn').addEventListener('click', ()=>{
-  showConfirm('Reset to sample data?', 'This will replace all current data with sample data.', ()=>{
+  showConfirm('Reset to sample data?', 'This will replace all current data with sample data. You can bring your data back with Restore previous data for 7 days.', ()=>{
+    makeRestorePoint('Reset to Sample Data');
     nextId = 1;
     entries = buildSampleData();
     SETTINGS = {taxRate:0, netAdj:0, expAdj:0, invAdj:0, balAdj:0};
@@ -10767,6 +10863,7 @@ async function checkForAppUpdate(statusEl){
   // sees whatever is actually deployed — never a cached copy. Parse out
   // its version comment and compare to APP_VERSION (the version currently
   // running) before deciding whether a reload is actually needed.
+  if(navigator.onLine === false){ if(statusEl) statusEl.textContent = 'You\u2019re offline \u2014 connect to the internet to check for updates.'; return; }
   if(statusEl) statusEl.textContent = 'Checking for updates…';
   try{
     const res = await fetch(location.pathname + '?v=' + Date.now(), { cache: 'no-store' });
@@ -12474,6 +12571,54 @@ function openRecapModal(){
 function closeRecapModal(){
   document.getElementById('recapModalOverlay').classList.remove('active');
 }
+
+// v361: end-of-month forecast. Current month only.
+// Forecast = projected balance (actual + planned entries) minus the everyday spending still likely
+// over the remaining days. Everyday pace = this month's paid expenses (no Taxes) so far, leaving out
+// charges that repeat last month's (same subcategory and amount, e.g. rent), divided by days elapsed.
+function computeMonthForecast(){
+  const now = new Date();
+  if(homeDate.getFullYear() !== now.getFullYear() || homeDate.getMonth() !== now.getMonth()) return null;
+  if(!entries.length) return null;
+  const dim = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+  const day = now.getDate();
+  const left = dim - day;
+  const proj = computeMonthFinancials(homeDate, false);
+  const prevDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  const repeats = new Set();
+  entries.forEach(e=>{
+    if(e.category === 'Expense' && isSameMonth(e.date, prevDate)) repeats.add(e.subcategory + '|' + Number(e.amount).toFixed(2));
+  });
+  let everyday = 0;
+  entries.forEach(e=>{
+    if(e.category !== 'Expense' || e.status !== 'Closed' || e.subcategory === 'Taxes' || !isSameMonth(e.date, homeDate)) return;
+    if(repeats.has(e.subcategory + '|' + Number(e.amount).toFixed(2))) return;
+    everyday += Number(e.amount) || 0;
+  });
+  const perDay = day > 0 ? Math.max(0, everyday) / day : 0;
+  const extra = perDay * left;
+  return {planned: proj.balance, forecast: proj.balance - extra, extra, perDay, left};
+}
+function renderMonthForecast(){
+  const strip = document.getElementById('forecastStrip'), note = document.getElementById('forecastNote');
+  if(!strip) return;
+  const f = computeMonthForecast();
+  if(!f){ strip.style.display = 'none'; note.style.display = 'none'; return; }
+  strip.style.display = ''; note.style.display = '';
+  const val = document.getElementById('forecastValue'), badge = document.getElementById('forecastBadge');
+  val.textContent = fmtMoney(f.forecast);
+  val.style.color = f.forecast >= 0 ? 'var(--sage)' : 'var(--terracotta)';
+  if(f.left > 0 && f.extra >= 0.5){
+    badge.textContent = '\u2212' + fmtMoney(f.extra) + ' pace';
+    badge.className = 'tile-badge';
+    note.textContent = `Planned balance ${fmtMoney(f.planned)}, minus about ${fmtMoney(f.extra)} more everyday spending (${fmtMoney(f.perDay)}/day for ${f.left} day${f.left === 1 ? '' : 's'}).`;
+  }else{
+    badge.textContent = 'as planned';
+    badge.className = 'tile-badge';
+    note.textContent = f.left > 0 ? 'Based on your planned entries; no everyday spending pace yet.' : 'Last day of the month: this is your planned balance.';
+  }
+  badge.className = 'tile-badge ' + (f.forecast < 0 ? 'bad' : '');
+}
 function renderHome(){
   document.getElementById('homeMonthLabel').textContent = fmtMonthYear(homeDate);
 
@@ -12573,6 +12718,7 @@ function renderHome(){
   balEl.classList.remove('pos','neg');
   balEl.classList.add(proj.balance >= 0 ? 'pos' : 'neg');
 
+  renderMonthForecast();
   renderLineChart();
   renderHomeExpenseBudgetBar();
   renderDonutChart();
@@ -13443,6 +13589,52 @@ document.addEventListener('keydown', (e)=>{
    or the first time this version ran (so a new install isn't nagged at once).
    ========================================================= */
 const BACKUP_REMIND_DAYS = 30;
+/* ===== v360: restore point — automatic copy of your data before Import CSV, Empty All Data and Reset ===== */
+const RP_KEY = 'wealthme_restore_point', RP_DAYS = 7;
+const RP_DATA_KEYS = ['wealthme_entries','wealthme_nextid','wealthme_settings','wealthme_debtaccounts','wealthme_categorymap','wealthme_budgets','wealthme_creditlimits','wealthme_accountcolors','wealthme_budgetplanner','wealthme_filterpresets'];
+function makeRestorePoint(reason){
+  try{
+    if(!entries || entries.length === 0) return;      // nothing worth keeping; don't overwrite an older copy
+    const data = {};
+    RP_DATA_KEYS.forEach(k=>{ const v = localStorage.getItem(k); if(v !== null) data[k] = v; });
+    localStorage.setItem(RP_KEY, JSON.stringify({ts: Date.now(), reason: reason, n: entries.length, data: data}));
+  }catch(e){}
+  try{ renderRestorePoint(); }catch(e){}
+}
+function getRestorePoint(){
+  try{
+    const o = JSON.parse(localStorage.getItem(RP_KEY) || 'null');
+    if(!o || !o.data) return null;
+    if(Date.now() - o.ts > RP_DAYS * 86400000){ localStorage.removeItem(RP_KEY); return null; }
+    return o;
+  }catch(e){ return null; }
+}
+function renderRestorePoint(){
+  const box = document.getElementById('restorePointBox'), txt = document.getElementById('restorePointText');
+  if(!box || !txt) return;
+  const rp = getRestorePoint();
+  box.style.display = rp ? 'block' : 'none';
+  if(!rp) return;
+  const d = new Date(rp.ts);
+  const when = d.toLocaleDateString(undefined,{month:'short', day:'numeric'}) + ', ' + d.toLocaleTimeString(undefined,{hour:'numeric', minute:'2-digit'});
+  txt.textContent = `A copy of your data (${rp.n} entries) was saved automatically before ${rp.reason} on ${when}. It is kept for ${RP_DAYS} days.`;
+}
+document.getElementById('restorePointBtn').addEventListener('click', ()=>{
+  const rp = getRestorePoint();
+  if(!rp){ renderRestorePoint(); return; }
+  showConfirm('Restore previous data?', `This replaces your current data with the copy of ${rp.n} entries saved before ${rp.reason}. Your current data is kept as a restore point, so you can switch back.`, ()=>{
+    try{
+      makeRestorePoint('restoring');
+      Object.keys(rp.data).forEach(k=>{ localStorage.setItem(k, rp.data[k]); });
+      loadState();
+      saveState();
+      showToast('Previous data restored');
+      renderRestorePoint();
+      switchView('home');
+    }catch(err){ showToast('Could not restore'); }
+  }, {confirmLabel:'Restore', cancelLabel:'Cancel', confirmClass:'primary'});
+});
+
 const LS_LAST_BACKUP = 'wealthme_last_backup';
 const LS_BACKUP_REMINDED = 'wealthme_backup_reminded';
 function lsNum(k){ try{ return Number(localStorage.getItem(k)) || 0; }catch(e){ return 0; } }
@@ -13590,6 +13782,11 @@ function maybeShowTourPrompt(){
       document.getElementById('tourPromptBanner').style.display = 'block';
     }
   }catch(e){}
+}
+
+// v363: offline support — sw.js (next to index.html) saves the app, Chart.js and the Inter font on the device
+if('serviceWorker' in navigator && /^https?:$/.test(location.protocol)){
+  window.addEventListener('load', ()=>{ try{ navigator.serviceWorker.register('sw.js').catch(()=>{}); }catch(e){} });
 }
 </script>
 
