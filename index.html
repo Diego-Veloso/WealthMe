@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v364 -->
+<!-- WEALTH.ME — v366 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -3101,7 +3101,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         <div id="refreshStatus" class="more-refresh-status"></div>
       </div>
 
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 364</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 366</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -3144,7 +3144,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 364</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 366</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -4343,7 +4343,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 364;
+const APP_VERSION = 366;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -10804,7 +10804,7 @@ document.getElementById('confirmModalOverlay').addEventListener('click', (e)=>{
 
 document.getElementById('emptyDataBtn').addEventListener('click', ()=>{
   showConfirm('Empty all data?', 'This will delete all your entries. You can bring them back with Restore previous data in Data Management for 7 days.', ()=>{
-    makeRestorePoint('Empty All Data');
+    const doEmpty = ()=>{
     entries = [];
     nextId = 1;
     saveState();
@@ -10825,6 +10825,8 @@ document.getElementById('emptyDataBtn').addEventListener('click', ()=>{
             openInitialBalanceEntry,
             { confirmLabel:'Add initial balance', cancelLabel:'Later', confirmClass:'primary' }), 250);
         } }), 250);
+    };
+    guardedByRestorePoint('Empty All Data', doEmpty);
   });
 });
 // v299: new entry pre-filled as the starting balance (Income, Actual, today)
@@ -10840,13 +10842,14 @@ function openInitialBalanceEntry(){
 
 document.getElementById('resetDataBtn').addEventListener('click', ()=>{
   showConfirm('Reset to sample data?', 'This will replace all current data with sample data. You can bring your data back with Restore previous data for 7 days.', ()=>{
-    makeRestorePoint('Reset to Sample Data');
-    nextId = 1;
-    entries = buildSampleData();
-    SETTINGS = {taxRate:0, netAdj:0, expAdj:0, invAdj:0, balAdj:0};
-    saveState();
-    showToast('Sample data restored');
-    switchView('home');
+    guardedByRestorePoint('Reset to Sample Data', ()=>{
+      nextId = 1;
+      entries = buildSampleData();
+      SETTINGS = {taxRate:0, netAdj:0, expAdj:0, invAdj:0, balAdj:0};
+      saveState();
+      showToast('Sample data restored');
+      switchView('home');
+    });
   });
 });
 
@@ -13615,42 +13618,105 @@ document.addEventListener('keydown', (e)=>{
    or the first time this version ran (so a new install isn't nagged at once).
    ========================================================= */
 const BACKUP_REMIND_DAYS = 30;
-/* ===== v360: restore point — automatic copy of your data before Import CSV, Empty All Data and Reset ===== */
-const RP_KEY = 'wealthme_restore_point', RP_DAYS = 7;
+/* ===== v360: restore point — automatic copy of your data before Import CSV, Empty All Data and Reset =====
+   v366: the copy is kept in IndexedDB (far larger than the ~5 MB localStorage limit that holds the app's data). */
+const RP_KEY = 'wealthme_restore_point', RP_DAYS = 7;   // RP_KEY: where v360-v365 kept it (localStorage); moved over once
 const RP_DATA_KEYS = ['wealthme_entries','wealthme_nextid','wealthme_settings','wealthme_debtaccounts','wealthme_categorymap','wealthme_budgets','wealthme_creditlimits','wealthme_accountcolors','wealthme_budgetplanner','wealthme_filterpresets'];
-function makeRestorePoint(reason){
+const RP_DB = 'wealthme_restore', RP_STORE = 'points';
+let _rpError = '';
+let _rpCache = null;          // the restore point, held in memory so the page can show it instantly
+function rpOpen(){
+  return new Promise((resolve, reject)=>{
+    if(typeof indexedDB === 'undefined'){ reject(new Error('IndexedDB unavailable')); return; }
+    const r = indexedDB.open(RP_DB, 1);
+    r.onupgradeneeded = ()=>{ r.result.createObjectStore(RP_STORE); };
+    r.onsuccess = ()=> resolve(r.result);
+    r.onerror = ()=> reject(r.error || new Error('IndexedDB error'));
+    r.onblocked = ()=> reject(new Error('IndexedDB blocked'));
+  });
+}
+async function rpRun(mode, fn){
+  const db = await rpOpen();
   try{
-    if(!entries || entries.length === 0) return;      // nothing worth keeping; don't overwrite an older copy
-    const data = {};
-    RP_DATA_KEYS.forEach(k=>{ const v = localStorage.getItem(k); if(v !== null) data[k] = v; });
-    localStorage.setItem(RP_KEY, JSON.stringify({ts: Date.now(), reason: reason, n: entries.length, data: data}));
-  }catch(e){}
+    return await new Promise((resolve, reject)=>{
+      const tx = db.transaction(RP_STORE, mode);
+      const req = fn(tx.objectStore(RP_STORE));
+      tx.oncomplete = ()=> resolve(req ? req.result : undefined);
+      tx.onerror = ()=> reject(tx.error || new Error('IndexedDB error'));
+      tx.onabort = ()=> reject(tx.error || new Error('IndexedDB aborted'));
+    });
+  } finally { db.close(); }
+}
+const rpPut = (obj)=> rpRun('readwrite', st=> st.put(obj, 'current'));
+const rpGet = ()=> rpRun('readonly', st=> st.get('current'));
+// returns true (saved), null (nothing to save) or false (the device would not store it)
+async function makeRestorePoint(reason){
+  let result = true;
+  try{
+    if(!entries || entries.length === 0){ result = null; }      // nothing worth keeping; don't overwrite an older copy
+    else{
+      const data = {};                                           // read right now, before the caller changes anything
+      RP_DATA_KEYS.forEach(k=>{ const v = localStorage.getItem(k); if(v !== null) data[k] = v; });
+      const rp = {ts: Date.now(), reason: reason, n: entries.length, data: data};
+      await rpPut(rp);
+      _rpCache = rp; _rpError = '';
+    }
+  }catch(e){
+    result = false;
+    _rpError = ((e && e.name) ? e.name : 'error') + (e && e.message ? ': ' + String(e.message).slice(0, 60) : '');
+  }
   try{ renderRestorePoint(); }catch(e){}
+  return result;
+}
+// Empty / Reset: if no restore point could be saved, say so before deleting anything
+async function guardedByRestorePoint(reason, action){
+  if(await makeRestorePoint(reason) !== false){ action(); return; }
+  showConfirm('Restore point not saved',
+    'A copy of your data couldn\u2019t be saved, so this can\u2019t be undone. Back up with Export CSV first, or continue anyway.',
+    action, {confirmLabel:'Continue anyway', cancelLabel:'Cancel'});
 }
 function getRestorePoint(){
-  try{
-    const o = JSON.parse(localStorage.getItem(RP_KEY) || 'null');
-    if(!o || !o.data) return null;
-    if(Date.now() - o.ts > RP_DAYS * 86400000){ localStorage.removeItem(RP_KEY); return null; }
-    return o;
-  }catch(e){ return null; }
+  const o = _rpCache;
+  if(!o || !o.data) return null;
+  if(Date.now() - o.ts > RP_DAYS * 86400000){ _rpCache = null; rpRun('readwrite', st=> st.delete('current')).catch(()=>{}); return null; }
+  return o;
 }
 function renderRestorePoint(){
   const box = document.getElementById('restorePointBox'), txt = document.getElementById('restorePointText');
   if(!box || !txt) return;
   const rp = getRestorePoint();
+  const btn = document.getElementById('restorePointBtn');
+  if(!rp && _rpError){
+    box.style.display = 'block'; btn.style.display = 'none';
+    txt.textContent = 'The last automatic copy of your data could not be saved (' + _rpError + '). Use Back up now to keep a CSV.';
+    return;
+  }
+  btn.style.display = '';
   box.style.display = rp ? 'block' : 'none';
   if(!rp) return;
   const d = new Date(rp.ts);
   const when = d.toLocaleDateString(undefined,{month:'short', day:'numeric'}) + ', ' + d.toLocaleTimeString(undefined,{hour:'numeric', minute:'2-digit'});
   txt.textContent = `A copy of your data (${rp.n} entries) was saved automatically before ${rp.reason} on ${when}. It is kept for ${RP_DAYS} days.`;
 }
+// on start: load the saved copy; a copy kept by v360-v365 in localStorage is moved over
+(async function loadRestorePoint(){
+  try{
+    let rp = null;
+    try{ rp = await rpGet(); }catch(e){}
+    let old = null;
+    try{ old = JSON.parse(localStorage.getItem(RP_KEY) || 'null'); }catch(e){}
+    if(old && old.data && (!rp || old.ts > rp.ts)){ rp = old; try{ await rpPut(old); }catch(e){} }
+    if(old){ try{ localStorage.removeItem(RP_KEY); }catch(e){} }
+    _rpCache = rp || null;
+    renderRestorePoint();
+  }catch(e){}
+})();
 document.getElementById('restorePointBtn').addEventListener('click', ()=>{
   const rp = getRestorePoint();
   if(!rp){ renderRestorePoint(); return; }
-  showConfirm('Restore previous data?', `This replaces your current data with the copy of ${rp.n} entries saved before ${rp.reason}. Your current data is kept as a restore point, so you can switch back.`, ()=>{
+  showConfirm('Restore previous data?', `This replaces your current data with the copy of ${rp.n} entries saved before ${rp.reason}. Your current data is kept as a restore point, so you can switch back.`, async ()=>{
     try{
-      makeRestorePoint('restoring');
+      await makeRestorePoint('restoring');
       Object.keys(rp.data).forEach(k=>{ localStorage.setItem(k, rp.data[k]); });
       loadState();
       saveState();
