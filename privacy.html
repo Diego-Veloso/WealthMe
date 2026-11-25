@@ -97,7 +97,7 @@ html.embed .embed-meta{display:block;}
   <h2>Information we collect</h2>
   <p>We collect only what we need to deliver your purchase, support you and run our business.</p>
   <ul>
-    <li><strong>When you buy:</strong> our checkout is run by Lemon Squeezy, our merchant of record. Lemon Squeezy collects your name, email, billing address and payment details. We receive your name, email, country and order details. We never see or store your full card details.</li>
+    <li><strong>When you buy:</strong> our checkout is run by Polar, our merchant of record. Polar collects your name, email, billing address and payment details. We receive your name, email, country and order details. We never see or store your full card details.</li>
     <li><strong>When you join our email list:</strong> your name and email address, collected through MailerLite.</li>
     <li><strong>When you contact us:</strong> your email address and anything you include in your message.</li>
     <li><strong>When you visit our sales page:</strong> technical information such as your IP address, browser, device type and the pages you view, collected through cookies and similar tools used by MailerLite and our advertising partners (see Third-party services).</li>
@@ -106,8 +106,8 @@ html.embed .embed-meta{display:block;}
   <h2>Your financial data in WealthMe</h2>
   <p>The financial information you enter in WealthMe stays on your own device. It is saved only in your browser and is never sent to us or to any server, so we cannot see, access or recover it.</p>
   <ul>
-    <li><strong>License key check:</strong> to activate WealthMe, the app verifies your license key with Lemon Squeezy. This check sends your license key and a device identifier, never your financial data.</li>
-    <li><strong>Outside libraries:</strong> to draw charts and show text in the Inter font, WealthMe loads the Chart.js library from cdnjs (Cloudflare) and the font from Google Fonts. When you scan a receipt, it also loads the scanner library from cdnjs. The receipt is read on your device and the image is not uploaded to us. The scanner may also download its recognition engine and language data from the library&rsquo;s own hosts. These services can see your IP address and browser details, as any website can, but they never receive your entries or other financial data. After your first visit, WealthMe saves the charting library and the font on your device so the app can open without a connection.</li>
+    <li><strong>License key check:</strong> to activate WealthMe, the app verifies your license key with Polar. This check sends your license key and a device identifier, never your financial data.</li>
+    <li><strong>Outside libraries:</strong> to draw charts and show text in the Inter font, WealthMe loads the Chart.js library from cdnjs (Cloudflare) and the font from Google Fonts. When you scan or import a receipt, it also loads the receipt scanner and PDF reader libraries from cdnjs. The receipt is read on your device and the image is not uploaded to us. By default, the scanner library may also download its recognition engine from jsDelivr (cdn.jsdelivr.net) and its English language data from tessdata.projectnaptha.com. These services can see your IP address and browser details, as any website can, but they never receive your entries or other financial data. After your first visit, WealthMe saves the charting library and the font on your device so the app can open without a connection.</li>
     <li><strong>No sync between devices:</strong> your license key works on up to 3 devices, and each device keeps its own data. A new device starts empty.</li>
     <li><strong>Export and import:</strong> you can export your data to a file and import it on another device. That file contains your financial information, so keep it somewhere safe and delete copies you no longer need.</li>
     <li><strong>Back up your data:</strong> clearing your browser data or uninstalling your browser can erase your WealthMe data. Because we never hold a copy, we cannot restore it. Export a backup regularly.</li>
@@ -128,11 +128,13 @@ html.embed .embed-meta{display:block;}
   <table>
     <thead><tr><th>Service</th><th>What it does for us</th><th>Information it handles</th></tr></thead>
     <tbody>
-      <tr><td>Lemon Squeezy</td><td data-label="Role">Checkout, payments, taxes and license keys (merchant of record)</td><td data-label="Handles">Name, email, billing address, payment details, license key</td></tr>
+      <tr><td>Polar</td><td data-label="Role">Checkout, payments, taxes and license keys (merchant of record)</td><td data-label="Handles">Name, email, billing address, payment details, license key</td></tr>
       <tr><td>MailerLite</td><td data-label="Role">Hosts our sales page and sends our emails</td><td data-label="Handles">Name, email, page visits, email opens and clicks</td></tr>
       <tr><td>Meta (Facebook and Instagram)</td><td data-label="Role">Measures and improves our ads through the Meta Pixel</td><td data-label="Handles">Page visits and actions, such as starting a checkout</td></tr>
       <tr><td>Google Fonts</td><td data-label="Role">Loads the fonts on our sales page and in the WealthMe app</td><td data-label="Handles">IP address and browser information</td></tr>
-      <tr><td>cdnjs (Cloudflare)</td><td data-label="Role">Delivers the charting library WealthMe uses, and the receipt scanner when you scan a receipt</td><td data-label="Handles">IP address and browser information</td></tr>
+      <tr><td>cdnjs (Cloudflare)</td><td data-label="Role">Delivers the charting library WealthMe uses, and the receipt scanner and PDF reader when you scan or import a receipt</td><td data-label="Handles">IP address and browser information</td></tr>
+      <tr><td>jsDelivr</td><td data-label="Role">May deliver the receipt scanner&rsquo;s recognition engine when you scan a receipt</td><td data-label="Handles">IP address and browser information</td></tr>
+      <tr><td>tessdata.projectnaptha.com</td><td data-label="Role">May deliver the receipt scanner&rsquo;s English language data when you scan a receipt</td><td data-label="Handles">IP address and browser information</td></tr>
     </tbody>
   </table>
   <p>You can limit tracking cookies through your browser settings and your ad preferences on Facebook and Instagram.</p>
@@ -148,7 +150,7 @@ html.embed .embed-meta{display:block;}
   <h2>Your rights</h2>
   <p>You can ask us to access, correct or delete the personal information we hold about you, or withdraw your consent to marketing emails. Write to <a href="mailto:priscila.support@gmail.com" target="_top">priscila.support@gmail.com</a> and we will reply within 30 days.</p>
   <p>If you live in the European Union or the United Kingdom, you can also object to or restrict how we use your information, ask for a copy in a portable format, and complain to your local data protection authority.</p>
-  <p>Payment and billing details are held by Lemon Squeezy. For those, we will help you, and you can also contact Lemon Squeezy directly.</p>
+  <p>Payment and billing details are held by Polar. For those, we will help you, and you can also contact Polar directly.</p>
 
   <h2>Other important details</h2>
   <ul>
