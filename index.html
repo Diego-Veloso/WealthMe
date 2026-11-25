@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v376 -->
+<!-- WEALTH.ME — v374 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -2574,7 +2574,6 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
       <p style="margin:0 0 12px;">Your key is on the page you saw right after checkout. If you closed it, you can always find your key in your customer portal. Each key works on up to 3 devices.</p>
       <p style="margin:0 0 12px;"><a id="licensePortalLink" href="https://polar.sh/priscila-veloso/portal" target="_blank" rel="noopener noreferrer" style="color:#F7F4EF;font-weight:600;text-decoration:underline;">Find my key in the customer portal</a></p>
       <p style="margin:0 0 12px;">Don&rsquo;t have a key yet? <a id="licenseBuyLink" href="https://buy.polar.sh/polar_cl_eyppQ7r0aHIbDccyuk2dMN4DL0YhgZXqXCvDk2Cw9On" target="_blank" rel="noopener noreferrer" style="color:#F7F4EF;font-weight:600;text-decoration:underline;">Get WealthMe</a></p>
-      <p style="margin:0 0 12px;"><a id="licenseReloadLink" href="#" style="color:#F7F4EF;font-weight:600;text-decoration:underline;">Key not accepted? Reload the latest version</a></p>
       <p style="margin:0 0 10px;"><a id="licensePrivacyLink" class="pp-link" href="privacy.html" target="_blank" rel="noopener" style="color:#F7F4EF;font-weight:600;text-decoration:underline;">Privacy Policy</a></p>
       <p style="margin:0;">Need help? Email<br><a id="licenseMailLink" href="mailto:priscila.support@gmail.com" style="color:#F7F4EF;font-weight:600;text-decoration:underline;">priscila.support@gmail.com</a></p>
     </div>
@@ -3103,7 +3102,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         <div id="refreshStatus" class="more-refresh-status"></div>
       </div>
 
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 376</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 374</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -3151,7 +3150,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 376</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 374</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -4388,7 +4387,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 376;
+const APP_VERSION = 374;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -11560,7 +11559,7 @@ const LICENSE_PORTAL_URL = 'https://polar.sh/priscila-veloso/portal';
 // Master key (for the owner): opens the app without Polar and without a device limit.
 // Only a SHA-256 fingerprint of "salt:key" is stored here, never the key itself. Empty = master key off.
 const LICENSE_MASTER_SALT = 'wealthme-license-v1';
-const LICENSE_MASTER_HASH = '13f723e1cb8894e75a734ccf0371192632a128b76f7723f86c051fbb670512e8';
+const LICENSE_MASTER_HASH = '8cd655ae1ce825d0133bedc4cb3793f3cf8932ea2f1c3d280eeb70b1179cd4b8';
 const LICENSE_RECHECK_MS = 60 * 1000;
 const LICENSE_TIMEOUT_MS = 10000;
 const LICENSE_KEY_MAIN   = 'wealthme_license';
@@ -11829,17 +11828,6 @@ function licenseBoot(){
   }catch(e){}
   licenseShowScreen('');
 }
-// v376: "Reload the latest version" on the key screen: forgets the app's saved copy (never your data) and reloads fresh
-document.getElementById('licenseReloadLink').addEventListener('click', async (e)=>{
-  e.preventDefault();
-  try{
-    const regs = await navigator.serviceWorker.getRegistrations();
-    await Promise.all(regs.map(r=> r.unregister()));
-    const keys = await caches.keys();
-    await Promise.all(keys.map(k=> caches.delete(k)));
-  }catch(err){}
-  location.href = location.pathname + '?v=' + Date.now();
-});
 hydrateData().then(licenseBoot);
 
 
