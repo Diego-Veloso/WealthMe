@@ -3,7 +3,7 @@
      when there is no connection (or it is very slow) the last saved copy is used.
    - Chart.js and the Inter font: saved on the first visit, then served from the device.
    - Everything else (receipt scanner libraries, the licence server, videos) goes straight to the network. */
-const CACHE = 'wealthme-offline-v1';
+const CACHE = 'wealthme-offline-v2';   // v2: fresh start, old saved copies are removed
 const CHART = 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js';
 const FONT_CSS = 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap';
 const SAVED_PREFIXES = ['https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/', 'https://fonts.googleapis.com/', 'https://fonts.gstatic.com/'];
@@ -46,9 +46,10 @@ async function networkFirst(req, url){
     if(isNav && cached){
       const ctrl = new AbortController();
       const timer = setTimeout(()=> ctrl.abort(), 4000);  // slow connection: open the saved copy instead of waiting
-      try{ res = await fetch(req, {signal: ctrl.signal}); } finally { clearTimeout(timer); }
+      try{ res = await fetch(req.url, {cache: 'no-cache', signal: ctrl.signal}); } finally { clearTimeout(timer); }
     }else{
-      res = await fetch(req);
+      // 'no-cache': always ask the server whether the file changed, so a stale copy in the browser's own HTTP cache is never used
+      res = isNav ? await fetch(req.url, {cache: 'no-cache'}) : await fetch(req, {cache: 'no-cache'});
     }
     if(res && res.ok && res.type === 'basic') cache.put(key, res.clone());
     return res;
