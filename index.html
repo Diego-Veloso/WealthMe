@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v366 -->
+<!-- WEALTH.ME — v376 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -761,7 +761,7 @@ a.pp-link.btn{display:flex;align-items:center;justify-content:center;gap:8px;tex
 [data-theme="dark"] .vu-preview.gain{color:#5FD39A;}
 [data-theme="dark"] .vu-preview.loss{color:#F08A6E;}
 .vu-pill{border:none;cursor:pointer;font:inherit;font-size:11.5px;font-weight:700;padding:5px 10px;border-radius:999px;background:var(--skin-grad-primary);color:#fff;white-space:nowrap;flex-shrink:0;}
-#confirmModalOverlay,#seriesScopeOverlay{
+#confirmModalOverlay,#seriesScopeOverlay,#setupModalOverlay{
   z-index:150;
   align-items:center;
 }
@@ -1522,16 +1522,16 @@ body{background:linear-gradient(180deg,#D3E7FB 0,var(--cream) 360px) no-repeat,v
 
 /* ----- popups / sheets ----- */
 .modal-overlay{background:rgba(10,24,45,.52);-webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px);}
-.modal-overlay:not(#confirmModalOverlay):not(#seriesScopeOverlay):not(#reassignSubcatOverlay) > .modal{
+.modal-overlay:not(#confirmModalOverlay):not(#seriesScopeOverlay):not(#setupModalOverlay):not(#reassignSubcatOverlay) > .modal{
   border-radius:28px 28px 0 0;box-shadow:0 -14px 44px rgba(0,36,72,.22);
 }
-.modal-overlay:not(#confirmModalOverlay):not(#seriesScopeOverlay):not(#reassignSubcatOverlay) > .modal::before{
+.modal-overlay:not(#confirmModalOverlay):not(#seriesScopeOverlay):not(#setupModalOverlay):not(#reassignSubcatOverlay) > .modal::before{
   content:"";display:block;width:44px;height:4px;border-radius:4px;
   background:color-mix(in srgb,var(--slate) 38%,transparent);margin:-6px auto 14px;
 }
 @media (min-width:900px){
   .modal-overlay > .modal::before{display:none !important;}
-  .modal-overlay:not(#confirmModalOverlay):not(#seriesScopeOverlay):not(#reassignSubcatOverlay) > .modal{border-radius:24px;}
+  .modal-overlay:not(#confirmModalOverlay):not(#seriesScopeOverlay):not(#setupModalOverlay):not(#reassignSubcatOverlay) > .modal{border-radius:24px;}
 }
 
 /* ----- Insights sheet ----- */
@@ -2574,6 +2574,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
       <p style="margin:0 0 12px;">Your key is on the page you saw right after checkout. If you closed it, you can always find your key in your customer portal. Each key works on up to 3 devices.</p>
       <p style="margin:0 0 12px;"><a id="licensePortalLink" href="https://polar.sh/priscila-veloso/portal" target="_blank" rel="noopener noreferrer" style="color:#F7F4EF;font-weight:600;text-decoration:underline;">Find my key in the customer portal</a></p>
       <p style="margin:0 0 12px;">Don&rsquo;t have a key yet? <a id="licenseBuyLink" href="https://buy.polar.sh/polar_cl_eyppQ7r0aHIbDccyuk2dMN4DL0YhgZXqXCvDk2Cw9On" target="_blank" rel="noopener noreferrer" style="color:#F7F4EF;font-weight:600;text-decoration:underline;">Get WealthMe</a></p>
+      <p style="margin:0 0 12px;"><a id="licenseReloadLink" href="#" style="color:#F7F4EF;font-weight:600;text-decoration:underline;">Key not accepted? Reload the latest version</a></p>
       <p style="margin:0 0 10px;"><a id="licensePrivacyLink" class="pp-link" href="privacy.html" target="_blank" rel="noopener" style="color:#F7F4EF;font-weight:600;text-decoration:underline;">Privacy Policy</a></p>
       <p style="margin:0;">Need help? Email<br><a id="licenseMailLink" href="mailto:priscila.support@gmail.com" style="color:#F7F4EF;font-weight:600;text-decoration:underline;">priscila.support@gmail.com</a></p>
     </div>
@@ -2774,6 +2775,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
           </div>
           <span class="tile-badge" id="burnRateBadge" style="display:none;"></span>
         </div>
+        <div class="muted" id="burnSoFarNote" style="display:none;font-size:11.5px;margin-top:6px;"></div>
         <!-- v361: end-of-month forecast (current month only) -->
         <div class="burn-strip in-card" id="forecastStrip" style="display:none;">
           <div class="burn-main">
@@ -3101,7 +3103,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         <div id="refreshStatus" class="more-refresh-status"></div>
       </div>
 
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 366</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 376</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -3113,6 +3115,11 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         </button>
       </div>
 
+      <div class="card set-card" id="currencyCard">
+        <div class="set-head"><span class="acc-ico" style="--c:#1F9D55;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M14.5 9.2a2.6 2.6 0 0 0-2.5-1.7c-1.5 0-2.6.8-2.6 2s1 1.7 2.6 2 2.6.8 2.6 2-1.1 2-2.6 2a2.7 2.7 0 0 1-2.6-1.8M12 6v1.5M12 16.5V18"/></svg></span><div><div class="section-title">Currency</div>
+        <p class="muted">The symbol shown next to amounts. Your entries are not converted.</p></div></div>
+        <div class="field" style="margin:0;"><select id="currencySelect" aria-label="Currency"></select></div>
+      </div>
       <div class="card set-card">
       <div class="set-head"><span class="acc-ico" style="--c:#7C4DFF;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></span><div><div class="section-title">Subcategories</div>
       <p class="muted">Add, rename, or remove subcategories for each category. Renaming or removing updates existing entries.</p></div></div>
@@ -3144,7 +3151,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 366</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 376</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -3271,7 +3278,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
           <div style="font-size:13px;font-weight:600;">What is your monthly Income?</div>
           <div style="display:flex;align-items:center;gap:4px;flex-shrink:0;">
             <button type="button" class="pill-btn" id="budgetPlannerIncomeAutoBtn" style="font-size:10.5px;padding:3px 8px;margin-right:4px;" aria-label="Autofill with this month's Net Income">&#8635; Autofill</button>
-            <span class="muted" style="font-size:14px;">$</span>
+            <span class="muted cur-sym" style="font-size:14px;">$</span>
             <input type="number" id="budgetPlannerIncome" placeholder="0" min="0" step="1" inputmode="decimal" aria-label="Monthly income" style="width:92px;text-align:right;border:1px solid var(--line);border-radius:8px;padding:6px;font-size:14px;font-family:'Fraunces',serif;font-weight:600;color:var(--navy);background:var(--card);">
           </div>
         </div>
@@ -3291,6 +3298,16 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
       <div class="card" id="budgetPlannerInsightsCard" style="display:none;">
         <div class="card-title" style="margin-bottom:8px;justify-content:flex-start;gap:9px;"><span class="ins-dot watch" style="margin-top:0;"></span>Suggestions</div>
         <div id="budgetPlannerInsightsList" class="muted" style="font-size:13px;line-height:1.7;"></div>
+      </div>
+
+      <div class="card" id="budgetAlertsCard">
+        <div class="toggle-row" style="margin:0;">
+          <span style="min-width:0;"><span class="toggle-label" id="budgetAlertsLabel">Budget alerts</span><br><span class="muted" style="font-size:12px;">A heads-up in the bell when a category reaches 80% and 100% of its budget this month.</span></span>
+          <label class="toggle-switch">
+            <input type="checkbox" id="budgetAlertsToggle" aria-labelledby="budgetAlertsLabel">
+            <span class="toggle-thumb"></span>
+          </label>
+        </div>
       </div>
 
       <div class="card budget-cat-card">
@@ -4182,6 +4199,34 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
     </div>
   </div>
 
+  <!-- v369: first-run setup (only on a brand-new, empty install) -->
+  <div class="modal-overlay" id="setupModalOverlay">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="setupTitle" style="max-width:440px;">
+      <div class="modal-header">
+        <h3 id="setupTitle">Welcome to WealthMe 👋</h3>
+      </div>
+      <p class="muted" style="margin:0 0 14px;">A few quick things to get started. You can change them later.</p>
+      <div class="field">
+        <label for="setupCurrency">Currency</label>
+        <select id="setupCurrency"></select>
+      </div>
+      <div class="field">
+        <label for="setupBalance">Money you have right now</label>
+        <input type="number" id="setupBalance" step="0.01" inputmode="decimal" placeholder="0.00">
+        <p class="muted" style="font-size:12px;margin:6px 0 0;">Added as your first Income entry, marked Actual.</p>
+      </div>
+      <div class="field">
+        <label for="setupCards">Credit cards you use</label>
+        <input type="text" id="setupCards" placeholder="e.g. Visa, Chase" autocomplete="off">
+        <p class="muted" style="font-size:12px;margin:6px 0 0;">Separate names with commas. They appear in the Debts page.</p>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-top:16px;">
+        <button class="btn btn-primary btn-block" id="setupStartBtn">Get started</button>
+        <button class="btn btn-secondary btn-block" id="setupSkipBtn">Skip for now</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ===== Category Detail Popup (opens over whichever page you are on) ===== -->
   <div class="modal-overlay" id="detailModalOverlay">
     <div class="modal detail-modal" id="view-detail" role="dialog" aria-modal="true" aria-labelledby="detailModalTitle">
@@ -4343,7 +4388,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 366;
+const APP_VERSION = 376;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -4645,13 +4690,43 @@ let detailTrendChartInstance = null;
 /* ---------- UTILITIES ---------- */
 // v338: formatters are built once. toLocaleString(locale, options) makes a brand-new Intl formatter on
 // every call, which is very slow on iPhone Safari when a long list (Activity, search) formats hundreds of rows.
-const _nfMoney = new Intl.NumberFormat(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+/* ===== v371: currency — only changes how amounts are shown (symbol, and no cents for Yen). Entries are never converted. ===== */
+const CURRENCIES = [
+  {code:'USD', name:'US Dollar',        sym:'$',  dec:2},
+  {code:'CAD', name:'Canadian Dollar',  sym:'$',  dec:2},
+  {code:'EUR', name:'Euro',             sym:'\u20AC', dec:2},
+  {code:'GBP', name:'British Pound',    sym:'\u00A3', dec:2},
+  {code:'BRL', name:'Brazilian Real',   sym:'R$', dec:2},
+  {code:'MXN', name:'Mexican Peso',     sym:'$',  dec:2},
+  {code:'AUD', name:'Australian Dollar',sym:'$',  dec:2},
+  {code:'INR', name:'Indian Rupee',     sym:'\u20B9', dec:2},
+  {code:'JPY', name:'Japanese Yen',     sym:'\u00A5', dec:0}
+];
+let CURRENCY = CURRENCIES[0];
+let _nfMoney = new Intl.NumberFormat(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
 const _nfInt = new Intl.NumberFormat(undefined);
+function setCurrencyByCode(code, save){
+  const c = CURRENCIES.find(x=> x.code === code) || CURRENCIES[0];
+  CURRENCY = c;
+  _nfMoney = new Intl.NumberFormat(undefined, {minimumFractionDigits:c.dec, maximumFractionDigits:c.dec});
+  if(save){ try{ localStorage.setItem('wealthme_currency', c.code); }catch(e){} }
+  try{ document.querySelectorAll('.cur-sym').forEach(el=>{ el.textContent = c.sym; }); }catch(e){}
+}
+try{ setCurrencyByCode(localStorage.getItem('wealthme_currency') || 'USD', false); }catch(e){}
+// a sensible starting choice from the phone's region (used only as the default in first-run setup)
+function guessCurrencyCode(){
+  try{
+    const region = ((navigator.language || '').split('-')[1] || '').toUpperCase();
+    const map = {CA:'CAD', GB:'GBP', BR:'BRL', MX:'MXN', AU:'AUD', IN:'INR', JP:'JPY',
+                 DE:'EUR', FR:'EUR', ES:'EUR', IT:'EUR', PT:'EUR', NL:'EUR', IE:'EUR', BE:'EUR', AT:'EUR', FI:'EUR', GR:'EUR'};
+    return map[region] || 'USD';
+  }catch(e){ return 'USD'; }
+}
 const _dfMonthYear = new Intl.DateTimeFormat(undefined, {month:'long', year:'numeric'});
 const _dfShortDay = new Intl.DateTimeFormat(undefined, {month:'short', day:'numeric'});
 function fmtMoney(n){
   const sign = n < 0 ? "-" : "";
-  return sign + "$" + _nfMoney.format(Math.abs(n));
+  return sign + CURRENCY.sym + _nfMoney.format(Math.abs(n));
 }
 function fmtMonthYear(d){
   return _dfMonthYear.format(d);
@@ -4715,8 +4790,115 @@ function isSameMonth(dateStr, refDate){
 }
 
 /* ---------- PERSISTENCE ---------- */
+/* ===== v367: the app's data lives in IndexedDB (not localStorage, which stops at about 5 MB) =====
+   The data is kept in memory and every save is written to IndexedDB straight away. A copy that older versions
+   kept in localStorage is moved over once (and removed 7 days later, as a safety net). If IndexedDB cannot be
+   used, the app falls back to localStorage exactly as before. */
+const DATA_KEYS = ['wealthme_entries','wealthme_nextid','wealthme_settings','wealthme_debtaccounts','wealthme_categorymap','wealthme_budgets','wealthme_creditlimits','wealthme_accountcolors','wealthme_budgetplanner','wealthme_filterpresets'];
+const DATA_DB = 'wealthme_data', DATA_STORE = 'kv';
+let _dataMode = 'ls';            // 'idb' once the data has been loaded from IndexedDB
+let _dataMem = {};               // key -> JSON text, as last saved
+let _dataDirty = {}, _dataTimer = null, _dataFlushing = false, _dataWarned = false;
+function dataOpen(){
+  return new Promise((resolve, reject)=>{
+    if(typeof indexedDB === 'undefined'){ reject(new Error('IndexedDB unavailable')); return; }
+    const r = indexedDB.open(DATA_DB, 1);
+    r.onupgradeneeded = ()=>{ r.result.createObjectStore(DATA_STORE); };
+    r.onsuccess = ()=> resolve(r.result);
+    r.onerror = ()=> reject(r.error || new Error('IndexedDB error'));
+    r.onblocked = ()=> reject(new Error('IndexedDB blocked'));
+  });
+}
+async function dataTx(mode, fn){
+  const db = await dataOpen();
+  try{
+    return await new Promise((resolve, reject)=>{
+      const tx = db.transaction(DATA_STORE, mode);
+      const out = fn(tx.objectStore(DATA_STORE));
+      tx.oncomplete = ()=> resolve(out && out.result !== undefined ? out.result : out);
+      tx.onerror = ()=> reject(tx.error || new Error('IndexedDB error'));
+      tx.onabort = ()=> reject(tx.error || new Error('IndexedDB aborted'));
+    });
+  } finally { db.close(); }
+}
+function dataPutMany(obj){ return dataTx('readwrite', st=>{ Object.keys(obj).forEach(k=> st.put(obj[k], k)); }); }
+async function dataReadAll(){
+  const out = {};
+  await dataTx('readonly', st=>{
+    const c = st.openCursor();
+    c.onsuccess = ()=>{ const cur = c.result; if(cur){ out[cur.key] = cur.value; cur.continue(); } };
+    return c;
+  });
+  return out;
+}
+function dataGet(k){
+  if(_dataMode === 'idb') return (k in _dataMem) ? _dataMem[k] : null;
+  return localStorage.getItem(k);
+}
+function dataSet(k, v){
+  if(_dataMode !== 'idb'){ localStorage.setItem(k, v); return; }
+  if(_dataMem[k] === v) return;                    // unchanged: nothing to write
+  _dataMem[k] = v; _dataDirty[k] = v;
+  if(!_dataTimer) _dataTimer = setTimeout(flushData, 0);
+}
+async function flushData(){
+  _dataTimer = null;
+  if(_dataFlushing) return;                        // the running flush picks up anything newer
+  _dataFlushing = true;
+  try{
+    while(Object.keys(_dataDirty).length){
+      const batch = _dataDirty; _dataDirty = {};
+      try{ await dataPutMany(batch); }
+      catch(e){
+        // could not write to IndexedDB: keep a copy in localStorage so nothing is lost
+        try{ Object.keys(batch).forEach(k=> localStorage.setItem(k, batch[k])); localStorage.setItem('wealthme_data_fallback', '1'); }catch(e2){}
+        if(!_dataWarned){ _dataWarned = true; try{ showToast('Could not save to the database. A backup copy was kept in the browser.'); }catch(e3){} }
+      }
+    }
+  } finally { _dataFlushing = false; }
+}
+document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState === 'hidden') flushData(); });
+window.addEventListener('pagehide', ()=>{ flushData(); });
+async function hydrateData(){
+  try{
+    const all = await dataReadAll();
+    const lsHas = DATA_KEYS.some(k=> localStorage.getItem(k) !== null);
+    if(all.__migrated){
+      const mem = {};
+      DATA_KEYS.forEach(k=>{ if(all[k] !== undefined) mem[k] = all[k]; });
+      if(localStorage.getItem('wealthme_data_fallback') === '1'){
+        // an earlier save fell back to localStorage: those copies are the newest
+        const fresh = {};
+        DATA_KEYS.forEach(k=>{ const v = localStorage.getItem(k); if(v !== null){ mem[k] = v; fresh[k] = v; } });
+        if(Object.keys(fresh).length) await dataPutMany(fresh);
+        DATA_KEYS.forEach(k=> localStorage.removeItem(k));
+        localStorage.removeItem('wealthme_data_fallback');
+      }else if(lsHas){
+        // the old localStorage copy is only a safety net after the move: remove it 7 days later
+        const at = Number(localStorage.getItem('wealthme_data_migrated_at')) || 0;
+        if(at && Date.now() - at > 7 * 86400000){ DATA_KEYS.forEach(k=> localStorage.removeItem(k)); localStorage.removeItem('wealthme_data_migrated_at'); }
+      }
+      _dataMem = mem; _dataMode = 'idb';
+    }else{
+      // first start with IndexedDB: move what localStorage holds, check it, then switch over
+      const batch = {};
+      DATA_KEYS.forEach(k=>{ const v = localStorage.getItem(k); if(v !== null) batch[k] = v; });
+      batch.__migrated = '1';
+      await dataPutMany(batch);
+      const back = await dataReadAll();
+      Object.keys(batch).forEach(k=>{ if(back[k] !== batch[k]) throw new Error('migration check failed: ' + k); });
+      _dataMem = {};
+      DATA_KEYS.forEach(k=>{ if(batch[k] !== undefined) _dataMem[k] = batch[k]; });
+      _dataMode = 'idb';
+      if(lsHas) localStorage.setItem('wealthme_data_migrated_at', String(Date.now()));
+    }
+    try{ if(navigator.storage && navigator.storage.persist) navigator.storage.persist(); }catch(e){}   // ask the browser not to clear it
+  }catch(e){ _dataMode = 'ls'; _dataMem = {}; }
+}
+
 function saveState(){
   invalidateFinancialsCache();
+  setTimeout(()=>{ try{ budgetAlertsAfterSave(); }catch(e){} }, 0);
   invalidateInsightsCache();
   updateNotificationsBadge();
   try{ renderBackupStatus(); }catch(e){}
@@ -4733,30 +4915,32 @@ function saveState(){
     renderNotificationsView();
   }
   try{
-    localStorage.setItem('wealthme_entries', JSON.stringify(entries));
-    localStorage.setItem('wealthme_nextid', String(nextId));
-    localStorage.setItem('wealthme_settings', JSON.stringify(SETTINGS));
-    localStorage.setItem('wealthme_debtaccounts', JSON.stringify(DEBT_ACCOUNTS));
-    localStorage.setItem('wealthme_categorymap', JSON.stringify(CATEGORY_MAP));
-    localStorage.setItem('wealthme_budgets', JSON.stringify(BUDGETS));
-    localStorage.setItem('wealthme_creditlimits', JSON.stringify(CREDIT_LIMITS));
-    localStorage.setItem('wealthme_accountcolors', JSON.stringify(ACCOUNT_COLORS));
-    localStorage.setItem('wealthme_budgetplanner', JSON.stringify({income: BUDGET_PLANNER_INCOME, pct: BUDGET_PLANNER_PCT, amt: BUDGET_PLANNER_AMT, touched: BUDGET_PLANNER_TOUCHED, maxPct: BUDGET_PLANNER_MAX_PCT, incomeCustom: BUDGET_PLANNER_INCOME_CUSTOM}));
-    localStorage.setItem('wealthme_filterpresets', JSON.stringify(FILTER_PRESETS));
+    const _entriesNext = JSON.stringify(entries), _entriesPrev = dataGet('wealthme_entries');
+    if(_entriesPrev !== null && _entriesPrev !== _entriesNext) lsSet('wealthme_changes_since_backup', lsNum('wealthme_changes_since_backup') + 1);   // v374 (plain key: this runs before the constants further down are defined)
+    dataSet('wealthme_entries', _entriesNext);
+    dataSet('wealthme_nextid', String(nextId));
+    dataSet('wealthme_settings', JSON.stringify(SETTINGS));
+    dataSet('wealthme_debtaccounts', JSON.stringify(DEBT_ACCOUNTS));
+    dataSet('wealthme_categorymap', JSON.stringify(CATEGORY_MAP));
+    dataSet('wealthme_budgets', JSON.stringify(BUDGETS));
+    dataSet('wealthme_creditlimits', JSON.stringify(CREDIT_LIMITS));
+    dataSet('wealthme_accountcolors', JSON.stringify(ACCOUNT_COLORS));
+    dataSet('wealthme_budgetplanner', JSON.stringify({income: BUDGET_PLANNER_INCOME, pct: BUDGET_PLANNER_PCT, amt: BUDGET_PLANNER_AMT, touched: BUDGET_PLANNER_TOUCHED, maxPct: BUDGET_PLANNER_MAX_PCT, incomeCustom: BUDGET_PLANNER_INCOME_CUSTOM}));
+    dataSet('wealthme_filterpresets', JSON.stringify(FILTER_PRESETS));
   }catch(e){ /* ignore */ }
 }
 function loadState(){
   try{
-    const e = localStorage.getItem('wealthme_entries');
-    const n = localStorage.getItem('wealthme_nextid');
-    const s = localStorage.getItem('wealthme_settings');
-    const da = localStorage.getItem('wealthme_debtaccounts');
-    const cm = localStorage.getItem('wealthme_categorymap');
-    const bg = localStorage.getItem('wealthme_budgets');
-    const cl = localStorage.getItem('wealthme_creditlimits');
-    const ac = localStorage.getItem('wealthme_accountcolors');
-    const bp = localStorage.getItem('wealthme_budgetplanner');
-    const fp = localStorage.getItem('wealthme_filterpresets');
+    const e = dataGet('wealthme_entries');
+    const n = dataGet('wealthme_nextid');
+    const s = dataGet('wealthme_settings');
+    const da = dataGet('wealthme_debtaccounts');
+    const cm = dataGet('wealthme_categorymap');
+    const bg = dataGet('wealthme_budgets');
+    const cl = dataGet('wealthme_creditlimits');
+    const ac = dataGet('wealthme_accountcolors');
+    const bp = dataGet('wealthme_budgetplanner');
+    const fp = dataGet('wealthme_filterpresets');
     if(e){ entries = JSON.parse(e); }
     if(n){ nextId = parseInt(n,10); }
     if(s){ SETTINGS = Object.assign(SETTINGS, JSON.parse(s)); }
@@ -6385,9 +6569,9 @@ function buildMoneyProjectionChart(ctx, sub){
 // v330: compact axis labels ($500, $5k, $1.2M)
 function fmtAxisShort(v){
   const n = Number(v), a = Math.abs(n), sign = n < 0 ? '-' : '';
-  if(a >= 1e6) return sign + '$' + (a / 1e6).toFixed(a >= 1e7 ? 0 : 1).replace(/\.0$/, '') + 'M';
-  if(a >= 1e3) return sign + '$' + (a / 1e3).toFixed(a >= 1e4 ? 0 : 1).replace(/\.0$/, '') + 'k';
-  return sign + '$' + Math.round(a);
+  if(a >= 1e6) return sign + CURRENCY.sym + (a / 1e6).toFixed(a >= 1e7 ? 0 : 1).replace(/\.0$/, '') + 'M';
+  if(a >= 1e3) return sign + CURRENCY.sym + (a / 1e3).toFixed(a >= 1e4 ? 0 : 1).replace(/\.0$/, '') + 'k';
+  return sign + CURRENCY.sym + Math.round(a);
 }
 // v330: dashed "Today" line on the month the phone's clock is in (only when that month is one of the 12 shown)
 function moneyTodayMarkerPlugin(idx){
@@ -7400,12 +7584,16 @@ document.getElementById('txBulkDeleteBtn').addEventListener('click', ()=>{
 
   showConfirm(
     'Delete selected entries?',
-    `This will permanently delete ${selectedIds.length} selected entr${selectedIds.length===1?'y':'ies'}. This can't be undone.`,
+    `This will delete ${selectedIds.length} selected entr${selectedIds.length===1?'y':'ies'}. You can bring them back with Restore previous data in Data Management for 7 days.`,
     ()=>{
-      entries = entries.filter(e=>!selectedIds.includes(e.id));
-      saveState();
-      renderCurrentView(getActiveViewName());
-      showToast(`Deleted ${selectedIds.length} entr${selectedIds.length===1?'y':'ies'}`);    }
+      // v368: a restore point is saved first (if it can't be, you are asked before anything is deleted)
+      guardedByRestorePoint('deleting selected entries', ()=>{
+        entries = entries.filter(e=>!selectedIds.includes(e.id));
+        saveState();
+        renderCurrentView(getActiveViewName());
+        showToast(`Deleted ${selectedIds.length} entr${selectedIds.length===1?'y':'ies'}`);
+      });
+    }
   );
 });
 
@@ -9205,6 +9393,7 @@ function splitCsvLine(line){
 }
 
 function openSettingsModal(){
+  { const cs = document.getElementById('currencySelect'); if(cs) cs.value = CURRENCY.code; }
   renderDebtAccountsManager();
   renderSubcategoryManager();
   switchView('settings');
@@ -9252,11 +9441,17 @@ function closeAppearanceModal(){
   switchView('more');
 }
 function openBudgetsModal(){
+  document.getElementById('budgetAlertsToggle').checked = budgetAlertsOn();
   budgetPlannerResetVisibility(true);
   renderBudgetsView();
   switchView('budgets');
   maybeCelebrateBudgets();
 }
+document.getElementById('budgetAlertsToggle').addEventListener('change', (e)=>{
+  try{ if(e.target.checked) localStorage.removeItem('wealthme_budget_alerts_off'); else localStorage.setItem('wealthme_budget_alerts_off', '1'); }catch(err){}
+  updateNotificationsBadge();
+  showToast(e.target.checked ? 'Budget alerts on' : 'Budget alerts off');
+});
 function closeBudgetsModal(){
   switchView('more');
 }
@@ -9385,10 +9580,88 @@ function budgetPlannerIncomeFor(refDate){
 // the Budgets page shows for it (the plan, or the saved target if the plan
 // has nothing for it). 0 until a budget has been saved, matching the
 // Expenses vs Budget card.
-function homeBudgetTarget(sub){
+function budgetTargetFor(sub, refDate){
   if(!Object.values(BUDGETS).some(v => Number(v) > 0)) return 0;
-  const planned = budgetPlannerAmount(sub, budgetPlannerIncomeFor(homeDate));
+  const planned = budgetPlannerAmount(sub, budgetPlannerIncomeFor(refDate));
   return planned > 0 ? planned : (Number(BUDGETS[sub]) || 0);
+}
+function homeBudgetTarget(sub){ return budgetTargetFor(sub, homeDate); }
+function escapeHtml(t){ return String(t).replace(/[&<>"']/g, c=> ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+/* ===== v370: budget alerts — a heads-up when an Expense category reaches 80% and 100% of its budget this month.
+   Spending counts the same way as the Budgets page (planned and paid entries both count). ===== */
+const BUDGET_ALERT_NEAR = 0.8;
+function budgetAlertsOn(){ try{ return localStorage.getItem('wealthme_budget_alerts_off') !== '1'; }catch(e){ return true; } }
+// v372: "Clear" in the bell hides the alerts shown at that moment; a category comes back if it gets worse (near -> over) or after it drops below and rises again
+function budgetAlertsDismissed(){
+  const now = new Date();
+  const monthKey = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+  try{
+    const d = JSON.parse(localStorage.getItem('wealthme_budget_alert_dismissed') || 'null');
+    if(d && d.month === monthKey && d.levels) return d;
+  }catch(e){}
+  return {month: monthKey, levels: {}};
+}
+function clearBudgetAlerts(){
+  const d = budgetAlertsDismissed();
+  computeBudgetAlerts().forEach(a=>{ d.levels[a.sub] = a.level; });
+  try{ localStorage.setItem('wealthme_budget_alert_dismissed', JSON.stringify(d)); }catch(e){}
+}
+function computeBudgetAlerts(includeCleared){
+  const now = new Date();
+  const spent = {};
+  entries.forEach(e=>{
+    if(e.category === 'Expense' && isSameMonth(e.date, now)) spent[e.subcategory] = (spent[e.subcategory] || 0) + (Number(e.amount) || 0);
+  });
+  const out = [];
+  Object.keys(spent).forEach(sub=>{
+    if(!CATEGORY_MAP.Expense.includes(sub) || sub === 'Taxes') return;
+    const target = budgetTargetFor(sub, now);
+    if(target <= 0) return;
+    const pct = spent[sub] / target;
+    if(spent[sub] > target + 0.005) out.push({sub, spent: spent[sub], target, pct, level: 'over'});
+    else if(pct >= BUDGET_ALERT_NEAR) out.push({sub, spent: spent[sub], target, pct, level: 'near'});
+  });
+  out.sort((a, b)=> b.pct - a.pct);
+  if(includeCleared) return out;
+  const dis = budgetAlertsDismissed().levels;
+  return out.filter(a=> dis[a.sub] !== a.level);
+}
+// after a save: toast once when a category newly reaches 80% or 100% (remembered per month in localStorage)
+function budgetAlertsAfterSave(){
+  try{
+    if(!budgetAlertsOn() || !entries.length) return;
+    const now = new Date();
+    const monthKey = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+    let st = null;
+    try{ st = JSON.parse(localStorage.getItem('wealthme_budget_alert_state') || 'null'); }catch(e){}
+    const firstTime = !st;                       // first run of this feature: remember the current levels without announcing them
+    if(!st || st.month !== monthKey) st = {month: monthKey, levels: {}};
+    const levels = {}, fresh = [];
+    computeBudgetAlerts(true).forEach(a=>{
+      levels[a.sub] = a.level;
+      const before = st.levels[a.sub];
+      if(!firstTime && (!before || (before === 'near' && a.level === 'over'))) fresh.push(a);
+    });
+    st.levels = levels;
+    // forget cleared alerts for categories that are no longer at that level, so they can alert again later
+    try{
+      const dd = budgetAlertsDismissed(); let changed = false;
+      Object.keys(dd.levels).forEach(k=>{ if(levels[k] !== dd.levels[k]){ delete dd.levels[k]; changed = true; } });
+      if(changed) localStorage.setItem('wealthme_budget_alert_dismissed', JSON.stringify(dd));
+    }catch(e){}
+    localStorage.setItem('wealthme_budget_alert_state', JSON.stringify(st));
+    if(!fresh.length) return;
+    let msg;
+    if(fresh.length === 1){
+      const a = fresh[0];
+      msg = a.level === 'over' ? `${a.sub} is over budget this month (${fmtMoney(a.spent)} of ${fmtMoney(a.target)})`
+                               : `${a.sub} is at ${Math.round(a.pct * 100)}% of its budget (${fmtMoney(a.spent)} of ${fmtMoney(a.target)})`;
+    }else{
+      msg = `${fresh.length} budgets are near or over their limit`;
+    }
+    setTimeout(()=>{ try{ showToast(msg); }catch(e){} }, 350);
+  }catch(e){}
 }
 // "Over Budget" badge beside a subcategory name in the Breakdown list.
 // Categories within budget get no badge.
@@ -9745,12 +10018,12 @@ function renderCreditLimitsView(){
         <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
           <span class="cl-name" style="font-size:14px;"><span>${account}</span></span>
           <div style="display:flex;align-items:center;gap:4px;">
-            <span class="muted" style="font-size:13px;">$</span>
+            <span class="muted" style="font-size:13px;">${CURRENCY.sym}</span>
             <input type="number" class="credit-limit-input" data-account="${account}" value="${stats.limit || ''}" placeholder="0" min="0" step="1" inputmode="decimal" aria-label="Credit limit for ${account}" style="width:80px;text-align:right;border:1px solid var(--line);border-radius:6px;padding:4px 6px;font-size:13px;">
           </div>
         </div>
         <input type="range" class="cl-range" data-account="${account}" min="0" max="${slMax}" step="${slStep}" value="${Math.min(stats.limit || 0, slMax)}" aria-label="Slide to set the credit limit for ${account}" style="--p:${(Math.min(stats.limit || 0, slMax) / slMax * 100).toFixed(2)}%;">
-        <div class="cl-range-scale" aria-hidden="true"><span>$0</span><span>${clShortMoney(slMax / 2)}</span><span>${clShortMoney(slMax)}</span></div>
+        <div class="cl-range-scale" aria-hidden="true"><span>${CURRENCY.sym}0</span><span>${clShortMoney(slMax / 2)}</span><span>${clShortMoney(slMax)}</span></div>
         ${progressHtml}
       </div>
     `;
@@ -9788,7 +10061,7 @@ function clSliderMax(limit, usage){
   return Math.ceil(want / unit) * unit;
 }
 function clShortMoney(n){
-  return n >= 1000 ? '$' + (n / 1000).toLocaleString(undefined, {maximumFractionDigits:1}) + 'k' : '$' + n;
+  return n >= 1000 ? CURRENCY.sym + (n / 1000).toLocaleString(undefined, {maximumFractionDigits:1}) + 'k' : CURRENCY.sym + n;
 }
 function openCreditLimitsModal(){
   renderCreditLimitsView();
@@ -10911,6 +11184,7 @@ function init(){
   populateDetailSelectors();
   switchView('home');
   maybeShowTourPrompt();
+  maybeShowSetup();
   scheduleBackupReminder();
   scheduleValueReminder();
   updateNotificationsBadge();
@@ -11235,7 +11509,7 @@ const SKIN_NO_MOTION = (typeof navigator !== 'undefined' && navigator.webdriver)
 function skinCountUp(el){
   if(!el || SKIN_NO_MOTION) return;
   const finalText = el.textContent.trim();
-  if(!/^-?\$[\d,]+\.\d\d$/.test(finalText)) return;           // only plain money figures
+  if(CURRENCY.dec !== 2 || !finalText.replace(/^-/, '').startsWith(CURRENCY.sym) || !/^[\d,]+\.\d\d$/.test(finalText.replace(/^-/, '').slice(CURRENCY.sym.length))) return;   // only plain money figures
   if(el._cuFinal === finalText) return;                        // unchanged: don't replay
   const to = Number(finalText.replace(/[^0-9.]/g, '')) * (finalText.startsWith('-') ? -1 : 1);
   const from = typeof el._cuVal === 'number' ? el._cuVal : 0;
@@ -11286,7 +11560,7 @@ const LICENSE_PORTAL_URL = 'https://polar.sh/priscila-veloso/portal';
 // Master key (for the owner): opens the app without Polar and without a device limit.
 // Only a SHA-256 fingerprint of "salt:key" is stored here, never the key itself. Empty = master key off.
 const LICENSE_MASTER_SALT = 'wealthme-license-v1';
-const LICENSE_MASTER_HASH = '8cd655ae1ce825d0133bedc4cb3793f3cf8932ea2f1c3d280eeb70b1179cd4b8';
+const LICENSE_MASTER_HASH = '13f723e1cb8894e75a734ccf0371192632a128b76f7723f86c051fbb670512e8';
 const LICENSE_RECHECK_MS = 60 * 1000;
 const LICENSE_TIMEOUT_MS = 10000;
 const LICENSE_KEY_MAIN   = 'wealthme_license';
@@ -11555,7 +11829,18 @@ function licenseBoot(){
   }catch(e){}
   licenseShowScreen('');
 }
-licenseBoot();
+// v376: "Reload the latest version" on the key screen: forgets the app's saved copy (never your data) and reloads fresh
+document.getElementById('licenseReloadLink').addEventListener('click', async (e)=>{
+  e.preventDefault();
+  try{
+    const regs = await navigator.serviceWorker.getRegistrations();
+    await Promise.all(regs.map(r=> r.unregister()));
+    const keys = await caches.keys();
+    await Promise.all(keys.map(k=> caches.delete(k)));
+  }catch(err){}
+  location.href = location.pathname + '?v=' + Date.now();
+});
+hydrateData().then(licenseBoot);
 
 
 
@@ -12315,7 +12600,7 @@ function getDueEntries(){
 }
 function updateNotificationsBadge(){
   const {pastDue, dueToday} = getDueEntries();
-  const count = pastDue.length + dueToday.length;
+  const count = pastDue.length + dueToday.length + (budgetAlertsOn() ? computeBudgetAlerts().length : 0);
   document.querySelectorAll('.notif-badge').forEach(badge=>{
     if(count > 0){
       badge.textContent = count > 99 ? '99+' : String(count);
@@ -12331,7 +12616,7 @@ function updateNotificationsBadge(){
   // An aria-label on the button overrides its visible badge text for
   // screen readers, so the count needs to be folded into the label
   // itself here rather than left for the badge span to announce.
-  const notifLabel = count > 0 ? `Notifications, ${count} due` : 'Notifications';
+  const notifLabel = count > 0 ? `Notifications, ${count} item${count === 1 ? '' : 's'}` : 'Notifications';
   document.getElementById('notificationsBtn')?.setAttribute('aria-label', notifLabel);
   document.getElementById('sidebarNotificationsBtn')?.setAttribute('aria-label', notifLabel);
   // App icon badge (home screen/dock/taskbar) — same count, Instagram-
@@ -12344,11 +12629,12 @@ function updateNotificationsBadge(){
 }
 function renderNotificationsView(){
   const {pastDue, dueToday} = getDueEntries();
+  const alerts = budgetAlertsOn() ? computeBudgetAlerts() : [];
   const container = document.getElementById('notificationsContent');
-  if(pastDue.length === 0 && dueToday.length === 0){
+  if(pastDue.length === 0 && dueToday.length === 0 && alerts.length === 0){
     container.innerHTML = `
       <div class="card" style="text-align:center;padding:32px 16px;">
-        <p class="muted" style="margin:0;">You're all caught up — no past due or due-today entries.</p>
+        <p class="muted" style="margin:0;">You're all caught up — no past due or due-today entries, and no budgets near their limit.</p>
       </div>
     `;
     return;
@@ -12360,8 +12646,18 @@ function renderNotificationsView(){
   if(dueToday.length > 0){
     html += `<div class="group-header">Due Today</div><div class="card"><ul class="entry-list">${dueToday.map(e=>renderEntryRow(e)).join('')}</ul></div>`;
   }
+  if(alerts.length > 0){
+    html += `<div class="group-header" style="display:flex;align-items:center;justify-content:space-between;"><span>Budget Alerts</span><button type="button" class="pill-btn" id="clearBudgetAlertsBtn" style="font-size:11.5px;">Clear</button></div><div class="card"><ul class="entry-list">${alerts.map(a=>`
+      <li class="budget-alert-row" data-budget-alert="1" style="display:flex;align-items:center;gap:10px;padding:12px 4px;cursor:pointer;">
+        <span style="width:10px;height:10px;border-radius:50%;flex-shrink:0;background:${a.level === 'over' ? 'var(--terracotta)' : 'var(--gold)'};"></span>
+        <span style="flex:1;min-width:0;"><span style="font-weight:600;font-size:14px;">${escapeHtml(a.sub)}</span><br><span class="muted" style="font-size:12px;">${a.level === 'over' ? 'Over budget' : (a.pct >= 1 ? 'At the limit' : 'Near the limit')} · ${fmtMoney(a.spent)} of ${fmtMoney(a.target)}</span></span>
+        <span style="font-weight:700;font-size:13px;color:${a.level === 'over' ? 'var(--terracotta)' : 'var(--ink)'};">${Math.round(a.pct * 100)}%</span>
+      </li>`).join('')}</ul></div>`;
+  }
   container.innerHTML = html;
   attachEntryRowHandlers(container);
+  document.getElementById('clearBudgetAlertsBtn')?.addEventListener('click', ()=>{ clearBudgetAlerts(); updateNotificationsBadge(); renderNotificationsView(); });
+  container.querySelectorAll('[data-budget-alert]').forEach(li=> li.addEventListener('click', ()=>{ closeNotificationsModal(); openBudgetsModal(); }));
 }
 
 // Local (not push) notification — a single "you have X due" system
@@ -12373,7 +12669,8 @@ function maybeShowDueNotification(){
   if(Notification.permission === 'denied') return; // respect an explicit no
 
   const {pastDue, dueToday} = getDueEntries();
-  const total = pastDue.length + dueToday.length;
+  const budgetAlerts = budgetAlertsOn() ? computeBudgetAlerts() : [];
+  const total = pastDue.length + dueToday.length + budgetAlerts.length;
   if(total === 0) return;
 
   const todayStr = formatLocalDate(new Date());
@@ -12385,6 +12682,7 @@ function maybeShowDueNotification(){
     const parts = [];
     if(pastDue.length > 0) parts.push(`${pastDue.length} past due`);
     if(dueToday.length > 0) parts.push(`${dueToday.length} due today`);
+    if(budgetAlerts.length > 0) parts.push(`${budgetAlerts.length} budget alert${budgetAlerts.length === 1 ? '' : 's'}`);
     const notif = new Notification('WealthMe', {
       body: parts.join(' · '),
       tag: 'wealthme-due' // replaces any earlier one instead of stacking
@@ -12704,6 +13002,15 @@ function renderHome(){
     }else{
       badge.style.display = 'none';
     }
+    // v373: "so far" — what has actually been paid this month, per day elapsed (current month only)
+    const soFar = document.getElementById('burnSoFarNote'), now = new Date();
+    if(y0 === now.getFullYear() && m0 === now.getMonth()){
+      const paid = computeMonthFinancials(homeDate, true).expensesNoTaxes, dayNo = now.getDate();
+      soFar.textContent = `So far this month: ${fmtMoney(paid)} paid in ${dayNo} day${dayNo === 1 ? '' : 's'} (${fmtMoney(paid / dayNo)} / day).`;
+      soFar.style.display = '';
+    }else{
+      soFar.style.display = 'none';
+    }
   })();
 
   document.getElementById('sumGross').textContent = fmtMoney(proj.grossIncome);
@@ -12816,7 +13123,7 @@ function showBudgetTip(clientX){
 // v320: whole dollars for the compact budget card ($2,360)
 function fmtMoneyShort(n){
   const sign = n < 0 ? '-' : '';
-  return sign + '$' + _nfInt.format(Math.round(Math.abs(n)));
+  return sign + CURRENCY.sym + _nfInt.format(Math.round(Math.abs(n)));
 }
 function renderHomeExpenseBudgetBar(){
   // The card itself always stays (it holds the Month in Review button);
@@ -13621,7 +13928,7 @@ const BACKUP_REMIND_DAYS = 30;
 /* ===== v360: restore point — automatic copy of your data before Import CSV, Empty All Data and Reset =====
    v366: the copy is kept in IndexedDB (far larger than the ~5 MB localStorage limit that holds the app's data). */
 const RP_KEY = 'wealthme_restore_point', RP_DAYS = 7;   // RP_KEY: where v360-v365 kept it (localStorage); moved over once
-const RP_DATA_KEYS = ['wealthme_entries','wealthme_nextid','wealthme_settings','wealthme_debtaccounts','wealthme_categorymap','wealthme_budgets','wealthme_creditlimits','wealthme_accountcolors','wealthme_budgetplanner','wealthme_filterpresets'];
+const RP_DATA_KEYS = DATA_KEYS;
 const RP_DB = 'wealthme_restore', RP_STORE = 'points';
 let _rpError = '';
 let _rpCache = null;          // the restore point, held in memory so the page can show it instantly
@@ -13656,7 +13963,7 @@ async function makeRestorePoint(reason){
     if(!entries || entries.length === 0){ result = null; }      // nothing worth keeping; don't overwrite an older copy
     else{
       const data = {};                                           // read right now, before the caller changes anything
-      RP_DATA_KEYS.forEach(k=>{ const v = localStorage.getItem(k); if(v !== null) data[k] = v; });
+      RP_DATA_KEYS.forEach(k=>{ const v = dataGet(k); if(v !== null) data[k] = v; });
       const rp = {ts: Date.now(), reason: reason, n: entries.length, data: data};
       await rpPut(rp);
       _rpCache = rp; _rpError = '';
@@ -13717,7 +14024,7 @@ document.getElementById('restorePointBtn').addEventListener('click', ()=>{
   showConfirm('Restore previous data?', `This replaces your current data with the copy of ${rp.n} entries saved before ${rp.reason}. Your current data is kept as a restore point, so you can switch back.`, async ()=>{
     try{
       await makeRestorePoint('restoring');
-      Object.keys(rp.data).forEach(k=>{ localStorage.setItem(k, rp.data[k]); });
+      Object.keys(rp.data).forEach(k=>{ dataSet(k, rp.data[k]); });
       loadState();
       saveState();
       showToast('Previous data restored');
@@ -13729,10 +14036,13 @@ document.getElementById('restorePointBtn').addEventListener('click', ()=>{
 
 const LS_LAST_BACKUP = 'wealthme_last_backup';
 const LS_BACKUP_REMINDED = 'wealthme_backup_reminded';
+// v374: a backup is also suggested after many changes (at least 7 days after the last backup or reminder), not only every 30 days
+const LS_CHANGES_SINCE_BACKUP = 'wealthme_changes_since_backup';
+const BACKUP_CHANGE_LIMIT = 40;
 function lsNum(k){ try{ return Number(localStorage.getItem(k)) || 0; }catch(e){ return 0; } }
 function lsSet(k,v){ try{ localStorage.setItem(k, String(v)); }catch(e){} }
 function markBackupIfExport(){
-  if(_pendingCsv && /wealthme_export/.test(_pendingCsv.filename || '')){ lsSet(LS_LAST_BACKUP, Date.now()); renderBackupStatus(); }
+  if(_pendingCsv && /wealthme_export/.test(_pendingCsv.filename || '')){ lsSet(LS_LAST_BACKUP, Date.now()); lsSet(LS_CHANGES_SINCE_BACKUP, 0); renderBackupStatus(); }
 }
 // Backup card at the top of Data Management: last backup + "Back up now".
 function renderBackupStatus(){
@@ -13740,8 +14050,9 @@ function renderBackupStatus(){
   if(!card || !txt || !btn) return;
   const last = lsNum(LS_LAST_BACKUP);
   const has = entries && entries.length > 0;
-  const due = has && (!last || (Date.now() - last) >= BACKUP_REMIND_DAYS * 86400000);
-  txt.textContent = has ? backupAgeText() : 'Nothing to back up yet.';
+  const due = has && (!last || (Date.now() - last) >= BACKUP_REMIND_DAYS * 86400000 || lsNum(LS_CHANGES_SINCE_BACKUP) >= BACKUP_CHANGE_LIMIT);
+  const chg = lsNum(LS_CHANGES_SINCE_BACKUP);
+  txt.textContent = has ? backupAgeText() + (last && chg > 0 ? ` ${chg} change${chg === 1 ? '' : 's'} since then.` : '') : 'Nothing to back up yet.';
   card.classList.toggle('due', !!due);
   btn.disabled = !has;
   btn.style.opacity = has ? '' : '.5';
@@ -13758,15 +14069,37 @@ function backupReminderDue(){
   if(!entries || entries.length === 0) return false;            // nothing to back up yet
   let since = Math.max(lsNum(LS_LAST_BACKUP), lsNum(LS_BACKUP_REMINDED));
   if(!since){ lsSet(LS_BACKUP_REMINDED, Date.now()); return false; }   // start the 30-day clock
-  return (Date.now() - since) >= BACKUP_REMIND_DAYS * 86400000;
+  const age = Date.now() - since;
+  return age >= BACKUP_REMIND_DAYS * 86400000 || (lsNum(LS_CHANGES_SINCE_BACKUP) >= BACKUP_CHANGE_LIMIT && age >= 7 * 86400000);
+}
+// v374: one tap saves the backup file (share sheet where the phone offers it, otherwise a download)
+async function quickBackup(){
+  if(!entries.length) return;
+  const content = entriesToCsv(entries.concat(buildSettingsRows())), filename = `wealthme_export_${formatLocalDate(new Date())}.csv`;
+  _pendingCsv = {content, filename};
+  if(csvCanShareFile()){
+    try{
+      const file = new File([content], filename, {type:'text/csv'});
+      await navigator.share({files:[file], title: filename});
+      markBackupIfExport(); showToast('Backup saved');
+      return;
+    }catch(err){
+      if(err && err.name === 'AbortError') return;      // closed the share sheet: nothing saved
+    }
+  }
+  attemptDirectDownload(content, filename);
+  markBackupIfExport();
+  showToast('Backup file downloaded \u2014 check your Downloads');
 }
 function showBackupReminder(){
   _reminderShownThisRun = true;
   lsSet(LS_BACKUP_REMINDED, Date.now());
+  const chg = lsNum(LS_CHANGES_SINCE_BACKUP);
+  const lead = (chg >= BACKUP_CHANGE_LIMIT && lsNum(LS_LAST_BACKUP)) ? `You\u2019ve made ${chg} changes since your last backup.` : backupAgeText();
   showConfirm('Time to back up your data',
-    backupAgeText() + ' Your entries are saved only on this device. Do you want to back them up now?',
-    openBackupNow,
-    { confirmLabel:'Back up now', cancelLabel:'Not now', confirmClass:'primary' });
+    lead + ' Your entries are saved only on this device. Save a backup file now?',
+    quickBackup,
+    { confirmLabel:'Save backup file', cancelLabel:'Not now', confirmClass:'primary' });
 }
 function openBackupNow(){
   openDataManagementModal();
@@ -13875,6 +14208,61 @@ function maybeShowTourPrompt(){
     }
   }catch(e){}
 }
+
+
+// v369: first-run setup — only on a genuinely new, empty install (no data, and neither the tour prompt nor this setup was seen)
+function maybeShowSetup(){
+  try{
+    if(entries.length === 0 && !localStorage.getItem('wealthme_setup_seen') && !localStorage.getItem('wealthme_tour_prompt_seen')){
+      const cs = document.getElementById('setupCurrency');
+      cs.innerHTML = CURRENCIES.map(c=> `<option value="${c.code}">${c.name} (${c.code}) ${c.sym}</option>`).join('');
+      cs.value = guessCurrencyCode();
+      document.getElementById('setupBalance').value = '';
+      document.getElementById('setupCards').value = '';
+      document.getElementById('setupModalOverlay').classList.add('active');
+    }
+  }catch(e){}
+}
+function closeSetup(){
+  try{ localStorage.setItem('wealthme_setup_seen', '1'); }catch(e){}
+  document.getElementById('setupModalOverlay').classList.remove('active');
+}
+document.getElementById('setupSkipBtn').addEventListener('click', closeSetup);
+document.getElementById('setupStartBtn').addEventListener('click', ()=>{
+  const raw = document.getElementById('setupBalance').value.trim();
+  const amount = raw === '' ? null : parseFloat(raw);
+  if(raw !== '' && (isNaN(amount) || amount <= 0)){ showToast('Enter an amount above zero, or leave it empty.'); return; }
+  setCurrencyByCode(document.getElementById('setupCurrency').value, true);
+  const curSel = document.getElementById('currencySelect'); if(curSel) curSel.value = CURRENCY.code;
+  const names = [];
+  document.getElementById('setupCards').value.split(',').map(x=> x.trim()).filter(Boolean).forEach(n=>{ if(!names.some(x=> x.toLowerCase() === n.toLowerCase())) names.push(n); });
+  let added = false;
+  if(amount){
+    const subs = CATEGORY_MAP.Income || [];
+    const sub = subs.find(x=> /other/i.test(x)) || subs[0];
+    entries.push({id: uid(), date: formatLocalDate(new Date()), category: 'Income', subcategory: sub, amount: amount, status: 'Closed', notes: 'Initial balance'});
+    added = true;
+  }
+  names.forEach(n=>{ if(!DEBT_ACCOUNTS['Credit Card'].some(x=> String(x).toLowerCase() === n.toLowerCase())){ DEBT_ACCOUNTS['Credit Card'].push(n); added = true; } });
+  if(added) saveState();
+  closeSetup();
+  try{ document.getElementById('tourPromptBanner').style.display = (entries.length === 0) ? 'block' : 'none'; }catch(e){}
+  renderCurrentView(getActiveViewName());
+  showToast(added ? 'You\u2019re all set' : 'Setup skipped');
+});
+
+// v371: currency picker (Accounts Settings)
+(function(){
+  const sel = document.getElementById('currencySelect');
+  sel.innerHTML = CURRENCIES.map(c=> `<option value="${c.code}">${c.name} (${c.code}) ${c.sym}</option>`).join('');
+  sel.value = CURRENCY.code;
+  sel.addEventListener('change', ()=>{
+    setCurrencyByCode(sel.value, true);
+    invalidateFinancialsCache();
+    renderCurrentView(getActiveViewName());
+    showToast('Currency set to ' + CURRENCY.code);
+  });
+})();
 
 // v363: offline support — sw.js (next to index.html) saves the app, Chart.js and the Inter font on the device
 if('serviceWorker' in navigator && /^https?:$/.test(location.protocol)){
