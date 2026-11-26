@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v380 -->
+<!-- WEALTH.ME — v381 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -2766,6 +2766,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
 
       <div class="card" id="homeCashflowCard">
         <div class="card-title">Daily Cashflow<button type="button" class="cal-open-btn" id="homeCalendarBtn" title="Open calendar" aria-label="Open calendar"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></button></div>
+        <div id="cashflowKey" style="display:none;gap:16px;margin:2px 0 4px;"></div>
         <div class="chart-wrap"><canvas id="lineChart" role="img" aria-label="Daily cashflow chart for the selected month"></canvas></div>
         <!-- v324: Daily Expenses (was the Burn Rate card) now sits under the chart -->
         <div class="burn-strip in-card">
@@ -3103,7 +3104,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         <div id="refreshStatus" class="more-refresh-status"></div>
       </div>
 
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 380</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 381</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -3151,7 +3152,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 380</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 381</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -4391,7 +4392,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 380;
+const APP_VERSION = 381;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -10523,6 +10524,14 @@ function calChangeMonth(delta){
   calDate = new Date(calDate.getFullYear(), calDate.getMonth() + delta, 1);
   renderCalendar();
 }
+// v381: open the calendar on a chosen day (tapping a day on the Daily Cashflow chart twice)
+function openCalendarOnDay(dateStr){
+  const d = parseLocalDate(dateStr);
+  calDate = new Date(d.getFullYear(), d.getMonth(), 1);
+  calSelectedDate = dateStr;
+  renderCalendar();
+  document.getElementById('calendarModalOverlay').classList.add('active');
+}
 // monthDate (a Date) picks the month to show; otherwise the Home month.
 function openCalendarModal(monthDate){
   const base = (monthDate instanceof Date) ? monthDate : homeDate;
@@ -13279,6 +13288,7 @@ function renderHomeExpenseBudgetBar(){
   // v321: over-budget subcategory chips removed from this card (Breakdown still marks them)
 }
 
+let _cashflowTap = {idx: -1, at: 0};   // v381: last day tapped on the Daily Cashflow chart
 function renderLineChart(){
   const {labels, values} = computeDailyCashflow(homeDate);
   const ctx = document.getElementById('lineChart');
@@ -13294,6 +13304,59 @@ function renderLineChart(){
   const todayIndex = (now.getFullYear() === homeDate.getFullYear() && now.getMonth() === homeDate.getMonth())
     ? now.getDate() - 1   // labels are 1-based days; index is 0-based
     : -1;
+
+  // v381: from today on the line is dashed (planned); a past month is all solid, a future month all dashed
+  const monthDiff = (homeDate.getFullYear() - now.getFullYear()) * 12 + homeDate.getMonth() - now.getMonth();
+  const splitIdx = monthDiff === 0 ? todayIndex : (monthDiff > 0 ? 0 : Infinity);
+  const monthShort = homeDate.toLocaleString(undefined, {month:'short'});
+  const monthKey = homeDate.getFullYear() + '-' + String(homeDate.getMonth() + 1).padStart(2, '0');
+  const dayMap = {};
+  entries.forEach(e=>{ if(typeof e.date === 'string' && e.date.slice(0, 7) === monthKey){ const dn = Number(e.date.slice(8, 10)); (dayMap[dn] = dayMap[dn] || []).push(e); } });
+  const keyEl = document.getElementById('cashflowKey');
+  if(keyEl){
+    const kc = chartColors().tick, kb = skinBrandLine();
+    const item = (dash, t)=> `<span style="display:inline-flex;align-items:center;gap:6px;font-size:11.5px;color:${kc};"><span style="width:16px;height:0;border-top:2.5px ${dash ? 'dashed' : 'solid'} ${kb};display:inline-block;"></span>${t}</span>`;
+    keyEl.innerHTML = item(false, 'Past') + item(true, 'Planned');
+    keyEl.style.display = monthDiff === 0 ? 'flex' : 'none';
+  }
+
+  // lowest balance of the month, with a zero line when the balance dips below zero
+  const lowPlugin = {
+    id: 'cashflowLow',
+    afterDatasetsDraw(chart){
+      try{
+        const pts = chart.getDatasetMeta(0).data, n = values.length;
+        if(!pts || n < 2) return;
+        let mi = 0, ma = 0;
+        values.forEach((v, i)=>{ if(v < values[mi]) mi = i; if(v > values[ma]) ma = i; });
+        if(values[mi] === values[ma]) return;                       // flat month: nothing to mark
+        const c = chart.ctx, area = chart.chartArea, RED = '#C1583F';
+        c.save();
+        if(values[mi] < 0 && chart.scales && chart.scales.y){
+          const zy = chart.scales.y.getPixelForValue(0);
+          c.beginPath(); c.moveTo(area.left, zy); c.lineTo(area.right, zy); c.strokeStyle = 'rgba(193,88,63,0.55)'; c.lineWidth = 1; c.setLineDash([4, 4]); c.stroke(); c.setLineDash([]);
+        }
+        if(mi === n - 1){ c.restore(); return; }                    // the month ends at its lowest: the end value already says it
+        const pt = pts[mi]; if(!pt) { c.restore(); return; }
+        let bg = '#fff'; try{ const card = chart.canvas.closest('.card'); if(card) bg = getComputedStyle(card).backgroundColor || bg; }catch(e){}
+        c.beginPath(); c.arc(pt.x, pt.y, 4.5, 0, Math.PI * 2); c.fillStyle = RED; c.fill(); c.lineWidth = 2; c.strokeStyle = bg; c.stroke();
+        const txt = 'Low ' + fmtMoney(values[mi]) + ' \u00b7 ' + monthShort + ' ' + (mi + 1);
+        c.font = "700 11px 'Inter', sans-serif";
+        const w = c.measureText(txt).width + 20, h = 20;
+        let x, y;
+        if(pt.x > area.right - 60){                                  // low point near the month's end: write it left of the dot, clear of the end value
+          x = pt.x - w - 4; y = (pt.y + 9 + h <= area.bottom) ? pt.y + 9 : pt.y - 9 - h;
+        }else{
+          x = Math.max(area.left, Math.min(pt.x - w / 2, area.right - w));
+          y = (pt.y + 9 + h <= area.bottom) ? pt.y + 9 : pt.y - 9 - h;   // below the dot, or above it when there is no room
+        }
+        c.fillStyle = 'rgba(193,88,63,0.16)';
+        c.beginPath(); if(c.roundRect){ c.roundRect(x, y, w, h, 10); } else { c.rect(x, y, w, h); } c.fill();
+        c.fillStyle = RED; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(txt, x + w / 2, y + h / 2 + 0.5);
+        c.restore();
+      }catch(e){}
+    }
+  };
 
   const todayLinePlugin = {
     id: 'todayLine',
@@ -13311,6 +13374,10 @@ function renderLineChart(){
       c.strokeStyle = 'rgba(193,88,63,0.55)'; // terracotta, semi-transparent
       c.setLineDash([3, 3]);
       c.stroke();
+      c.setLineDash([]);
+      // v381: a dot where the line meets Today
+      let bg = '#fff'; try{ const card = chart.canvas.closest('.card'); if(card) bg = getComputedStyle(card).backgroundColor || bg; }catch(e){}
+      c.beginPath(); c.arc(point.x, point.y, 4, 0, Math.PI * 2); c.fillStyle = skinBrandLine(); c.fill(); c.lineWidth = 2; c.strokeStyle = bg; c.stroke();
       c.restore();
     }
   };
@@ -13342,8 +13409,10 @@ function renderLineChart(){
           backgroundColor: (ctx) => {
             const y0 = ctx.p0.parsed.y;
             const y1 = ctx.p1.parsed.y;
-            return (y0 < 0 || y1 < 0) ? 'rgba(193,88,63,0.12)' : hexToRgba(skinBrandLine(), 0.14);
-          }
+            const planned = ctx.p0DataIndex >= splitIdx;
+            return (y0 < 0 || y1 < 0) ? 'rgba(193,88,63,' + (planned ? 0.06 : 0.12) + ')' : hexToRgba(skinBrandLine(), planned ? 0.06 : 0.14);
+          },
+          borderDash: (ctx) => (ctx.p0DataIndex >= splitIdx) ? [6, 5] : undefined
         }
       }]
     },
@@ -13354,6 +13423,19 @@ function renderLineChart(){
         mode: 'index',
         intersect: false,
         axis: 'x'
+      },
+      onClick: (evt, els, chart) => {
+        try{
+          const hit = (els && els.length) ? els : chart.getElementsAtEventForMode(evt, 'index', {intersect:false, axis:'x'}, false);
+          if(!hit || !hit.length) return;
+          const idx = hit[0].index, nowMs = Date.now();
+          if(_cashflowTap.idx === idx && nowMs - _cashflowTap.at < 8000 && monthKey){
+            _cashflowTap = {idx: -1, at: 0};
+            openCalendarOnDay(monthKey + '-' + String(idx + 1).padStart(2, '0'));
+          }else{
+            _cashflowTap = {idx, at: nowMs};
+          }
+        }catch(e){}
       },
       layout: { padding: { top: 16, right: 4 } },
       plugins: {
@@ -13367,18 +13449,29 @@ function renderLineChart(){
           padding: 10,
           cornerRadius: 8,
           displayColors: false,
+          footerFont: {family:"'Inter', sans-serif", size:11, weight:'500'},
+          footerColor: 'rgba(255,255,255,0.7)',
+          footerMarginTop: 6,
           callbacks:{
-            title: (items) => 'Day ' + items[0].label,
-            label: (ctx)   => fmtMoney(ctx.parsed.y)
+            title: (items) => monthShort + ' ' + items[0].label + ' \u00b7 ' + fmtMoney(items[0].parsed.y),
+            label: (ctx)   => {
+              const list = (dayMap[Number(ctx.label)] || []).filter(e => e.category !== 'Capital');
+              if(!list.length) return 'No entries';
+              const lines = list.slice(0, 5).map(e => (e.category === 'Income' ? '+' : '\u2212') + fmtMoney(Number(e.amount)) + ' ' + (e.notes || e.subcategory));
+              if(list.length > 5) lines.push('+' + (list.length - 5) + ' more');
+              return lines;
+            },
+            footer: () => 'Tap again to open this day'
           }
         }
       },
       scales: {
-        x: {grid:{display:false}, ticks:{maxTicksLimit:8, font:{size:10}, color: chartColors().tick}},
-        y: {grid:{color: chartColors().grid}, ticks:{display:false}}
+        x: {grid:{display:false}, ticks:{autoSkip:false, maxRotation:0, align:'inner', font:{size:10}, color: chartColors().tick,
+              callback: function(val, i, ticks){ const d = i + 1, last = ticks.length; return (d === 1 || d === 8 || d === 15 || d === 22 || d === last) ? String(d) : ''; }}},
+        y: {grace:'12%', grid:{color: chartColors().grid}, ticks:{display:false}}
       }
     },
-    plugins: [todayLinePlugin, chartEndValuePlugin(fmtAxisShort)]
+    plugins: [todayLinePlugin, lowPlugin, chartEndValuePlugin(fmtAxisShort)]
   });
 }
 
