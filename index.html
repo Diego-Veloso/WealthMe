@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v379 -->
+<!-- WEALTH.ME — v380 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -3103,7 +3103,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         <div id="refreshStatus" class="more-refresh-status"></div>
       </div>
 
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 379</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 380</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -3151,7 +3151,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 379</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 380</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -4391,7 +4391,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 379;
+const APP_VERSION = 380;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -5770,6 +5770,7 @@ function renderDrillChart(monthlyAmounts, period){
     },
     options: {
       responsive:true, maintainAspectRatio:false,
+      layout:{ padding:{ top:16, right:4 } },
       plugins:{
         legend:{display:false},
         tooltip:{
@@ -5781,10 +5782,11 @@ function renderDrillChart(monthlyAmounts, period){
         }
       },
       scales: {
-        x: { grid:{display:false}, ticks:{font:{size:9}, color: chartColors().tick} },
+        x: { grid:{display:false}, ticks: monthChartXTicks(10) },
         y: { grid:{color: chartColors().grid}, ticks:{display:false} }
       }
-    }
+    },
+    plugins: [chartEndValuePlugin(fmtAxisShort)]
   });
 }
 
@@ -6226,7 +6228,7 @@ function renderMonthlyTrendChart(data){
         }
       },
       scales: {
-        x: { grid:{display:false}, ticks:{font:{size:9}, color: chartColors().tick} },
+        x: { grid:{display:false}, ticks: monthChartXTicks(10) },
         y: { grid:{color: chartColors().grid}, ticks:{display:false} }
       }
     }
@@ -6548,9 +6550,7 @@ function buildMoneyProjectionChart(ctx, sub){
         }
       },
       scales: {
-        x: { grid: { display: false }, border: { display: false },
-             ticks: { autoSkip: false, maxRotation: 0, font: { size: 10 }, color: cc.tick,
-                      callback: function(val, i){ return (i === 0 || i === 11) ? this.getLabelForValue(val) : ''; } } },
+        x: { grid: { display: false }, border: { display: false }, ticks: monthChartXTicks(10) },
         y: { display: false, beginAtZero: true, grace: '6%' }
       }
     },
@@ -6583,6 +6583,32 @@ function moneyTodayMarkerPlugin(idx){
       c.textAlign = idx === 0 ? 'left' : idx === 11 ? 'right' : 'center';
       c.fillText('Today', x, area.top - 15);
       c.restore();
+    }
+  };
+}
+
+// v380: shared look for the monthly charts — only the first and last month are named, and line charts mark their last value.
+function monthChartXTicks(size){
+  return { autoSkip: false, maxRotation: 0, align: 'inner', font: { size: size || 10 }, color: chartColors().tick,
+           callback: function(val, i, ticks){ return (i === 0 || i === ticks.length - 1) ? this.getLabelForValue(val) : ''; } };
+}
+function chartEndValuePlugin(fmt){
+  return {
+    id: 'endValue',
+    afterDatasetsDraw(chart){
+      try{
+        const meta = chart.getDatasetMeta(0), pts = meta.data, ds = chart.data.datasets[0];
+        if(!pts || !pts.length || !ds) return;
+        const pt = pts[pts.length - 1], v = ds.data[ds.data.length - 1], prev = ds.data.length > 1 ? ds.data[ds.data.length - 2] : v;
+        if(!pt || v === null || v === undefined || !isFinite(v)) return;
+        const c = chart.ctx, area = chart.chartArea;
+        const below = v < prev && pt.y + 18 < area.bottom;        // falling into the last point: write the value under it, out of the line's way
+        c.save();
+        c.fillStyle = chartColors().tick; c.font = "700 10.5px 'Inter', sans-serif"; c.textAlign = 'right';
+        c.textBaseline = below ? 'top' : 'bottom';
+        c.fillText(fmt(v), Math.min(pt.x, area.right) - 2, below ? pt.y + 6 : pt.y - 6);
+        c.restore();
+      }catch(e){}
     }
   };
 }
@@ -6724,6 +6750,7 @@ function renderNetWorthChart(){
       responsive: true,
       maintainAspectRatio: false,
       interaction: { mode: 'index', intersect: false },
+      layout: { padding: { top: 16, right: 4 } },
       plugins: {
         legend: { display: false },
         tooltip: {
@@ -6736,10 +6763,11 @@ function renderNetWorthChart(){
         }
       },
       scales: {
-        x: { grid: { display: false }, ticks: { font: { size: 10 }, color: chartColors().tick } },
+        x: { grid: { display: false }, ticks: monthChartXTicks(10) },
         y: { grid: { color: chartColors().grid }, ticks: { display: false } }
       }
-    }
+    },
+    plugins: [chartEndValuePlugin(fmtAxisShort)]
   });
 }
 
@@ -12436,6 +12464,7 @@ function renderDetailTrendChart(){
       responsive: true,
       maintainAspectRatio: false,
       interaction: { mode: 'index', intersect: false, axis: 'x' },
+      layout: { padding: { top: 16, right: 4 } },
       plugins: {
         legend: { display: false },
         tooltip: {
@@ -12462,10 +12491,11 @@ function renderDetailTrendChart(){
         }
       },
       scales: {
-        x: { grid:{ display:false }, ticks:{ font:{ size:10 }, color: chartColors().tick } },
+        x: { grid:{ display:false }, ticks: monthChartXTicks(10) },
         y: { grid:{ color: chartColors().grid }, ticks:{ display:false } }
       }
-    }
+    },
+    plugins: [chartEndValuePlugin(v => v.toFixed(1) + '%')]
   });
 }
 
@@ -13325,6 +13355,7 @@ function renderLineChart(){
         intersect: false,
         axis: 'x'
       },
+      layout: { padding: { top: 16, right: 4 } },
       plugins: {
         legend: {display: false},
         tooltip: {
@@ -13347,7 +13378,7 @@ function renderLineChart(){
         y: {grid:{color: chartColors().grid}, ticks:{display:false}}
       }
     },
-    plugins: [todayLinePlugin]
+    plugins: [todayLinePlugin, chartEndValuePlugin(fmtAxisShort)]
   });
 }
 
