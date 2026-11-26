@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v378 -->
+<!-- WEALTH.ME — v379 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -3008,8 +3008,8 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
           <span>Projection</span>
           <span class="muted" style="font-size:12px;font-family:'Inter',sans-serif;font-weight:500;">12-month trend</span>
         </div>
-        <div class="chart-wrap" style="height:220px;"><canvas id="moneyLineChart" role="img" aria-label="12-month cumulative investment projection chart"></canvas></div>
-        <div class="muted" id="moneyProjectionSummary" style="font-size:12px;line-height:1.45;margin-top:10px;display:none;"></div>
+        <div id="moneyProjectionHead"></div>
+        <div class="chart-wrap" style="height:130px;"><canvas id="moneyLineChart" role="img" aria-label="12-month projection: planned total compared with actual"></canvas></div>
       </div>
       <div class="card">
         <div class="card-title">
@@ -3103,7 +3103,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         <div id="refreshStatus" class="more-refresh-status"></div>
       </div>
 
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 378</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 379</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -3151,7 +3151,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 378</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 379</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -4113,7 +4113,8 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
           <span>Projection</span>
           <span class="muted" style="font-size:12px;font-family:'Inter',sans-serif;font-weight:500;">12-month trend</span>
         </div>
-        <div class="chart-wrap" style="height:220px;"><canvas id="accountDetailChart" role="img" aria-label="12-month projection chart for this investment account"></canvas></div>
+        <div id="accountProjectionHead"></div>
+        <div class="chart-wrap" style="height:130px;"><canvas id="accountDetailChart" role="img" aria-label="12-month projection for this investment account: planned total compared with actual"></canvas></div>
       </div>
       <div class="card-title" style="margin-bottom:8px;">Entries</div>
       <div class="segmented seg-sm" id="accountDetailSeg" role="group" aria-label="Entries: Planned or Actual">
@@ -4390,7 +4391,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 378;
+const APP_VERSION = 379;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -6495,47 +6496,38 @@ function buildMoneyProjectionChart(ctx, sub){
   // index of the real current month among the 12 shown (-1 / 12+ = not shown)
   const todayIdx = (_now.getFullYear() - homeDate.getFullYear()) * 12 + (_now.getMonth() - homeDate.getMonth());
 
+  // v379: two lines only. "Actual" = invested + capital so far, "Plan" = everything planned. The headline above the chart
+  // (renderProjectionHead) carries the numbers; the chart only shows the shape, with the first/last month and the plan's end value.
+  const cc = chartColors();
   return new Chart(ctx, {
     type: 'line',
     data: {
       labels,
       datasets: [
         {
-          label: 'Invested (actual)',
-          data: investedData,
-          borderColor: '#D4A24E',
-          backgroundColor: 'transparent',
-          fill: false,
-          tension: 0.35,
-          pointRadius: 0,
-          pointHoverRadius: 5,
-          pointHoverBackgroundColor: '#D4A24E',
-          borderWidth: 2
-        },
-        {
-          label: 'Invested + Capital (actual)',
-          data: netData,
-          borderColor: '#2FBF8F',
-          backgroundColor: skinGradientFill('#2FBF8F', 0.28),
-          fill: true,
-          tension: 0.35,
-          pointRadius: 0,
-          pointHoverRadius: 5,
-          pointHoverBackgroundColor: '#2FBF8F',
-          borderWidth: 2.5
-        },
-        {
-          label: 'Planned total',
+          label: 'Plan',
           data: plannedData,
           borderColor: '#5C6B7A',
           backgroundColor: 'transparent',
           fill: false,
           tension: 0.35,
           pointRadius: 0,
-          pointHoverRadius: 5,
+          pointHoverRadius: 4,
           pointHoverBackgroundColor: '#5C6B7A',
           borderWidth: 2,
           borderDash: [5, 4]
+        },
+        {
+          label: 'Actual',
+          data: netData,
+          borderColor: '#2FBF8F',
+          backgroundColor: skinGradientFill('#2FBF8F', 0.28),
+          fill: true,
+          tension: 0.35,
+          pointRadius: 0,
+          pointHoverRadius: 4,
+          pointHoverBackgroundColor: '#2FBF8F',
+          borderWidth: 2.5
         }
       ]
     },
@@ -6543,28 +6535,26 @@ function buildMoneyProjectionChart(ctx, sub){
       responsive: true,
       maintainAspectRatio: false,
       interaction: { mode: 'index', intersect: false },
+      layout: { padding: { top: 18, right: 4 } },
       plugins: {
-        legend: {
-          display: true,
-          position: 'bottom',
-          labels: { font: { size: 11, family: "'Inter', sans-serif" }, color: chartColors().tick, boxWidth: 12, padding: 12 }
-        },
+        legend: { display: false },
         tooltip: {
-          backgroundColor: chartColors().tooltipBg,
-          titleColor: chartColors().tooltipText,
-          bodyColor: chartColors().tooltipText,
+          backgroundColor: cc.tooltipBg,
+          titleColor: cc.tooltipText,
+          bodyColor: cc.tooltipText,
           callbacks: {
-            label: (ctx) => `${ctx.dataset.label}: ${fmtMoney(ctx.parsed.y)}`
+            label: (c) => `${c.dataset.label}: ${fmtMoney(c.parsed.y)}`
           }
         }
       },
       scales: {
-        x: { grid: { display: false }, ticks: { font: { size: 10 }, color: chartColors().tick } },
-        y: { grid: { color: chartColors().grid }, border: { display: false },
-             ticks: { maxTicksLimit: 4, padding: 6, font: { size: 10 }, color: chartColors().tick, callback: (v)=> fmtAxisShort(v) } }
+        x: { grid: { display: false }, border: { display: false },
+             ticks: { autoSkip: false, maxRotation: 0, font: { size: 10 }, color: cc.tick,
+                      callback: function(val, i){ return (i === 0 || i === 11) ? this.getLabelForValue(val) : ''; } } },
+        y: { display: false, beginAtZero: true, grace: '6%' }
       }
     },
-    plugins: [moneyTodayMarkerPlugin(todayIdx)]
+    plugins: [moneyTodayMarkerPlugin(todayIdx), moneyProjectionMarksPlugin(todayIdx)]
   });
 }
 
@@ -6587,11 +6577,33 @@ function moneyTodayMarkerPlugin(idx){
       const c = chart.ctx;
       c.save();
       c.strokeStyle = chartColors().tick; c.globalAlpha = 0.7; c.lineWidth = 1; c.setLineDash([3, 3]);
-      c.beginPath(); c.moveTo(x, area.top + 12); c.lineTo(x, area.bottom); c.stroke();
+      c.beginPath(); c.moveTo(x, area.top - 2); c.lineTo(x, area.bottom); c.stroke();
       c.setLineDash([]); c.globalAlpha = 1;
       c.fillStyle = chartColors().tick; c.font = "600 10px 'Inter', sans-serif"; c.textBaseline = 'top';
       c.textAlign = idx === 0 ? 'left' : idx === 11 ? 'right' : 'center';
-      c.fillText('Today', x, area.top);
+      c.fillText('Today', x, area.top - 15);
+      c.restore();
+    }
+  };
+}
+
+// v379: a dot on the Actual line at today, and the Plan's end value above its last point
+function moneyProjectionMarksPlugin(todayIdx){
+  return {
+    id: 'projectionMarks',
+    afterDatasetsDraw(chart){
+      const xs = chart.scales && chart.scales.x, ys = chart.scales && chart.scales.y, ds = chart.data && chart.data.datasets;
+      if(!xs || !ys || !ds || ds.length < 2) return;
+      const c = chart.ctx, last = ds[0].data.length - 1;
+      c.save();
+      if(todayIdx >= 0 && todayIdx <= last){
+        let bg = '#fff';
+        try{ const card = chart.canvas.closest('.card'); if(card) bg = getComputedStyle(card).backgroundColor || bg; }catch(e){}
+        c.beginPath(); c.arc(xs.getPixelForValue(todayIdx), ys.getPixelForValue(ds[1].data[todayIdx]), 4, 0, Math.PI * 2);
+        c.fillStyle = '#2FBF8F'; c.fill(); c.lineWidth = 2; c.strokeStyle = bg; c.stroke();
+      }
+      c.fillStyle = chartColors().tick; c.font = "700 10.5px 'Inter', sans-serif"; c.textAlign = 'right'; c.textBaseline = 'bottom';
+      c.fillText(fmtAxisShort(ds[0].data[last]), xs.getPixelForValue(last) - 2, ys.getPixelForValue(ds[0].data[last]) - 6);
       c.restore();
     }
   };
@@ -6602,23 +6614,40 @@ function renderMoneyLineChart(){
   if(!ctx) return;
   if(moneyLineChartInstance){ moneyLineChartInstance.destroy(); moneyLineChartInstance = null; }
   moneyLineChartInstance = buildMoneyProjectionChart(ctx);
-  renderMoneyProjectionSummary(moneyLineChartInstance);
+  renderProjectionHead(moneyLineChartInstance, 'moneyProjectionHead');
 }
-// v330: one-line takeaway under the chart: planned vs actual at the end of the 12 months
-function renderMoneyProjectionSummary(chart){
-  const el = document.getElementById('moneyProjectionSummary');
+// v379: answer first — what is still to go, against the plan, with a progress bar. Used on the Money page and in the account popup.
+function renderProjectionHead(chart, elId){
+  const el = document.getElementById(elId);
   if(!el) return;
   try{
     const ds = chart.data.datasets, labels = chart.data.labels, last = labels.length - 1;
-    const actual = ds.find(x=> x.label === 'Invested + Capital (actual)').data[last];
-    const planned = ds.find(x=> x.label === 'Planned total').data[last];
-    if(!isFinite(actual) || !isFinite(planned) || (actual === 0 && planned === 0)){ el.style.display = 'none'; return; }
-    const gap = planned - actual;
-    const gapTxt = Math.abs(gap) < 0.005 ? 'on plan' : gap > 0 ? fmtMoney(gap) + ' to go' : fmtMoney(-gap) + ' ahead';
+    const plan = ds.find(x=> x.label === 'Plan').data[last];
+    const actual = ds.find(x=> x.label === 'Actual').data[last];
+    if(!isFinite(plan) || !isFinite(actual) || (plan === 0 && actual === 0)){
+      el.innerHTML = '<div class="muted" style="font-size:12.5px;margin:2px 0 6px;">No investments planned in the next 12 months.</div>';
+      return;
+    }
     const endMonth = new Date(homeDate.getFullYear(), homeDate.getMonth() + last, 1).toLocaleString(undefined, {month:'short', year:'numeric'});
-    el.textContent = 'By ' + endMonth + ': planned ' + fmtMoney(planned) + ' \u00b7 actual so far ' + fmtMoney(actual) + ' (' + gapTxt + ')';
-    el.style.display = '';
-  }catch(e){ el.style.display = 'none'; }
+    const gap = plan - actual;
+    let big, bigColor = 'inherit', unit, sub, pctTxt = '', pct = 0;
+    if(plan <= 0){
+      big = fmtMoney(actual); unit = 'invested so far'; sub = 'No plan set for the next 12 months';
+    }else{
+      pct = Math.max(0, Math.min(100, Math.round(actual / plan * 100)));
+      sub = 'of ' + fmtMoney(plan) + ' planned by ' + endMonth;
+      pctTxt = pct + '% of the plan reached \u00b7 ' + fmtMoney(actual) + ' so far';
+      if(Math.abs(gap) < 0.005){ big = 'On plan'; unit = ''; bigColor = 'var(--sage)'; }
+      else if(gap > 0){ big = fmtMoney(gap); unit = 'to go'; }
+      else { big = fmtMoney(-gap); unit = 'ahead'; bigColor = 'var(--sage)'; }
+    }
+    el.innerHTML =
+      '<div style="font-size:26px;font-weight:700;letter-spacing:-.01em;margin-top:2px;color:' + bigColor + ';">' + big +
+        (unit ? ' <span class="muted" style="font-size:14px;font-weight:600;">' + unit + '</span>' : '') + '</div>' +
+      '<div class="muted" style="font-size:12.5px;margin:2px 0 ' + (pctTxt ? '10' : '8') + 'px;">' + sub + '</div>' +
+      (pctTxt ? '<div class="progress-track"><div class="progress-fill" style="width:' + pct + '%"></div></div>' +
+                '<div class="muted" style="font-size:12px;margin:6px 0 10px;">' + pctTxt + '</div>' : '');
+  }catch(e){ el.innerHTML = ''; }
 }
 
 // Net Worth = (cumulative Closed Investment + all-time Capital), plus
@@ -6862,6 +6891,7 @@ function openAccountDetail(sub){
   // draw once the popup is showing, so the chart measures its real width
   if(accountDetailChartInstance){ accountDetailChartInstance.destroy(); accountDetailChartInstance = null; }
   accountDetailChartInstance = buildMoneyProjectionChart(document.getElementById('accountDetailChart'), sub);
+  renderProjectionHead(accountDetailChartInstance, 'accountProjectionHead');
 }
 function closeAccountDetail(){
   _adSub = null;
