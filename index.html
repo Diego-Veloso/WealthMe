@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v374 -->
+<!-- WEALTH.ME — v378 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -2576,6 +2576,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
       <p style="margin:0 0 12px;">Don&rsquo;t have a key yet? <a id="licenseBuyLink" href="https://buy.polar.sh/polar_cl_eyppQ7r0aHIbDccyuk2dMN4DL0YhgZXqXCvDk2Cw9On" target="_blank" rel="noopener noreferrer" style="color:#F7F4EF;font-weight:600;text-decoration:underline;">Get WealthMe</a></p>
       <p style="margin:0 0 10px;"><a id="licensePrivacyLink" class="pp-link" href="privacy.html" target="_blank" rel="noopener" style="color:#F7F4EF;font-weight:600;text-decoration:underline;">Privacy Policy</a></p>
       <p style="margin:0;">Need help? Email<br><a id="licenseMailLink" href="mailto:priscila.support@gmail.com" style="color:#F7F4EF;font-weight:600;text-decoration:underline;">priscila.support@gmail.com</a></p>
+      <p id="licenseVersionText" style="margin:22px 0 0;font-size:12px;color:#6f8394;"></p>
     </div>
   </div>
 </div>
@@ -3102,7 +3103,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         <div id="refreshStatus" class="more-refresh-status"></div>
       </div>
 
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 374</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 378</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -3150,7 +3151,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 374</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 378</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -3213,6 +3214,8 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         <div class="set-head"><span class="acc-ico" style="--c:#C99525;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="15.5" r="5.5"/><path d="M21 2l-9.6 9.6"/><path d="M15.5 7.5l3 3L22 7l-3-3"/></svg></span><div><div class="section-title">License</div>
         <p class="muted" id="licenseInfo"></p></div></div>
         <a class="btn btn-secondary btn-block" id="licenseManageBtn" href="https://polar.sh/priscila-veloso/portal" target="_blank" rel="noopener">Manage your devices</a>
+        <button class="btn btn-secondary btn-block" id="licenseDeactivateBtn" type="button" style="display:none;">Deactivate this device</button>
+        <p class="muted" style="font-size:12px;margin:10px 0 0;display:none;" id="licenseDeactivateNote">Master key: this removes the key from this device only, and the app asks for a key again. Your entries and settings stay on this device.</p>
         <p class="muted" style="font-size:12px;margin:10px 0 0;" id="licenseManageNote">Moving to a new phone or computer, or want to free up a spot? See where your key is active and remove any device you no longer use. You will sign in with the email you used at checkout. Your entries aren&rsquo;t deleted.</p>
       </div>
 
@@ -4387,7 +4390,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 374;
+const APP_VERSION = 378;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -11559,7 +11562,7 @@ const LICENSE_PORTAL_URL = 'https://polar.sh/priscila-veloso/portal';
 // Master key (for the owner): opens the app without Polar and without a device limit.
 // Only a SHA-256 fingerprint of "salt:key" is stored here, never the key itself. Empty = master key off.
 const LICENSE_MASTER_SALT = 'wealthme-license-v1';
-const LICENSE_MASTER_HASH = '8cd655ae1ce825d0133bedc4cb3793f3cf8932ea2f1c3d280eeb70b1179cd4b8';
+const LICENSE_MASTER_HASH = '13f723e1cb8894e75a734ccf0371192632a128b76f7723f86c051fbb670512e8';
 const LICENSE_RECHECK_MS = 60 * 1000;
 const LICENSE_TIMEOUT_MS = 10000;
 const LICENSE_KEY_MAIN   = 'wealthme_license';
@@ -11753,6 +11756,7 @@ function licenseShowScreen(message){
   const lg = document.getElementById('licenseLogo'), src = document.querySelector('.topbar .logo-mark img');
   if(lg && src && !lg.getAttribute('src')) lg.src = src.src;
   el.style.display = 'flex';
+  const vt = document.getElementById('licenseVersionText'); if(vt) vt.textContent = 'WealthMe \u00b7 version ' + APP_VERSION;
   document.getElementById('licenseError').textContent = message || '';
   const input = document.getElementById('licenseInput');
   const btn = document.getElementById('licenseBtn');
@@ -11792,6 +11796,8 @@ function updateLicenseCard(){
   const isMaster = rec.master === true;
   document.getElementById('licenseManageBtn').style.display = isMaster ? 'none' : '';
   document.getElementById('licenseManageNote').style.display = isMaster ? 'none' : '';
+  document.getElementById('licenseDeactivateBtn').style.display = isMaster ? '' : 'none';
+  document.getElementById('licenseDeactivateNote').style.display = isMaster ? '' : 'none';
   card.style.display = '';
 }
 
@@ -11828,6 +11834,16 @@ function licenseBoot(){
   }catch(e){}
   licenseShowScreen('');
 }
+// v377: master key only — remove the key from this device (nothing is sent anywhere) and show the key screen again
+document.getElementById('licenseDeactivateBtn').addEventListener('click', ()=>{
+  const rec = licenseRead();
+  if(!rec || rec.master !== true) return;
+  showConfirm('Deactivate this device?', 'The app will ask for a licence key again on this device. Your entries and settings stay here.', ()=>{
+    licenseClear();
+    updateLicenseCard();
+    licenseShowScreen('');
+  }, {confirmLabel:'Deactivate', cancelLabel:'Cancel'});
+});
 hydrateData().then(licenseBoot);
 
 
