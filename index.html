@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v381 -->
+<!-- WEALTH.ME — v382 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -567,6 +567,11 @@ main{
   cursor:pointer;
 }
 .breakdown-row:last-child{border-bottom:none;}
+/* v382: share bar under each row; the row of the slice selected in the donut is tinted */
+.breakdown-row{flex-wrap:wrap;}
+.breakdown-bar{flex:0 0 100%;height:5px;border-radius:3px;background:color-mix(in srgb,var(--slate) 16%,transparent);margin:7px 0 1px 22px;max-width:calc(100% - 22px);overflow:hidden;}
+.breakdown-bar i{display:block;height:100%;border-radius:3px;}
+.breakdown-row.sel{background:color-mix(in srgb,#0A8FE8 9%,transparent);border-radius:10px;padding-left:8px;padding-right:8px;}
 .breakdown-left{display:flex;align-items:center;gap:10px;}
 .breakdown-swatch{width:10px;height:10px;border-radius:3px;flex-shrink:0;}
 .breakdown-name{font-weight:600;font-size:14px;}
@@ -3104,7 +3109,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         <div id="refreshStatus" class="more-refresh-status"></div>
       </div>
 
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 381</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 382</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -3152,7 +3157,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 381</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 382</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -4392,7 +4397,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 381;
+const APP_VERSION = 382;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -4688,6 +4693,8 @@ let detailSubcategory = CATEGORY_MAP.Income[0];
 
 let lineChartInstance = null;
 let donutChartInstance = null;
+let applyDonutSelection = function(){};   // set by renderDonutChart
+let donutSelSub = null;   // v382: subcategory selected by tapping its slice (null = show the total)
 let donutChartRows = []; // kept in sync with the donut's current slices, for the long-press handler below
 let detailTrendChartInstance = null;
 
@@ -13481,6 +13488,7 @@ function renderDonutChart(){
   const ctx = document.getElementById('donutChart');
   if(donutChartInstance){ donutChartInstance.destroy(); }
 
+  if(!rows.some(r=> r.subcategory === donutSelSub)) donutSelSub = null;
   if(rows.length === 0){
     document.getElementById('donutBreakdownList').innerHTML = '<div class="empty-state"><div class="big">∅</div>No ' + donutCategory.toLowerCase() + ' entries this month.</div>';
     donutChartInstance = new Chart(ctx, {
@@ -13501,18 +13509,46 @@ function renderDonutChart(){
       const {ctx, chartArea} = chart;
       const cx = (chartArea.left + chartArea.right) / 2;
       const cy = (chartArea.top + chartArea.bottom) / 2;
+      const sel = rows.find(r=> r.subcategory === donutSelSub);
+      const maxW = (chartArea.right - chartArea.left) * 0.52;
+      const fit = (txt)=>{ let t = txt; while(t.length > 3 && ctx.measureText(t).width > maxW) t = t.slice(0, -2); return t === txt ? t : t.replace(/\s+$/, '') + '\u2026'; };
       ctx.save();
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.font = "800 18px 'Inter', sans-serif";
-      ctx.fillStyle = chartColors().lineColor;
-      ctx.fillText(fmtMoney(donutTotal), cx, cy - 8);
-      ctx.font = "700 10px 'Inter', sans-serif";
-      ctx.fillStyle = chartColors().tick;
-      ctx.fillText(donutCategory.toUpperCase(), cx, cy + 12);
+      if(!sel){
+        ctx.font = "800 18px 'Inter', sans-serif";
+        ctx.fillStyle = chartColors().lineColor;
+        ctx.fillText(fmtMoney(donutTotal), cx, cy - 8);
+        ctx.font = "700 10px 'Inter', sans-serif";
+        ctx.fillStyle = chartColors().tick;
+        ctx.fillText(donutCategory.toUpperCase(), cx, cy + 12);
+      }else{
+        // v382: the tapped slice — its amount, its name, and how it stands against its budget (or its share of net)
+        let sub = sel.pct.toFixed(1) + '% of net', subColor = chartColors().tick;
+        if(donutCategory === 'Expense'){
+          const target = homeBudgetTarget(sel.subcategory);
+          if(target > 0){ sub = Math.round(sel.amount / target * 100) + '% of budget'; if(sel.amount > target + 0.005) subColor = '#C1583F'; }
+        }
+        ctx.font = "800 17px 'Inter', sans-serif";
+        ctx.fillStyle = chartColors().lineColor;
+        ctx.fillText(fmtMoney(sel.amount), cx, cy - 12);
+        ctx.font = "700 10px 'Inter', sans-serif";
+        ctx.fillStyle = chartColors().tick;
+        ctx.fillText(fit(sel.subcategory.toUpperCase()), cx, cy + 6);
+        ctx.font = "700 10.5px 'Inter', sans-serif";
+        ctx.fillStyle = subColor;
+        ctx.fillText(sub, cx, cy + 21);
+      }
       ctx.restore();
     }
   };
+
+  // slice colours: everything except the selected slice fades while one is selected
+  const sliceColors = ()=> rows.map((_,i)=>{
+    const c = PALETTE[i % PALETTE.length];
+    return (donutSelSub && rows[i].subcategory !== donutSelSub) ? hexToRgba(c, 0.32) : c;
+  });
+  const sliceOffsets = ()=> rows.map(r=> r.subcategory === donutSelSub ? 7 : 0);
 
   donutChartInstance = new Chart(ctx, {
     type: 'doughnut',
@@ -13520,7 +13556,8 @@ function renderDonutChart(){
       labels: rows.map(r=>r.subcategory),
       datasets: [{
         data: rows.map(r=>Math.abs(r.amount)),
-        backgroundColor: rows.map((_,i)=>PALETTE[i % PALETTE.length]),
+        backgroundColor: sliceColors(),
+        offset: sliceOffsets(),
         borderWidth: 0,
         borderRadius: 7,
         spacing: 3,
@@ -13533,35 +13570,27 @@ function renderDonutChart(){
       cutout:'68%',
       plugins:{
         legend:{display:false},
-        tooltip:{
-          backgroundColor: chartColors().tooltipBg,
-          titleColor: chartColors().tooltipText,
-          bodyColor: chartColors().tooltipText,
-          callbacks:{
-            label: (ctx)=>{
-              const row = rows[ctx.dataIndex];
-              const lines = [`${row.subcategory}: ${fmtMoney(row.amount)} (${row.pct.toFixed(1)}% of net)`];
-              if(donutCategory === 'Expense'){
-                const target = homeBudgetTarget(row.subcategory);
-                if(target > 0){
-                  lines.push(`Budget: ${fmtMoney(target)} \u00b7 ${(row.amount / target * 100).toFixed(0)}% used`);
-                }
-              }
-              return lines;
-            }
-          }
-        }
+        tooltip:{ enabled:false }          // v382: the centre of the donut now shows the tapped slice instead
+      },
+      // v382: a tap on a slice selects it (nothing opens); a tap anywhere else clears it. Opening Detail is still
+      // the long-press handler wired once, below, or a tap on a row of the list.
+      onClick: (evt, els, chart) => {
+        try{
+          const hit = (els && els.length) ? els : chart.getElementsAtEventForMode(evt, 'nearest', {intersect:true}, false);
+          const idx = (hit && hit.length) ? hit[0].index : -1;
+          const sub = idx >= 0 ? rows[idx].subcategory : null;
+          donutSelSub = (sub && sub !== donutSelSub) ? sub : null;
+          applyDonutSelection();
+        }catch(e){}
       }
-      // No onClick here on purpose — a plain tap/click no longer opens
-      // Detail (too easy to trigger by accident); see the long-press
-      // handler wired once, below, which is what opens it now.
     },
     plugins: [donutCenterTextPlugin]
   });
 
-  // breakdown list
+  // breakdown list (v382: each row has a bar showing its size against the biggest row)
+  const maxRowAmt = Math.max(...rows.map(r=> Math.abs(r.amount)));
   const listHtml = rows.map((r,i)=>`
-    <div class="breakdown-row" data-sub="${r.subcategory}">
+    <div class="breakdown-row${r.subcategory === donutSelSub ? ' sel' : ''}" data-sub="${r.subcategory}">
       <div class="breakdown-left">
         <div class="breakdown-swatch" style="background:${PALETTE[i % PALETTE.length]}"></div>
         <div class="breakdown-name" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">${r.subcategory}${donutCategory === 'Expense' ? homeBudgetBadge(r.subcategory, r.amount) : ''}</div>
@@ -13570,12 +13599,23 @@ function renderDonutChart(){
         <div class="breakdown-amt">${fmtMoney(r.amount)}</div>
         <div class="breakdown-pct">${r.pct.toFixed(1)}% of net</div>
       </div>
+      <div class="breakdown-bar"><i style="width:${maxRowAmt > 0 ? Math.max(2, Math.round(Math.abs(r.amount) / maxRowAmt * 100)) : 0}%;background:${PALETTE[i % PALETTE.length]};"></i></div>
     </div>
   `).join('');
   document.getElementById('donutBreakdownList').innerHTML = listHtml;
   document.querySelectorAll('#donutBreakdownList .breakdown-row').forEach(row=>{
     row.addEventListener('click', ()=> openDetail(donutCategory, row.dataset.sub));
   });
+  applyDonutSelection = function(){
+    if(!donutChartInstance) return;
+    const ds = donutChartInstance.data.datasets[0];
+    ds.backgroundColor = sliceColors();
+    ds.offset = sliceOffsets();
+    donutChartInstance.update();
+    document.querySelectorAll('#donutBreakdownList .breakdown-row').forEach(r=> r.classList.toggle('sel', r.dataset.sub === donutSelSub));
+    const sel = rows.find(r=> r.subcategory === donutSelSub);
+    ctx.setAttribute('aria-label', sel ? `${sel.subcategory}: ${fmtMoney(sel.amount)}` : 'Breakdown donut chart by subcategory');
+  };
 }
 
 // Press-and-hold on a donut slice (not a plain tap) opens Detail — a
