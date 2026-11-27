@@ -1,4 +1,4 @@
-<!-- WEALTH.ME — v382 -->
+<!-- WEALTH.ME — v383 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -3109,7 +3109,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         <div id="refreshStatus" class="more-refresh-status"></div>
       </div>
 
-      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 382</p>
+      <p class="muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterText">WealthMe · version 383</p>
     </section>
 
     <!-- ===== Settings Page (Subcategories, Debt Accounts) ===== -->
@@ -3157,7 +3157,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
         </button>
       </div>
       <div class="desktop-only-block muted" id="refreshStatusDesktop" style="font-size:12px;margin-top:8px;text-align:center;min-height:18px;"></div>
-      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 382</p>
+      <p class="desktop-only-block muted" style="text-align:center;margin-top:16px;font-size:11px;" id="versionFooterTextDesktop">WealthMe · version 383</p>
     </section>
 
     <!-- ===== Privacy Page (Password) ===== -->
@@ -4397,7 +4397,7 @@ button.chip-tone.on{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--skin-blue);
 // the "WEALTH.ME — vN" comment at the very top of this file. The Refresh
 // App button fetches the live file from GitHub and compares that comment's
 // number against this constant to detect whether an update is available.
-const APP_VERSION = 382;
+const APP_VERSION = 383;
 
 /* ---------- CATEGORY / SUBCATEGORY MAP ---------- */
 const CATEGORY_MAP = {
@@ -13523,12 +13523,8 @@ function renderDonutChart(){
         ctx.fillStyle = chartColors().tick;
         ctx.fillText(donutCategory.toUpperCase(), cx, cy + 12);
       }else{
-        // v382: the tapped slice — its amount, its name, and how it stands against its budget (or its share of net)
-        let sub = sel.pct.toFixed(1) + '% of net', subColor = chartColors().tick;
-        if(donutCategory === 'Expense'){
-          const target = homeBudgetTarget(sel.subcategory);
-          if(target > 0){ sub = Math.round(sel.amount / target * 100) + '% of budget'; if(sel.amount > target + 0.005) subColor = '#C1583F'; }
-        }
+        // v382/v383: the tapped slice — its amount, its name and its share of net
+        const sub = sel.pct.toFixed(1) + '% of net', subColor = chartColors().tick;
         ctx.font = "800 17px 'Inter', sans-serif";
         ctx.fillStyle = chartColors().lineColor;
         ctx.fillText(fmtMoney(sel.amount), cx, cy - 12);
@@ -13589,6 +13585,15 @@ function renderDonutChart(){
 
   // breakdown list (v382: each row has a bar showing its size against the biggest row)
   const maxRowAmt = Math.max(...rows.map(r=> Math.abs(r.amount)));
+  // v383: on the Expense tab each row says how much of its budget is used; rows without a budget (and the Income / Investment tabs) keep "% of net"
+  const rowPctHtml = (r)=>{
+    const target = donutCategory === 'Expense' ? homeBudgetTarget(r.subcategory) : 0;
+    if(target > 0){
+      const over = r.amount > target + 0.005;
+      return `<div class="breakdown-pct"${over ? ' style="color:var(--terracotta);font-weight:600;"' : ''}>${Math.round(r.amount / target * 100)}% of budget</div>`;
+    }
+    return `<div class="breakdown-pct">${r.pct.toFixed(1)}% of net</div>`;
+  };
   const listHtml = rows.map((r,i)=>`
     <div class="breakdown-row${r.subcategory === donutSelSub ? ' sel' : ''}" data-sub="${r.subcategory}">
       <div class="breakdown-left">
@@ -13597,7 +13602,7 @@ function renderDonutChart(){
       </div>
       <div class="breakdown-right">
         <div class="breakdown-amt">${fmtMoney(r.amount)}</div>
-        <div class="breakdown-pct">${r.pct.toFixed(1)}% of net</div>
+        ${rowPctHtml(r)}
       </div>
       <div class="breakdown-bar"><i style="width:${maxRowAmt > 0 ? Math.max(2, Math.round(Math.abs(r.amount) / maxRowAmt * 100)) : 0}%;background:${PALETTE[i % PALETTE.length]};"></i></div>
     </div>
